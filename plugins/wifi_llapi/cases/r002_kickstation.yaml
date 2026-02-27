@@ -1,4 +1,4 @@
-id: wifi-llapi-r002-accesspoint-kickstation
+id: wifi-llapi-r002-kickstation
 name: kickStation() — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:
@@ -34,36 +34,35 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect WiFi Station to GW.
+  command: 1. Connect WiFi Station to GW.
 - id: step2
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.1.? | grep -E 'Associated.1.MACAddress|AuthenticationState'
+  command: Verify station authentication state = 1 ubus-cli WiFi.AccessPoint.1.? | grep -E 'Associated.1.MACAddress|AuthenticationState'
+    WiFi.AccessPoint.1.AssociatedDevice.{i}.AuthenticationState=1 WiFi.AccessPoint.1.AssociatedDevice.{i}.MACAddress="42:33:64:A3:9F:B0"
   depends_on: step1
-  note: Verify station authentication state = 1
 - id: step3
   action: exec
   target: DUT
-  command: ubus-cli "WiFi.AccessPoint.1.kickStation(macaddress=42:33:64:A3:9F:B0)"
+  command: Disconnect station using kick command ubus-cli "WiFi.AccessPoint.1.kickStation(macaddress=42:33:64:A3:9F:B0)"
   depends_on: step2
-  note: Disconnect station using kick command
 - id: step4
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.1.? | grep -E 'Associated1.MACAddress|AuthenticationState'
+  command: Verify station Authentication state = 0 ubus-cli WiFi.AccessPoint.1.? | grep -E 'Associated1.MACAddress|AuthenticationState'
+    WiFi.AccessPoint.1.AssociatedDevice.{i}.AuthenticationState=0 WiFi.AccessPoint.1.AssociatedDevice.{i}.MACAddress="42:33:64:A3:9F:B0""
   depends_on: step3
-  note: Verify station Authentication state = 0
 - id: step5
   action: exec
   target: DUT
   command: Repeat step 1 to step 4 by connecting WiFi station to AccessPoint.3 and AccessPoint.5
-  capture: result
   depends_on: step4
+  capture: result
 pass_criteria:
-- field: result
-  operator: not_contains
-  value: error
-  description: kickStation() 執行不應回傳 error
+- field: result.kickStation()
+  operator: contains
+  value: string):bool"
+  description: kickStation() 應回傳包含 kickStation()=string):bool"
 verification_command: 'AuthenticationState=1 "The station has successfully completed the association procedure and is listed
   in the AP association table"
 

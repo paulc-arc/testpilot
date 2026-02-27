@@ -1,4 +1,4 @@
-id: wifi-llapi-r126-endpoint-intfname
+id: wifi-llapi-r126-intfname
 name: IntfName — WiFi.EndPoint.{i}.
 version: '1.0'
 source:
@@ -18,11 +18,29 @@ topology:
     DUT:
       role: ap
       transport: serial
+    STA:
+      role: sta
+      transport: adb
+      config:
+      - iface: 5g
+        mode: sta
+        ssid: '{{SSID_5G}}'
+        key: '{{KEY_5G}}'
+    EndpointPC:
+      role: endpoint
+      transport: ssh
+  links:
+  - from: STA
+    to: DUT
+    band: 5g
+  - from: DUT
+    to: EndpointPC
+    interface: eth1
 steps:
 - id: query
   action: exec
   target: DUT
-  command: ubus-cli WiFi.EndPoint.{i}.IntfName
+  command: ubus-cli WiFi.EndPoint.{i}.IntfName=wl0
   capture: result
 pass_criteria:
 - field: result.IntfName

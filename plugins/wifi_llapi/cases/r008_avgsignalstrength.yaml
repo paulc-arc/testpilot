@@ -1,4 +1,4 @@
-id: wifi-llapi-r008-accesspoint_associateddevice-avgsignalstrength
+id: wifi-llapi-r008-avgsignalstrength
 name: AvgSignalStrength — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -34,10 +34,10 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: 'ubus-cli WiFi.AccessPoint.*.RssiEventing.Enable=1
-
-    ubus-cli WiFi.AccessPoint.*.RssiEventing.Enable?'
-  note: Enable RssiEventing
+  command: 1. Enable RssiEventing ubus-cli WiFi.AccessPoint.*.RssiEventing.Enable=1 > WiFi.AccessPoint.*.RssiEventing.Enable=1
+    WiFi.AccessPoint.1.RssiEventing.Enable=1 WiFi.AccessPoint.3.RssiEventing.Enable=1 WiFi.AccessPoint.5.RssiEventing.Enable=1
+    ubus-cli WiFi.AccessPoint.*.RssiEventing.Enable? > WiFi.AccessPoint.*.RssiEventing.Enable? WiFi.AccessPoint.1.RssiEventing.Enable=1
+    WiFi.AccessPoint.3.RssiEventing.Enable=1 WiFi.AccessPoint.5.RssiEventing.Enable=1
 - id: step2
   action: exec
   target: DUT
@@ -46,10 +46,10 @@ steps:
 - id: step3
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.AssociatedDevice.? | grep AvgSignalSt
-  capture: result
+  command: Verify Associated station AvgSignalStrength ubus-cli WiFi.AccessPoint.*.AssociatedDevice.? | grep AvgSignalSt rength
+    WiFi.AccessPoint.1.AssociatedDevice.1.AvgSignalStrength=0 WiFi.AccessPoint.3.AssociatedDevice.1.AvgSignalStrength=0 WiFi.AccessPoint.5.AssociatedDevice.1.AvgSignalStrength=0
   depends_on: step2
-  note: Verify Associated station AvgSignalStrength
+  capture: result
 pass_criteria:
 - field: result.AvgSignalStrength
   operator: contains

@@ -1,4 +1,4 @@
-id: wifi-llapi-r046-accesspoint_associateddevice-supportedmcs
+id: wifi-llapi-r046-supportedmcs
 name: SupportedMCS — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -40,7 +40,7 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect WiFi Station to GW
+  command: 1. Connect WiFi Station to GW
 - id: step2
   action: exec
   target: DUT
@@ -49,9 +49,10 @@ steps:
 - id: step3
   action: exec
   target: DUT
-  command: Get Station SupportedMCS
-  capture: result
+  command: Get Station SupportedMCS WiFi.AccessPoint.1.AssociatedDevice.1.SupportedMCS="" WiFi.AccessPoint.3.AssociatedDevice.1.SupportedMCS=""
+    WiFi.AccessPoint.5.AssociatedDevice.1.SupportedMCS=""
   depends_on: step2
+  capture: result
 pass_criteria:
 - field: result.SupportedMCS
   operator: contains
@@ -76,7 +77,9 @@ verification_command: 'wl -i wl0 sta_info ${STA_MAC}
 
   root@prplOS:/# wl -i wl2 sta_info 34:19:4d:a4:b4:33 | grep eht
 
-  eht mcs 9 Nss 4 Tx Exp 0 bw20 ldpc 2xLTF GI 0.8'
+  eht mcs 9 Nss 4 Tx Exp 0 bw20 ldpc 2xLTF GI 0.8us auto
+
+  eht mcs 9 Nss 4 Tx Exp 0 bw20 ldpc 2xLTF GI 0.8us auto'
 results_reference:
   v4.0.1:
     5g: Fail

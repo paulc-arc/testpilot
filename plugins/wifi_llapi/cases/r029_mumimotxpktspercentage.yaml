@@ -1,4 +1,4 @@
-id: wifi-llapi-r029-accesspoint_associateddevice-mumimotxpktspercentage
+id: wifi-llapi-r029-mumimotxpktspercentage
 name: MUMimoTxPktsPercentage — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -18,25 +18,14 @@ topology:
     DUT:
       role: ap
       transport: serial
-    STA:
-      role: sta
-      transport: adb
-      config:
-      - iface: 5g
-        mode: sta
-        ssid: '{{SSID_5G}}'
-        key: '{{KEY_5G}}'
-  links:
-  - from: STA
-    to: DUT
-    band: 5g
 steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.MUMimoTxPktsPercen
+  command: Reference from Test case number 206 "ubus-cli WiFi.Radio.{i}.MultiUserMIMOEnabled=1" ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.MUMimoTxPktsPercen
+    tage? WiFi.AccessPoint.1.AssociatedDevice.1.MUMimoTxPktsPercentage=0 WiFi.AccessPoint.3.AssociatedDevice.1.MUMimoTxPktsPercentage=0
+    WiFi.AccessPoint.5.AssociatedDevice.1.MUMimoTxPktsPercentage=0
   capture: result
-  note: Reference from Test case number 206 "ubus-cli WiFi.Radio.{i}.MultiUserMIMOEnabled=1"
 pass_criteria:
 - field: result.MUMimoTxPktsPercentage
   operator: contains

@@ -1,4 +1,4 @@
-id: wifi-llapi-r168-radio-multiusermimosupported
+id: wifi-llapi-r168-multiusermimosupported
 name: MultiUserMIMOSupported — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -22,9 +22,10 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.MultiUserMIMOSupported?
+  command: '1. Read-only API, defines whether each radio supported MU-MIMO. Check API value and compare with driver return
+    value: ubus-cli WiFi.Radio.*.MultiUserMIMOSupported? > WiFi.Radio.*.MultiUserMIMOSupported? WiFi.Radio.1.MultiUserMIMOSupported=1
+    WiFi.Radio.2.MultiUserMIMOSupported=1 WiFi.Radio.3.MultiUserMIMOSupported=1'
   capture: result
-  note: 'Read-only API, defines whether each radio supported MU-MIMO. Check API value and compare with driver return value:'
 pass_criteria:
 - field: result.MultiUserMIMOSupported
   operator: contains

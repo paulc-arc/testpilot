@@ -1,4 +1,4 @@
-id: wifi-llapi-r037-accesspoint_associateddevice-rxmulticastpacketcount
+id: wifi-llapi-r037-rxmulticastpacketcount
 name: RxMulticastPacketCount — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -40,19 +40,21 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect WiFi station to GW
+  command: 1. Connect WiFi station to GW
 - id: step2
   action: exec
   target: DUT
-  command: Create Multicast group and send Multicast Data between station's
+  command: Create Multicast group and send Multicast Data between station's Station server = iperf -s -u -B 239.1.2.3%br0
+    -i 1 Station Joiner = iperf -c 239.1.2.3 -u -t 10 -b 20M -i 1 -t 100
   depends_on: step1
 - id: step3
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.RxMulticastPacketCount?
-  capture: result
+  command: Check RxMulticastPacketCount ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.RxMulticastPacketCount? > WiFi.AccessPoint.*.AssociatedDevice.*.RxMulticastPacketCount?
+    WiFi.AccessPoint.1.AssociatedDevice.1.RxMulticastPacketCount=0 WiFi.AccessPoint.3.AssociatedDevice.1.RxMulticastPacketCount=0
+    WiFi.AccessPoint.5.AssociatedDevice.1.RxMulticastPacketCount=0
   depends_on: step2
-  note: Check RxMulticastPacketCount
+  capture: result
 pass_criteria:
 - field: result.RxMulticastPacketCount
   operator: contains
@@ -97,7 +99,49 @@ verification_command: 'iw wl0 station dump
 
   tx mcast/bcast pkts: 0
 
-  rx data pkts: 2102'
+  rx data pkts: 2102056
+
+  rx ucast pkts: 1784550
+
+  rx mcast/bcast pkts: 317506
+
+  tx data pkts retried: 0
+
+  tx total pkts sent: 316
+
+  tx pkts retries: 36
+
+  tx pkts retry exhausted: 0
+
+  rx total pkts retried: 110019
+
+  tx acked pkts: 316
+
+  root@prplOS:/# wl -i wl2 sta_info 34:19:4d:a4:b4:33 | grep pkts
+
+  tx total pkts: 21
+
+  tx ucast pkts: 21
+
+  tx mcast/bcast pkts: 0
+
+  rx data pkts: 10468
+
+  rx ucast pkts: 10127
+
+  rx mcast/bcast pkts: 341
+
+  tx data pkts retried: 0
+
+  tx total pkts sent: 21
+
+  tx pkts retries: 50
+
+  tx pkts retry exhausted: 0
+
+  rx total pkts retried: 2903
+
+  tx acked pkts: 21'
 results_reference:
   v4.0.1:
     5g: Fail

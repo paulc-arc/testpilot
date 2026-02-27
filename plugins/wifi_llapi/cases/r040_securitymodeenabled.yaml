@@ -1,4 +1,4 @@
-id: wifi-llapi-r040-accesspoint_associateddevice-securitymodeenabled
+id: wifi-llapi-r040-securitymodeenabled
 name: SecurityModeEnabled — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -34,7 +34,7 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Set GW security mode to WPA#-Personal
+  command: 1. Set GW security mode to WPA#-Personal
 - id: step2
   action: exec
   target: DUT
@@ -43,9 +43,10 @@ steps:
 - id: step3
   action: exec
   target: DUT
-  command: Verify Station SecurityModeEnabled
-  capture: result
+  command: Verify Station SecurityModeEnabled WiFi.AccessPoint.1.AssociatedDevice.1.SecurityModeEnabled="WPA3-Personal" WiFi.AccessPoint.3.AssociatedDevice.1.SecurityModeEnabled="WPA3-Personal"
+    WiFi.AccessPoint.5.AssociatedDevice.1.SecurityModeEnabled="WPA3-Personal"
   depends_on: step2
+  capture: result
 pass_criteria:
 - field: result.SecurityModeEnabled
   operator: contains
@@ -88,7 +89,37 @@ verification_command: 'root@prplOS:/# wl -i wl0 sta_info DE:B4:40:A6:40:D5
 
   in network 54059 seconds
 
-  state: AUTHENTICATED ASSOCIA'
+  state: AUTHENTICATED ASSOCIATED AUTHORIZED
+
+  connection: SECURED
+
+  auth: WPA3-SAE-PSK
+
+  crypto: AES_CCM
+
+
+
+  root@prplOS:/# wl -i wl2 sta_info 34:19:4D:A4:B4:33
+
+  [VER 8] STA 34:19:4D:A4:B4:33:
+
+  chanspec 1 (0x1001)
+
+  aid:9
+
+  rateset [ 1 2 5.5 6 9 11 12 18 24 36 48 54 ]
+
+  idle 1 seconds
+
+  in network 53774 seconds
+
+  state: AUTHENTICATED ASSOCIATED AUTHORIZED
+
+  connection: SECURED
+
+  auth: WPA3-SAE-PSK
+
+  crypto: AES_CCM'
 results_reference:
   v4.0.1:
     5g: Pass

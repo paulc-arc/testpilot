@@ -1,4 +1,4 @@
-id: wifi-llapi-r082-accesspoint_security-modessupported
+id: wifi-llapi-r082-modessupported
 name: ModesSupported — WiFi.AccessPoint.{i}.Security
 version: '1.0'
 source:
@@ -38,19 +38,15 @@ steps:
 - id: step2
   action: exec
   target: DUT
-  command: 'Set Command: ubus-cli WiFi.AccessPoint.{i}.Security.KeyPassPhrase=""12345678""
-
+  command: 'Set/Get Security Key PassPhrase Set Command: ubus-cli WiFi.AccessPoint.{i}.Security.KeyPassPhrase=""12345678""
     Get command: ubus-cli WiFi.AccessPoint.{i}.Security.KeyPassPhrase?'
   depends_on: step1
-  note: Set/Get Security Key PassPhrase
 - id: step3
   action: exec
   target: DUT
-  command: 'Set Command: ubus-cli WiFi.AccessPoint.{i}.Security.ModeEnabled=""""
-
-    Get command: ubus-cli WiFi.AccessPoint.{i}.Security.ModeEnabled?'
+  command: 'Set/Get Security Mode Set Command: ubus-cli WiFi.AccessPoint.{i}.Security.ModeEnabled="""" Get command: ubus-cli
+    WiFi.AccessPoint.{i}.Security.ModeEnabled?'
   depends_on: step2
-  note: Set/Get Security Mode
 - id: step4
   action: exec
   target: DUT
@@ -59,20 +55,16 @@ steps:
 - id: step5
   action: exec
   target: DUT
-  command: 'Command: ubus-cli WiFi.AccessPoint.{i}.? | grep \SecurityModeEnabled='
+  command: 'Connect WiFi Station and Check Security Mode Command: ubus-cli WiFi.AccessPoint.{i}.? | grep \SecurityModeEnabled='
   depends_on: step4
-  note: Connect WiFi Station and Check Security Mode
 - id: step6
   action: exec
   target: DUT
-  command: 'ubus-cli WiFi.AccessPoint.{i}.Security.WEPKey=""12345678""
-
-    ubus-cli WiFi.AccessPoint.{i}.Security.KeyPassPhrase=""12345678""
-
-    ubus-cli WiFi.AccessPoint.{i}.Security.SAEPassphrase=""12345678"""_x0001__x0001__x0001__x0001__x0001__x0001__x0001__x0001__x0001_'
-  capture: result
+  command: 'Repeat step 2 and 4 ""set to other supported Security Mode"" Note: Please use below command to set security Key/SAE
+    For WEP: ubus-cli WiFi.AccessPoint.{i}.Security.WEPKey=""12345678"" For WPA or WP2: ubus-cli WiFi.AccessPoint.{i}.Security.KeyPassPhrase=""12345678""
+    For WPA3: ubus-cli WiFi.AccessPoint.{i}.Security.SAEPassphrase=""12345678"""_x0001__x0001__x0001__x0001__x0001__x0001__x0001__x0001__x0001_'
   depends_on: step5
-  note: Repeat step 2 and 4 ""set to other supported Security Mode""
+  capture: result
 pass_criteria:
 - field: result.ModesSupported
   operator: contains

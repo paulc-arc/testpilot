@@ -1,4 +1,4 @@
-id: wifi-llapi-r339-radio_ieee80211ax-bsscolor
+id: wifi-llapi-r339-bsscolor
 name: BssColor — WiFi.Radio.{i}.IEEE80211ax.
 version: '1.0'
 source:
@@ -22,14 +22,14 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.IEEE80211ax.BssColor=1
-  note: 'Set this value to 1:'
+  command: '1. Set this value to 1: ubus-cli WiFi.Radio.*.IEEE80211ax.BssColor=1'
 - id: step2
   action: exec
   target: DUT
-  command: 'Check the beacon from Wireshark, there should be an IE recording this:'
-  capture: result
+  command: 'Check the beacon from Wireshark, there should be an IE recording this: IEEE 802.11 Wireless Management |_Tagged
+    Parameters |_Ext Tag: HW Operation |_BSS Color Information |_BSS Color'
   depends_on: step1
+  capture: result
 pass_criteria:
 - field: result.BssColor
   operator: contains

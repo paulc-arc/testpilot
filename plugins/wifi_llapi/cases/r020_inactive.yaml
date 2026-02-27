@@ -1,4 +1,4 @@
-id: wifi-llapi-r020-accesspoint_associateddevice-inactive
+id: wifi-llapi-r020-inactive
 name: Inactive — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -34,7 +34,8 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Disconnect WiFi Station and check Station Inactive
+  command: '##Disconnect WiFi Station and check Station Inactive WiFi.AccessPoint.1.AssociatedDevice.1.Inactive=4 WiFi.AccessPoint.3.AssociatedDevice.1.Inactive=2
+    WiFi.AccessPoint.5.AssociatedDevice.1.Inactive=2'
   capture: result
 pass_criteria:
 - field: result.Inactive

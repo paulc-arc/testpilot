@@ -1,4 +1,4 @@
-id: wifi-llapi-r048-accesspoint_associateddevice-tx_retransmissions
+id: wifi-llapi-r048-tx-retransmissions
 name: Tx_Retransmissions — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -34,7 +34,7 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect WiFi station to GW SSID4, SSID6 and SSID8
+  command: 1. Connect WiFi station to GW SSID4, SSID6 and SSID8
 - id: step2
   action: exec
   target: DUT
@@ -43,10 +43,11 @@ steps:
 - id: step3
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.Tx_Retransmissions?
-  capture: result
+  command: Verify Tx_Retransmissions ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.Tx_Retransmissions? > WiFi.AccessPoint.*.AssociatedDevice.*.Tx_Retransmissions?
+    WiFi.AccessPoint.1.AssociatedDevice.1.Tx_Retransmissions=0 WiFi.AccessPoint.1.AssociatedDevice.2.Tx_Retransmissions=0
+    WiFi.AccessPoint.3.AssociatedDevice.1.Tx_Retransmissions=0 WiFi.AccessPoint.5.AssociatedDevice.1.Tx_Retransmissions=0
   depends_on: step2
-  note: Verify Tx_Retransmissions
+  capture: result
 pass_criteria:
 - field: result.Tx_Retransmissions
   operator: contains

@@ -1,4 +1,4 @@
-id: wifi-llapi-r032-accesspoint_associateddevice-operatingstandard
+id: wifi-llapi-r032-operatingstandard
 name: OperatingStandard — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -34,9 +34,11 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.? | grep \.OperatingStandard=
+  command: '##Connect WiFi Station and check Station OperatingStandard ubus-cli WiFi.AccessPoint.? | grep \.OperatingStandard=
+    WiFi.AccessPoint.1.AssociatedDevice.{i}.OperatingStandard="a" WiFi.AccessPoint.2.AssociatedDevice.{i}.OperatingStandard="Unknown"
+    WiFi.AccessPoint.3.AssociatedDevice.{i}.OperatingStandard="be" WiFi.AccessPoint.4.AssociatedDevice.{i}.OperatingStandard="be"
+    WiFi.AccessPoint.5.AssociatedDevice.{i}.OperatingStandard="ax" WiFi.AccessPoint.6.AssociatedDevice.{i}.OperatingStandard="ax"'
   capture: result
-  note: Connect WiFi Station and check Station OperatingStandard
 pass_criteria:
 - field: result.OperatingStandard
   operator: contains

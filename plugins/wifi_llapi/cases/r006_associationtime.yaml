@@ -1,4 +1,4 @@
-id: wifi-llapi-r006-accesspoint_associateddevice-associationtime
+id: wifi-llapi-r006-associationtime
 name: AssociationTime — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -34,14 +34,15 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect WiFi Station to GW
+  command: 1. Connect WiFi Station to GW
 - id: step2
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.AssociatedDevice.? | grep AssociationTime
-  capture: result
+  command: Verify Associated station AssociationTime ubus-cli WiFi.AccessPoint.*.AssociatedDevice.? | grep AssociationTime
+    WiFi.AccessPoint.1.AssociatedDevice.1.AssociationTime="2025-11-21T09:17:48Z" WiFi.AccessPoint.3.AssociatedDevice.1.AssociationTime="2025-11-21T09:23:39Z"
+    WiFi.AccessPoint.5.AssociatedDevice.1.AssociationTime="2025-11-21T09:20:45Z"
   depends_on: step1
-  note: Verify Associated station AssociationTime
+  capture: result
 pass_criteria:
 - field: result.AssociationTime
   operator: contains

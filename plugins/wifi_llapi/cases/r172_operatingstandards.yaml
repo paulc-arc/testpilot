@@ -1,4 +1,4 @@
-id: wifi-llapi-r172-radio-operatingstandards
+id: wifi-llapi-r172-operatingstandards
 name: OperatingStandards — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -18,22 +18,30 @@ topology:
     DUT:
       role: ap
       transport: serial
+    STA:
+      role: sta
+      transport: adb
+      config:
+      - iface: 5g
+        mode: sta
+        ssid: '{{SSID_5G}}'
+        key: '{{KEY_5G}}'
+  links:
+  - from: STA
+    to: DUT
+    band: 5g
 steps:
 - id: step1
   action: exec
   target: DUT
-  command: 'ubus-cli WiFi.Radio.1.OperatingStandards=be
-
-    ubus-cli WiFi.Radio.2.OperatingStandards=be
-
+  command: '1. Try change all radio to BE standard: ubus-cli WiFi.Radio.1.OperatingStandards=be ubus-cli WiFi.Radio.2.OperatingStandards=be
     ubus-cli WiFi.Radio.3.OperatingStandards=be'
-  note: 'Try change all radio to BE standard:'
 - id: step2
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.OperatingStandards?
+  command: 'Check standard: ubus-cli WiFi.Radio.*.OperatingStandards? > WiFi.Radio.*.OperatingStandards? WiFi.Radio.1.OperatingStandards="be"
+    WiFi.Radio.2.OperatingStandards="be" WiFi.Radio.3.OperatingStandards="be"'
   depends_on: step1
-  note: 'Check standard:'
 - id: step3
   action: exec
   target: DUT
@@ -43,15 +51,14 @@ steps:
 - id: step4
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.OperatingStandards=ax
+  command: 'Change all radio to AX standard: ubus-cli WiFi.Radio.*.OperatingStandards=ax'
   depends_on: step3
-  note: 'Change all radio to AX standard:'
 - id: step5
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.OperatingStandards?
+  command: 'Check standard: ubus-cli WiFi.Radio.*.OperatingStandards? > WiFi.Radio.*.OperatingStandards? WiFi.Radio.1.OperatingStandards="ax"
+    WiFi.Radio.2.OperatingStandards="ax" WiFi.Radio.3.OperatingStandards="ax"'
   depends_on: step4
-  note: 'Check standard:'
 - id: step6
   action: exec
   target: DUT
@@ -61,9 +68,10 @@ steps:
 - id: step7
   action: exec
   target: DUT
-  command: Switch according to the 802.11 standard supported by each radio and verify each one individually-
-  capture: result
+  command: Switch according to the 802.11 standard supported by each radio and verify each one individually- WiFi.Radio.1.SupportedStandards="a,n,an,ac,ax,be"
+    WiFi.Radio.2.SupportedStandards="ax,be" WiFi.Radio.3.SupportedStandards="b,g,n,bg,gn,bgn,ax,be"
   depends_on: step6
+  capture: result
 pass_criteria:
 - field: result.OperatingStandards
   operator: contains
@@ -104,7 +112,200 @@ verification_command: '[BE]
 
   Supported HT MCS : 0-31
 
-  Supported VHT MCS:'
+  Supported VHT MCS:
+
+  NSS1 Tx: 0-11 Rx: 0-11
+
+  NSS2 Tx: 0-11 Rx: 0-11
+
+  NSS3 Tx: 0-11 Rx: 0-11
+
+  NSS4 Tx: 0-11 Rx: 0-11
+
+  QBSS Channel Utilization: 0x9f (62 %)
+
+
+  root@prplOS:/# wl -i wl0 nmode
+
+  4
+
+  root@prplOS:/# wl -i wl0 vhtmode
+
+  1
+
+  root@prplOS:/# wl -i wl0 he features
+
+  0 (0x0)
+
+  root@prplOS:/# wl -i wl0 eht features
+
+  127 (0x7f)
+
+
+  root@prplOS:/# wl -i wl1 status
+
+  SSID: "AAA_ATnT-wl1"
+
+  Mode: Managed RSSI: 0 dBm SNR: 0 dB noise: -99 dBm Channel: 6g141
+
+  BSSID: 64:75:DA:4E:51:66 Capability: ESS RRM
+
+  Beacon Interval: 100 msecs
+
+  Supported Rates: [ 6(b) 9 12 18 24(b) 36 48 54 ]
+
+  EHT Capable:
+
+  Chanspec: 6GHz channel 141 20MHz (0x508d)
+
+  Primary channel: 141
+
+  Supported HE MCS:
+
+  20/40/80 MHz:
+
+  NSS1 Tx: 0-11 Rx: 0-11
+
+  NSS2 Tx: 0-11 Rx: 0-11
+
+  NSS3 Tx: 0-11 Rx: 0-11
+
+  160 MHz:
+
+  NSS1 Tx: 0-11 Rx: 0-11
+
+  NSS2 Tx: 0-11 Rx: 0-11
+
+  NSS3 Tx: 0-11 Rx: 0-11
+
+  BSS Color: 0x0 Partial BSS Color: false
+
+  BSS Color Disabled: false
+
+  Supported EHT MCS:
+
+  20/40/80 MHz:
+
+  NSS1 Tx: 0-13 Rx: 0-13
+
+  NSS2 Tx: 0-13 Rx: 0-13
+
+  NSS3 Tx: 0-13 Rx: 0-13
+
+  160 MHz:
+
+  NSS1 Tx: 0-13 Rx: 0-13
+
+  NSS2 Tx: 0-13 Rx: 0-13
+
+  NSS3 Tx: 0-13 Rx: 0-13
+
+  320 MHz:
+
+  NSS1 Tx: 0-13 Rx: 0-13
+
+  NSS2 Tx: 0-13 Rx: 0-13
+
+  NSS3 Tx: 0-13 Rx: 0-13
+
+  QBSS Channel Utilization: 0x5 (1 %)
+
+
+  root@prplOS:/# wl -i wl1 nmode
+
+  3
+
+  root@prplOS:/# wl -i wl1 vhtmode
+
+  1
+
+  root@prplOS:/# wl -i wl1 he features
+
+  0 (0x0)
+
+  root@prplOS:/# wl -i wl1 eht features
+
+  127 (0x7f)
+
+
+  root@prplOS:/# wl -i wl2 status
+
+  SSID: "AAA_ATnT-wl2"
+
+  Mode: Managed RSSI: 0 dBm SNR: 0 dB noise: -99 dBm Channel: 1
+
+  BSSID: 64:75:DA:4E:51:77 Capability: ESS ShortSlot RRM
+
+  Beacon Interval: 100 msecs
+
+  Supported Rates: [ 1(b) 2(b) 5.5(b) 6 9 11(b) 12 18 24 36 48 54 ]
+
+  EHT Capable:
+
+  Chanspec: 2.4GHz channel 1 20MHz (0x1001)
+
+  Primary channel: 1
+
+  HT Capabilities: 40MHz SGI20 SGI40
+
+  Supported HT MCS : 0-31
+
+  Supported VHT MCS:
+
+  NSS1 Tx: 0-11 Rx: 0-11
+
+  NSS2 Tx: 0-11 Rx: 0-11
+
+  NSS3 Tx: 0-11 Rx: 0-11
+
+  NSS4 Tx: 0-11 Rx: 0-11
+
+  Supported HE MCS:
+
+  20/40/80 MHz:
+
+  NSS1 Tx: 0-11 Rx: 0-11
+
+  NSS2 Tx: 0-11 Rx: 0-11
+
+  NSS3 Tx: 0-11 Rx: 0-11
+
+  NSS4 Tx: 0-11 Rx: 0-11
+
+  BSS Color: 0x0 Partial BSS Color: false
+
+  BSS Color Disabled: false
+
+  Supported EHT MCS:
+
+  20/40/80 MHz:
+
+  NSS1 Tx: 0-13 Rx: 0-13
+
+  NSS2 Tx: 0-13 Rx: 0-13
+
+  NSS3 Tx: 0-13 Rx: 0-13
+
+  NSS4 Tx: 0-13 Rx: 0-13
+
+  QBSS Channel Utilization: 0xc4 (76 %)
+
+
+  root@prplOS:/# wl -i wl2 nmode
+
+  4
+
+  root@prplOS:/# wl -i wl2 vhtmode
+
+  1
+
+  root@prplOS:/# wl -i wl2 he features
+
+  63 (0x3f)
+
+  root@prplOS:/# wl -i wl2 eht features
+
+  127 (0x7f)'
 results_reference:
   v4.0.1:
     5g: Fail

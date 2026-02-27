@@ -1,4 +1,4 @@
-id: wifi-llapi-r178-radio-supportedstandards
+id: wifi-llapi-r178-supportedstandards
 name: SupportedStandards — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -18,14 +18,26 @@ topology:
     DUT:
       role: ap
       transport: serial
+    STA:
+      role: sta
+      transport: adb
+      config:
+      - iface: 5g
+        mode: sta
+        ssid: '{{SSID_5G}}'
+        key: '{{KEY_5G}}'
+  links:
+  - from: STA
+    to: DUT
+    band: 5g
 steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.SupportedStandards?
+  command: '1. Read-only API, defines each radio supported standard. Check the API value and make sure the standard matches
+    the band: ubus-cli WiFi.Radio.*.SupportedStandards? > WiFi.Radio.*.SupportedStandards? WiFi.Radio.1.SupportedStandards="a,n,an,ac,ax,be"
+    WiFi.Radio.2.SupportedStandards="ax,be" WiFi.Radio.3.SupportedStandards="b,g,n,bg,gn,bgn,ax,be"'
   capture: result
-  note: 'Read-only API, defines each radio supported standard. Check the API value and make sure the standard matches the
-    band:'
 pass_criteria:
 - field: result.SupportedStandards
   operator: contains

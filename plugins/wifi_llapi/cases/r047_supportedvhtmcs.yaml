@@ -1,4 +1,4 @@
-id: wifi-llapi-r047-accesspoint_associateddevice-supportedvhtmcs
+id: wifi-llapi-r047-supportedvhtmcs
 name: SupportedVhtMCS — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -18,25 +18,15 @@ topology:
     DUT:
       role: ap
       transport: serial
-    STA:
-      role: sta
-      transport: adb
-      config:
-      - iface: 5g
-        mode: sta
-        ssid: '{{SSID_5G}}'
-        key: '{{KEY_5G}}'
-  links:
-  - from: STA
-    to: DUT
-    band: 5g
 steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.? | grep Supported
+  command: it is the same as RxSupportedVhtMCS and TxSupportedVhtMCS as shown below? ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.?
+    | grep Supported VhtMCS WiFi.AccessPoint.1.AssociatedDevice.1.RxSupportedVhtMCS="9,9,9,9" WiFi.AccessPoint.1.AssociatedDevice.1.TxSupportedVhtMCS="9,9,9,9"
+    WiFi.AccessPoint.3.AssociatedDevice.1.RxSupportedVhtMCS="" WiFi.AccessPoint.3.AssociatedDevice.1.TxSupportedVhtMCS=""
+    WiFi.AccessPoint.5.AssociatedDevice.1.RxSupportedVhtMCS="" WiFi.AccessPoint.5.AssociatedDevice.1.TxSupportedVhtMCS=""
   capture: result
-  note: it is the same as RxSupportedVhtMCS and TxSupportedVhtMCS as shown below?
 pass_criteria:
 - field: result.SupportedVhtMCS
   operator: contains

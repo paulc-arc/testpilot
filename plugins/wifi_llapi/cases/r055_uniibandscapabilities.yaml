@@ -1,4 +1,4 @@
-id: wifi-llapi-r055-accesspoint_associateddevice-uniibandscapabilities
+id: wifi-llapi-r055-uniibandscapabilities
 name: UNIIBandsCapabilities — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -34,9 +34,10 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.? | grep UNIIBands
+  command: '##Connect WiFi Station and check Station UNIIBandsCapabilities ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.?
+    | grep UNIIBands Capabilities WiFi.AccessPoint.1.AssociatedDevice.1.UNIIBandsCapabilities="U-NII-1,U-NII-2A,U-NII-2C,U-NII-3,U-NII-4"
+    WiFi.AccessPoint.3.AssociatedDevice.1.UNIIBandsCapabilities="U-NII-5,U-NII-6,U-NII-7,U-NII-8" WiFi.AccessPoint.5.AssociatedDevice.1.UNIIBandsCapabilities="U-NII-1,U-NII-2A,U-NII-2C,U-NII-3,U-NII-4,U-NII-5,U-NII-6,U-NII-7,U-NII-8"'
   capture: result
-  note: Connect WiFi Station and check Station UNIIBandsCapabilities
 pass_criteria:
 - field: result.UNIIBandsCapabilities
   operator: contains

@@ -1,4 +1,4 @@
-id: wifi-llapi-r072-accesspoint_macfiltering_entry-entry
+id: wifi-llapi-r072-entry
 name: Entry — WiFi.AccessPoint.{i}.MACFiltering.Entry
 version: '1.0'
 source:
@@ -22,14 +22,18 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.? | grep MACFiltering.Entry
+  command: ubus-cli WiFi.AccessPoint.? | grep MACFiltering.Entry WiFi.AccessPoint.1.MACFiltering.Entry.1. WiFi.AccessPoint.1.MACFiltering.Entry.1.Alias="cpe-Entry-1"
+    WiFi.AccessPoint.1.MACFiltering.Entry.1.MACAddress="62:2F:B8:66:BB:82" WiFi.AccessPoint.1.MACFiltering.Entry.2. WiFi.AccessPoint.1.MACFiltering.Entry.2.Alias="cpe-Entry-2"
+    WiFi.AccessPoint.1.MACFiltering.Entry.2.MACAddress="FA:DD:AC:24:5A:B4" WiFi.AccessPoint.1.MACFiltering.Entry.3. WiFi.AccessPoint.1.MACFiltering.Entry.3.Alias="cpe-Entry-3"
+    WiFi.AccessPoint.1.MACFiltering.Entry.3.MACAddress="FA:A0:DF:91:47:7C" WiFi.AccessPoint.3.MACFiltering.Entry.1. WiFi.AccessPoint.3.MACFiltering.Entry.1.Alias="cpe-Entry-1"
+    WiFi.AccessPoint.3.MACFiltering.Entry.1.MACAddress="FA:A0:DF:91:47:7C" WiFi.AccessPoint.5.MACFiltering.Entry.1. WiFi.AccessPoint.5.MACFiltering.Entry.1.Alias="cpe-Entry-1"
+    WiFi.AccessPoint.5.MACFiltering.Entry.1.MACAddress="62:2F:B8:66:BB:82"
   capture: result
-  note: root@prplOS:/# ubus-cli WiFi.AccessPoint.? | grep MACFiltering.Entry
 pass_criteria:
 - field: result
-  operator: not_contains
-  value: error
-  description: Entry 執行不應回傳 error
+  operator: not_empty
+  value: ''
+  description: Entry 應回傳非空結果
 verification_command: 'cat /tmp/wl0_hapd.conf
 
   accept_mac_file=/tmp/hostap_wl0.acl

@@ -1,4 +1,4 @@
-id: wifi-llapi-r286-radio-radcapabilitieshephysstr
+id: wifi-llapi-r286-radcapabilitieshephysstr
 name: RadCapabilitiesHePhysStr — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -22,19 +22,20 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.RadCapabilitiesHePhysStr?
-  note: get RadCapabilitiesHePhysStr
+  command: 1. get RadCapabilitiesHePhysStr ubus-cli WiFi.Radio.*.RadCapabilitiesHePhysStr? > WiFi.Radio.*.RadCapabilitiesHePhysStr?
+    WiFi.Radio.1.RadCapabilitiesHePhysStr="40_80MHZ_5GHZ,160MHZ_5GHZ,FULL_UL_MU_MIMO,SU_BEAMFORMER,MU_BEAMFORMER" WiFi.Radio.2.RadCapabilitiesHePhysStr="40_80MHZ_5GHZ,160MHZ_5GHZ,FULL_UL_MU_MIMO,SU_BEAMFORMER,MU_BEAMFORMER"
+    WiFi.Radio.3.RadCapabilitiesHePhysStr="40MHZ_2_4GHZ,FULL_UL_MU_MIMO,SU_BEAMFORMER,MU_BEAMFORMER"
 - id: step2
   action: exec
   target: DUT
   command: Verify Beacon packet supprt HE
-  capture: result
   depends_on: step1
+  capture: result
 pass_criteria:
 - field: result.RadCapabilitiesHePhysStr
   operator: contains
-  value: 40MHZ_2_4GHZ
-  description: RadCapabilitiesHePhysStr 應回傳包含 RadCapabilitiesHePhysStr=40MHZ_2_4GHZ
+  value: '"40MHZ_2_4GHZ"'
+  description: RadCapabilitiesHePhysStr 應回傳包含 RadCapabilitiesHePhysStr="40MHZ_2_4GHZ"
 results_reference:
   v4.0.1:
     5g: Pass

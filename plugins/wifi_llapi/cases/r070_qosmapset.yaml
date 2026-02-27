@@ -1,4 +1,4 @@
-id: wifi-llapi-r070-accesspoint_ieee80211u-qosmapset
+id: wifi-llapi-r070-qosmapset
 name: QoSMapSet — WiFi.AccessPoint.{i}.IEEE80211u
 version: '1.0'
 source:
@@ -22,20 +22,23 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.IEEE80211u.QoSMapSet="0,7,8,15,255,25
-  note: Set QoSMapSet
+  command: \\Set QoSMapSet ubus-cli WiFi.AccessPoint.*.IEEE80211u.QoSMapSet="0,7,8,15,255,25 5,255,255,255,255,16,23,24,31,255,255"
+    > WiFi.AccessPoint.*.IEEE80211u.QoSMapSet=0,7,8,15,255,255,255,255,255,255,16,23,24,31,255,255 WiFi.AccessPoint.1.IEEE80211u.QoSMapSet="255"
+    WiFi.AccessPoint.2.IEEE80211u.QoSMapSet="255" WiFi.AccessPoint.3.IEEE80211u.QoSMapSet="255" WiFi.AccessPoint.4.IEEE80211u.QoSMapSet="255"
+    WiFi.AccessPoint.5.IEEE80211u.QoSMapSet="255" WiFi.AccessPoint.6.IEEE80211u.QoSMapSet="255"
 - id: step2
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.IEEE80211u.QoSMapSet?
-  capture: result
+  command: Get QoSMapSet to check the settings ubus-cli WiFi.AccessPoint.*.IEEE80211u.QoSMapSet? > WiFi.AccessPoint.*.IEEE80211u.QoSMapSet?
+    WiFi.AccessPoint.1.IEEE80211u.QoSMapSet="255" WiFi.AccessPoint.2.IEEE80211u.QoSMapSet="255" WiFi.AccessPoint.3.IEEE80211u.QoSMapSet="255"
+    WiFi.AccessPoint.4.IEEE80211u.QoSMapSet="255" WiFi.AccessPoint.5.IEEE80211u.QoSMapSet="255" WiFi.AccessPoint.6.IEEE80211u.QoSMapSet="255"
   depends_on: step1
-  note: Get QoSMapSet to check the settings
+  capture: result
 pass_criteria:
 - field: result
-  operator: not_contains
-  value: error
-  description: QoSMapSet 執行不應回傳 error
+  operator: not_empty
+  value: ''
+  description: QoSMapSet 應回傳非空結果
 results_reference:
   v4.0.1:
     5g: Fail

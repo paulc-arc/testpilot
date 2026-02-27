@@ -1,4 +1,4 @@
-id: wifi-llapi-r039-accesspoint_associateddevice-rxunicastpacketcount
+id: wifi-llapi-r039-rxunicastpacketcount
 name: RxUnicastPacketCount — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -34,7 +34,7 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect WiFi station to GW SSID4, SSID6 and SSID8
+  command: 1. Connect WiFi station to GW SSID4, SSID6 and SSID8
 - id: step2
   action: exec
   target: DUT
@@ -43,10 +43,11 @@ steps:
 - id: step3
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.RxUnicastPacketCount?
-  capture: result
+  command: Verify RxUnicastPacketCount ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.RxUnicastPacketCount? > WiFi.AccessPoint.*.AssociatedDevice.*.RxUnicastPacketCount?
+    WiFi.AccessPoint.1.AssociatedDevice.1.RxUnicastPacketCount=0 WiFi.AccessPoint.3.AssociatedDevice.1.RxUnicastPacketCount=0
+    WiFi.AccessPoint.5.AssociatedDevice.1.RxUnicastPacketCount=0
   depends_on: step2
-  note: Verify RxUnicastPacketCount
+  capture: result
 pass_criteria:
 - field: result.RxUnicastPacketCount
   operator: contains
@@ -89,7 +90,51 @@ verification_command: 'iw wl0 station dump
 
   tx ucast pkts: 340127
 
-  tx mcast/bcast'
+  tx mcast/bcast pkts: 0
+
+  rx data pkts: 2784483
+
+  rx ucast pkts: 2784324
+
+  rx mcast/bcast pkts: 159
+
+  tx data pkts retried: 0
+
+  tx total pkts sent: 340124
+
+  tx pkts retries: 19137
+
+  tx pkts retry exhausted: 3
+
+  rx total pkts retried: 23
+
+  tx acked pkts: 340121
+
+  root@prplOS:/# wl -i wl2 sta_info 34:19:4d:a4:b4:33 | grep pkts
+
+  tx total pkts: 90336
+
+  tx ucast pkts: 90336
+
+  tx mcast/bcast pkts: 0
+
+  rx data pkts: 204439
+
+  rx ucast pkts: 203698
+
+  rx mcast/bcast pkts: 741
+
+  tx data pkts retried: 0
+
+  tx total pkts sent: 87921
+
+  tx pkts retries: 19875
+
+  tx pkts retry exhausted: 1355
+
+  rx total pkts retried: 3405
+
+  tx acked pkts: 86566'
 results_reference:
   v4.0.1:
     5g: Fail

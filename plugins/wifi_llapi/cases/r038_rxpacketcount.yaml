@@ -1,4 +1,4 @@
-id: wifi-llapi-r038-accesspoint_associateddevice-rxpacketcount
+id: wifi-llapi-r038-rxpacketcount
 name: RxPacketCount — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -40,7 +40,7 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect WiFi station to GW
+  command: \\Connect WiFi station to GW
 - id: step2
   action: exec
   target: DUT
@@ -49,10 +49,10 @@ steps:
 - id: step3
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.RxPacketCount?
-  capture: result
+  command: Get stats of RxPacketCount using ubus command ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.RxPacketCount? > WiFi.AccessPoint.*.AssociatedDevice.*.RxPacketCount?
+    WiFi.AccessPoint.1.AssociatedDevice.1.RxPacketCount=51 WiFi.AccessPoint.3.AssociatedDevice.1.RxPacketCount=2784444 WiFi.AccessPoint.5.AssociatedDevice.1.RxPacketCount=203741
   depends_on: step2
-  note: Get stats of RxPacketCount using ubus command
+  capture: result
 pass_criteria:
 - field: result.RxPacketCount
   operator: contains
@@ -102,7 +102,35 @@ verification_command: 'iw wl0 station dump
 
   signal: -35 [-34] dBm
 
-  si'
+  signal avg: -35 [-34] dBm
+
+  tx bitrate: 3843.1 MBit/s 160MHz
+
+  rx bitrate: 4537.0 MBit/s 160MHz
+
+  root@prplOS:/# iw wl2 station dump
+
+  Station 34:19:4d:a4:b4:33 (on wl2)
+
+  inactive time: 3000 ms
+
+  rx bytes: 226211195
+
+  rx packets: 203551
+
+  tx bytes: 210402098
+
+  tx packets: 90327
+
+  tx failed: 1355
+
+  signal: -27 [-23] dBm
+
+  signal avg: -27 [-25] dBm
+
+  tx bitrate: 309.7 MBit/s
+
+  rx bitrate: 387.0 MBit/s'
 results_reference:
   v4.0.1:
     5g: Pass

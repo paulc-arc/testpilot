@@ -1,4 +1,4 @@
-id: wifi-llapi-r035-accesspoint_associateddevice-rx_retransmissions
+id: wifi-llapi-r035-rx-retransmissions
 name: Rx_Retransmissions — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -40,7 +40,7 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect WiFi station to GW
+  command: 1. Connect WiFi station to GW
 - id: step2
   action: exec
   target: DUT
@@ -49,10 +49,11 @@ steps:
 - id: step3
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.Rx_Retransmissions
-  capture: result
+  command: Get stats of Rx_Retransmissions using ubus command ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.Rx_Retransmissions
+    ? > WiFi.AccessPoint.*.AssociatedDevice.*.Rx_Retransmissions? WiFi.AccessPoint.1.AssociatedDevice.1.Rx_Retransmissions=0
+    WiFi.AccessPoint.3.AssociatedDevice.1.Rx_Retransmissions=0 WiFi.AccessPoint.5.AssociatedDevice.1.Rx_Retransmissions=0
   depends_on: step2
-  note: Get stats of Rx_Retransmissions using ubus command
+  capture: result
 pass_criteria:
 - field: result.Rx_Retransmissions
   operator: contains
@@ -96,7 +97,49 @@ verification_command: '"wl -i wl0 sta_info ${STA_MAC}
 
   rx data pkts: 2784399
 
-  rx uc'
+  rx ucast pkts: 2784294
+
+  rx mcast/bcast pkts: 105
+
+  tx data pkts retried: 0
+
+  tx total pkts sent: 340086
+
+  tx pkts retries: 19137
+
+  tx pkts retry exhausted: 3
+
+  rx total pkts retried: 21
+
+  tx acked pkts: 340083
+
+  root@prplOS:/# wl -i wl2 sta_info 34:19:4d:a4:b4:33 | grep pkts
+
+  tx total pkts: 90320
+
+  tx ucast pkts: 90320
+
+  tx mcast/bcast pkts: 0
+
+  rx data pkts: 202933
+
+  rx ucast pkts: 202460
+
+  rx mcast/bcast pkts: 473
+
+  tx data pkts retried: 0
+
+  tx total pkts sent: 87907
+
+  tx pkts retries: 19816
+
+  tx pkts retry exhausted: 1355
+
+  rx total pkts retried: 2141
+
+  tx acked pkts: 86552
+
+  root@prplOS:/#"'
 results_reference:
   v4.0.1:
     5g: Fail

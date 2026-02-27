@@ -1,4 +1,4 @@
-id: wifi-llapi-r027-accesspoint_associateddevice-mugroupid
+id: wifi-llapi-r027-mugroupid
 name: MUGroupId — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -34,13 +34,16 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect two WiFi Station to the Radio
+  command: \\Connect two WiFi Station to the Radio
 - id: step2
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.? | grep HeCapabil
+  command: 'Check Capabilities to make sure it support ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.? | grep HeCapabil ities
+    WiFi.AccessPoint.1.AssociatedDevice.1.HeCapabilities=""SU&MU-BFE"" WiFi.AccessPoint.1.AssociatedDevice.2.HeCapabilities=""SU&MU-BFE""
+    Note: SU-BFE → Single-User Beamforming EE (STA can be beamformed to). MU-BFE → Multi-User Beamforming EE (STA can be part
+    of MU-MIMO downlink). So the station SU & MU-BFE is able to receive MU-MIMO transmissions from the AP. This is a requirement
+    for MU-MIMO grouping.'
   depends_on: step1
-  note: Check Capabilities to make sure it support
 - id: step3
   action: exec
   target: DUT
@@ -49,10 +52,10 @@ steps:
 - id: step4
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.MUGroupId?
-  capture: result
+  command: Check MUGroupId ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.MUGroupId? > WiFi.AccessPoint.*.AssociatedDevice.*.MUGroupId?
+    WiFi.AccessPoint.1.AssociatedDevice.1.MUGroupId=0 WiFi.AccessPoint.1.AssociatedDevice.2.MUGroupId=0"
   depends_on: step3
-  note: Check MUGroupId
+  capture: result
 pass_criteria:
 - field: result.MUGroupId
   operator: contains

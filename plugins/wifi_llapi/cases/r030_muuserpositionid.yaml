@@ -1,4 +1,4 @@
-id: wifi-llapi-r030-accesspoint_associateddevice-muuserpositionid
+id: wifi-llapi-r030-muuserpositionid
 name: MUUserPositionId — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -40,7 +40,7 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect WiFi Station
+  command: \\Connect WiFi Station
 - id: step2
   action: exec
   target: DUT
@@ -49,18 +49,19 @@ steps:
 - id: step3
   action: exec
   target: DUT
-  command: 'wl -i wl0 sta_info 34:19:4d:a4:b5:09 | grep ''caps''
-
-    wl -i wl1 sta_info 38:06:E6:92:B0:4A | grep ''caps'''
+  command: 'Get station caps wl -i wl0 sta_info 34:19:4d:a4:b5:09 | grep ''caps'' HT caps 0x9ef: LDPC 40MHz SGI20 SGI40 STBC-Tx
+    STBC-Rx VHT caps 0xff: LDPC SGI80 SGI160 STBC-Tx STBC-Rx SU-BFR SU-BFE MU-BFR HE caps 0xc6639: LDPC HE-HTC SU-BFR SU&MU-BFE
+    EHT caps 0x105: SU-BFR SU&MU-BFE wl -i wl1 sta_info 38:06:E6:92:B0:4A | grep ''caps'' HT caps 0x0: HE caps 0xc6639: LDPC
+    HE-HTC SU-BFR SU&MU-BFE EHT caps 0x105: SU-BFR SU&MU-BFE'
   depends_on: step2
-  note: Get station caps
 - id: step4
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.MUUserPositionId?
-  capture: result
+  command: 'get MUUserPositionId ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.MUUserPositionId? sitionId? CFG80211-ERROR)
+    wl_cfg80211_sta_info : GET STA INFO failed, -21 WiFi.AccessPoint.1.AssociatedDevice.1.MUUserPositionId=0 WiFi.AccessPoint.3.AssociatedDevice.1.MUUserPositionId=0
+    WiFi.AccessPoint.5.AssociatedDevice.1.MUUserPositionId=0'
   depends_on: step3
-  note: get MUUserPositionId
+  capture: result
 pass_criteria:
 - field: result.MUUserPositionId
   operator: contains

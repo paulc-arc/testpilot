@@ -1,4 +1,4 @@
-id: wifi-llapi-r127-endpoint-multiapenable
+id: wifi-llapi-r127-multiapenable
 name: MultiAPEnable — WiFi.EndPoint.{i}.
 version: '1.0'
 source:
@@ -18,11 +18,18 @@ topology:
     DUT:
       role: ap
       transport: serial
+    EndpointPC:
+      role: endpoint
+      transport: ssh
+  links:
+  - from: DUT
+    to: EndpointPC
+    interface: eth1
 steps:
 - id: query
   action: exec
   target: DUT
-  command: ubus-cli WiFi.EndPoint.{i}.MultiAPEnable
+  command: ubus-cli WiFi.EndPoint.{i}.MultiAPEnable=1
   capture: result
 pass_criteria:
 - field: result.MultiAPEnable

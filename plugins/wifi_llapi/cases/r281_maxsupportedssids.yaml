@@ -1,4 +1,4 @@
-id: wifi-llapi-r281-radio-maxsupportedssids
+id: wifi-llapi-r281-maxsupportedssids
 name: MaxSupportedSSIDs — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -22,9 +22,10 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.SSID.*.SSID?
+  command: 1. Get SSID list ubus-cli WiFi.SSID.*.SSID? > WiFi.SSID.*.SSID? WiFi.SSID.1.SSID="OpenWrt_fake" WiFi.SSID.2.SSID="OpenWrt_fake"
+    WiFi.SSID.3.SSID="OpenWrt_fake" WiFi.SSID.4.SSID="TEST-5G-123" WiFi.SSID.5.SSID="OpenWrt_2" WiFi.SSID.6.SSID="TEST-6G-123"
+    WiFi.SSID.7.SSID="OpenWrt_2" WiFi.SSID.8.SSID="TEST-24G-123" WiFi.SSID.9.SSID="OpenWrt_2"
   capture: result
-  note: Get SSID list
 pass_criteria:
 - field: result.MaxSupportedSSIDs
   operator: contains

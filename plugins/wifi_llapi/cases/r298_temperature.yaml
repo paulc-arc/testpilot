@@ -1,4 +1,4 @@
-id: wifi-llapi-r298-radio_stats-temperature
+id: wifi-llapi-r298-temperature
 name: Temperature — WiFi.Radio.{i}.Stats.
 version: '1.0'
 source:
@@ -18,11 +18,23 @@ topology:
     DUT:
       role: ap
       transport: serial
+    STA:
+      role: sta
+      transport: adb
+      config:
+      - iface: 5g
+        mode: sta
+        ssid: '{{SSID_5G}}'
+        key: '{{KEY_5G}}'
+  links:
+  - from: STA
+    to: DUT
+    band: 5g
 steps:
 - id: query
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.{i}.Stats.Temperature
+  command: ubus-cli WiFi.Radio.{i}.Stats.Temperature=0
   capture: result
 pass_criteria:
 - field: result.Temperature

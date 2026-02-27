@@ -1,4 +1,4 @@
-id: wifi-llapi-r151-radio-dtimperiod
+id: wifi-llapi-r151-dtimperiod
 name: DTIMPeriod — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -18,12 +18,24 @@ topology:
     DUT:
       role: ap
       transport: serial
+    STA:
+      role: sta
+      transport: adb
+      config:
+      - iface: 5g
+        mode: sta
+        ssid: '{{SSID_5G}}'
+        key: '{{KEY_5G}}'
+  links:
+  - from: STA
+    to: DUT
+    band: 5g
 steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.DTIMPeriod?
-  note: 'Check default DTIMPeriod:'
+  command: '1. Check default DTIMPeriod: ubus-cli WiFi.Radio.*.DTIMPeriod? > WiFi.Radio.*.DTIMPeriod? WiFi.Radio.1.DTIMPeriod=3
+    WiFi.Radio.2.DTIMPeriod=3 WiFi.Radio.3.DTIMPeriod=3'
 - id: step2
   action: exec
   target: DUT
@@ -32,16 +44,15 @@ steps:
 - id: step3
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.DTIMPeriod=7
+  command: 'Modify DTIMPeriod to any value: ubus-cli WiFi.Radio.*.DTIMPeriod=7'
   depends_on: step2
-  note: 'Modify DTIMPeriod to any value:'
 - id: step4
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.DTIMPeriod?
-  capture: result
+  command: 'Get DTIMPeriod value again, compare them with driver return value and captured beacon packets status: ubus-cli
+    WiFi.Radio.*.DTIMPeriod? > WiFi.Radio.*.DTIMPeriod? WiFi.Radio.1.DTIMPeriod=7 WiFi.Radio.2.DTIMPeriod=7 WiFi.Radio.3.DTIMPeriod=7'
   depends_on: step3
-  note: 'Get DTIMPeriod value again, compare them with driver return value and captured beacon packets status:'
+  capture: result
 pass_criteria:
 - field: result.DTIMPeriod
   operator: contains
@@ -87,7 +98,9 @@ verification_command: 'cat /tmp/wl*_hapd.conf |grep dtim
 
   root@prplOS:/# cat /tmp/wl2_hapd.conf |grep dtim
 
-  dtim_'
+  dtim_period=7
+
+  dtim_period=7'
 results_reference:
   v4.0.1:
     5g: Pass

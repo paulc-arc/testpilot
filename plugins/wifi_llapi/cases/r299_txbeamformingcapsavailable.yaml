@@ -1,4 +1,4 @@
-id: wifi-llapi-r299-radio-txbeamformingcapsavailable
+id: wifi-llapi-r299-txbeamformingcapsavailable
 name: TxBeamformingCapsAvailable — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -22,14 +22,15 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.TxBeamformingCapsAvailable?
+  command: '1. Check API value: ubus-cli WiFi.Radio.*.TxBeamformingCapsAvailable? > WiFi.Radio.*.TxBeamformingCapsAvailable?
+    WiFi.Radio.1.TxBeamformingCapsAvailable="VHT_SU_BF,HE_SU_BF,HE_MU_BF,EHT_SU_BF,EHT_MU_80_BF,EHT_MU_160_BF,EHT_MU_320_BF"
+    WiFi.Radio.2.TxBeamformingCapsAvailable="HE_SU_BF,HE_MU_BF,EHT_SU_BF,EHT_MU_80_BF,EHT_MU_160_BF,EHT_MU_320_BF" WiFi.Radio.3.TxBeamformingCapsAvailable="HE_SU_BF,HE_MU_BF,EHT_SU_BF,EHT_MU_80_BF,EHT_MU_160_BF,EHT_MU_320_BF"'
   capture: result
-  note: 'Check API value:'
 pass_criteria:
 - field: result.TxBeamformingCapsAvailable
   operator: contains
-  value: HE_SU_BF,HE_MU_BF
-  description: TxBeamformingCapsAvailable 應回傳包含 TxBeamformingCapsAvailable=HE_SU_BF,HE_MU_BF
+  value: '"HE_SU_BF,HE_MU_BF"'
+  description: TxBeamformingCapsAvailable 應回傳包含 TxBeamformingCapsAvailable="HE_SU_BF,HE_MU_BF"
 results_reference:
   v4.0.1:
     5g: Pass

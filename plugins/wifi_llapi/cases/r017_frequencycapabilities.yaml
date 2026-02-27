@@ -1,4 +1,4 @@
-id: wifi-llapi-r017-accesspoint_associateddevice-frequencycapabilities
+id: wifi-llapi-r017-frequencycapabilities
 name: FrequencyCapabilities — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -34,19 +34,20 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect WiFi Station to GW.
+  command: 1. Connect WiFi Station to GW.
 - id: step2
   action: exec
   target: DUT
-  command: ubus-cli WiFi.? | grep FrequencyCapabilities=
-  capture: result
+  command: 'Verify Associated Station FrequencyCapabilities: root@prplOS:~# ubus-cli WiFi.? | grep FrequencyCapabilities=
+    WiFi.AccessPoint.1.AssociatedDevice.1.FrequencyCapabilities="2.4GHz,5GHz,6GHz" WiFi.AccessPoint.3.AssociatedDevice.1.FrequencyCapabilities="2.4GHz,5GHz,6GHz"
+    WiFi.AccessPoint.5.AssociatedDevice.1.FrequencyCapabilities="2.4GHz,5GHz,6GHz"'
   depends_on: step1
-  note: 'Verify Associated Station FrequencyCapabilities:'
+  capture: result
 pass_criteria:
 - field: result
-  operator: not_contains
-  value: error
-  description: FrequencyCapabilities 執行不應回傳 error
+  operator: not_empty
+  value: ''
+  description: FrequencyCapabilities 應回傳非空結果
 verification_command: 'wl -i wl0 sta_info ${STA_MAC}
 
   Frequency Bands Supported: 2.4G 5G 6G'

@@ -1,4 +1,4 @@
-id: wifi-llapi-r319-accesspoint_neighbour-r0khkey
+id: wifi-llapi-r319-r0khkey
 name: R0KHKey — WiFi.AccessPoint.{i}.Neighbour.{i}.
 version: '1.0'
 source:
@@ -22,13 +22,13 @@ steps:
 - id: query
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.{i}.Neighbour.{i}.R0KHKey
+  command: ubus-cli WiFi.AccessPoint.{i}.Neighbour.{i}.R0KHKey="21ACD4E82042F9E7BA5B7341D58BE76A"
   capture: result
 pass_criteria:
 - field: result.R0KHKey
   operator: contains
-  value: 21ACD4E82042F9E7BA5B7341D58BE76A
-  description: R0KHKey 應回傳包含 R0KHKey=21ACD4E82042F9E7BA5B7341D58BE76A
+  value: '"21ACD4E82042F9E7BA5B7341D58BE76A"'
+  description: R0KHKey 應回傳包含 R0KHKey="21ACD4E82042F9E7BA5B7341D58BE76A"
 results_reference:
   v4.0.1:
     5g: Pass

@@ -1,4 +1,4 @@
-id: wifi-llapi-r025-accesspoint_associateddevice-maxbandwidthsupported
+id: wifi-llapi-r025-maxbandwidthsupported
 name: MaxBandwidthSupported — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -34,7 +34,8 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect WiFi Station and check Station MaxBandwidthSupported
+  command: '##Connect WiFi Station and check Station MaxBandwidthSupported WiFi.AccessPoint.1.AssociatedDevice.1.MaxBandwidthSupported="160MHz"
+    WiFi.AccessPoint.3.AssociatedDevice.1.MaxBandwidthSupported="Unknown" WiFi.AccessPoint.5.AssociatedDevice.1.MaxBandwidthSupported="20MHz"'
   capture: result
 pass_criteria:
 - field: result.MaxBandwidthSupported

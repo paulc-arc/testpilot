@@ -1,4 +1,4 @@
-id: wifi-llapi-r149-radio_driverstatus-nrrxantenna
+id: wifi-llapi-r149-nrrxantenna
 name: NrRxAntenna — WiFi.Radio.{i}.DriverStatus.
 version: '1.0'
 source:
@@ -22,9 +22,9 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.DriverStatus.NrRxAntenna?
+  command: 1. Check GW Radio DriverStatus.NrRxAntenna ubus-cli WiFi.Radio.*.DriverStatus.NrRxAntenna? > WiFi.Radio.*.DriverStatus.NrRxAntenna?
+    WiFi.Radio.1.DriverStatus.NrRxAntenna=4 WiFi.Radio.2.DriverStatus.NrRxAntenna=4 WiFi.Radio.3.DriverStatus.NrRxAntenna=4
   capture: result
-  note: Check GW Radio DriverStatus.NrRxAntenna
 pass_criteria:
 - field: result.NrRxAntenna
   operator: contains

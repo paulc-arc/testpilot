@@ -1,4 +1,4 @@
-id: wifi-llapi-r245-ssid_stats-broadcastpacketsreceived
+id: wifi-llapi-r245-broadcastpacketsreceived
 name: BroadcastPacketsReceived — WiFi.SSID.{i}.Stats.
 version: '1.0'
 source:
@@ -34,7 +34,7 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect WiFi Station to SSID4, SSID6 and SSID8
+  command: 1. Connect WiFi Station to SSID4, SSID6 and SSID8
 - id: step2
   action: exec
   target: DUT
@@ -43,10 +43,10 @@ steps:
 - id: step3
   action: exec
   target: DUT
-  command: ubus-cli WiFi.SSID.? | grep .Stats.BroadcastPacketsReceived
-  capture: result
+  command: Disconnect WiFi Station and clear ARP then run Ping again. ubus-cli WiFi.SSID.? | grep .Stats.BroadcastPacketsReceived
+    WiFi.SSID.4.Stats.BroadcastPacketsReceived=0 WiFi.SSID.6.Stats.BroadcastPacketsReceived=0 WiFi.SSID.8.Stats.BroadcastPacketsReceived=0
   depends_on: step2
-  note: Disconnect WiFi Station and clear ARP then run Ping again.
+  capture: result
 pass_criteria:
 - field: result.BroadcastPacketsReceived
   operator: contains

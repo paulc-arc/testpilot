@@ -1,4 +1,4 @@
-id: wifi-llapi-r244-ssid-ssid
+id: wifi-llapi-r244-ssid
 name: SSID — WiFi.SSID.{i}.
 version: '1.0'
 source:
@@ -22,14 +22,14 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.SSID.? | grep \.SSID=
-  note: get SSID BSSID
+  command: 1. get SSID BSSID ubus-cli WiFi.SSID.? | grep \.SSID= WiFi.SSID.4.SSID="!!5OpenWrt_1" WiFi.SSID.6.SSID="6G_Primary-BE"
+    WiFi.SSID.8.SSID="!!24OpenWrt_1"
 - id: step2
   action: exec
   target: DUT
   command: Use WiFi analyzer to verify the SSID broadcast from GW
-  capture: result
   depends_on: step1
+  capture: result
 pass_criteria:
 - field: result.SSID
   operator: contains

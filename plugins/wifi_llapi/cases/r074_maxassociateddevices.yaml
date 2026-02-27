@@ -1,4 +1,4 @@
-id: wifi-llapi-r074-accesspoint-maxassociateddevices
+id: wifi-llapi-r074-maxassociateddevices
 name: MaxAssociatedDevices — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:
@@ -34,8 +34,8 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.? | grep MaxAssociatedDevices
-  note: Get the Maximum Association allowed in SSID
+  command: 1. Get the Maximum Association allowed in SSID ubus-cli WiFi.AccessPoint.*.? | grep MaxAssociatedDevices WiFi.AccessPoint.1.MaxAssociatedDevices=32
+    WiFi.AccessPoint.3.MaxAssociatedDevices=32 WiFi.AccessPoint.5.MaxAssociatedDevices=32
 - id: step2
   action: exec
   target: DUT
@@ -44,14 +44,14 @@ steps:
 - id: step3
   action: exec
   target: DUT
-  command: Check Stations Associated to 5GHz SSID
+  command: 'Check Stations Associated to 5GHz SSID using command: wl -i wl0 assoclist'
   depends_on: step2
 - id: step4
   action: exec
   target: DUT
   command: Repeat step1 to Step3, associate Station to 2.4GHz and 6GHz SSID
-  capture: result
   depends_on: step3
+  capture: result
 pass_criteria:
 - field: result.MaxAssociatedDevices
   operator: contains
@@ -85,7 +85,57 @@ verification_command: 'cat /tmp/wl0_hapd.conf |grep max_num_sta
 
   assoclist 00:60:F3:31:97:F8
 
-  asso'
+  assoclist 00:60:F3:31:97:FD
+
+  assoclist 00:60:F3:31:97:F5
+
+  assoclist 00:60:F3:31:98:02
+
+  assoclist 00:60:F3:31:97:FA
+
+  assoclist 00:60:F3:31:97:F2
+
+  assoclist 00:60:F3:31:97:FF
+
+  assoclist 00:60:F3:31:97:F7
+
+  assoclist 00:60:F3:31:97:EF
+
+  assoclist 00:60:F3:31:97:FC
+
+  assoclist 00:60:F3:31:97:F4
+
+  assoclist 00:60:F3:31:97:EC
+
+  assoclist 00:60:F3:31:97:F9
+
+  assoclist 00:60:F3:31:97:F1
+
+  assoclist 00:60:F3:31:97:E9
+
+  assoclist 00:60:F3:31:97:F6
+
+  assoclist 00:60:F3:31:97:EE
+
+  assoclist 00:60:F3:31:97:E6
+
+  assoclist 00:60:F3:31:97:F3
+
+  assoclist 00:60:F3:31:97:EB
+
+  assoclist 00:60:F3:31:97:F0
+
+  assoclist 00:60:F3:31:97:E8
+
+  assoclist 00:60:F3:31:97:ED
+
+  assoclist 00:60:F3:31:97:E5
+
+  assoclist 00:60:F3:31:97:EA
+
+  assoclist 00:60:F3:31:97:E7
+
+  assoclist 00:60:F3:31:97:E4'
 results_reference:
   v4.0.1:
     5g: Fail

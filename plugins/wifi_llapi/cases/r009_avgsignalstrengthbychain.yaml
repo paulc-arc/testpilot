@@ -1,4 +1,4 @@
-id: wifi-llapi-r009-accesspoint_associateddevice-avgsignalstrengthbychain
+id: wifi-llapi-r009-avgsignalstrengthbychain
 name: AvgSignalStrengthByChain — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -34,14 +34,15 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect WiFi Station to GW
+  command: 1. Connect WiFi Station to GW
 - id: step2
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.AvgSignalStrengthByChain?
-  capture: result
+  command: Verify Associated station AvgSignalStrengthByChain ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.AvgSignalStrengthByChain?
+    WiFi.AccessPoint.1.AssociatedDevice.1.AvgSignalStrengthByChain=-41 WiFi.AccessPoint.3.AssociatedDevice.1.AvgSignalStrengthByChain=-57
+    WiFi.AccessPoint.5.AssociatedDevice.1.AvgSignalStrengthByChain=-48
   depends_on: step1
-  note: Verify Associated station AvgSignalStrengthByChain
+  capture: result
 pass_criteria:
 - field: result.AvgSignalStrengthByChain
   operator: contains

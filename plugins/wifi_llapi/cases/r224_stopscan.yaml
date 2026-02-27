@@ -1,4 +1,4 @@
-id: wifi-llapi-r224-radio-stopscan
+id: wifi-llapi-r224-stopscan
 name: stopScan() — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -18,36 +18,46 @@ topology:
     DUT:
       role: ap
       transport: serial
+    STA:
+      role: sta
+      transport: adb
+      config:
+      - iface: 5g
+        mode: sta
+        ssid: '{{SSID_5G}}'
+        key: '{{KEY_5G}}'
+  links:
+  - from: STA
+    to: DUT
+    band: 5g
 steps:
 - id: step1
   action: exec
   target: DUT
-  command: 'ubus-cli "WiFi.Radio.1.startScan()"
-
-    ubus-cli "WiFi.Radio.1.startScan()"
-
-    ubus-cli "WiFi.Radio.2.startScan()"
-
-    ubus-cli "WiFi.Radio.3.startScan()"'
-  note: 'Start startScan() function once, record the result:'
+  command: '1. Start startScan() function once, record the result: ubus-cli "WiFi.Radio.1.startScan()" ubus-cli "WiFi.Radio.1.startScan()"
+    > WiFi.Radio.1.startScan() WiFi.Radio.1.startScan() returned [ "" ]  ubus-cli "WiFi.Radio.2.startScan()" > WiFi.Radio.2.startScan()
+    WiFi.Radio.2.startScan() returned [ "" ] ubus-cli "WiFi.Radio.3.startScan()" > WiFi.Radio.3.startScan() WiFi.Radio.3.startScan()
+    returned [ "" ]'
 - id: step2
   action: exec
   target: DUT
-  command: ubus-cli "WiFi.Radio.*.getScanResults()"
+  command: 'Check with getScanResult(): ubus-cli "WiFi.Radio.*.getScanResults()" ....'
   depends_on: step1
-  note: 'Check with getScanResult():'
 - id: step3
   action: exec
   target: DUT
-  command: ubus-cli
+  command: 'Use startScan() and stopScan() at the same time ubus-cli - ubus: - [ubus-cli] (0) > WiFi.Radio.1.startScan() WiFi.Radio.1.startScan()
+    returned [ "" ] - ubus: - [ubus-cli] (0) > WiFi.Radio.1.stopScan() WiFi.Radio.1.stopScan() returned [ "" ] - ubus: - [ubus-cli]
+    (0) > WiFi.Radio.2.startScan() WiFi.Radio.2.startScan() returned [ "" ] - ubus: - [ubus-cli] (0) > WiFi.Radio.2.stopScan()
+    WiFi.Radio.2.stopScan() returned [ "" ] - ubus: - [ubus-cli] (0) > WiFi.Radio.3.startScan() WiFi.Radio.3.startScan() returned
+    [ "" ] - ubus: - [ubus-cli] (0) > WiFi.Radio.3.stopScan() WiFi.Radio.3.stopScan() returned [ "" ]'
   depends_on: step2
-  note: Use startScan() and stopScan() at the same time
 - id: step4
   action: exec
   target: DUT
   command: Check getScanResult() again, the list should not change.
-  capture: result
   depends_on: step3
+  capture: result
 pass_criteria:
 - field: result
   operator: not_contains

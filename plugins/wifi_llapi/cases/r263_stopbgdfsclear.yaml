@@ -1,4 +1,4 @@
-id: wifi-llapi-r263-wpsdefparam-stopbgdfsclear
+id: wifi-llapi-r263-stopbgdfsclear
 name: stopBgDfsClear() — WiFi.wps_DefParam.
 version: '1.0'
 source:

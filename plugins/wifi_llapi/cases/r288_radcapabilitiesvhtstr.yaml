@@ -1,4 +1,4 @@
-id: wifi-llapi-r288-radio-radcapabilitiesvhtstr
+id: wifi-llapi-r288-radcapabilitiesvhtstr
 name: RadCapabilitiesVHTStr — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -22,19 +22,20 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.RadCapabilitiesVHTStr?
-  note: get RadCapabilitiesVHTStr
+  command: 1. get RadCapabilitiesVHTStr ubus-cli WiFi.Radio.*.RadCapabilitiesVHTStr? > WiFi.Radio.*.RadCapabilitiesVHTStr?
+    WiFi.Radio.1.RadCapabilitiesVHTStr="RX_LDPC,SGI_80,SGI_160,SU_BFR,SU_BFE,LINK_ADAPT_CAP" WiFi.Radio.2.RadCapabilitiesVHTStr=""
+    WiFi.Radio.3.RadCapabilitiesVHTStr=""
 - id: step2
   action: exec
   target: DUT
   command: Verify beacon packet supprt VHT.
-  capture: result
   depends_on: step1
+  capture: result
 pass_criteria:
 - field: result.RadCapabilitiesVHTStr
   operator: contains
-  value: ''
-  description: RadCapabilitiesVHTStr 應回傳包含 RadCapabilitiesVHTStr=
+  value: '""'
+  description: RadCapabilitiesVHTStr 應回傳包含 RadCapabilitiesVHTStr=""
 results_reference:
   v4.0.1:
     5g: Pass

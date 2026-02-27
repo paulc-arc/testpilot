@@ -1,4 +1,4 @@
-id: wifi-llapi-r280-radio-maxbitrate
+id: wifi-llapi-r280-maxbitrate
 name: MaxBitRate — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -22,9 +22,9 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.MaxBitRate?
+  command: '1. Read-only API, defines max bitrate for each radio: ubus-cli WiFi.Radio.*.MaxBitRate? > WiFi.Radio.*.MaxBitRate?
+    WiFi.Radio.1.MaxBitRate=0 WiFi.Radio.2.MaxBitRate=0 WiFi.Radio.3.MaxBitRate=0'
   capture: result
-  note: 'Read-only API, defines max bitrate for each radio:'
 pass_criteria:
 - field: result.MaxBitRate
   operator: contains

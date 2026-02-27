@@ -1,4 +1,4 @@
-id: wifi-llapi-r003-accesspoint-kickstationreason
+id: wifi-llapi-r003-kickstationreason
 name: kickStationReason() — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:
@@ -34,24 +34,28 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect WiFi Station to GW
+  command: 1. Connect WiFi Station to GW
 - id: step2
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.5.kickStationReason"(macaddress=7E:04:6
+  command: Kick connected Station using specified reason codes. CodeMeaning 1 Unspecified 5 Disassociated because AP is busy
+    8 Deauthenticated because STA is leaving 34 Insufficient resources ubus-cli WiFi.AccessPoint.5.kickStationReason"(macaddress=7E:04:6
+    0:D8:FC:6E,reason=1)" > WiFi.AccessPoint.5.kickStationReason(macaddress=7E:04:60:D8:FC:6E,reason=1) WiFi.AccessPoint.5.kickStationReason()
+    returned [ "" ]
   depends_on: step1
-  note: Kick connected Station using specified reason codes.
 - id: step3
   action: exec
   target: DUT
-  command: Verify system event logs
-  capture: result
+  command: 'Verify system event logs - Confirm that the event log reports the station disconnection. - Expected log message
+    includes: * Station MAC address 42:33:64:A3:9F:B0 * Disconnection indication such as: “disassociated” or “deauthenticated”  CONSOLE[wl2]:
+    004528.186 wl2: STA 42:33:64:A3:9F:B0 has disassociated tx_type 33'
   depends_on: step2
+  capture: result
 pass_criteria:
-- field: result
-  operator: not_contains
-  value: error
-  description: kickStationReason() 執行不應回傳 error
+- field: result.kickStationReason()
+  operator: contains
+  value: string, reason:int):bool
+  description: kickStationReason() 應回傳包含 kickStationReason()=string, reason:int):bool
 verification_command: 'AuthenticationState=1 "The station has successfully completed the association procedure and is listed
   in the AP association table"
 

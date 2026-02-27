@@ -1,4 +1,4 @@
-id: wifi-llapi-r309-accesspoint_associateddevice-rrmoffchannelmaxduration
+id: wifi-llapi-r309-rrmoffchannelmaxduration
 name: RrmOffChannelMaxDuration — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -34,34 +34,38 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect WiFi Station to GW with one station 802.11k Enable and the other one 802.11k Disable.
+  command: 1. Connect WiFi Station to GW with one station 802.11k Enable and the other one 802.11k Disable.
 - id: step2
   action: exec
   target: DUT
-  command: Verify Station station 802.11k Enable
+  command: 'Verify Station station 802.11k Enable Check whether RRM is ON or OFF using: wl sta_info <MAC> | grep -i rrm If
+    802.11k Enable then you will see RRM-related output (flags / capabilities): If nothing appears 0x0 then RRM is Disable/not
+    supported or not advertised'
   depends_on: step1
 - id: step3
   action: exec
   target: DUT
-  command: 'wl sta_info 02:10:5E:BA:A9:00 | grep -i rrm
-
-    wl sta_info 02:10:5E:8B:5B:00 | grep -i rrm'
+  command: 'Check Station capabilities: wl sta_info <MAC> | grep -i rrm Using Octoscope as Station 02:10:5E:BA:A9:00 - 802.11k
+    Enable 02:10:5E:8B:5B:00 - 802.11k Disable wl sta_info 02:10:5E:BA:A9:00 | grep -i rrm RRM capability = 0xc0000da73 Link_Measurement
+    Neighbor_Report Beacon_Passive Beacon_Active Beacon_Table Channel_load_Measurement Statistics_Measurement LCI_Measurement
+    Tx_Stream_Category_Measurement Triggered_Tx_stream_Category_Measurement FTM_Range_Reporting Civic_Location_Measurement  wl
+    sta_info 02:10:5E:8B:5B:00 | grep -i rrm RRM capability = 0x0 '
   depends_on: step2
-  note: 'Check Station capabilities: wl sta_info <MAC> | grep -i rrm'
 - id: step4
   action: exec
   target: DUT
-  command: Try to set Station 802.11k from Enable to Disable and Disble to Enable then re-connect station.
+  command: Try to set Station 802.11k from Enable to Disable and Disble to Enable then re-connect station. 02:10:5E:BA:A9:00
+    - 802.11k Disable 02:10:5E:8B:5B:00 - 802.11k Enable
   depends_on: step3
 - id: step5
   action: exec
   target: DUT
-  command: 'wl sta_info 02:10:5E:BA:A9:00 | grep -i rrm
-
-    wl sta_info 02:10:5E:8B:5B:00 | grep -i rrm'
-  capture: result
+  command: 'Check Station capabilities: wl sta_info <MAC> | grep -i rrm wl sta_info 02:10:5E:BA:A9:00 | grep -i rrm RRM capability
+    = 0x0 wl sta_info 02:10:5E:8B:5B:00 | grep -i rrm RRM capability = 0xc0000da73 Link_Measurement Neighbor_Report Beacon_Passive
+    Beacon_Active Beacon_Table Channel_load_Measurement Statistics_Measurement LCI_Measurement Tx_Stream_Category_Measurement
+    Triggered_Tx_stream_Category_Measurement FTM_Range_Reporting Civic_Location_Measurement'
   depends_on: step4
-  note: 'Check Station capabilities: wl sta_info <MAC> | grep -i rrm'
+  capture: result
 pass_criteria:
 - field: result.RrmOffChannelMaxDuration
   operator: contains

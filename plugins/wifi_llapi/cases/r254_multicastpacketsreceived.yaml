@@ -1,4 +1,4 @@
-id: wifi-llapi-r254-ssid_stats-multicastpacketsreceived
+id: wifi-llapi-r254-multicastpacketsreceived
 name: MulticastPacketsReceived — WiFi.SSID.{i}.Stats.
 version: '1.0'
 source:
@@ -40,19 +40,20 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect WiFi station to GW
+  command: 1. Connect WiFi station to GW
 - id: step2
   action: exec
   target: DUT
-  command: Create Multicast group and send Multicast Data between station's and GW
+  command: Create Multicast group and send Multicast Data between station's and GW Station server = iperf -s -u -B 239.1.2.3%br0
+    -i 1 Station Joiner = iperf -c 239.1.2.3 -u -t 10 -b 20M -i 1 -t 100
   depends_on: step1
 - id: step3
   action: exec
   target: DUT
-  command: ubus-cli WiFi.SSID.*.Stats.MulticastPacketsReceived?
-  capture: result
+  command: Check MulticastPacketsReceived ubus-cli WiFi.SSID.*.Stats.MulticastPacketsReceived? > WiFi.SSID.*.Stats.MulticastPacketsReceived?
+    WiFi.SSID.4.Stats.MulticastPacketsReceived=1207 WiFi.SSID.6.Stats.MulticastPacketsReceived=13518 WiFi.SSID.8.Stats.MulticastPacketsReceived=56
   depends_on: step2
-  note: Check MulticastPacketsReceived
+  capture: result
 pass_criteria:
 - field: result.MulticastPacketsReceived
   operator: contains

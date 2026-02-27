@@ -1,4 +1,4 @@
-id: wifi-llapi-r161-radio-ieee80211ksupported
+id: wifi-llapi-r161-ieee80211ksupported
 name: IEEE80211kSupported — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -18,14 +18,26 @@ topology:
     DUT:
       role: ap
       transport: serial
+    STA:
+      role: sta
+      transport: adb
+      config:
+      - iface: 5g
+        mode: sta
+        ssid: '{{SSID_5G}}'
+        key: '{{KEY_5G}}'
+  links:
+  - from: STA
+    to: DUT
+    band: 5g
 steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.IEEE80211kSupported?
+  command: '1. Read-only API, defines whether each radio supported 802.11k standard. Check the API value and compare them
+    with driver capability and packets'' tag from radio beacons: ubus-cli WiFi.Radio.*.IEEE80211kSupported? > WiFi.Radio.*.IEEE80211kSupported?
+    WiFi.Radio.1.IEEE80211kSupported=1 WiFi.Radio.2.IEEE80211kSupported=1 WiFi.Radio.3.IEEE80211kSupported=1'
   capture: result
-  note: Read-only API, defines whether each radio supported 802.11k standard. Check the API value and compare them with driver
-    c
 pass_criteria:
 - field: result.IEEE80211kSupported
   operator: contains

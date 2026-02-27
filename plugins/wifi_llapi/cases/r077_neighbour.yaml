@@ -1,4 +1,4 @@
-id: wifi-llapi-r077-accesspoint-neighbour
+id: wifi-llapi-r077-neighbour
 name: Neighbour — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:
@@ -22,24 +22,24 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: 'ubus-cli "WiFi.AccessPoint.1.setNeighbourAP(BSSID=11:22:33:44:55:
-
-    ubus-cli "WiFi.AccessPoint.3.setNeighbourAP(BSSID=11:22:33:44:55:
-
-    ubus-cli "WiFi.AccessPoint.5.setNeighbourAP(BSSID=11:22:33:44:55:'
-  note: Add Neighbour AP
+  command: '\\Add Neighbour AP ubus-cli "WiFi.AccessPoint.1.setNeighbourAP(BSSID=11:22:33:44:55: 66,Channel=36)" > WiFi.AccessPoint.1.setNeighbourAP(BSSID=11:22:33:44:55:66,Channel=36)
+    WiFi.AccessPoint.1.setNeighbourAP() returned [ "" ] ubus-cli "WiFi.AccessPoint.3.setNeighbourAP(BSSID=11:22:33:44:55:
+    77,Channel=1)" > WiFi.AccessPoint.3.setNeighbourAP(BSSID=11:22:33:44:55:77,Channel=1) WiFi.AccessPoint.3.setNeighbourAP()
+    returned [ "" ] ubus-cli "WiFi.AccessPoint.5.setNeighbourAP(BSSID=11:22:33:44:55: 88,Channel=11)" > WiFi.AccessPoint.5.setNeighbourAP(BSSID=11:22:33:44:55:88,Channel=11)
+    WiFi.AccessPoint.5.setNeighbourAP() returned [ "" ]'
 - id: step2
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.? | grep -E 'BSSID|Channel'
-  capture: result
+  command: Get or Check Neigbour AP ubus-cli WiFi.AccessPoint.*.? | grep -E 'BSSID|Channel' WiFi.AccessPoint.1.Neighbour.1.BSSID="11:22:33:44:55:66"
+    WiFi.AccessPoint.1.Neighbour.1.Channel=36 WiFi.AccessPoint.3.Neighbour.2.BSSID="11:22:33:44:55:77" WiFi.AccessPoint.3.Neighbour.1.Channel=1
+    WiFi.AccessPoint.5.Neighbour.2.BSSID="11:22:33:44:55:88" WiFi.AccessPoint.5.Neighbour.2.Channel=11
   depends_on: step1
-  note: Get or Check Neigbour AP
+  capture: result
 pass_criteria:
 - field: result
-  operator: not_contains
-  value: error
-  description: Neighbour 執行不應回傳 error
+  operator: not_empty
+  value: ''
+  description: Neighbour 應回傳非空結果
 results_reference:
   v4.0.1:
     5g: Pass

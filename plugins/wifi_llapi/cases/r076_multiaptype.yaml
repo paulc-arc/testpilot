@@ -1,4 +1,4 @@
-id: wifi-llapi-r076-accesspoint-multiaptype
+id: wifi-llapi-r076-multiaptype
 name: MultiAPType — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:
@@ -22,21 +22,24 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.MultiAPType?
-  note: Check Default settinh
+  command: \\Check Default settinh root@prplOS:~# ubus-cli WiFi.AccessPoint.*.MultiAPType? > WiFi.AccessPoint.*.MultiAPType?
+    WiFi.AccessPoint.1.MultiAPType="FronthaulBSS,BackhaulBSS" WiFi.AccessPoint.2.MultiAPType="FronthaulBSS,BackhaulBSS" WiFi.AccessPoint.3.MultiAPType="FronthaulBSS,BackhaulBSS"
+    WiFi.AccessPoint.4.MultiAPType="FronthaulBSS,BackhaulBSS" WiFi.AccessPoint.5.MultiAPType="FronthaulBSS,BackhaulBSS" WiFi.AccessPoint.6.MultiAPType="FronthaulBSS,BackhaulBSS"
 - id: step2
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.MultiAPType= FronthaulBSS
+  command: Set MultiAPType to FronthaulBSS only root@prplOS:~# ubus-cli WiFi.AccessPoint.*.MultiAPType= FronthaulBSS > WiFi.AccessPoint.*.MultiAPType=
+    FronthaulBSS WiFi.AccessPoint.1.MultiAPType="FronthaulBSS" WiFi.AccessPoint.2.MultiAPType="FronthaulBSS" WiFi.AccessPoint.3.MultiAPType="FronthaulBSS"
+    WiFi.AccessPoint.4.MultiAPType="FronthaulBSS" WiFi.AccessPoint.5.MultiAPType="FronthaulBSS" WiFi.AccessPoint.6.MultiAPType="FronthaulBSS"
   depends_on: step1
-  note: Set MultiAPType to FronthaulBSS only
 - id: step3
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.MultiAPType?
-  capture: result
+  command: Check the settings root@prplOS:~# ubus-cli WiFi.AccessPoint.*.MultiAPType? > WiFi.AccessPoint.*.MultiAPType? WiFi.AccessPoint.1.MultiAPType="FronthaulBSS"
+    WiFi.AccessPoint.2.MultiAPType="FronthaulBSS" WiFi.AccessPoint.3.MultiAPType="FronthaulBSS" WiFi.AccessPoint.4.MultiAPType="FronthaulBSS"
+    WiFi.AccessPoint.5.MultiAPType="FronthaulBSS" WiFi.AccessPoint.6.MultiAPType="FronthaulBSS"
   depends_on: step2
-  note: Check the settings
+  capture: result
 pass_criteria:
 - field: result.MultiAPType
   operator: contains

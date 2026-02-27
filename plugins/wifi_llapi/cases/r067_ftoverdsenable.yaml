@@ -1,4 +1,4 @@
-id: wifi-llapi-r067-accesspoint_ieee80211r-ftoverdsenable
+id: wifi-llapi-r067-ftoverdsenable
 name: FTOverDSEnable — WiFi.AccessPoint.{i}.IEEE80211r.
 version: '1.0'
 source:
@@ -22,11 +22,10 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: 'ubus-cli WiFi.AccessPoint.1.IEEE80211r.Enabled=1
-
-    ubus-cli WiFi.AccessPoint.? | grep .IEEE80211r.FTOverDSEnable=1'
+  command: //Set IEEE80211r.Enabled=1 ubus-cli WiFi.AccessPoint.1.IEEE80211r.Enabled=1 //set FTOverDSEnable=1 ubus-cli WiFi.AccessPoint.?
+    | grep .IEEE80211r.FTOverDSEnable=1 WiFi.AccessPoint.1.IEEE80211r.FTOverDSEnable=1 WiFi.AccessPoint.2.IEEE80211r.FTOverDSEnable=1
+    WiFi.AccessPoint.3.IEEE80211r.FTOverDSEnable=1
   capture: result
-  note: //Set IEEE80211r.Enabled=1
 pass_criteria:
 - field: result.FTOverDSEnable
   operator: contains

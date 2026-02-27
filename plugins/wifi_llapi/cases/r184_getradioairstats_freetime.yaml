@@ -1,0 +1,72 @@
+id: wifi-llapi-r184-getradioairstats-freetime
+name: getRadioAirStats() — WiFi.Radio.{i}.
+version: '1.0'
+source:
+  report: 6.3.0GA_prplware_v403_LLAPI_Test_Report.xlsx
+  sheet: Wifi_LLAPI
+  row: 184
+  object: WiFi.Radio.{i}.
+  api: getRadioAirStats()
+platform:
+  prplos: 4.0.3
+  bdk: 6.3.1
+hlapi_command: 'ubus-cli WiFi.Radio.{i}.getRadioAirStats() FreeTime : 89,'
+llapi_support: Support
+implemented_by: pWHM
+topology:
+  devices:
+    DUT:
+      role: ap
+      transport: serial
+    STA:
+      role: sta
+      transport: adb
+      config:
+      - iface: 5g
+        mode: sta
+        ssid: '{{SSID_5G}}'
+        key: '{{KEY_5G}}'
+    EndpointPC:
+      role: endpoint
+      transport: ssh
+  links:
+  - from: STA
+    to: DUT
+    band: 5g
+  - from: DUT
+    to: EndpointPC
+    interface: eth1
+steps:
+- id: step1
+  action: exec
+  target: DUT
+  command: 'Connect 2 STAs to radio, use iperf3 to transmit some data between two STAs. Check getRadioAirStats(): ubus-cli
+    "WiFi.Radio.*.getRadioAirStats()" > WiFi.Radio.*.getRadioAirStats() WiFi.Radio.1.getRadioAirStats() returned [ { FreeTime
+    = 0, IntTime = 0, Load = 0, LongPreambleErrorPercentage = 0, Noise = 0, NoiseTime = 0, ObssTime = 0, RxTime = 0, ShortPreambleErrorPercentage
+    = 0, Timestamp = 0, TotalTime = 0, TxTime = 0, VendorStats = { } } ] WiFi.Radio.2.getRadioAirStats() returned [ { FreeTime
+    = 0, IntTime = 0, Load = 0, LongPreambleErrorPercentage = 0, Noise = 0, NoiseTime = 0, ObssTime = 0, RxTime = 0, ShortPreambleErrorPercentage
+    = 0, Timestamp = 0, TotalTime = 0, TxTime = 0, VendorStats = { } } ] WiFi.Radio.3.getRadioAirStats() returned [ { FreeTime
+    = 0, IntTime = 0, Load = 0, LongPreambleErrorPercentage = 0, Noise = 0, NoiseTime = 0, ObssTime = 0, RxTime = 0, ShortPreambleErrorPercentage
+    = 0, Timestamp = 0, TotalTime = 0, TxTime = 0, VendorStats = { } } ]'
+  capture: result
+pass_criteria:
+- field: result
+  operator: not_contains
+  value: error
+  description: getRadioAirStats() 執行不應回傳 error
+verification_command: 'root@prplOS:/# iw dev wl0 survey dump
+
+  root@prplOS:/# iw dev wl1 survey dump
+
+  root@prplOS:/# iw dev wl2 survey dump'
+results_reference:
+  v4.0.1:
+    5g: Fail
+    6g: Fail
+    2.4g: Fail
+    comment: 'ARC : The value is always 0.'
+  v4.0.3:
+    5g: Fail
+    6g: Fail
+    2.4g: Fail
+    comment: need to support survey in driver level(not only in  wl_cfg80211)

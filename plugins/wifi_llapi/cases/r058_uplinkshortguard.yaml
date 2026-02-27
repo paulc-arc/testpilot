@@ -1,4 +1,4 @@
-id: wifi-llapi-r058-accesspoint_associateddevice-uplinkshortguard
+id: wifi-llapi-r058-uplinkshortguard
 name: UplinkShortGuard — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -34,7 +34,8 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect WiFi Station and check Station UplinkShortGuard_x0001_
+  command: '##Connect WiFi Station and check Station UplinkShortGuard_x0001_ WiFi.AccessPoint.1.AssociatedDevice.1.UplinkShortGuard=0
+    WiFi.AccessPoint.3.AssociatedDevice.1.UplinkShortGuard=0 WiFi.AccessPoint.5.AssociatedDevice.1.UplinkShortGuard=0'
   capture: result
 pass_criteria:
 - field: result.UplinkShortGuard

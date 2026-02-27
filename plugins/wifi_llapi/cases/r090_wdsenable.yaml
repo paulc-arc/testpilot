@@ -1,4 +1,4 @@
-id: wifi-llapi-r090-accesspoint-wdsenable
+id: wifi-llapi-r090-wdsenable
 name: WDSEnable — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:
@@ -34,10 +34,9 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: 'ubus-cli WiFi.AccessPoint.*.WDSEnable=1
-
-    ubus-cli WiFi.AccessPoint.? | grep .WDSEnable'
-  note: Enable WDS
+  command: 1. Enable WDS ubus-cli WiFi.AccessPoint.*.WDSEnable=1 > WiFi.AccessPoint.*.WDSEnable=1 WiFi.AccessPoint.1.WDSEnable=1
+    WiFi.AccessPoint.3.WDSEnable=1 WiFi.AccessPoint.5.WDSEnable=1 ubus-cli WiFi.AccessPoint.? | grep .WDSEnable WiFi.AccessPoint.1.WDSEnable=1
+    WiFi.AccessPoint.3.WDSEnable=1 WiFi.AccessPoint.5.WDSEnable=1
 - id: step2
   action: exec
   target: DUT
@@ -46,9 +45,10 @@ steps:
 - id: step3
   action: exec
   target: DUT
-  command: Station try to send traffic or access internet
-  capture: result
+  command: Station try to send traffic or access internet --> As Per RD "the behavior seems the same as BRCM DWDS, sta could
+    connect, but cannot tranmit data." --> verified and found the behavior is the same as BRCM DWDS mentioned by RD
   depends_on: step2
+  capture: result
 pass_criteria:
 - field: result.WDSEnable
   operator: contains

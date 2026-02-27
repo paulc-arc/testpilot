@@ -1,4 +1,4 @@
-id: wifi-llapi-r059-accesspoint_associateddevice-vendoroui
+id: wifi-llapi-r059-vendoroui
 name: VendorOUI — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -34,7 +34,8 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect WiFi Station and check Station and check VendorOUI
+  command: '##Connect WiFi Station and check Station and check VendorOUI WiFi.AccessPoint.1.AssociatedDevice.1.VendorOUI="00:90:4C,00:10:18,00:50:F2"
+    WiFi.AccessPoint.3.AssociatedDevice.1.VendorOUI="00:10:18,00:50:F2" WiFi.AccessPoint.5.AssociatedDevice.1.VendorOUI="00:90:4C,00:10:18,00:50:F2"'
   capture: result
 pass_criteria:
 - field: result.VendorOUI

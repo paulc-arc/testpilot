@@ -1,4 +1,4 @@
-id: wifi-llapi-r053-accesspoint_associateddevice-txpacketcount
+id: wifi-llapi-r053-txpacketcount
 name: TxPacketCount — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -34,7 +34,8 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect WiFi Station and send traffic then check TxPacketCount
+  command: '##Connect WiFi Station and send traffic then check TxPacketCount WiFi.AccessPoint.1.AssociatedDevice.1.TxPacketCount=909
+    WiFi.AccessPoint.3.AssociatedDevice.1.TxPacketCount=69 WiFi.AccessPoint.5.AssociatedDevice.1.TxPacketCount=83'
   capture: result
 pass_criteria:
 - field: result.TxPacketCount

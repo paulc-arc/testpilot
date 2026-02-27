@@ -1,4 +1,4 @@
-id: wifi-llapi-r315-accesspoint_neighbour-information
+id: wifi-llapi-r315-information
 name: Information — WiFi.AccessPoint.{i}.Neighbour.{i}.
 version: '1.0'
 source:
@@ -22,7 +22,7 @@ steps:
 - id: query
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.{i}.Neighbour.{i}.Information
+  command: ubus-cli WiFi.AccessPoint.{i}.Neighbour.{i}.Information=0
   capture: result
 pass_criteria:
 - field: result.Information

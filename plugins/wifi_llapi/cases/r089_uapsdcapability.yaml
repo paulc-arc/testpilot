@@ -1,4 +1,4 @@
-id: wifi-llapi-r089-accesspoint-uapsdcapability
+id: wifi-llapi-r089-uapsdcapability
 name: UAPSDCapability — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:
@@ -22,14 +22,14 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.? | grep .UAPSDCapability
-  note: Get GW UAPSDCapability
+  command: 1. Get GW UAPSDCapability ubus-cli WiFi.AccessPoint.? | grep .UAPSDCapability WiFi.AccessPoint.1.UAPSDCapability=1
+    WiFi.AccessPoint.3.UAPSDCapability=1 WiFi.AccessPoint.5.UAPSDCapability=1
 - id: step2
   action: exec
   target: DUT
-  command: Check Beacon packet if it include U-APSD WMM/WME
-  capture: result
+  command: Check Beacon packet if it include U-APSD WMM/WME - Beacon packet include U-APSD
   depends_on: step1
+  capture: result
 pass_criteria:
 - field: result.UAPSDCapability
   operator: contains
@@ -42,7 +42,28 @@ verification_command: 'Note: U-APSD is part of WME
   ap sta wet led wme 802.11d 802.11h rm cac mbss8 ampdu ampdu_tx ampdu_rx amsdurx amsdutx rxchain_pwrsave wds dwds vht-prop-rates
   multi-user-beamformer single-user-beamformer multi-user-beamformee single-user-beamformee 160 dfrts stbc-tx stbc-rx-1ss
   pspretend probresp_mac_filter mfp wnm bsstrans scanmac ve fbtoverds fbt_adpt ifver bgdfs bgdfs160 spp lpr_scan bkoff_evt
-  awd_data_info monitor cevent traffic_thresh 11ax 11be mlo 320 stamon csimo'
+  awd_data_info monitor cevent traffic_thresh 11ax 11be mlo 320 stamon csimon cfp hwa-1a-1b-2a-2b-3a-3b-4b-pp-pr pqp sqs airiq
+  sae slaveradar swpaging ba256 qosmgmt asr sbf_active gcmp suite-b chanswitch puq 11az pcap telemetry mrsno
+
+  root@prplOS:/#
+
+  root@prplOS:/# wl -i wl1 cap
+
+  ap sta wet led wme 802.11d 802.11h rm cac mbss8 ampdu ampdu_tx ampdu_rx amsdurx amsdutx rxchain_pwrsave wds dwds vht-prop-rates
+  multi-user-beamformer single-user-beamformer multi-user-beamformee single-user-beamformee 160 dfrts stbc-tx stbc-rx-1ss
+  pspretend probresp_mac_filter mfp wnm bsstrans scanmac ve fbtoverds fbt_adpt ifver bgdfs bgdfs160 spp lpr_scan bkoff_evt
+  awd_data_info monitor cevent traffic_thresh 11ax 11be mlo 320 stamon csimon cfp hwa-1a-1b-2a-2b-3a-3b-4b-pp-pr pqp sqs airiq
+  sae slaveradar swpaging ba256 qosmgmt asr sbf_active gcmp suite-b chanswitch puq 11az pcap telemetry mrsno
+
+  root@prplOS:/# wl -i wl2 cap
+
+  ap sta wet led wme 802.11d 802.11h rm cac mbss8 ampdu ampdu_tx ampdu_rx amsdurx amsdutx rxchain_pwrsave wds dwds vht-prop-rates
+  multi-user-beamformer single-user-beamformer multi-user-beamformee single-user-beamformee 160 dfrts stbc-tx stbc-rx-1ss
+  pspretend probresp_mac_filter mfp wnm bsstrans scanmac ve fbtoverds fbt_adpt ifver bgdfs bgdfs160 spp lpr_scan bkoff_evt
+  awd_data_info monitor cevent traffic_thresh 11ax 11be mlo 320 stamon csimon cfp hwa-1a-1b-2a-2b-3a-3b-4b-pp-pr pqp sqs airiq
+  sae slaveradar swpaging ba256 qosmgmt asr sbf_active gcmp suite-b chanswitch puq 11az pcap telemetry mrsno
+
+  root@prplOS:/#'
 results_reference:
   v4.0.1:
     5g: Pass

@@ -1,4 +1,4 @@
-id: wifi-llapi-r139-radio-beaconperiod
+id: wifi-llapi-r139-beaconperiod
 name: BeaconPeriod — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -22,20 +22,20 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.BeaconPeriod?
-  note: 'Get BeaconPeriod default value:'
+  command: '1. Get BeaconPeriod default value: ubus-cli WiFi.Radio.*.BeaconPeriod? > WiFi.Radio.*.BeaconPeriod? WiFi.Radio.1.BeaconPeriod=100
+    WiFi.Radio.2.BeaconPeriod=100 WiFi.Radio.3.BeaconPeriod=100'
 - id: step2
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.BeaconPeriod=1000
+  command: 'Set BeaconPeriod to 1000: ubus-cli WiFi.Radio.*.BeaconPeriod=1000 > WiFi.Radio.*.BeaconPeriod=1000 WiFi.Radio.1.
+    WiFi.Radio.1.BeaconPeriod=1000 WiFi.Radio.2. WiFi.Radio.2.BeaconPeriod=1000 WiFi.Radio.3. WiFi.Radio.3.BeaconPeriod=1000'
   depends_on: step1
-  note: 'Set BeaconPeriod to 1000:'
 - id: step3
   action: exec
   target: DUT
   command: Using Wireshark, capture beacon packets and check the beacon interval at which the gateway broadcasts.
-  capture: result
   depends_on: step2
+  capture: result
 pass_criteria:
 - field: result.BeaconPeriod
   operator: contains

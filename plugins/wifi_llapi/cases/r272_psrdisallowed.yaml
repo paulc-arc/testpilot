@@ -1,4 +1,4 @@
-id: wifi-llapi-r272-radio_ieee80211ax-psrdisallowed
+id: wifi-llapi-r272-psrdisallowed
 name: PSRDisallowed — WiFi.Radio.{i}.IEEE80211ax.
 version: '1.0'
 source:
@@ -22,22 +22,21 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.IEEE80211ax.PSRDisallowed?
-  note: 'Check API default value:'
+  command: '1. Check API default value: ubus-cli WiFi.Radio.*.IEEE80211ax.PSRDisallowed? > WiFi.Radio.*.IEEE80211ax.PSRDisallowed?
+    WiFi.Radio.1.IEEE80211ax.PSRDisallowed=0 WiFi.Radio.2.IEEE80211ax.PSRDisallowed=0 WiFi.Radio.3.IEEE80211ax.PSRDisallowed=0'
 - id: step2
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.IEEE80211ax.PSRDisallowed=1
+  command: 'Modify the API value to 1: ubus-cli WiFi.Radio.*.IEEE80211ax.PSRDisallowed=1'
   depends_on: step1
-  note: 'Modify the API value to 1:'
 - id: step3
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.IEEE80211ax.PSRDisallowed?
-  capture: result
+  command: Check the API value again, compare with driver return and beacon tagged capability- Spatial Reuse Parameter Set
+    - SR Control - SRP Disallowed ubus-cli WiFi.Radio.*.IEEE80211ax.PSRDisallowed? > WiFi.Radio.*.IEEE80211ax.PSRDisallowed?
+    WiFi.Radio.1.IEEE80211ax.PSRDisallowed=1 WiFi.Radio.2.IEEE80211ax.PSRDisallowed=1 WiFi.Radio.3.IEEE80211ax.PSRDisallowed=1
   depends_on: step2
-  note: Check the API value again, compare with driver return and beacon tagged capability- Spatial Reuse Parameter Set -
-    SR Con
+  capture: result
 pass_criteria:
 - field: result.PSRDisallowed
   operator: contains
@@ -88,7 +87,50 @@ verification_command: '(PSRDisallowed=0)
 
   (PSRDisallowed=1)
 
-  root@prplOS:/# wl -i wl0 he sr'
+  root@prplOS:/# wl -i wl0 he sr
+
+
+  HE Spatial Reuse Parameter Set element:
+
+
+  <Enabled>
+
+
+  SR Control:
+
+  - PSR Disallowed (is SET)
+
+  - HESIGA_Spatial_reuse_value15_allowed (is SET)
+
+  root@prplOS:/# wl -i wl1 he sr
+
+
+  HE Spatial Reuse Parameter Set element:
+
+
+  <Enabled>
+
+
+  SR Control:
+
+  - PSR Disallowed (is SET)
+
+  - HESIGA_Spatial_reuse_value15_allowed (is SET)
+
+  root@prplOS:/# wl -i wl2 he sr
+
+
+  HE Spatial Reuse Parameter Set element:
+
+
+  <Enabled>
+
+
+  SR Control:
+
+  - PSR Disallowed (is SET)
+
+  - HESIGA_Spatial_reuse_value15_allowed (is SET)'
 results_reference:
   v4.0.1:
     5g: Pass

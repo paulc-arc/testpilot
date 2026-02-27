@@ -1,4 +1,4 @@
-id: wifi-llapi-r084-accesspoint_security-rekeyinginterval
+id: wifi-llapi-r084-rekeyinginterval
 name: RekeyingInterval — WiFi.AccessPoint.{i}.Security
 version: '1.0'
 source:
@@ -18,13 +18,32 @@ topology:
     DUT:
       role: ap
       transport: serial
+    STA:
+      role: sta
+      transport: adb
+      config:
+      - iface: 5g
+        mode: sta
+        ssid: '{{SSID_5G}}'
+        key: '{{KEY_5G}}'
+    EndpointPC:
+      role: endpoint
+      transport: ssh
+  links:
+  - from: STA
+    to: DUT
+    band: 5g
+  - from: DUT
+    to: EndpointPC
+    interface: eth1
 steps:
 - id: step1
   action: exec
   target: DUT
-  command: cat /tmp/wlx_hapd.conf |grep wpa_group_rekey
+  command: 'Test Procedure: 1.Set/Get RekeyingInterval Set Command: ubus-cli WiFi.AccessPoint.{i}.Security.RekeyingInterval=
+    Get Command: ubus-cli WiFi.AccessPoint.{i}.Security.RekeyingInterval? 2.check hostapd config&webGUI cat /tmp/wlx_hapd.conf
+    |grep wpa_group_rekey 3.STA connect to AP 4.use wireshark to capture rekey packet'
   capture: result
-  note: 'Test Procedure:'
 pass_criteria:
 - field: result.RekeyingInterval
   operator: contains

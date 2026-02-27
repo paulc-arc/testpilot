@@ -1,4 +1,4 @@
-id: wifi-llapi-r316-accesspoint_neighbour-nasidentifier
+id: wifi-llapi-r316-nasidentifier
 name: NASIdentifier — WiFi.AccessPoint.{i}.Neighbour.{i}.
 version: '1.0'
 source:
@@ -22,13 +22,13 @@ steps:
 - id: query
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.{i}.Neighbour.{i}.NASIdentifier
+  command: ubus-cli WiFi.AccessPoint.{i}.Neighbour.{i}.NASIdentifier="A030A6C9A214ABA6"
   capture: result
 pass_criteria:
 - field: result.NASIdentifier
   operator: contains
-  value: A030A6C9A214ABA6
-  description: NASIdentifier 應回傳包含 NASIdentifier=A030A6C9A214ABA6
+  value: '"A030A6C9A214ABA6"'
+  description: NASIdentifier 應回傳包含 NASIdentifier="A030A6C9A214ABA6"
 results_reference:
   v4.0.1:
     5g: Pass

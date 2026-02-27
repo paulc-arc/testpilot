@@ -1,4 +1,4 @@
-id: wifi-llapi-r034-accesspoint_associateddevice-retransmissions
+id: wifi-llapi-r034-retransmissions
 name: Retransmissions — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -74,10 +74,11 @@ steps:
 - id: step8
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.Retransmissions?
-  capture: result
+  command: 'Check AssociatedDevice Stats.Retransmission ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.Retransmissions? >
+    WiFi.AccessPoint.*.AssociatedDevice.*.Retransmissions? WiFi.AccessPoint.1.AssociatedDevice.1.Retransmissions=0 WiFi.AccessPoint.3.AssociatedDevice.1.Retransmissions=0
+    WiFi.AccessPoint.5.AssociatedDevice.1.Retransmissions=0 Note: run the test overnight"_x0001_'
   depends_on: step7
-  note: Check AssociatedDevice Stats.Retransmission
+  capture: result
 pass_criteria:
 - field: result.Retransmissions
   operator: contains
@@ -121,7 +122,45 @@ verification_command: 'root@prplOS:/# wl -i wl0 sta_info 34:19:4d:a4:b5:09 | gre
 
   rx ucast pkts: 66319
 
-  rx '
+  rx mcast/bcast pkts: 3084
+
+  tx data pkts retried: 0
+
+  tx total pkts sent: 54992
+
+  tx pkts retries: 7589
+
+  tx pkts retry exhausted: 18
+
+  rx total pkts retried: 973
+
+  tx acked pkts: 54974
+
+  root@prplOS:/# wl -i wl2 sta_info 34:19:4d:a4:b4:33 | grep pkts
+
+  tx total pkts: 67114
+
+  tx ucast pkts: 67114
+
+  tx mcast/bcast pkts: 0
+
+  rx data pkts: 123103
+
+  rx ucast pkts: 120005
+
+  rx mcast/bcast pkts: 3098
+
+  tx data pkts retried: 0
+
+  tx total pkts sent: 66129
+
+  tx pkts retries: 24378
+
+  tx pkts retry exhausted: 549
+
+  rx total pkts retried: 17456
+
+  tx acked pkts: 65580'
 results_reference:
   v4.0.1:
     5g: Fail

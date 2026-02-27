@@ -1,4 +1,4 @@
-id: wifi-llapi-r269-accesspoint-mboassocdisallowreason
+id: wifi-llapi-r269-mboassocdisallowreason
 name: MBOAssocDisallowReason — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:
@@ -22,13 +22,13 @@ steps:
 - id: query
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.{i}.MBOAssocDisallowReason
+  command: ubus-cli WiFi.AccessPoint.{i}.MBOAssocDisallowReason="Off"
   capture: result
 pass_criteria:
 - field: result.MBOAssocDisallowReason
   operator: contains
-  value: 'Off'
-  description: MBOAssocDisallowReason 應回傳包含 MBOAssocDisallowReason=Off
+  value: '"Off"'
+  description: MBOAssocDisallowReason 應回傳包含 MBOAssocDisallowReason="Off"
 results_reference:
   v4.0.1:
     5g: ''

@@ -1,4 +1,4 @@
-id: wifi-llapi-r341-radio_ieee80211ax-nonsrgoffsetvalid
+id: wifi-llapi-r341-nonsrgoffsetvalid
 name: NonSRGOffsetValid — WiFi.Radio.{i}.IEEE80211ax.
 version: '1.0'
 source:
@@ -22,7 +22,7 @@ steps:
 - id: query
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.{i}.IEEE80211ax.NonSRGOffsetValid
+  command: ubus-cli WiFi.Radio.{i}.IEEE80211ax.NonSRGOffsetValid=0
   capture: result
 pass_criteria:
 - field: result.NonSRGOffsetValid

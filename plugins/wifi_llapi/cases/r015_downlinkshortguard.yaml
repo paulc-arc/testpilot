@@ -1,4 +1,4 @@
-id: wifi-llapi-r015-accesspoint_associateddevice-downlinkshortguard
+id: wifi-llapi-r015-downlinkshortguard
 name: DownlinkShortGuard — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -34,14 +34,15 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect WiFi Station to GW.
+  command: 1. Connect WiFi Station to GW.
 - id: step2
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.AssociatedDevice.? | grep DownlinkShortGuard
-  capture: result
+  command: Verify Associated Station DownlinkShortGuard ubus-cli WiFi.AccessPoint.*.AssociatedDevice.? | grep DownlinkShortGuard
+    WiFi.AccessPoint.1.AssociatedDevice.1.DownlinkShortGuard=0 WiFi.AccessPoint.3.AssociatedDevice.1.DownlinkShortGuard=0
+    WiFi.AccessPoint.5.AssociatedDevice.1.DownlinkShortGuard=0
   depends_on: step1
-  note: Verify Associated Station DownlinkShortGuard
+  capture: result
 pass_criteria:
 - field: result.DownlinkShortGuard
   operator: contains

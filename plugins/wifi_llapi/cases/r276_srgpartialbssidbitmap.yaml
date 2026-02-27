@@ -1,4 +1,4 @@
-id: wifi-llapi-r276-radio_ieee80211ax-srgpartialbssidbitmap
+id: wifi-llapi-r276-srgpartialbssidbitmap
 name: SRGPartialBSSIDBitmap — WiFi.Radio.{i}.IEEE80211ax.
 version: '1.0'
 source:
@@ -22,13 +22,13 @@ steps:
 - id: query
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.{i}.IEEE80211ax.SRGPartialBSSIDBitmap
+  command: ubus-cli WiFi.Radio.{i}.IEEE80211ax.SRGPartialBSSIDBitmap=""
   capture: result
 pass_criteria:
 - field: result.SRGPartialBSSIDBitmap
   operator: contains
-  value: ''
-  description: SRGPartialBSSIDBitmap 應回傳包含 SRGPartialBSSIDBitmap=
+  value: '""'
+  description: SRGPartialBSSIDBitmap 應回傳包含 SRGPartialBSSIDBitmap=""
 results_reference:
   v4.0.1:
     5g: To be tested

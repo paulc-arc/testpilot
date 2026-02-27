@@ -1,4 +1,4 @@
-id: wifi-llapi-r300-radio-txbeamformingcapsenabled
+id: wifi-llapi-r300-txbeamformingcapsenabled
 name: TxBeamformingCapsEnabled — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -22,34 +22,30 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.TxBeamformingCapsEnabled?
-  note: 'Check API default value:'
+  command: '1. Check API default value: ubus-cli WiFi.Radio.*.TxBeamformingCapsEnabled? > WiFi.Radio.*.TxBeamformingCapsEnabled?
+    WiFi.Radio.1.TxBeamformingCapsEnabled="DEFAULT" WiFi.Radio.2.TxBeamformingCapsEnabled="DEFAULT" WiFi.Radio.3.TxBeamformingCapsEnabled="DEFAULT"'
 - id: step2
   action: exec
   target: DUT
-  command: 'ubus-cli WiFi.Radio.*.TxBeamformingCapsEnabled="On"
-
-    ubus-cli WiFi.Radio.*.TxBeamformingCapsEnabled="Off"
-
-    ubus-cli WiFi.Radio.*.TxBeamformingCapsEnabled="Auto"'
+  command: Modify the API value to "Auto"、"On、"Off" ubus-cli WiFi.Radio.*.TxBeamformingCapsEnabled="On" ubus-cli WiFi.Radio.*.TxBeamformingCapsEnabled="Off"
+    ubus-cli WiFi.Radio.*.TxBeamformingCapsEnabled="Auto"
   depends_on: step1
-  note: Modify the API value to "Auto"、"On、"Off"
 - id: step3
   action: exec
   target: DUT
-  command: 'ubus-cli WiFi.Radio.*.TxBeamformingCapsEnabled?
-
-    ubus-cli WiFi.Radio.*.TxBeamformingCapsEnabled?
-
-    ubus-cli WiFi.Radio.*.TxBeamformingCapsEnabled?'
-  capture: result
+  command: Check API value again, when value="On" it will get 1 and "Off" will be 0. ubus-cli WiFi.Radio.*.TxBeamformingCapsEnabled?
+    > WiFi.Radio.*.TxBeamformingCapsEnabled? WiFi.Radio.1.TxBeamformingCapsEnabled="1" WiFi.Radio.2.TxBeamformingCapsEnabled="1"
+    WiFi.Radio.3.TxBeamformingCapsEnabled="1" ubus-cli WiFi.Radio.*.TxBeamformingCapsEnabled? > WiFi.Radio.*.TxBeamformingCapsEnabled?
+    WiFi.Radio.1.TxBeamformingCapsEnabled="0" WiFi.Radio.2.TxBeamformingCapsEnabled="0" WiFi.Radio.3.TxBeamformingCapsEnabled="0"
+    ubus-cli WiFi.Radio.*.TxBeamformingCapsEnabled? > WiFi.Radio.*.TxBeamformingCapsEnabled? WiFi.Radio.1.TxBeamformingCapsEnabled="Auto"
+    WiFi.Radio.2.TxBeamformingCapsEnabled="Auto" WiFi.Radio.3.TxBeamformingCapsEnabled="Auto"
   depends_on: step2
-  note: Check API value again, when value="On" it will get 1 and "Off" will be 0.
+  capture: result
 pass_criteria:
 - field: result.TxBeamformingCapsEnabled
   operator: contains
-  value: DEFAULT
-  description: TxBeamformingCapsEnabled 應回傳包含 TxBeamformingCapsEnabled=DEFAULT
+  value: '"DEFAULT"'
+  description: TxBeamformingCapsEnabled 應回傳包含 TxBeamformingCapsEnabled="DEFAULT"
 results_reference:
   v4.0.1:
     5g: Pass

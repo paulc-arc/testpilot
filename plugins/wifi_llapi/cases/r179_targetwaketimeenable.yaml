@@ -1,4 +1,4 @@
-id: wifi-llapi-r179-radio-targetwaketimeenable
+id: wifi-llapi-r179-targetwaketimeenable
 name: TargetWakeTimeEnable — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -18,12 +18,24 @@ topology:
     DUT:
       role: ap
       transport: serial
+    STA:
+      role: sta
+      transport: adb
+      config:
+      - iface: 5g
+        mode: sta
+        ssid: '{{SSID_5G}}'
+        key: '{{KEY_5G}}'
+  links:
+  - from: STA
+    to: DUT
+    band: 5g
 steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.TargetWakeTimeEnable?
-  note: 'Check the API default value for all radio:'
+  command: '1. Check the API default value for all radio: ubus-cli WiFi.Radio.*.TargetWakeTimeEnable? > WiFi.Radio.*.TargetWakeTimeEnable?
+    WiFi.Radio.1.TargetWakeTimeEnable=1 WiFi.Radio.2.TargetWakeTimeEnable=1 WiFi.Radio.3.TargetWakeTimeEnable=1'
 - id: step2
   action: exec
   target: DUT
@@ -32,15 +44,14 @@ steps:
 - id: step3
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.TargetWakeTimeEnable=0
+  command: 'Try switch the ability of this API: ubus-cli WiFi.Radio.*.TargetWakeTimeEnable=0'
   depends_on: step2
-  note: 'Try switch the ability of this API:'
 - id: step4
   action: exec
   target: DUT
   command: Check the "TWT Responder Supported" for all radio beacons again.
-  capture: result
   depends_on: step3
+  capture: result
 pass_criteria:
 - field: result.TargetWakeTimeEnable
   operator: contains

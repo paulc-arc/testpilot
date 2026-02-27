@@ -1,4 +1,4 @@
-id: wifi-llapi-r138-radio-activeantennactrl
+id: wifi-llapi-r138-activeantennactrl
 name: ActiveAntennaCtrl — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -22,9 +22,9 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.ActiveAntennaCtrl?
+  command: '1. Check GW radio ActiveAntennaCtrl: ubus-cli WiFi.Radio.*.ActiveAntennaCtrl? > WiFi.Radio.*.ActiveAntennaCtrl?
+    WiFi.Radio.1.ActiveAntennaCtrl=-1 WiFi.Radio.2.ActiveAntennaCtrl=-1 WiFi.Radio.3.ActiveAntennaCtrl=-1'
   capture: result
-  note: 'Check GW radio ActiveAntennaCtrl:'
 pass_criteria:
 - field: result.ActiveAntennaCtrl
   operator: contains

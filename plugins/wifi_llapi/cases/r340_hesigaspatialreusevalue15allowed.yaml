@@ -1,4 +1,4 @@
-id: wifi-llapi-r340-radio_ieee80211ax-hesigaspatialreusevalue15allowed
+id: wifi-llapi-r340-hesigaspatialreusevalue15allowed
 name: HESIGASpatialReuseValue15Allowed — WiFi.Radio.{i}.IEEE80211ax.
 version: '1.0'
 source:
@@ -22,14 +22,14 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.IEEE80211ax.HESIGASpatialReuseValue15Allowed=1
-  note: 'Set this value to 1:'
+  command: '1. Set this value to 1: ubus-cli WiFi.Radio.*.IEEE80211ax.HESIGASpatialReuseValue15Allowed=1'
 - id: step2
   action: exec
   target: DUT
-  command: 'Check the beacon from Wireshark, there should be an IE recording this :'
-  capture: result
+  command: 'Check the beacon from Wireshark, there should be an IE recording this : IEEE 802.11 Wireless Management |_Tagged
+    Parameters |_Ext Tag: Spatial Reuse Parameter Set |_SR Control: 0x10 |_HESIGA Spatial Reuse value 15 allowed: True'
   depends_on: step1
+  capture: result
 pass_criteria:
 - field: result.HESIGASpatialReuseValue15Allowed
   operator: contains
@@ -77,7 +77,31 @@ verification_command: '(HESIGASpatialReuseValue15Allowed=0)
 
   - HESIGA_Spatial_reuse_value15_allowed (is SET)
 
-  root@prplOS:/# wl -i wl1 he s'
+  root@prplOS:/# wl -i wl1 he sr
+
+
+  HE Spatial Reuse Parameter Set element:
+
+
+  <Enabled>
+
+
+  SR Control:
+
+  - HESIGA_Spatial_reuse_value15_allowed (is SET)
+
+  root@prplOS:/# wl -i wl2 he sr
+
+
+  HE Spatial Reuse Parameter Set element:
+
+
+  <Enabled>
+
+
+  SR Control:
+
+  - HESIGA_Spatial_reuse_value15_allowed (is SET)'
 results_reference:
   v4.0.1:
     5g: Pass

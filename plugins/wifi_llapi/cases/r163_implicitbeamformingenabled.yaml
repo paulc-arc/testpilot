@@ -1,4 +1,4 @@
-id: wifi-llapi-r163-radio-implicitbeamformingenabled
+id: wifi-llapi-r163-implicitbeamformingenabled
 name: ImplicitBeamFormingEnabled — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -22,8 +22,8 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.ImplicitBeamFormingEnabled?
-  note: 'Check API default value:'
+  command: '1. Check API default value: ubus-cli WiFi.Radio.*.ImplicitBeamFormingEnabled? > WiFi.Radio.*.ImplicitBeamFormingEnabled?
+    WiFi.Radio.1.ImplicitBeamFormingEnabled=1 WiFi.Radio.2.ImplicitBeamFormingEnabled=1 WiFi.Radio.3.ImplicitBeamFormingEnabled=1'
 - id: step2
   action: exec
   target: DUT
@@ -32,15 +32,14 @@ steps:
 - id: step3
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.ImplicitBeamFormingEnabled=0
+  command: 'Change the ImplicitBeamFormingEnabled to 0: ubus-cli WiFi.Radio.*.ImplicitBeamFormingEnabled=0'
   depends_on: step2
-  note: 'Change the ImplicitBeamFormingEnabled to 0:'
 - id: step4
   action: exec
   target: DUT
   command: Compare with driver returned value and beacon capability.
-  capture: result
   depends_on: step3
+  capture: result
 pass_criteria:
 - field: result.ImplicitBeamFormingEnabled
   operator: contains

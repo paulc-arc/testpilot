@@ -1,4 +1,4 @@
-id: wifi-llapi-r157-radio-hecapssupported
+id: wifi-llapi-r157-hecapssupported
 name: HeCapsSupported — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -22,9 +22,10 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.HeCapsSupported?
+  command: '1. Read supported He Capability for all radios: ubus-cli WiFi.Radio.*.HeCapsSupported? > WiFi.Radio.*.HeCapsSupported?
+    WiFi.Radio.1.HeCapsSupported="DL_OFDMA,UL_OFDMA,DL_MUMIMO,UL_MUMIMO" WiFi.Radio.2.HeCapsSupported="DL_OFDMA,UL_OFDMA,DL_MUMIMO,UL_MUMIMO"
+    WiFi.Radio.3.HeCapsSupported="DL_OFDMA,UL_OFDMA,DL_MUMIMO,UL_MUMIMO"'
   capture: result
-  note: 'Read supported He Capability for all radios:'
 pass_criteria:
 - field: result.HeCapsSupported
   operator: contains

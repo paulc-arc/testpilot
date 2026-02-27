@@ -1,4 +1,4 @@
-id: wifi-llapi-r259-ssid_stats-unicastpacketsreceived
+id: wifi-llapi-r259-unicastpacketsreceived
 name: UnicastPacketsReceived — WiFi.SSID.{i}.Stats.
 version: '1.0'
 source:
@@ -34,7 +34,7 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect WiFi Station to GW SSID4, SSID6 and SSID8
+  command: 1. Connect WiFi Station to GW SSID4, SSID6 and SSID8
 - id: step2
   action: exec
   target: DUT
@@ -43,10 +43,10 @@ steps:
 - id: step3
   action: exec
   target: DUT
-  command: ubus-cli WiFi.SSID.*.Stats.UnicastPacketsReceived?
-  capture: result
+  command: Get stats UnicastPacketsReceived ubus-cli WiFi.SSID.*.Stats.UnicastPacketsReceived? > WiFi.SSID.*.Stats.UnicastPacketsReceived?
+    WiFi.SSID.4.Stats.UnicastPacketsReceived=0 WiFi.SSID.6.Stats.UnicastPacketsReceived=0 WiFi.SSID.8.Stats.UnicastPacketsReceived=0
   depends_on: step2
-  note: Get stats UnicastPacketsReceived
+  capture: result
 pass_criteria:
 - field: result.UnicastPacketsReceived
   operator: contains

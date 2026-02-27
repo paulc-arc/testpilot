@@ -1,4 +1,4 @@
-id: wifi-llapi-r141-radio-channelload
+id: wifi-llapi-r141-channelload
 name: ChannelLoad — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -22,15 +22,15 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.ChannelLoad?
-  note: 'Check the ChannelLoad in the air:'
+  command: '1. Check the ChannelLoad in the air: ubus-cli WiFi.Radio.*.ChannelLoad? > WiFi.Radio.*.ChannelLoad? WiFi.Radio.1.ChannelLoad=0
+    WiFi.Radio.2.ChannelLoad=0 WiFi.Radio.3.ChannelLoad=0'
 - id: step2
   action: exec
   target: DUT
   command: Compare it with driver survey dump, calculate (channel active time/busy time). The two values should be approximately
     equal.
-  capture: result
   depends_on: step1
+  capture: result
 pass_criteria:
 - field: result.ChannelLoad
   operator: contains

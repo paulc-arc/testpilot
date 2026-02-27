@@ -1,4 +1,4 @@
-id: wifi-llapi-r022-accesspoint_associateddevice-lastdatauplinkrate
+id: wifi-llapi-r022-lastdatauplinkrate
 name: LastDataUplinkRate — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -34,7 +34,8 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect WiFi Station and check Station LastDataUplinkRate
+  command: '##Connect WiFi Station and check Station LastDataUplinkRate WiFi.AccessPoint.1.AssociatedDevice.1.LastDataUplinkRate=292400
+    WiFi.AccessPoint.3.AssociatedDevice.1.LastDataUplinkRate=146200 WiFi.AccessPoint.5.AssociatedDevice.1.LastDataUplinkRate=24300'
   capture: result
 pass_criteria:
 - field: result.LastDataUplinkRate

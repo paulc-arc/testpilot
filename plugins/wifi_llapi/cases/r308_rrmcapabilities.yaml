@@ -1,4 +1,4 @@
-id: wifi-llapi-r308-accesspoint_associateddevice-rrmcapabilities
+id: wifi-llapi-r308-rrmcapabilities
 name: RrmCapabilities — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -34,19 +34,21 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect WiFi Station to GW
+  command: 1. Connect WiFi Station to GW
 - id: step2
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.RrmCapabilities?
-  capture: result
+  command: Verify Station RrmCapabilities ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.RrmCapabilities? > WiFi.AccessPoint.*.AssociatedDevice.*.RrmCapabilities?
+    WiFi.AccessPoint.1.AssociatedDevice.5.RrmCapabilities="LINK,NEIGHBOR,BEACON_ACTIVE,BEACON_PASSIVE,BEACON_TABLE,STATS,AP_CHANNEL"
+    WiFi.AccessPoint.3.AssociatedDevice.2.RrmCapabilities="LINK,NEIGHBOR,BEACON_ACTIVE,BEACON_PASSIVE,BEACON_TABLE,STATS,AP_CHANNEL"
+    WiFi.AccessPoint.5.AssociatedDevice.3.RrmCapabilities="LINK,NEIGHBOR,BEACON_ACTIVE,BEACON_PASSIVE,BEACON_TABLE,STATS,AP_CHANNEL"
   depends_on: step1
-  note: Verify Station RrmCapabilities
+  capture: result
 pass_criteria:
 - field: result.RrmCapabilities
   operator: contains
-  value: LINK,NEIGHBOR,BEACON_ACTIVE,BEACON_PASSIVE,BEACON_TABLE,LCI,AP_CHANNEL,FTM
-  description: RrmCapabilities 應回傳包含 RrmCapabilities=LINK,NEIGHBOR,BEACON_ACTIVE,BEACON_PASSIVE,BEACON_TABLE,LCI,AP_CHANNEL,FTM
+  value: '"LINK,NEIGHBOR,BEACON_ACTIVE,BEACON_PASSIVE,BEACON_TABLE,LCI,AP_CHANNEL,FTM"'
+  description: RrmCapabilities 應回傳包含 RrmCapabilities="LINK,NEIGHBOR,BEACON_ACTIVE,BEACON_PASSIVE,BEACON_TABLE,LCI,AP_CHANNEL,FTM"
 verification_command: 'root@prplOS:/# wl -i wl0 sta_info 56:50:99:6B:A0:89 | grep RRM
 
   RRM capability = 0x10873 Link_Measurement Neighbor_Report Beacon_Passive Beacon_Active Beacon_Table Statistics_Measurement
@@ -61,7 +63,8 @@ verification_command: 'root@prplOS:/# wl -i wl0 sta_info 56:50:99:6B:A0:89 | gre
 
   root@prplOS:/# wl -i wl2 sta_info 56:50:99:6B:A0:89 | grep RRM
 
-  RRM capability = 0x10873 Li'
+  RRM capability = 0x10873 Link_Measurement Neighbor_Report Beacon_Passive Beacon_Active Beacon_Table Statistics_Measurement
+  AP_Channel_Report'
 results_reference:
   v4.0.1:
     5g: Pass

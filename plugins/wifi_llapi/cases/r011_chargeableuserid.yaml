@@ -1,4 +1,4 @@
-id: wifi-llapi-r011-accesspoint_associateddevice-chargeableuserid
+id: wifi-llapi-r011-chargeableuserid
 name: ChargeableUserId — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -34,13 +34,14 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect WiFi Station and check Station ChargeableUserId
+  command: '##Connect WiFi Station and check Station ChargeableUserId WiFi.AccessPoint.1.AssociatedDevice.1.ChargeableUserId=""
+    WiFi.AccessPoint.3.AssociatedDevice.1.ChargeableUserId="" WiFi.AccessPoint.5.AssociatedDevice.1.ChargeableUserId=""'
   capture: result
 pass_criteria:
 - field: result
-  operator: not_contains
-  value: error
-  description: ChargeableUserId 執行不應回傳 error
+  operator: not_empty
+  value: ''
+  description: ChargeableUserId 應回傳非空結果
 verification_command: wl -i wl0 sta_info ${STA_MAC}
 results_reference:
   v4.0.1:

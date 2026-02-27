@@ -1,4 +1,4 @@
-id: wifi-llapi-r010-accesspoint_associateddevice-capabilities
+id: wifi-llapi-r010-capabilities
 name: Capabilities — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -34,18 +34,14 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect WiFi Station to GW
+  command: 1. Connect WiFi Station to GW
 - id: step2
   action: exec
   target: DUT
-  command: 'ubus-cli WiFi.AccessPoint.1.AssociatedDevice.1.Capabilities="RRM,BTM,QOS_MAP,PMF"
-
-    ubus-cli WiFi.AccessPoint.3.AssociatedDevice.1.Capabilities="RRM,BTM,QOS_MAP,PMF"
-
-    ubus-cli WiFi.AccessPoint.5.AssociatedDevice.1.Capabilities="RRM,BTM,QOS_MAP,PMF"'
-  capture: result
+  command: Verify Associated station Capabilities ubus-cli WiFi.AccessPoint.1.AssociatedDevice.1.Capabilities="RRM,BTM,QOS_MAP,PMF"
+    ubus-cli WiFi.AccessPoint.3.AssociatedDevice.1.Capabilities="RRM,BTM,QOS_MAP,PMF" ubus-cli WiFi.AccessPoint.5.AssociatedDevice.1.Capabilities="RRM,BTM,QOS_MAP,PMF"
   depends_on: step1
-  note: Verify Associated station Capabilities
+  capture: result
 pass_criteria:
 - field: result.Capabilities
   operator: contains

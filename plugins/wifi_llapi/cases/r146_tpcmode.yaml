@@ -1,4 +1,4 @@
-id: wifi-llapi-r146-radio_driverconfig-tpcmode
+id: wifi-llapi-r146-tpcmode
 name: TPCMode — WiFi.Radio.{i}.DriverConfig.
 version: '1.0'
 source:
@@ -22,7 +22,7 @@ steps:
 - id: query
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.{i}.DriverConfig.TPCMode
+  command: ubus-cli WiFi.Radio.{i}.DriverConfig.TPCMode=Auto
   capture: result
 pass_criteria:
 - field: result.TPCMode

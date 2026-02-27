@@ -1,4 +1,4 @@
-id: wifi-llapi-r041-accesspoint_associateddevice-signalnoiseratio
+id: wifi-llapi-r041-signalnoiseratio
 name: SignalNoiseRatio — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -18,25 +18,13 @@ topology:
     DUT:
       role: ap
       transport: serial
-    STA:
-      role: sta
-      transport: adb
-      config:
-      - iface: 5g
-        mode: sta
-        ssid: '{{SSID_5G}}'
-        key: '{{KEY_5G}}'
-  links:
-  - from: STA
-    to: DUT
-    band: 5g
 steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.SignalNoiseRatio?
+  command: ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.SignalNoiseRatio? > WiFi.AccessPoint.*.AssociatedDevice.*.SignalNoiseRatio?
+    WiFi.AccessPoint.1.AssociatedDevice.1.SignalNoiseRatio=0 WiFi.AccessPoint.3.AssociatedDevice.1.SignalNoiseRatio=0 WiFi.AccessPoint.5.AssociatedDevice.1.SignalNoiseRatio=0
   capture: result
-  note: root@prplOS:/# ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.SignalNoiseRatio?
 pass_criteria:
 - field: result.SignalNoiseRatio
   operator: contains

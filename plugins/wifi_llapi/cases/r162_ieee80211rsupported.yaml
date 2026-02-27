@@ -1,4 +1,4 @@
-id: wifi-llapi-r162-radio-ieee80211rsupported
+id: wifi-llapi-r162-ieee80211rsupported
 name: IEEE80211rSupported — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -18,14 +18,27 @@ topology:
     DUT:
       role: ap
       transport: serial
+    STA:
+      role: sta
+      transport: adb
+      config:
+      - iface: 5g
+        mode: sta
+        ssid: '{{SSID_5G}}'
+        key: '{{KEY_5G}}'
+  links:
+  - from: STA
+    to: DUT
+    band: 5g
 steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.IEEE80211rSupported?
+  command: '1. Read-only API, defines whether each radio supported 802.11r standard. Check the API value and compare them
+    with driver capability and packets'' tag from radio beacons: ubus-cli WiFi.Radio.*.IEEE80211rSupported? > WiFi.Radio.*.IEEE80211rSupported?
+    WiFi.Radio.1.IEEE80211rSupported=1 WiFi.Radio.2.IEEE80211rSupported=1 WiFi.Radio.3.IEEE80211rSupported=1 Radio2 (6GHz)
+    support=1, but representing IE not seen in beacon.'
   capture: result
-  note: Read-only API, defines whether each radio supported 802.11r standard. Check the API value and compare them with driver
-    c
 pass_criteria:
 - field: result.IEEE80211rSupported
   operator: contains

@@ -1,4 +1,4 @@
-id: wifi-llapi-r068-accesspoint_ieee80211r-mobilitydomain
+id: wifi-llapi-r068-mobilitydomain
 name: MobilityDomain — WiFi.AccessPoint.{i}.IEEE80211r.
 version: '1.0'
 source:
@@ -22,9 +22,9 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.1.IEEE80211r.MobilityDomain=1
+  command: \\Set MobilityDomain ubus-cli WiFi.AccessPoint.1.IEEE80211r.MobilityDomain=1 > WiFi.AccessPoint.1.IEEE80211r.MobilityDomain=1
+    WiFi.AccessPoint.1.IEEE80211r. WiFi.AccessPoint.1.IEEE80211r.MobilityDomain=1
   capture: result
-  note: Set MobilityDomain
 pass_criteria:
 - field: result.MobilityDomain
   operator: contains

@@ -1,4 +1,4 @@
-id: wifi-llapi-r306-accesspoint_associateddevice-maxtxspatialstreamssupported
+id: wifi-llapi-r306-maxtxspatialstreamssupported
 name: MaxTxSpatialStreamsSupported — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -34,14 +34,15 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect WiFi Station to GW
+  command: 1. Connect WiFi Station to GW
 - id: step2
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.? | grep MaxTxSpatialStreamsSupported
-  capture: result
+  command: Verify Station MaxTxSpatialStreamsSupported ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.? | grep MaxTxSpatialStreamsSupported
+    WiFi.AccessPoint.1.AssociatedDevice.1.MaxTxSpatialStreamsSupported=4 WiFi.AccessPoint.3.AssociatedDevice.1.MaxTxSpatialStreamsSupported=4
+    WiFi.AccessPoint.5.AssociatedDevice.1.MaxTxSpatialStreamsSupported=4
   depends_on: step1
-  note: Verify Station MaxTxSpatialStreamsSupported
+  capture: result
 pass_criteria:
 - field: result.MaxTxSpatialStreamsSupported
   operator: contains
@@ -73,7 +74,11 @@ verification_command: 'root@prplOS:/# wl -i wl0 sta_info 34:19:4D:A4:B5:09 | gre
 
   tx nrate
 
-  eht mcs 10 Nss 3 Tx Exp 1 bw20 l'
+  eht mcs 10 Nss 3 Tx Exp 1 bw20 ldpc 2xLTF GI 0.8us auto
+
+  rx nrate
+
+  eht mcs 13 Nss 1 Tx Exp 0 bw20 txbf ldpc 2xLTF GI 0.8us auto'
 results_reference:
   v4.0.1:
     5g: Pass

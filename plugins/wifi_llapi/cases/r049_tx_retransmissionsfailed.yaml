@@ -1,4 +1,4 @@
-id: wifi-llapi-r049-accesspoint_associateddevice-tx_retransmissionsfailed
+id: wifi-llapi-r049-tx-retransmissionsfailed
 name: Tx_RetransmissionsFailed — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -40,7 +40,7 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect WiFi station to GW SSID4, SSID6 and SSID8
+  command: 1. Connect WiFi station to GW SSID4, SSID6 and SSID8
 - id: step2
   action: exec
   target: DUT
@@ -49,9 +49,10 @@ steps:
 - id: step3
   action: exec
   target: DUT
-  command: Verify Tx_RetransmissionsFailed
-  capture: result
+  command: Verify Tx_RetransmissionsFailed WiFi.AccessPoint.1.AssociatedDevice.1.Tx_RetransmissionsFailed=0 WiFi.AccessPoint.3.AssociatedDevice.1.Tx_RetransmissionsFailed=0
+    WiFi.AccessPoint.5.AssociatedDevice.1.Tx_RetransmissionsFailed=0
   depends_on: step2
+  capture: result
 pass_criteria:
 - field: result.Tx_RetransmissionsFailed
   operator: contains
@@ -90,7 +91,79 @@ verification_command: 'root@prplOS:/# wl -i wl0 sta_info DE:B4:40:A6:40:D5 | gre
   tx acked pkts: 85899
 
 
-  root@prplOS:/# wl -i wl1 sta_info 38:06:E'
+  root@prplOS:/# wl -i wl1 sta_info 38:06:E6:92:B0:4A | grep tx
+
+  OMI 0x32e3: 160Mhz rx=4ss tx=4ss ER_SU_DISABLE UL_MU_DISABLE
+
+  tx total pkts: 53930
+
+  tx total bytes: 5510660
+
+  tx ucast pkts: 53930
+
+  tx ucast bytes: 5510660
+
+  tx mcast/bcast pkts: 0
+
+  tx mcast/bcast bytes: 0
+
+  tx failures: 18
+
+  rate of last tx pkt: 4083330 kbps - 2450000 kbps
+
+  median tx rate: 0 kbps
+
+  tx data pkts retried: 0
+
+  tx total pkts sent: 53912
+
+  tx pkts retries: 7449
+
+  tx pkts retry exhausted: 18
+
+  tx acked pkts: 53894
+
+
+  root@prplOS:/# wl -i wl2 sta_info 34:19:4D:A4:B4:33 | grep tx
+
+  OMI 0x3223: 20Mhz rx=4ss tx=4ss ER_SU_DISABLE UL_MU_DISABLE
+
+  tx total pkts: 65798
+
+  tx total bytes: 10671982
+
+  tx ucast pkts: 65798
+
+  tx ucast bytes: 10671982
+
+  tx mcast/bcast pkts: 0
+
+  tx mcast/bcast bytes: 0
+
+  tx failures: 549
+
+  rate of last tx pkt: 464550 kbps - 292500 kbps
+
+  median tx rate: 0 kbps
+
+  tx data pkts retried: 0
+
+  tx total pkts sent: 64817
+
+  tx pkts retries: 24069
+
+  tx pkts retry exhausted: 549
+
+  tx acked pkts: 64268
+
+
+
+
+  tx pkts retries: → Tx_Retransmissions
+
+  tx pkts retry exhausted: → Tx_RetransmissionsFailed
+
+  tx failures: → Same as above'
 results_reference:
   v4.0.1:
     5g: Fail

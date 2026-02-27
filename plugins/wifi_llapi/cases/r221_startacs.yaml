@@ -1,4 +1,4 @@
-id: wifi-llapi-r221-radio-startacs
+id: wifi-llapi-r221-startacs
 name: startACS() — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -18,17 +18,28 @@ topology:
     DUT:
       role: ap
       transport: serial
+    STA:
+      role: sta
+      transport: adb
+      config:
+      - iface: 5g
+        mode: sta
+        ssid: '{{SSID_5G}}'
+        key: '{{KEY_5G}}'
+  links:
+  - from: STA
+    to: DUT
+    band: 5g
 steps:
 - id: step1
   action: exec
   target: DUT
-  command: 'ubus-cli "WiFi.Radio.1.startACS()"
-
-    ubus-cli "WiFi.Radio.2.startACS()"
-
-    ubus-cli "WiFi.Radio.3.startACS()"'
+  command: '1. Try call API function: ubus-cli "WiFi.Radio.1.startACS()" > WiFi.Radio.1.startACS() ERROR: call (null) failed
+    with status 1 - unknown error WiFi.Radio.1.startACS() returned [ "" ] ubus-cli "WiFi.Radio.2.startACS()" > WiFi.Radio.2.startACS()
+    ERROR: call (null) failed with status 1 - unknown error WiFi.Radio.2.startACS() returned [ "" ] ubus-cli "WiFi.Radio.3.startACS()"
+    > WiFi.Radio.3.startACS() ERROR: call (null) failed with status 1 - unknown error WiFi.Radio.3.startACS() returned [ ""
+    ]'
   capture: result
-  note: 'Try call API function:'
 pass_criteria:
 - field: result
   operator: not_contains

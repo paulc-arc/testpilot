@@ -1,4 +1,4 @@
-id: wifi-llapi-r148-radio_driverstatus-nractivetxantenna
+id: wifi-llapi-r148-nractivetxantenna
 name: NrActiveTxAntenna — WiFi.Radio.{i}.DriverStatus.
 version: '1.0'
 source:
@@ -22,9 +22,9 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.DriverStatus.NrActiveTxAntenna?
+  command: 1. Check GW Radio DriverStatus.NrActiveTxAntenna ubus-cli WiFi.Radio.*.DriverStatus.NrActiveTxAntenna? > WiFi.Radio.*.DriverStatus.NrActiveTxAntenna?
+    WiFi.Radio.1.DriverStatus.NrActiveTxAntenna=-1 WiFi.Radio.2.DriverStatus.NrActiveTxAntenna=-1 WiFi.Radio.3.DriverStatus.NrActiveTxAntenna=-1
   capture: result
-  note: Check GW Radio DriverStatus.NrActiveTxAntenna
 pass_criteria:
 - field: result.NrActiveTxAntenna
   operator: contains

@@ -1,4 +1,4 @@
-id: wifi-llapi-r159-radio-ieee80211henabled
+id: wifi-llapi-r159-ieee80211henabled
 name: IEEE80211hEnabled — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -22,14 +22,14 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.IEEE80211hEnabled?
-  note: 'Check API default value:'
+  command: '1. Check API default value: ubus-cli WiFi.Radio.*.IEEE80211hEnabled? > WiFi.Radio.*.IEEE80211hEnabled? WiFi.Radio.1.IEEE80211hEnabled=1
+    WiFi.Radio.2.IEEE80211hEnabled=0 WiFi.Radio.3.IEEE80211hEnabled=0'
 - id: step2
   action: exec
   target: DUT
   command: Compare with driver settings, this API is not able to modify.
-  capture: result
   depends_on: step1
+  capture: result
 pass_criteria:
 - field: result.IEEE80211hEnabled
   operator: contains

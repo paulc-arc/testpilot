@@ -1,4 +1,4 @@
-id: wifi-llapi-r322-accesspoint_security-saepassphrase
+id: wifi-llapi-r322-saepassphrase
 name: SAEPassphrase — WiFi.AccessPoint.{i}.Security.
 version: '1.0'
 source:
@@ -22,20 +22,18 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.Security.ModeEnabled=WPA3-Personal
-  note: Set Security ModeEnabled=WPA3-Personal
+  command: 1. Set Security ModeEnabled=WPA3-Personal ubus-cli WiFi.AccessPoint.*.Security.ModeEnabled=WPA3-Personal
 - id: step2
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.Security.SAEPassphrase=1234567890
-  capture: result
+  command: Set Security SAEPassphrase=1234567890 ubus-cli WiFi.AccessPoint.*.Security.SAEPassphrase=1234567890
   depends_on: step1
-  note: Set Security SAEPassphrase=1234567890
+  capture: result
 pass_criteria:
 - field: result.SAEPassphrase
   operator: contains
-  value: ''
-  description: SAEPassphrase 應回傳包含 SAEPassphrase=
+  value: '""'
+  description: SAEPassphrase 應回傳包含 SAEPassphrase=""
 verification_command: 'cat /tmp/wl0_hapd.conf |grep sae_password
 
 

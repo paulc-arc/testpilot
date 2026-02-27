@@ -1,4 +1,4 @@
-id: wifi-llapi-r311-accesspoint_associateddevice-uplinkratespec
+id: wifi-llapi-r311-uplinkratespec
 name: UplinkRateSpec — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -34,42 +34,28 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect WiFi Station to GW
+  command: 1. Connect WiFi Station to GW
 - id: step2
   action: exec
   target: DUT
-  command: Check Associated Station UplinkRateSpec
+  command: 'Check Associated Station UplinkRateSpec ###5G (11be, 4x4, 160MHz)### ubus-cli WiFi.AccessPoint.1.AssociatedDevice.*.UplinkRateSpec?
+    > WiFi.AccessPoint.1.AssociatedDevice.*.UplinkRateSpec? WiFi.AccessPoint.1.AssociatedDevice.1.UplinkRateSpec="leg_0_20_1_0"
+    ubus-cli WiFi.AccessPoint.1.AssociatedDevice.*.? | grep -E ''Band|SpatialStreams|Bandwidth|Guard'' WiFi.AccessPoint.1.AssociatedDevice.1.MaxTxSpatialStreamsSupported=4
+    WiFi.AccessPoint.1.AssociatedDevice.1.UplinkBandwidth=160 WiFi.AccessPoint.1.AssociatedDevice.1.UplinkShortGuard=0 ###6G
+    (11be, 4x4, 320MHz)### ubus-cli WiFi.AccessPoint.3.AssociatedDevice.*.UplinkRateSpec? > WiFi.AccessPoint.3.AssociatedDevice.*.UplinkRateSpec?
+    WiFi.AccessPoint.3.AssociatedDevice.1.UplinkRateSpec="leg_0_20_1_0" ubus-cli WiFi.AccessPoint.3.AssociatedDevice.*.? |
+    grep -E ''Band|SpatialStreams|Bandwidth|Guard'' WiFi.AccessPoint.3.AssociatedDevice.1.MaxTxSpatialStreamsSupported=4 WiFi.AccessPoint.3.AssociatedDevice.1.UplinkBandwidth=20
+    WiFi.AccessPoint.3.AssociatedDevice.1.UplinkShortGuard=0 ###2.4G (11be, 2x2, 40MHz)### ubus-cli WiFi.AccessPoint.5.AssociatedDevice.*.UplinkRateSpec?
+    > WiFi.AccessPoint.5.AssociatedDevice.*.UplinkRateSpec? WiFi.AccessPoint.5.AssociatedDevice.1.UplinkRateSpec="leg_0_20_1_0"
+    ubus-cli WiFi.AccessPoint.5.AssociatedDevice.*.? | grep -E ''Band|SpatialStreams|Bandwidth|Guard'' WiFi.AccessPoint.5.AssociatedDevice.1.MaxTxSpatialStreamsSupported=2
+    WiFi.AccessPoint.5.AssociatedDevice.1.UplinkBandwidth=40'
   depends_on: step1
-- id: step3
-  action: exec
-  target: DUT
-  command: 'ubus-cli WiFi.AccessPoint.1.AssociatedDevice.*.UplinkRateSpec?
-
-    ubus-cli WiFi.AccessPoint.1.AssociatedDevice.*.? | grep -E ''Band|SpatialStreams|Bandwidth|Guard'''
-  depends_on: step2
-  note: '#5G (11be, 4x4, 160MHz)###'
-- id: step4
-  action: exec
-  target: DUT
-  command: 'ubus-cli WiFi.AccessPoint.3.AssociatedDevice.*.UplinkRateSpec?
-
-    ubus-cli WiFi.AccessPoint.3.AssociatedDevice.*.? | grep -E ''Band|SpatialStreams|Bandwidth|Guard'''
-  depends_on: step3
-  note: '#6G (11be, 4x4, 320MHz)###'
-- id: step5
-  action: exec
-  target: DUT
-  command: 'ubus-cli WiFi.AccessPoint.5.AssociatedDevice.*.UplinkRateSpec?
-
-    ubus-cli WiFi.AccessPoint.5.AssociatedDevice.*.? | grep -E ''Band|SpatialStreams|Bandwidth|Guard'''
   capture: result
-  depends_on: step4
-  note: '#2.4G (11be, 2x2, 40MHz)###'
 pass_criteria:
 - field: result.UplinkRateSpec
   operator: contains
-  value: leg_0_20_1_0
-  description: UplinkRateSpec 應回傳包含 UplinkRateSpec=leg_0_20_1_0
+  value: '"leg_0_20_1_0"'
+  description: UplinkRateSpec 應回傳包含 UplinkRateSpec="leg_0_20_1_0"
 verification_command: 'iw dev wl0 station dump
 
 
@@ -107,7 +93,90 @@ verification_command: 'iw dev wl0 station dump
 
   tx nrate
 
-  eht mcs 12 Nss 4 Tx Exp 0 bw'
+  eht mcs 12 Nss 4 Tx Exp 0 bw160 txbf ldpc 2xLTF GI 1.6us auto
+
+  link bandwidth = 160 MHZ
+
+  Frequency Bands Supported: 5G
+
+
+  #####6G#####
+
+  root@prplOS:/# iw dev wl1 station dump
+
+  Station 00:60:f3:31:97:e4 (on wl1)
+
+  inactive time: 3000 ms
+
+  rx bytes: 43391
+
+  rx packets: 344
+
+  tx bytes: 528
+
+  tx packets: 16
+
+  signal: -68 [-66] dBm
+
+  signal avg: -62 [-60] dBm
+
+  tx bitrate: 9074.0 MBit/s
+
+  rx bitrate: 8645.3 MBit/s
+
+  root@prplOS:/# wl -i wl1 sta_info 00:60:f3:31:97:e4
+
+  [VER 8] STA 00:60:F3:31:97:E4:
+
+  chanspec 6g1/320-1 (0x7000)
+
+  OMI 0x3303: 320Mhz rx=4ss tx=4ss ER_SU_DISABLE
+
+  eht mcs 11 Nss 4 Tx Exp 0 bw320 ldpc 2xLTF GI 1.6us auto
+
+  link bandwidth = 320 MHZ
+
+  Frequency Bands Supported: 6G
+
+
+
+  #####2.4G#####
+
+  root@prplOS:/# iw dev wl2 station dump
+
+  Station c8:15:4e:89:fa:e9 (on wl2)
+
+  inactive time: 13000 ms
+
+  rx bytes: 1485
+
+  rx packets: 12
+
+  tx bytes: 0
+
+  tx packets: 6
+
+  signal: -46 [-47] dBm
+
+  signal avg: -46 [-48] dBm
+
+  tx bitrate: 1.0 MBit/s
+
+  rx bitrate: 117.0 MBit/s 40MHz
+
+  root@prplOS:/# wl -i wl2 sta_info c8:15:4e:89:fa:e9
+
+  [VER 8] STA C8:15:4E:89:FA:E9:
+
+  OMI 0x1241: 40Mhz rx=2ss tx=2ss ER_SU_DISABLE
+
+  tx nrate
+
+  eht mcs 13 Nss 2 Tx Exp 2 bw40 ldpc 2xLTF GI 1.6us auto
+
+  link bandwidth = 40 MHZ
+
+  Frequency Bands Supported: 2.4G 5G 6G'
 results_reference:
   v4.0.1:
     5g: Fail

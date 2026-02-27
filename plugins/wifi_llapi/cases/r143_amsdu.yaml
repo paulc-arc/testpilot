@@ -1,4 +1,4 @@
-id: wifi-llapi-r143-radio_driverconfig-amsdu
+id: wifi-llapi-r143-amsdu
 name: Amsdu — WiFi.Radio.{i}.DriverConfig.
 version: '1.0'
 source:
@@ -22,9 +22,9 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.DriverConfig.Amsdu?
+  command: '1. Get Amsdu default value: ubus-cli WiFi.Radio.*.DriverConfig.Amsdu? > WiFi.Radio.*.DriverConfig.Amsdu? WiFi.Radio.1.DriverConfig.Amsdu=-1
+    WiFi.Radio.2.DriverConfig.Amsdu=-1 WiFi.Radio.3.DriverConfig.Amsdu=-1'
   capture: result
-  note: 'Get Amsdu default value:'
 pass_criteria:
 - field: result.Amsdu
   operator: contains

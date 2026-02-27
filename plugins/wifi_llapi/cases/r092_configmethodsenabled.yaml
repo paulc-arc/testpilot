@@ -1,4 +1,4 @@
-id: wifi-llapi-r092-accesspoint_wps-configmethodsenabled
+id: wifi-llapi-r092-configmethodsenabled
 name: ConfigMethodsEnabled — WiFi.AccessPoint.{i}.WPS.
 version: '1.0'
 source:
@@ -22,9 +22,9 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.? |grep .WPS.ConfigMethodsEnabled
+  command: 1. Get WPS ConfigMethodsEnabled ubus-cli WiFi.AccessPoint.? |grep .WPS.ConfigMethodsEnabled WiFi.AccessPoint.1.WPS.ConfigMethodsEnabled="PhysicalPushButton,VirtualPushButton"
+    WiFi.AccessPoint.3.WPS.ConfigMethodsEnabled="PhysicalPushButton,VirtualPushButton" WiFi.AccessPoint.5.WPS.ConfigMethodsEnabled="PhysicalPushButton,VirtualPushButton"
   capture: result
-  note: Get WPS ConfigMethodsEnabled
 pass_criteria:
 - field: result.ConfigMethodsEnabled
   operator: contains

@@ -1,4 +1,4 @@
-id: wifi-llapi-r158-radio-ieee80211_caps
+id: wifi-llapi-r158-ieee80211-caps
 name: IEEE80211_Caps — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -22,14 +22,18 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.IEEE80211_Caps?
-  note: Get Radio Default value of IEEE80211_Caps
+  command: 1. Get Radio Default value of IEEE80211_Caps ubus-cli WiFi.Radio.*.IEEE80211_Caps? > WiFi.Radio.*.IEEE80211_Caps?
+    WiFi.Radio.1.IEEE80211_Caps="160MHz UAPSD WEP TKIP AES AES_CCM SAE EXPL_BF IMPL_BF MU_MIMO DFS_OFFLOAD OWE SAE_PWE WME"
+    WiFi.Radio.2.IEEE80211_Caps="320MHz 160MHz UAPSD SAE EXPL_BF IMPL_BF MU_MIMO OWE SAE_PWE WME" WiFi.Radio.3.IEEE80211_Caps="UAPSD
+    WEP TKIP AES AES_CCM SAE EXPL_BF IMPL_BF MU_MIMO OWE SAE_PWE WME"
 - id: step2
   action: exec
   target: DUT
-  command: Check Capability in Beacon frame
-  capture: result
+  command: Check Capability in Beacon frame | Capability | Wireshark path | ------------------------ | ---------------------------
+    | WME / UAPSD | Beacon → WMM IE | 160/320 MHz | VHT / HE / EHT Operation IE | MU-MIMO | VHT/HE Capabilities IE | Beamforming
+    | VHT/HE/EHT Capabilities | SAE / OWE | RSN IE → AKM list
   depends_on: step1
+  capture: result
 pass_criteria:
 - field: result.IEEE80211_Caps
   operator: contains
@@ -40,7 +44,30 @@ verification_command: 'root@prplOS:/# wl -i wl0 cap
   ap sta wet led wme 802.11d 802.11h rm cac mbss8 ampdu ampdu_tx ampdu_rx amsdurx amsdutx rxchain_pwrsave wds dwds vht-prop-rates
   multi-user-beamformer single-user-beamformer multi-user-beamformee single-user-beamformee 160 dfrts stbc-tx stbc-rx-1ss
   pspretend probresp_mac_filter mfp wnm bsstrans scanmac ve fbtoverds fbt_adpt ifver bgdfs bgdfs160 spp lpr_scan bkoff_evt
-  awd_data_info monitor cevent traffic_thresh 11ax 11be mlo 320 stamon csimon cfp hwa-1a-1b-2a-2b-3a-3b-'
+  awd_data_info monitor cevent traffic_thresh 11ax 11be mlo 320 stamon csimon cfp hwa-1a-1b-2a-2b-3a-3b-4b-pp-pr pqp sqs airiq
+  sae slaveradar swpaging ba256 qosmgmt asr sbf_active gcmp suite-b chanswitch puq 11az pcap telemetry mrsno
+
+  root@prplOS:/#
+
+  root@prplOS:/# wl -i wl1 cap
+
+  ap sta wet led wme 802.11d 802.11h rm cac mbss8 ampdu ampdu_tx ampdu_rx amsdurx amsdutx rxchain_pwrsave wds dwds vht-prop-rates
+  multi-user-beamformer single-user-beamformer multi-user-beamformee single-user-beamformee 160 dfrts stbc-tx stbc-rx-1ss
+  pspretend probresp_mac_filter mfp wnm bsstrans scanmac ve fbtoverds fbt_adpt ifver bgdfs bgdfs160 spp lpr_scan bkoff_evt
+  awd_data_info monitor cevent traffic_thresh 11ax 11be mlo 320 stamon csimon cfp hwa-1a-1b-2a-2b-3a-3b-4b-pp-pr pqp sqs airiq
+  sae slaveradar swpaging ba256 qosmgmt asr sbf_active gcmp suite-b chanswitch puq 11az pcap telemetry mrsno
+
+  root@prplOS:/#
+
+  root@prplOS:/# wl -i wl2 cap
+
+  ap sta wet led wme 802.11d 802.11h rm cac mbss8 ampdu ampdu_tx ampdu_rx amsdurx amsdutx rxchain_pwrsave wds dwds vht-prop-rates
+  multi-user-beamformer single-user-beamformer multi-user-beamformee single-user-beamformee 160 dfrts stbc-tx stbc-rx-1ss
+  pspretend probresp_mac_filter mfp wnm bsstrans scanmac ve fbtoverds fbt_adpt ifver bgdfs bgdfs160 spp lpr_scan bkoff_evt
+  awd_data_info monitor cevent traffic_thresh 11ax 11be mlo 320 stamon csimon cfp hwa-1a-1b-2a-2b-3a-3b-4b-pp-pr pqp sqs airiq
+  sae slaveradar swpaging ba256 qosmgmt asr sbf_active gcmp suite-b chanswitch puq 11az pcap telemetry mrsno
+
+  root@prplOS:/#'
 results_reference:
   v4.0.1:
     5g: Pass

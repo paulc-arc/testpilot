@@ -1,4 +1,4 @@
-id: wifi-llapi-r182-radio-txchainctrl
+id: wifi-llapi-r182-txchainctrl
 name: TxChainCtrl — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -22,15 +22,16 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.TxChainCtrl?
-  note: Get default Radio TxChainCtrl
+  command: 1. Get default Radio TxChainCtrl ubus-cli WiFi.Radio.*.TxChainCtrl? > WiFi.Radio.1.TxChainCtrl? WiFi.Radio.1.TxChainCtrl=-1
+    WiFi.Radio.2.TxChainCtrl=-1 WiFi.Radio.3.TxChainCtrl=-1
 - id: step2
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.1.TxChainCtrl=3
-  capture: result
+  command: Set Radio TxChainCtrl to 3 then verify the setting in the driver ubus-cli WiFi.Radio.1.TxChainCtrl=3 > WiFi.Radio.1.TxChainCtrl=3
+    WiFi.Radio.1. WiFi.Radio.1.TxChainCtrl=3 Test goal_x0001_ TxChainCtrl Default / production _x0001_ -1 Force SISO_x0001_
+    1 Force 2×2 _x0001_3 Force 3×3 _x0001_7 Max capability 15
   depends_on: step1
-  note: Set Radio TxChainCtrl to 3 then verify the setting in the driver
+  capture: result
 pass_criteria:
 - field: result.TxChainCtrl
   operator: contains

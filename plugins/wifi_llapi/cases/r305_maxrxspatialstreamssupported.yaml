@@ -1,4 +1,4 @@
-id: wifi-llapi-r305-accesspoint_associateddevice-maxrxspatialstreamssupported
+id: wifi-llapi-r305-maxrxspatialstreamssupported
 name: MaxRxSpatialStreamsSupported — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -34,16 +34,15 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect WiFi Station to GW
+  command: 1. Connect WiFi Station to GW
 - id: step2
   action: exec
   target: DUT
-  command: 'ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.? | grep MaxRxSpatialStreamsSupported
-
-    ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.? | grep MaxRxSpat'
-  capture: result
+  command: Verify Station MaxRxSpatialStreamsSupported ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.? | grep MaxRxSpatialStreamsSupported
+    ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.? | grep MaxRxSpat ialStreamsSupported WiFi.AccessPoint.1.AssociatedDevice.1.MaxRxSpatialStreamsSupported=4
+    WiFi.AccessPoint.3.AssociatedDevice.1.MaxRxSpatialStreamsSupported=4 WiFi.AccessPoint.5.AssociatedDevice.1.MaxRxSpatialStreamsSupported=4
   depends_on: step1
-  note: Verify Station MaxRxSpatialStreamsSupported
+  capture: result
 pass_criteria:
 - field: result.MaxRxSpatialStreamsSupported
   operator: contains
@@ -76,7 +75,11 @@ verification_command: 'root@prplOS:/# wl -i wl0 sta_info 34:19:4D:A4:B5:09 | gre
 
   tx nrate
 
-  eht mcs 10 Nss 3 Tx Exp 1 bw20 '
+  eht mcs 10 Nss 3 Tx Exp 1 bw20 ldpc 2xLTF GI 0.8us auto
+
+  rx nrate
+
+  eht mcs 13 Nss 1 Tx Exp 0 bw20 txbf ldpc 2xLTF GI 0.8us auto'
 results_reference:
   v4.0.1:
     5g: Pass

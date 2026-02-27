@@ -1,4 +1,4 @@
-id: wifi-llapi-r181-radio-transmitpowersupported
+id: wifi-llapi-r181-transmitpowersupported
 name: TransmitPowerSupported — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -22,9 +22,9 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.1.TransmitPowerSupported?
+  command: ubus-cli WiFi.Radio.1.TransmitPowerSupported? > WiFi.Radio.1.TransmitPowerSupported? WiFi.Radio.1.TransmitPowerSupported="1,2,3,4,5,6,8,10,12,15,20,25,30,50,100,-1"
+    WiFi.Radio.2.TransmitPowerSupported="1,2,3,4,5,6,8,10,12,15,20,25,30,50,100,-1" WiFi.Radio.3.TransmitPowerSupported="1,2,3,4,5,6,8,10,12,15,20,25,30,50,100,-1"
   capture: result
-  note: root@prplOS:/# ubus-cli WiFi.Radio.1.TransmitPowerSupported?
 pass_criteria:
 - field: result.TransmitPowerSupported
   operator: contains

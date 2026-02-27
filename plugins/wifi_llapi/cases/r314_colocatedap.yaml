@@ -1,4 +1,4 @@
-id: wifi-llapi-r314-accesspoint_neighbour-colocatedap
+id: wifi-llapi-r314-colocatedap
 name: ColocatedAP — WiFi.AccessPoint.{i}.Neighbour.{i}.
 version: '1.0'
 source:
@@ -22,7 +22,7 @@ steps:
 - id: query
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.{i}.Neighbour.{i}.ColocatedAP
+  command: ubus-cli WiFi.AccessPoint.{i}.Neighbour.{i}.ColocatedAP=0
   capture: result
 pass_criteria:
 - field: result.ColocatedAP

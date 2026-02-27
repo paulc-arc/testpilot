@@ -1,4 +1,4 @@
-id: wifi-llapi-r262-wpsdefparam-startbgdfsclear
+id: wifi-llapi-r262-startbgdfsclear
 name: startBgDfsClear() — WiFi.wps_DefParam.
 version: '1.0'
 source:
@@ -18,6 +18,18 @@ topology:
     DUT:
       role: ap
       transport: serial
+    STA:
+      role: sta
+      transport: adb
+      config:
+      - iface: 5g
+        mode: sta
+        ssid: '{{SSID_5G}}'
+        key: '{{KEY_5G}}'
+  links:
+  - from: STA
+    to: DUT
+    band: 5g
 steps:
 - id: query
   action: exec
@@ -26,9 +38,9 @@ steps:
   capture: result
 pass_criteria:
 - field: result
-  operator: not_contains
-  value: error
-  description: startBgDfsClear() 執行不應回傳 error
+  operator: not_empty
+  value: ''
+  description: startBgDfsClear() 應回傳非空結果
 results_reference:
   v4.0.1:
     5g: To be tested

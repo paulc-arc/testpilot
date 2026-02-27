@@ -1,4 +1,4 @@
-id: wifi-llapi-r004-accesspoint-sendbsstransferrequest
+id: wifi-llapi-r004-sendbsstransferrequest
 name: sendBssTransferRequest() — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:
@@ -35,19 +35,18 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Configure all radios (2.4G/5G/6G) to use the same SSID and Security mode.
+  command: 1. Configure all radios (2.4G/5G/6G) to use the same SSID and Security mode.
 - id: step2
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.MBOEnable=1
+  command: 'Enable MBO (Multi-Band Operation: this Suggest clients move to another band ) root@prplOS:~# ubus-cli WiFi.AccessPoint.*.MBOEnable=1
+    > WiFi.AccessPoint.*.MBOEnable=1 WiFi.AccessPoint.1.MBOEnable=1 WiFi.AccessPoint.3.MBOEnable=1 WiFi.AccessPoint.5.MBOEnable=1'
   depends_on: step1
-  note: 'Enable MBO (Multi-Band Operation: this Suggest clients move to another band )'
 - id: step3
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.{i}.IEEE80211r.MobilityDomain=25
+  command: Configure AP1, AP3 and AP5 IEEE80211r.MobilityDomain to use the same value ubus-cli WiFi.AccessPoint.{i}.IEEE80211r.MobilityDomain=25
   depends_on: step2
-  note: Configure AP1, AP3 and AP5 IEEE80211r.MobilityDomain to use the same value
 - id: step4
   action: exec
   target: DUT
@@ -56,28 +55,32 @@ steps:
 - id: step5
   action: exec
   target: DUT
-  command: Check and make sure Station support BTM/11v
+  command: Check and make sure Station support BTM/11v WiFi.AccessPoint.3.AssociatedDevice.1.Capabilities="RRM,BTM,QOS_MAP,PMF"
   depends_on: step4
 - id: step6
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.AssociatedDevice.? | grep MAC
+  command: Verify that the station supports IEEE 802.11v (BSS Transition Management). ubus-cli WiFi.AccessPoint.*.AssociatedDevice.?
+    | grep MAC WiFi.AccessPoint.3.AssociatedDevice.1.MACAddress="6A:8C:E6:7A:18:91"
   depends_on: step5
-  note: Verify that the station supports IEEE 802.11v (BSS Transition Management).
 - id: step7
   action: exec
   target: DUT
-  command: 'ubus-cli "WiFi.AccessPoint.3.sendBssTransferRequest(mac=6A:8C:E6:
-
-    ubus-cli "WiFi.AccessPoint.3.sendBssTransferRequest(mac=6A:8C:E6:'
-  capture: result
+  command: 'Trigger the station to transition from the 6 GHz SSID to the 5 GHz SSID using BSS Transition command. ubus-cli
+    "WiFi.AccessPoint.3.sendBssTransferRequest(mac=6A:8C:E6: 7A:18:91,target=64:75:da:4e:51:75,class=1,channel=36,wait=0,retries=1,validity=1
+    0,disassoc=1,bssidInfo=0)" > WiFi.AccessPoint.3.sendBssTransferRequest(mac=6A:8C:E6:7A:18:91,target=64:75:da:4e:51:75,class=1,channel=36,wait=0,retries=1,validity=10,disassoc=1,bssidInfo=0)
+    ERROR: call (null) failed with status 1 - unknown error WiFi.AccessPoint.3.sendBssTransferRequest() returned [ "" ] ubus-cli
+    "WiFi.AccessPoint.3.sendBssTransferRequest(mac=6A:8C:E6: 7A:18:91,target=TESt-11r,class=115,channel=36,wait=0,retries=1,validity=10,disas
+    soc=1,bssidInfo=64:75:da:4e:51:75)" > WiFi.AccessPoint.3.sendBssTransferRequest(mac=6A:8C:E6:7A:18:91,target=TESt-11r,class=115,channel=36,wait=0,retries=1,validity=10,disassoc=1,bssidInfo=64:75:da:4e:51:75)
+    ERROR: call (null) failed with status 7 - invalid function argument WiFi.AccessPoint.3.sendBssTransferRequest() returned
+    [ "" ]'
   depends_on: step6
-  note: Trigger the station to transition from the 6 GHz SSID to the 5 GHz SSID using BSS Transition command.
+  capture: result
 pass_criteria:
 - field: result
-  operator: not_contains
-  value: error
-  description: sendBssTransferRequest() 執行不應回傳 error
+  operator: not_empty
+  value: ''
+  description: sendBssTransferRequest() 應回傳非空結果
 results_reference:
   v4.0.1:
     5g: Fail

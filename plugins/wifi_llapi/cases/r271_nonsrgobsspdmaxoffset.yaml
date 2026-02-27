@@ -1,4 +1,4 @@
-id: wifi-llapi-r271-radio_ieee80211ax-nonsrgobsspdmaxoffset
+id: wifi-llapi-r271-nonsrgobsspdmaxoffset
 name: NonSRGOBSSPDMaxOffset — WiFi.Radio.{i}.IEEE80211ax.
 version: '1.0'
 source:
@@ -22,7 +22,7 @@ steps:
 - id: query
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.{i}.IEEE80211ax.NonSRGOBSSPDMaxOffset
+  command: ubus-cli WiFi.Radio.{i}.IEEE80211ax.NonSRGOBSSPDMaxOffset=0
   capture: result
 pass_criteria:
 - field: result.NonSRGOBSSPDMaxOffset

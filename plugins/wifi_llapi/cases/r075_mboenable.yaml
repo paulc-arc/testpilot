@@ -1,4 +1,4 @@
-id: wifi-llapi-r075-accesspoint-mboenable
+id: wifi-llapi-r075-mboenable
 name: MBOEnable — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:
@@ -22,15 +22,17 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.MBOEnable=1
-  note: Enable MBO
+  command: \\Enable MBO root@prplOS:~# ubus-cli WiFi.AccessPoint.*.MBOEnable=1 > WiFi.AccessPoint.*.MBOEnable=1 WiFi.AccessPoint.1.MBOEnable=1
+    WiFi.AccessPoint.2.MBOEnable=1 WiFi.AccessPoint.3.MBOEnable=1 WiFi.AccessPoint.4.MBOEnable=1 WiFi.AccessPoint.5.MBOEnable=1
+    WiFi.AccessPoint.6.MBOEnable=1
 - id: step2
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.MBOEnable?
-  capture: result
+  command: Check Setting root@prplOS:~# ubus-cli WiFi.AccessPoint.*.MBOEnable? > WiFi.AccessPoint.*.MBOEnable? WiFi.AccessPoint.1.MBOEnable=1
+    WiFi.AccessPoint.2.MBOEnable=1 WiFi.AccessPoint.3.MBOEnable=1 WiFi.AccessPoint.4.MBOEnable=1 WiFi.AccessPoint.5.MBOEnable=1
+    WiFi.AccessPoint.6.MBOEnable=1
   depends_on: step1
-  note: Check Setting
+  capture: result
 pass_criteria:
 - field: result.MBOEnable
   operator: contains

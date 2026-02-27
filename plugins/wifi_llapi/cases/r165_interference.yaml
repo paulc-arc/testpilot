@@ -1,4 +1,4 @@
-id: wifi-llapi-r165-radio-interference
+id: wifi-llapi-r165-interference
 name: Interference — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -22,9 +22,9 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.Interference?
+  command: '1. Check API default value: ubus-cli WiFi.Radio.*.Interference? > WiFi.Radio.*.Interference? WiFi.Radio.1.Interference=0
+    WiFi.Radio.2.Interference=0 WiFi.Radio.3.Interference=0'
   capture: result
-  note: 'Check API default value:'
 pass_criteria:
 - field: result.Interference
   operator: contains

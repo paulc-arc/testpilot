@@ -1,4 +1,4 @@
-id: wifi-llapi-r164-radio-implicitbeamformingsupported
+id: wifi-llapi-r164-implicitbeamformingsupported
 name: ImplicitBeamFormingSupported — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -22,10 +22,10 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.ImplicitBeamFormingSupported?
+  command: '1. Read-only API, defines whether each radio supported ImplicitBeamForming. Check API value and compare with driver
+    return value: ubus-cli WiFi.Radio.*.ImplicitBeamFormingSupported? > WiFi.Radio.*.ImplicitBeamFormingSupported? WiFi.Radio.1.ImplicitBeamFormingSupported=1
+    WiFi.Radio.2.ImplicitBeamFormingSupported=1 WiFi.Radio.3.ImplicitBeamFormingSupported=1'
   capture: result
-  note: 'Read-only API, defines whether each radio supported ImplicitBeamForming. Check API value and compare with driver
-    return '
 pass_criteria:
 - field: result.ImplicitBeamFormingSupported
   operator: contains

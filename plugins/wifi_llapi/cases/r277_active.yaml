@@ -1,4 +1,4 @@
-id: wifi-llapi-r277-accesspoint_associateddevice-active
+id: wifi-llapi-r277-active
 name: Active — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -34,14 +34,17 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect WiFi station to GW
+  command: 1. Connect WiFi station to GW
 - id: step2
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.? | grep -E 'Activ
-  capture: result
+  command: Check Associated Device Status ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.? | grep -E 'Activ e|MAC' WiFi.AccessPoint.1.AssociatedDevice.11.Active=1
+    WiFi.AccessPoint.1.AssociatedDevice.11.MACAddress="34:19:4D:A4:B5:09" WiFi.AccessPoint.1.AssociatedDevice.12.Active=1
+    WiFi.AccessPoint.1.AssociatedDevice.12.MACAddress="42:B7:35:6A:17:8E" WiFi.AccessPoint.1.AssociatedDevice.13.Active=1
+    WiFi.AccessPoint.1.AssociatedDevice.13.MACAddress="12:E3:C4:78:7B:6F" WiFi.AccessPoint.3.AssociatedDevice.1.Active=1 WiFi.AccessPoint.3.AssociatedDevice.1.MACAddress="38:06:E6:92:B0:4A"
+    WiFi.AccessPoint.5.AssociatedDevice.3.Active=1 WiFi.AccessPoint.5.AssociatedDevice.3.MACAddress="E4:60:17:EB:A9:83"
   depends_on: step1
-  note: Check Associated Device Status
+  capture: result
 pass_criteria:
 - field: result.Active
   operator: contains

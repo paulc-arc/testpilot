@@ -1,4 +1,4 @@
-id: wifi-llapi-r096-accesspoint_wps-selfpin
+id: wifi-llapi-r096-selfpin
 name: SelfPIN — WiFi.AccessPoint.{i}.WPS.
 version: '1.0'
 source:
@@ -22,7 +22,7 @@ steps:
 - id: query
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.{i}.WPS.SelfPIN
+  command: ubus-cli WiFi.AccessPoint.{i}.WPS.SelfPIN=81898336
   capture: result
 pass_criteria:
 - field: result.SelfPIN

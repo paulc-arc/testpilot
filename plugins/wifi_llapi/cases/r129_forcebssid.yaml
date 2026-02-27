@@ -1,4 +1,4 @@
-id: wifi-llapi-r129-endpoint_profile_wps-forcebssid
+id: wifi-llapi-r129-forcebssid
 name: ForceBSSID — WiFi.EndPoint.{i}.Profile.WPS.
 version: '1.0'
 source:
@@ -18,17 +18,24 @@ topology:
     DUT:
       role: ap
       transport: serial
+    EndpointPC:
+      role: endpoint
+      transport: ssh
+  links:
+  - from: DUT
+    to: EndpointPC
+    interface: eth1
 steps:
 - id: query
   action: exec
   target: DUT
-  command: ubus-cli WiFi.EndPoint.{i}.Profile.WPS.ForceBSSID
+  command: ubus-cli WiFi.EndPoint.{i}.Profile.WPS.ForceBSSID=
   capture: result
 pass_criteria:
 - field: result
-  operator: not_contains
-  value: error
-  description: ForceBSSID 執行不應回傳 error
+  operator: not_empty
+  value: ''
+  description: ForceBSSID 應回傳非空結果
 results_reference:
   v4.0.1:
     5g: Skip

@@ -1,4 +1,4 @@
-id: wifi-llapi-r169-radio-obsscoexistenceenable
+id: wifi-llapi-r169-obsscoexistenceenable
 name: ObssCoexistenceEnable — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -18,17 +18,25 @@ topology:
     DUT:
       role: ap
       transport: serial
+    STA:
+      role: sta
+      transport: adb
+      config:
+      - iface: 5g
+        mode: sta
+        ssid: '{{SSID_5G}}'
+        key: '{{KEY_5G}}'
+  links:
+  - from: STA
+    to: DUT
+    band: 5g
 steps:
 - id: step1
   action: exec
   target: DUT
-  command: '1.ubus-cli WiFi.Radio.3.ObssCoexistenceEnable=1
-
-    2.ubus-cli WiFi.Radio.3.OperatingChannelBandwidth="40MHz”
-
-    4.ubus-cli WiFi.Radio.3.ObssCoexistenceEnable=0'
+  command: 1.ubus-cli WiFi.Radio.3.ObssCoexistenceEnable=1 2.ubus-cli WiFi.Radio.3.OperatingChannelBandwidth="40MHz” 3.wl
+    -i wl2 status shows 20MHz 4.ubus-cli WiFi.Radio.3.ObssCoexistenceEnable=0 5.wl -i wl2 status shows 40MHz
   capture: result
-  note: 1.ubus-cli WiFi.Radio.3.ObssCoexistenceEnable=1
 pass_criteria:
 - field: result.ObssCoexistenceEnable
   operator: contains

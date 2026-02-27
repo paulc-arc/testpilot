@@ -1,4 +1,4 @@
-id: wifi-llapi-r408-ssid-mldunit
+id: wifi-llapi-r408-mldunit
 name: MLDUnit — WiFi.SSID.{i}.
 version: '1.0'
 source:
@@ -22,19 +22,20 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Power ON the GW
+  command: 1. Power ON the GW
 - id: step2
   action: exec
   target: DUT
-  command: ubus-cli WiFi.SSID.*.MLDUnit?
-  capture: result
+  command: Verify MLDUnit ubus-cli WiFi.SSID.*.MLDUnit? > WiFi.SSID.*.MLDUnit? WiFi.SSID.1.MLDUnit=-1 WiFi.SSID.2.MLDUnit=-1
+    WiFi.SSID.3.MLDUnit=-1 WiFi.SSID.4.MLDUnit=0 WiFi.SSID.5.MLDUnit=-1 WiFi.SSID.6.MLDUnit=0 WiFi.SSID.7.MLDUnit=-1 WiFi.SSID.8.MLDUnit=0
+    WiFi.SSID.9.MLDUnit=-1
   depends_on: step1
-  note: Verify MLDUnit
+  capture: result
 pass_criteria:
 - field: result
-  operator: not_contains
-  value: error
-  description: MLDUnit 執行不應回傳 error
+  operator: not_empty
+  value: ''
+  description: MLDUnit 應回傳非空結果
 verification_command: 'root@prplOS:/# wl -i wl0 mld_unit
 
   0
@@ -74,7 +75,132 @@ verification_command: 'root@prplOS:/# wl -i wl0 mld_unit
 
   rx_mcast_bytes : 3155 9722 0
 
-  rx_rate (kbps) :'
+  rx_rate (kbps) : 573520 688230 1000
+
+  Link0:
+
+  RSSI: [ -49 -49 -49 -49 ] AVG [-49]
+
+  ANT0: [ -55 -55 -55 -55 ] AVG [-55]
+
+  ANT1: [ -51 -51 -51 -51 ] AVG [-51]
+
+  ANT2: [ -51 -51 -51 -51 ] AVG [-51]
+
+  ANT3: [ -49 -49 -49 -49 ] AVG [-49]
+
+  Link1:
+
+  RSSI: [ -41 -41 -41 -39 ] AVG [-40]
+
+  ANT0: [ -41 -41 -41 -39 ] AVG [-40]
+
+  ANT1: [ -44 -45 -44 -44 ] AVG [-44]
+
+  ANT2: [ -41 -41 -41 -41 ] AVG [-41]
+
+  ANT3: [ -41 -41 -41 -41 ] AVG [-41]
+
+  Link2:
+
+  RSSI: [ -24 -24 -24 -24 ] AVG [-24]
+
+  ANT0: [ -28 -28 -28 -28 ] AVG [-28]
+
+  ANT1: [ -31 -31 -31 -31 ] AVG [-31]
+
+  ANT2: [ -29 -29 -29 -29 ] AVG [-29]
+
+  ANT3: [ -24 -24 -24 -24 ] AVG [-24]
+
+  root@prplOS:/# wl -i wl1 mlo scb_stats 02:10:5E:BA:A9:00
+
+  [VER 2] STA 02:10:5E:BA:A9:00
+
+  link_id : 0 1 2
+
+  Tx Stats:
+
+  tx_pkts_acked : 10380541 5222528 0
+
+  phy_tx_errors : 0 0 0
+
+  tx_pkts_total : 10758451 5541028 0
+
+  tx_rate (kbps) : 516170 464550 -1
+
+  Rx Stats:
+
+  rx_pkts : 953 248 0
+
+  rx_bytes : 79252 37471 0
+
+  rx_mcast_pkts : 83 155 0
+
+  rx_mcast_bytes : 22722 41240 0
+
+  rx_rate (kbps) : 6000 619410 -1
+
+  Link0:
+
+  RSSI: [ -55 -55 -55 -61 ] AVG [-56]
+
+  ANT0: [ -60 -60 -60 -66 ] AVG [-61]
+
+  ANT1: [ -58 -58 -58 -65 ] AVG [-59]
+
+  ANT2: [ -55 -55 -55 -61 ] AVG [-56]
+
+  ANT3: [ -57 -57 -57 -63 ] AVG [-58]
+
+  Link1:
+
+  RSSI: [ -40 -40 -41 -40 ] AVG [-40]
+
+  ANT0: [ -41 -41 -41 -42 ] AVG [-41]
+
+  ANT1: [ -44 -44 -43 -47 ] AVG [-44]
+
+  ANT2: [ -41 -42 -42 -43 ] AVG [-42]
+
+  ANT3: [ -40 -40 -41 -40 ] AVG [-40]
+
+  root@prplOS:/# wl -i wl1 mlo info
+
+  VER: 1
+
+  MLO_ACTIVE:TRUE mlc_wlc_up_bm:7
+
+  MLD0:: nlink 3 MLD 64:75:DA:4E:51:76 ENAB: 1 ttlm_ns: 3
+
+  Supported Client Modes: STR EMLSR MLMR
+
+  link0: wl1 bsschg 1 addr 64:75:DA:4E:51:76 mode AP chanspec 6g1 (0x5001)
+
+  Channels: 1 2 5 9 13 17 21 25 29 33 37 41 45 49 53 57 61 65 69 73 77 81 85 89 93 97 101 105 109 113 117 121 125 129 133
+  137 141 145 149 153 157 161 165 169 173 177 181 185 189 193 197 201 205 209 213 217 221 225 229 233
+
+  link1: wl0 bsschg 2 addr 64:75:DA:4E:51:75 mode AP chanspec 36 (0xd024)
+
+  Channels: 36 40 44 48 52 56 60 64 100 104 108 112 116 120 124 128 132 136 140 144 149 153 157 161 165 169 173 177
+
+  link2: wl2 bsschg 1 addr 64:75:DA:4E:51:87 mode AP chanspec 1 (0x1001)
+
+  Channels: 1 2 3 4 5 6 7 8 9 10 11 12 13 14
+
+  MLO SCB: 00:60:F3:31:97:E4/MLD-02:10:5E:BA:A9:00
+
+  aid 546 amt_idx 509 associated to link1 active_link_map 0x3 assoc_link_bmp 0x3
+
+  Tid Map: 0xff[uplink]/0xff[downlink] Client Mode : STR
+
+  MLO SCB: 00:60:F3:25:A9:D9/MLD-02:10:5E:8B:5B:00
+
+  aid 545 amt_idx 508 associated to link1 active_link_map 0x7 assoc_link_bmp 0x7
+
+  Tid Map: 0xff[uplink]/0xff[downlink] Client Mode : STR
+
+  root@prplOS:/#'
 results_reference:
   v4.0.1:
     5g: Pass

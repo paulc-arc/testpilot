@@ -1,4 +1,4 @@
-id: wifi-llapi-r005-accesspoint-sendremotemeasumentrequest
+id: wifi-llapi-r005-sendremotemeasumentrequest
 name: sendRemoteMeasumentRequest() — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:
@@ -35,13 +35,12 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Configure all radios (2.4G/5G/6G) to use the same SSID and Security mode.
+  command: 1. Configure all radios (2.4G/5G/6G) to use the same SSID and Security mode.
 - id: step2
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.{i}.IEEE80211r.MobilityDomain=25
+  command: Configure AP1, AP3 and AP5 IEEE80211r.MobilityDomain to use the same value ubus-cli WiFi.AccessPoint.{i}.IEEE80211r.MobilityDomain=25
   depends_on: step1
-  note: Configure AP1, AP3 and AP5 IEEE80211r.MobilityDomain to use the same value
 - id: step3
   action: exec
   target: DUT
@@ -50,22 +49,25 @@ steps:
 - id: step4
   action: exec
   target: DUT
-  command: Verify that the Station support BTM/11v /802.11k = Radio Resource Management (RRM)
+  command: Verify that the Station support BTM/11v /802.11k = Radio Resource Management (RRM) WiFi.AccessPoint.3.AssociatedDevice.1.Capabilities="RRM,BTM,QOS_MAP,PMF"
   depends_on: step3
 - id: step5
   action: exec
   target: DUT
-  command: 'ubus-cli "WiFi.AccessPoint.3.sendRemoteMeasumentRequest(mac=6A:8C
-
-    ubus-cli "WiFi.AccessPoint.3.sendRemoteMeasurementRequest(macaddress=6A:8C:E6:7A:18:91,bssid=64:75:da:4e:51:75,class=0,channel=36,time'
-  capture: result
+  command: 'Trigger the station to sendRemoteMeasumentRequest ubus-cli "WiFi.AccessPoint.3.sendRemoteMeasumentRequest(mac=6A:8C
+    :E6:7A:18:91,bssid=TEST-11r,class=uint32,channel=36,timeout=5)" > WiFi.AccessPoint.3.sendRemoteMeasumentRequest(mac=6A:8C:E6:7A:18:91,bssid=TEST-11r,class=0,channel=36,timeout=5)
+    WiFi.AccessPoint.3.sendRemoteMeasumentRequest() returned [ [ ] ] root@prplOS:~# ubus-cli "WiFi.AccessPoint.3.sendRemoteMeasurementRequest(macaddress=6A:8C:E6:7A:18:91,bssid=64:75:da:4e:51:75,class=0,channel=36,time
+    out=5)" > WiFi.AccessPoint.3.sendRemoteMeasurementRequest(macaddress=6A:8C:E6:7A:18:91,bssid=64:75:da:4e:51:75,class=0,channel=36,timeout=5)
+    ERROR: call (null) failed with status 3 - function not found WiFi.AccessPoint.3.sendRemoteMeasurementRequest() returned
+    [ "", { args = { bssid = "64:75:da:4e:51:75", channel = 36, class = 0, macaddress = "6A:8C:E6:7A:18:91", timeout = 5 }
+    } ] root@prplOS:~# ubus list WiFi.AccessPoint.*.? | grep sendRemoteMeasurementRequest Command failed: Not found'
   depends_on: step4
-  note: Trigger the station to sendRemoteMeasumentRequest
+  capture: result
 pass_criteria:
 - field: result
-  operator: not_contains
-  value: error
-  description: sendRemoteMeasumentRequest() 執行不應回傳 error
+  operator: not_empty
+  value: ''
+  description: sendRemoteMeasumentRequest() 應回傳非空結果
 results_reference:
   v4.0.1:
     5g: Fail

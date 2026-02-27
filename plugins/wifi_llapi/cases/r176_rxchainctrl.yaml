@@ -1,4 +1,4 @@
-id: wifi-llapi-r176-radio-rxchainctrl
+id: wifi-llapi-r176-rxchainctrl
 name: RxChainCtrl — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -22,21 +22,20 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.1.RxChainCtrl?
-  note: 'Get API default value:'
+  command: '1. Get API default value: ubus-cli WiFi.Radio.1.RxChainCtrl? > WiFi.Radio.1.RxChainCtrl? WiFi.Radio.1.RxChainCtrl=-1
+    WiFi.Radio.2.RxChainCtrl=-1 WiFi.Radio.3.RxChainCtrl=-1'
 - id: step2
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.RxChainCtrl=3
+  command: 'Modify the API to any other value: ubus-cli WiFi.Radio.*.RxChainCtrl=3'
   depends_on: step1
-  note: 'Modify the API to any other value:'
 - id: step3
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.RxChainCtrl?
-  capture: result
+  command: 'Check the API again and compare with driver return value: ubus-cli WiFi.Radio.*.RxChainCtrl? > WiFi.Radio.*.RxChainCtrl?
+    WiFi.Radio.1.RxChainCtrl=3 WiFi.Radio.2.RxChainCtrl=3 WiFi.Radio.3.RxChainCtrl=3'
   depends_on: step2
-  note: 'Check the API again and compare with driver return value:'
+  capture: result
 pass_criteria:
 - field: result.RxChainCtrl
   operator: contains

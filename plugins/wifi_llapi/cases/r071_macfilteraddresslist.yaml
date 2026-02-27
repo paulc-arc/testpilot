@@ -1,4 +1,4 @@
-id: wifi-llapi-r071-accesspoint-macfilteraddresslist
+id: wifi-llapi-r071-macfilteraddresslist
 name: MACFilterAddressList — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:
@@ -18,30 +18,41 @@ topology:
     DUT:
       role: ap
       transport: serial
+    STA:
+      role: sta
+      transport: adb
+      config:
+      - iface: 5g
+        mode: sta
+        ssid: '{{SSID_5G}}'
+        key: '{{KEY_5G}}'
+  links:
+  - from: STA
+    to: DUT
+    band: 5g
 steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli "WiFi.AccessPoint.{i}.MACFiltering.addEntry(mac=62:2F:B8:66:BB:82)"
-  note: Add Station MAC to the table
+  command: \\Add Station MAC to the table ubus-cli "WiFi.AccessPoint.{i}.MACFiltering.addEntry(mac=62:2F:B8:66:BB:82)"
 - id: step2
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.? | grep MACFiltering.Entry
+  command: Check Station MAC added to the table ubus-cli WiFi.AccessPoint.? | grep MACFiltering.Entry WiFi.AccessPoint.1.MACFiltering.Entry.1.
+    WiFi.AccessPoint.1.MACFiltering.Entry.1.Alias="cpe-Entry-1" WiFi.AccessPoint.1.MACFiltering.Entry.1.MACAddress="62:2F:B8:66:BB:82"
   depends_on: step1
-  note: Check Station MAC added to the table
 - id: step3
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.{i}.MACFiltering.Mode="BlackList"
-  capture: result
+  command: Set MAC Filtering Mode from Off to "WhiteList or Blacklist" ubus-cli WiFi.AccessPoint.{i}.MACFiltering.Mode="BlackList"
+    Whitelist (allow list) and Blacklist (deny list)
   depends_on: step2
-  note: Set MAC Filtering Mode from Off to "WhiteList or Blacklist"
+  capture: result
 pass_criteria:
 - field: result
-  operator: not_contains
-  value: error
-  description: MACFilterAddressList 執行不應回傳 error
+  operator: not_empty
+  value: ''
+  description: MACFilterAddressList 應回傳非空結果
 verification_command: 'cat /tmp/wl0_hapd.conf
 
   accept_mac_file=/tmp/hostap_wl0.acl

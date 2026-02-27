@@ -1,4 +1,4 @@
-id: wifi-llapi-r069-accesspoint_ieee80211u-interworkingenable
+id: wifi-llapi-r069-interworkingenable
 name: InterworkingEnable — WiFi.AccessPoint.{i}.IEEE80211u
 version: '1.0'
 source:
@@ -22,11 +22,10 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: 'ubus-cli WiFi.AccessPoint.{i}.IEEE80211u.InterworkingEnable=1
-
-    ubus-cli WiFi.AccessPoint.? | grep IEEE80211u.InterworkingEnable'
+  command: //Set IEEE80211u.InterworkingEnable=1 ubus-cli WiFi.AccessPoint.{i}.IEEE80211u.InterworkingEnable=1 ubus-cli WiFi.AccessPoint.?
+    | grep IEEE80211u.InterworkingEnable WiFi.AccessPoint.1.IEEE80211u.InterworkingEnable=1 WiFi.AccessPoint.3.IEEE80211u.InterworkingEnable=1
+    WiFi.AccessPoint.5.IEEE80211u.InterworkingEnable=1
   capture: result
-  note: //Set IEEE80211u.InterworkingEnable=1
 pass_criteria:
 - field: result.InterworkingEnable
   operator: contains

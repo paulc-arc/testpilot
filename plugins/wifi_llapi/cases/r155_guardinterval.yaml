@@ -1,4 +1,4 @@
-id: wifi-llapi-r155-radio-guardinterval
+id: wifi-llapi-r155-guardinterval
 name: GuardInterval — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -26,22 +26,23 @@ steps:
 - id: step2
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.GuardInterval?
+  command: Get GI Default value ubus-cli WiFi.Radio.*.GuardInterval? > WiFi.Radio.*.GuardInterval? WiFi.Radio.1.GuardInterval="Auto"
+    WiFi.Radio.2.GuardInterval="Auto" WiFi.Radio.3.GuardInterval="Auto"
   depends_on: step1
-  note: Get GI Default value
 - id: step3
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.GuardInterval="1xLTF_1.6us"
+  command: Try Set GI to "1xLTF_1.6us" ubus-cli WiFi.Radio.*.GuardInterval="1xLTF_1.6us" > WiFi.Radio.*.GuardInterval=1xLTF_1.6us
+    WiFi.Radio.1. WiFi.Radio.1.GuardInterval="1xLTF_1.6us" WiFi.Radio.2. WiFi.Radio.2.GuardInterval="1xLTF_1.6us" WiFi.Radio.3.
+    WiFi.Radio.3.GuardInterval="1xLTF_1.6us"
   depends_on: step2
-  note: Try Set GI to "1xLTF_1.6us"
 - id: step4
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.GuardInterval?
-  capture: result
+  command: Verify GI settings ubus-cli WiFi.Radio.*.GuardInterval? > WiFi.Radio.*.GuardInterval? WiFi.Radio.1.GuardInterval="1xLTF_1.6us"
+    WiFi.Radio.2.GuardInterval="1xLTF_1.6us" WiFi.Radio.3.GuardInterval="1xLTF_1.6us"
   depends_on: step3
-  note: Verify GI settings
+  capture: result
 pass_criteria:
 - field: result.GuardInterval
   operator: contains

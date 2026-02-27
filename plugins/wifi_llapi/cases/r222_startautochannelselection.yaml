@@ -1,11 +1,11 @@
-id: wifi-llapi-r222--startautochannelselection
-name: 'startAutoChannelSelection() — '
+id: wifi-llapi-r222-startautochannelselection
+name: startAutoChannelSelection() — WiFi.Radio.{i}.
 version: '1.0'
 source:
   report: 6.3.0GA_prplware_v403_LLAPI_Test_Report.xlsx
   sheet: Wifi_LLAPI
   row: 222
-  object: ''
+  object: WiFi.Radio.{i}.
   api: startAutoChannelSelection()
 platform:
   prplos: 4.0.3
@@ -18,13 +18,27 @@ topology:
     DUT:
       role: ap
       transport: serial
+    STA:
+      role: sta
+      transport: adb
+      config:
+      - iface: 5g
+        mode: sta
+        ssid: '{{SSID_5G}}'
+        key: '{{KEY_5G}}'
+  links:
+  - from: STA
+    to: DUT
+    band: 5g
 steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli "WiFi.Radio.*.startAutoChannelSelectio()"
+  command: '1. Try call API function: ubus-cli "WiFi.Radio.*.startAutoChannelSelectio()" > WiFi.Radio.*.startAutoChannelSelectio()
+    ERROR: call (null) failed with status 3 - function not found WiFi.Radio.1.startAutoChannelSelectio() returned [ "" ] ERROR:
+    call (null) failed with status 3 - function not found WiFi.Radio.2.startAutoChannelSelectio() returned [ "" ] ERROR: call
+    (null) failed with status 3 - function not found WiFi.Radio.3.startAutoChannelSelectio() returned [ "" ]'
   capture: result
-  note: 'Try call API function:'
 pass_criteria:
 - field: result
   operator: not_contains

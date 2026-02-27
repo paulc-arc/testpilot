@@ -1,4 +1,4 @@
-id: wifi-llapi-r087-accesspoint-ssidadvertisementenabled
+id: wifi-llapi-r087-ssidadvertisementenabled
 name: SSIDAdvertisementEnabled — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:
@@ -22,14 +22,14 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.? | grep SSIDAdvertisementEnabled
-  note: Get SSIDAdvertisementEnabled value
+  command: 1. Get SSIDAdvertisementEnabled value ubus-cli WiFi.AccessPoint.? | grep SSIDAdvertisementEnabled WiFi.AccessPoint.1.SSIDAdvertisementEnabled=1
+    WiFi.AccessPoint.3.SSIDAdvertisementEnabled=1 WiFi.AccessPoint.5.SSIDAdvertisementEnabled=1
 - id: step2
   action: exec
   target: DUT
-  command: Capture Beacon Packet and Check SSID
-  capture: result
+  command: Capture Beacon Packet and Check SSID 1=Enable "SSID not Hidden" 0=Disabled "SSID Hidden"
   depends_on: step1
+  capture: result
 pass_criteria:
 - field: result.SSIDAdvertisementEnabled
   operator: contains

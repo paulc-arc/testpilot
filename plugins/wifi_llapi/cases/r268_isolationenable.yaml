@@ -1,4 +1,4 @@
-id: wifi-llapi-r268-accesspoint-isolationenable
+id: wifi-llapi-r268-isolationenable
 name: IsolationEnable — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:
@@ -34,16 +34,15 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect two WiFi station to the Radio
+  command: 1. Connect two WiFi station to the Radio
 - id: step2
   action: exec
   target: DUT
-  command: 'ubus-cli WiFi.AccessPoint.5.IsolationEnable=1
-
-    ubus-cli WiFi.AccessPoint.5.IsolationEnable=0'
-  capture: result
+  command: Run ping between Station - by default isolation = disable so ping is OK -Enable Isolation ubus-cli WiFi.AccessPoint.5.IsolationEnable=1
+    --Ping between station should failed after enable Isolation -Disable Isolation ubus-cli WiFi.AccessPoint.5.IsolationEnable=0
+    --Ping between station success after disable Isolation
   depends_on: step1
-  note: Run ping between Station - by default isolation = disable so ping is OK
+  capture: result
 pass_criteria:
 - field: result.IsolationEnable
   operator: contains

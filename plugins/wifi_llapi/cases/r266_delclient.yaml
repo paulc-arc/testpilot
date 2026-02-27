@@ -1,4 +1,4 @@
-id: wifi-llapi-r266-radio_sensing-delclient
+id: wifi-llapi-r266-delclient
 name: delClient() — WiFi.Radio.{i}.Sensing.
 version: '1.0'
 source:
@@ -18,24 +18,38 @@ topology:
     DUT:
       role: ap
       transport: serial
+    STA:
+      role: sta
+      transport: adb
+      config:
+      - iface: 5g
+        mode: sta
+        ssid: '{{SSID_5G}}'
+        key: '{{KEY_5G}}'
+  links:
+  - from: STA
+    to: DUT
+    band: 5g
 steps:
 - id: step1
   action: exec
   target: DUT
-  command: 'ubus-cli "WiFi.Radio.*.Sensing.delClient(MACAddress=''a0:29:42:60:'
-  note: 'Try delete an added client:'
+  command: '1. Try delete an added client: ubus-cli "WiFi.Radio.*.Sensing.delClient(MACAddress=''a0:29:42:60: 23:be'')" >
+    WiFi.Radio.*.Sensing.delClient(MACAddress=''a0:29:42:60:23:be'') WiFi.Radio.1.Sensing.delClient() returned [ "" ] WiFi.Radio.3.Sensing.delClient()
+    returned [ "" ] WiFi.Radio.2.Sensing.delClient() returned [ "" ]'
 - id: step2
   action: exec
   target: DUT
-  command: 'ubus-cli "WiFi.Radio.*.Sensing.delClient(MACAddress=''00:00:00:00:'
-  capture: result
+  command: 'Try delete non-existing client: ubus-cli "WiFi.Radio.*.Sensing.delClient(MACAddress=''00:00:00:00: 00:00'')" >
+    WiFi.Radio.*.Sensing.delClient(MACAddress=''00:00:00:00:00:00'') WiFi.Radio.1.Sensing.delClient() returned [ "" ] WiFi.Radio.3.Sensing.delClient()
+    returned [ "" ] WiFi.Radio.2.Sensing.delClient() returned [ "" ]'
   depends_on: step1
-  note: 'Try delete non-existing client:'
+  capture: result
 pass_criteria:
 - field: result
-  operator: not_contains
-  value: error
-  description: delClient() 執行不應回傳 error
+  operator: not_empty
+  value: ''
+  description: delClient() 應回傳非空結果
 results_reference:
   v4.0.1:
     5g: Pass

@@ -1,4 +1,4 @@
-id: wifi-llapi-r142-radio_driverconfig-ampdu
+id: wifi-llapi-r142-ampdu
 name: Ampdu — WiFi.Radio.{i}.DriverConfig.
 version: '1.0'
 source:
@@ -40,13 +40,13 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect WiFi Station to GW
+  command: 1. Connect WiFi Station to GW
 - id: step2
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.1.DriverConfig.Ampdu=1
+  command: Set GW AMPDU to 1 =enable ubus-cli WiFi.Radio.1.DriverConfig.Ampdu=1 > WiFi.Radio.1.DriverConfig.Ampdu=1 WiFi.Radio.1.DriverConfig.
+    WiFi.Radio.1.DriverConfig.Ampdu=1
   depends_on: step1
-  note: Set GW AMPDU to 1 =enable
 - id: step3
   action: exec
   target: DUT
@@ -55,20 +55,20 @@ steps:
 - id: step4
   action: exec
   target: DUT
-  command: Check Throughput
+  command: 'Check Throughput Note: Throughput should be higher => here during test TPut = 150Mbs in open area'
   depends_on: step3
 - id: step5
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.1.DriverConfig.Ampdu=0
+  command: In GW, Set AMPDU to 0 =Disable ubus-cli WiFi.Radio.1.DriverConfig.Ampdu=0 > WiFi.Radio.1.DriverConfig.Ampdu=0 WiFi.Radio.1.DriverConfig.
+    WiFi.Radio.1.DriverConfig.Ampdu=0
   depends_on: step4
-  note: In GW, Set AMPDU to 0 =Disable
 - id: step6
   action: exec
   target: DUT
-  command: Check Throughput
-  capture: result
+  command: Check Throughput Throughput collapse => here during test TPut = 9Mbs in open area
   depends_on: step5
+  capture: result
 pass_criteria:
 - field: result.Ampdu
   operator: contains

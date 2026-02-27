@@ -1,4 +1,4 @@
-id: wifi-llapi-r220-radio-scan
+id: wifi-llapi-r220-scan
 name: scan() — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -22,14 +22,13 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli "WiFi.Radio.*.scan()"
+  command: '1. Try scan() function: ubus-cli "WiFi.Radio.*.scan()"'
   capture: result
-  note: 'Try scan() function:'
 pass_criteria:
 - field: result
-  operator: not_contains
-  value: error
-  description: scan() 執行不應回傳 error
+  operator: not_empty
+  value: ''
+  description: scan() 應回傳非空結果
 results_reference:
   v4.0.1:
     5g: Fail

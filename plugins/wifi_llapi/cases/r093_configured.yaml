@@ -1,4 +1,4 @@
-id: wifi-llapi-r093-accesspoint_wps-configured
+id: wifi-llapi-r093-configured
 name: Configured — WiFi.AccessPoint.{i}.WPS.
 version: '1.0'
 source:
@@ -18,13 +18,33 @@ topology:
     DUT:
       role: ap
       transport: serial
+    STA:
+      role: sta
+      transport: adb
+      config:
+      - iface: 5g
+        mode: sta
+        ssid: '{{SSID_5G}}'
+        key: '{{KEY_5G}}'
+    EndpointPC:
+      role: endpoint
+      transport: ssh
+  links:
+  - from: STA
+    to: DUT
+    band: 5g
+  - from: DUT
+    to: EndpointPC
+    interface: eth1
 steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.WPS.Configured ?
+  command: 1. Get WPS Configured state ubus-cli WiFi.AccessPoint.*.WPS.Configured ? > WiFi.AccessPoint.*.WPS.Configured ?
+    WiFi.AccessPoint.1.WPS.Configured=1 WiFi.AccessPoint.3.WPS.Configured=1 WiFi.AccessPoint.5.WPS.Configured=1 wps_state_x0001_Meaning
+    (hostapd / WPS spec) 0_x0001_WPS disabled 1_x0001_Unconfigured (no credentials set via WPS yet) 2_x0001_Configured (credentials
+    already set)
   capture: result
-  note: Get WPS Configured state
 pass_criteria:
 - field: result.Configured
   operator: contains

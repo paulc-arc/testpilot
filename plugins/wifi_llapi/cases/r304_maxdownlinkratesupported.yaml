@@ -1,4 +1,4 @@
-id: wifi-llapi-r304-accesspoint_associateddevice-maxdownlinkratesupported
+id: wifi-llapi-r304-maxdownlinkratesupported
 name: MaxDownlinkRateSupported — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -34,14 +34,15 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect WiFi Station to GW
+  command: 1. Connect WiFi Station to GW
 - id: step2
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.MaxDownlinkRateSupported?
-  capture: result
+  command: Verify Station MaxDownlinkRateSupported ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.MaxDownlinkRateSupported?
+    > WiFi.AccessPoint.*.AssociatedDevice.*.MaxDownlinkRateSupported? WiFi.AccessPoint.1.AssociatedDevice.1.MaxDownlinkRateSupported=4803897
+    WiFi.AccessPoint.3.AssociatedDevice.1.MaxDownlinkRateSupported=4803897 WiFi.AccessPoint.5.AssociatedDevice.1.MaxDownlinkRateSupported=300000
   depends_on: step1
-  note: Verify Station MaxDownlinkRateSupported
+  capture: result
 pass_criteria:
 - field: result.MaxDownlinkRateSupported
   operator: contains
@@ -73,7 +74,17 @@ verification_command: 'root@prplOS:/# wl -i wl0 sta_info 00:60:f3:25:aa:59 | gre
 
   Max Rate = 9074 Mbps
 
-  root@'
+  root@prplOS:/# wl -i wl2 sta_info c8:15:4e:89:fa:e9 | grep -E ''nrate|mcs|Max Rate''
+
+  tx nrate
+
+  eht mcs 13 Nss 2 Tx Exp 2 bw40 ldpc 2xLTF GI 1.6us auto
+
+  rx nrate
+
+  eht mcs 3 Nss 2 Tx Exp 0 bw40 ldpc 4xLTF GI 3.2us auto
+
+  Max Rate = 573 Mbps'
 results_reference:
   v4.0.1:
     5g: Pass

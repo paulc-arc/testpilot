@@ -1,4 +1,4 @@
-id: wifi-llapi-r282-radio-mcs
+id: wifi-llapi-r282-mcs
 name: MCS — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -22,9 +22,9 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.MCS?
+  command: 1. Verify MCS of the Radio ubus-cli WiFi.Radio.*.MCS? > WiFi.Radio.*.MCS? WiFi.Radio.1.MCS=0 WiFi.Radio.2.MCS=0
+    WiFi.Radio.3.MCS=0
   capture: result
-  note: Verify MCS of the Radio
 pass_criteria:
 - field: result.MCS
   operator: contains
@@ -60,7 +60,196 @@ verification_command: 'root@prplOS:/# wl -i wl0 status
 
   NSS1 Tx: 0-11 Rx: 0-11
 
-  NSS2 Tx: 0-11 Rx'
+  NSS2 Tx: 0-11 Rx: 0-11
+
+  NSS3 Tx: 0-11 Rx: 0-11
+
+  NSS4 Tx: 0-11 Rx: 0-11
+
+  Supported HE MCS:
+
+  20/40/80 MHz:
+
+  NSS1 Tx: 0-11 Rx: 0-11
+
+  NSS2 Tx: 0-11 Rx: 0-11
+
+  NSS3 Tx: 0-11 Rx: 0-11
+
+  NSS4 Tx: 0-11 Rx: 0-11
+
+  160 MHz:
+
+  NSS1 Tx: 0-11 Rx: 0-11
+
+  NSS2 Tx: 0-11 Rx: 0-11
+
+  NSS3 Tx: 0-11 Rx: 0-11
+
+  NSS4 Tx: 0-11 Rx: 0-11
+
+  BSS Color: 0x0 Partial BSS Color: false
+
+  BSS Color Disabled: false
+
+  Supported EHT MCS:
+
+  20/40/80 MHz:
+
+  NSS1 Tx: 0-13 Rx: 0-13
+
+  NSS2 Tx: 0-13 Rx: 0-13
+
+  NSS3 Tx: 0-13 Rx: 0-13
+
+  NSS4 Tx: 0-13 Rx: 0-13
+
+  160 MHz:
+
+  NSS1 Tx: 0-13 Rx: 0-13
+
+  NSS2 Tx: 0-13 Rx: 0-13
+
+  NSS3 Tx: 0-13 Rx: 0-13
+
+  NSS4 Tx: 0-13 Rx: 0-13
+
+
+  root@prplOS:/# wl -i wl1 status
+
+  SSID: "6G-123"
+
+  Mode: Managed RSSI: 0 dBm SNR: 0 dB noise: -88 dBm Channel: 6g1/160
+
+  BSSID: 64:75:DA:4E:51:76 Capability: ESS RRM
+
+  Beacon Interval: 100 msecs
+
+  Supported Rates: [ 6(b) 9 12 18 24(b) 36 48 54 ]
+
+  Extended Capabilities: Not_Available
+
+  MLO: MLD Address: 64:75:DA:4E:51:76
+
+  EHT Capable:
+
+  Chanspec: 6GHz channel 15 160MHz (0x680f)
+
+  Primary channel: 1
+
+  Supported HE MCS:
+
+  20/40/80 MHz:
+
+  NSS1 Tx: 0-11 Rx: 0-11
+
+  NSS2 Tx: 0-11 Rx: 0-11
+
+  NSS3 Tx: 0-11 Rx: 0-11
+
+  NSS4 Tx: 0-11 Rx: 0-11
+
+  160 MHz:
+
+  NSS1 Tx: 0-11 Rx: 0-11
+
+  NSS2 Tx: 0-11 Rx: 0-11
+
+  NSS3 Tx: 0-11 Rx: 0-11
+
+  NSS4 Tx: 0-11 Rx: 0-11
+
+  BSS Color: 0x0 Partial BSS Color: false
+
+  BSS Color Disabled: false
+
+  Supported EHT MCS:
+
+  20/40/80 MHz:
+
+  NSS1 Tx: 0-13 Rx: 0-13
+
+  NSS2 Tx: 0-13 Rx: 0-13
+
+  NSS3 Tx: 0-13 Rx: 0-13
+
+  NSS4 Tx: 0-13 Rx: 0-13
+
+  160 MHz:
+
+  NSS1 Tx: 0-13 Rx: 0-13
+
+  NSS2 Tx: 0-13 Rx: 0-13
+
+  NSS3 Tx: 0-13 Rx: 0-13
+
+  NSS4 Tx: 0-13 Rx: 0-13
+
+  320 MHz:
+
+  NSS1 Tx: 0-13 Rx: 0-13
+
+  NSS2 Tx: 0-13 Rx: 0-13
+
+  NSS3 Tx: 0-13 Rx: 0-13
+
+  NSS4 Tx: 0-13 Rx: 0-13
+
+
+
+  root@prplOS:/# wl -i wl2 status
+
+  SSID: "24G-123"
+
+  Mode: Managed RSSI: 0 dBm SNR: 0 dB noise: -82 dBm Channel: 1
+
+  BSSID: 64:75:DA:4E:51:87 Capability: ESS ShortSlot RRM
+
+  Beacon Interval: 100 msecs
+
+  Supported Rates: [ 1(b) 2(b) 5.5(b) 6 9 11(b) 12 18 24 36 48 54 ]
+
+  Extended Capabilities: Not_Available
+
+  MLO: MLD Address: 64:75:DA:4E:51:87
+
+  EHT Capable:
+
+  Chanspec: 2.4GHz channel 1 20MHz (0x1001)
+
+  Primary channel: 1
+
+  HT Capabilities: 40MHz SGI20 SGI40
+
+  Supported HT MCS : 0-7
+
+  Supported HE MCS:
+
+  20/40/80 MHz:
+
+  NSS1 Tx: 0-11 Rx: 0-11
+
+  NSS2 Tx: 0-11 Rx: ---
+
+  NSS3 Tx: 0-11 Rx: ---
+
+  NSS4 Tx: 0-11 Rx: ---
+
+  BSS Color: 0x0 Partial BSS Color: false
+
+  BSS Color Disabled: false
+
+  Supported EHT MCS:
+
+  20/40/80 MHz:
+
+  NSS1 Tx: 0-13 Rx: 0-13
+
+  NSS2 Tx: 0-13 Rx: ---
+
+  NSS3 Tx: 0-13 Rx: ---
+
+  NSS4 Tx: 0-13 Rx: ---'
 results_reference:
   v4.0.1:
     5g: Fail

@@ -1,4 +1,4 @@
-id: wifi-llapi-r057-accesspoint_associateddevice-uplinkmcs
+id: wifi-llapi-r057-uplinkmcs
 name: UplinkMCS — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -34,7 +34,8 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect WiFi Station and check Station UplinkMCS
+  command: '##Connect WiFi Station and check Station UplinkMCS WiFi.AccessPoint.1.AssociatedDevice.1.UplinkMCS=0 WiFi.AccessPoint.3.AssociatedDevice.1.UplinkMCS=0
+    WiFi.AccessPoint.5.AssociatedDevice.1.UplinkMCS=0'
   capture: result
 pass_criteria:
 - field: result.UplinkMCS

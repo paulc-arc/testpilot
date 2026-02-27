@@ -1,4 +1,4 @@
-id: wifi-llapi-r273-radio_ieee80211ax-srgbsscolorbitmap
+id: wifi-llapi-r273-srgbsscolorbitmap
 name: SRGBSSColorBitmap — WiFi.Radio.{i}.IEEE80211ax.
 version: '1.0'
 source:
@@ -22,13 +22,13 @@ steps:
 - id: query
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.{i}.IEEE80211ax.SRGBSSColorBitmap
+  command: ubus-cli WiFi.Radio.{i}.IEEE80211ax.SRGBSSColorBitmap=""
   capture: result
 pass_criteria:
 - field: result.SRGBSSColorBitmap
   operator: contains
-  value: ''
-  description: SRGBSSColorBitmap 應回傳包含 SRGBSSColorBitmap=
+  value: '""'
+  description: SRGBSSColorBitmap 應回傳包含 SRGBSSColorBitmap=""
 results_reference:
   v4.0.1:
     5g: To be tested

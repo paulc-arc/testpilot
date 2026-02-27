@@ -1,4 +1,4 @@
-id: wifi-llapi-r153-radio-explicitbeamformingenabled
+id: wifi-llapi-r153-explicitbeamformingenabled
 name: ExplicitBeamFormingEnabled — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -22,8 +22,8 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.ExplicitBeamFormingEnabled?
-  note: 'Check API default value:'
+  command: '1. Check API default value: ubus-cli WiFi.Radio.*.ExplicitBeamFormingEnabled? > WiFi.Radio.*.ExplicitBeamFormingEnabled?
+    WiFi.Radio.1.ExplicitBeamFormingEnabled=1 WiFi.Radio.2.ExplicitBeamFormingEnabled=1 WiFi.Radio.3.ExplicitBeamFormingEnabled=1'
 - id: step2
   action: exec
   target: DUT
@@ -32,15 +32,14 @@ steps:
 - id: step3
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.ExplicitBeamFormingEnabled=0
+  command: 'Change the ExplicitBeamFormingEnabled to 0: ubus-cli WiFi.Radio.*.ExplicitBeamFormingEnabled=0'
   depends_on: step2
-  note: 'Change the ExplicitBeamFormingEnabled to 0:'
 - id: step4
   action: exec
   target: DUT
   command: Compare with driver returned value and beacon capability.
-  capture: result
   depends_on: step3
+  capture: result
 pass_criteria:
 - field: result.ExplicitBeamFormingEnabled
   operator: contains

@@ -1,4 +1,4 @@
-id: wifi-llapi-r097-accesspoint_wps-uuid
+id: wifi-llapi-r097-uuid
 name: UUID — WiFi.AccessPoint.{i}.WPS.
 version: '1.0'
 source:
@@ -34,8 +34,8 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.? | grep .WPS.UUID
-  note: Get GW WPS UUID
+  command: 1. Get GW WPS UUID ubus-cli WiFi.AccessPoint.? | grep .WPS.UUID WiFi.AccessPoint.1.WPS.UUID="4b58464a-5957-fc49-f845-57454b58464a"
+    WiFi.AccessPoint.3.WPS.UUID="4b58464a-5957-fc49-f845-57454b58464a" WiFi.AccessPoint.5.WPS.UUID="4b58464a-5957-fc49-f845-57454b58464a"
 - id: step2
   action: exec
   target: DUT
@@ -44,9 +44,9 @@ steps:
 - id: step3
   action: exec
   target: DUT
-  command: Verify UUID in EAP message
-  capture: result
+  command: Verify UUID in EAP message - check in EAP -> Expanded Type (WSC) -> UUID
   depends_on: step2
+  capture: result
 pass_criteria:
 - field: result.UUID
   operator: contains

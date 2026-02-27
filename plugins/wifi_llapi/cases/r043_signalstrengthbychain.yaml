@@ -1,4 +1,4 @@
-id: wifi-llapi-r043-accesspoint_associateddevice-signalstrengthbychain
+id: wifi-llapi-r043-signalstrengthbychain
 name: SignalStrengthByChain — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -34,7 +34,8 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect 4x4 WiFi Station and check Station SignalStrengthByChain
+  command: '##Connect 4x4 WiFi Station and check Station SignalStrengthByChain WiFi.AccessPoint.1.AssociatedDevice.1.SignalStrengthByChain="-41.0"
+    WiFi.AccessPoint.3.AssociatedDevice.1.SignalStrengthByChain="-57.0" WiFi.AccessPoint.5.AssociatedDevice.1.SignalStrengthByChain="-48.0"'
   capture: result
 pass_criteria:
 - field: result.SignalStrengthByChain

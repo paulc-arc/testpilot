@@ -1,4 +1,4 @@
-id: wifi-llapi-r279-radio-longretrylimit
+id: wifi-llapi-r279-longretrylimit
 name: LongRetryLimit — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -22,21 +22,20 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.LongRetryLimit?
-  note: 'Check API default value:'
+  command: '1. Check API default value: ubus-cli WiFi.Radio.*.LongRetryLimit? > WiFi.Radio.*.LongRetryLimit? WiFi.Radio.1.LongRetryLimit=6
+    WiFi.Radio.2.LongRetryLimit=6 WiFi.Radio.3.LongRetryLimit=6'
 - id: step2
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.LongRetryLimit=10
+  command: 'Try modify the API to any other value: ubus-cli WiFi.Radio.*.LongRetryLimit=10'
   depends_on: step1
-  note: 'Try modify the API to any other value:'
 - id: step3
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.LongRetryLimit?
-  capture: result
+  command: 'Check API value again and compare with driver return value: ubus-cli WiFi.Radio.*.LongRetryLimit? > WiFi.Radio.*.LongRetryLimit?
+    WiFi.Radio.1.LongRetryLimit=10 WiFi.Radio.2.LongRetryLimit=10 WiFi.Radio.3.LongRetryLimit=10'
   depends_on: step2
-  note: 'Check API value again and compare with driver return value:'
+  capture: result
 pass_criteria:
 - field: result.LongRetryLimit
   operator: contains

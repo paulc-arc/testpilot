@@ -1,4 +1,4 @@
-id: wifi-llapi-r343-radio-rxbeamformingcapsenabled
+id: wifi-llapi-r343-rxbeamformingcapsenabled
 name: RxBeamformingCapsEnabled — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -22,13 +22,13 @@ steps:
 - id: query
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.{i}.RxBeamformingCapsEnabled
+  command: ubus-cli WiFi.Radio.{i}.RxBeamformingCapsEnabled="DEFAULT"
   capture: result
 pass_criteria:
 - field: result.RxBeamformingCapsEnabled
   operator: contains
-  value: DEFAULT
-  description: RxBeamformingCapsEnabled 應回傳包含 RxBeamformingCapsEnabled=DEFAULT
+  value: '"DEFAULT"'
+  description: RxBeamformingCapsEnabled 應回傳包含 RxBeamformingCapsEnabled="DEFAULT"
 results_reference:
   v4.0.1:
     5g: Pass

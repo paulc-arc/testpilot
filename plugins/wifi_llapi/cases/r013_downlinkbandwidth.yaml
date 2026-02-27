@@ -1,4 +1,4 @@
-id: wifi-llapi-r013-accesspoint_associateddevice-downlinkbandwidth
+id: wifi-llapi-r013-downlinkbandwidth
 name: DownlinkBandwidth — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:
@@ -34,14 +34,15 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: Connect WiFi Station to GW
+  command: 1. Connect WiFi Station to GW
 - id: step2
   action: exec
   target: DUT
-  command: ubus-cli WiFi.AccessPoint.*.AssociatedDevice.? | grep DownlinkB
-  capture: result
+  command: Verify Associated Station DownlinkBandwidth ubus-cli WiFi.AccessPoint.*.AssociatedDevice.? | grep DownlinkB andwidth
+    WiFi.AccessPoint.1.AssociatedDevice.1.DownlinkBandwidth=80 WiFi.AccessPoint.3.AssociatedDevice.1.DownlinkBandwidth=160
+    WiFi.AccessPoint.3.AssociatedDevice.1.DownlinkBandwidth=40
   depends_on: step1
-  note: Verify Associated Station DownlinkBandwidth
+  capture: result
 pass_criteria:
 - field: result.DownlinkBandwidth
   operator: contains

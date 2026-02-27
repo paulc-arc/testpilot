@@ -1,4 +1,4 @@
-id: wifi-llapi-r166-radio-maxchannelbandwidth
+id: wifi-llapi-r166-maxchannelbandwidth
 name: MaxChannelBandwidth — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -22,9 +22,9 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.MaxChannelBandwidth?
+  command: '1. Read-only API, defines max bandwidth for each radio: ubus-cli WiFi.Radio.*.MaxChannelBandwidth? > WiFi.Radio.*.MaxChannelBandwidth?
+    WiFi.Radio.1.MaxChannelBandwidth="160MHz" WiFi.Radio.2.MaxChannelBandwidth="320MHz" WiFi.Radio.3.MaxChannelBandwidth="40MHz"'
   capture: result
-  note: 'Read-only API, defines max bandwidth for each radio:'
 pass_criteria:
 - field: result.MaxChannelBandwidth
   operator: contains

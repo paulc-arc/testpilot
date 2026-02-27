@@ -1,4 +1,4 @@
-id: wifi-llapi-r170-radio-ofdmaenable
+id: wifi-llapi-r170-ofdmaenable
 name: OfdmaEnable — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -22,14 +22,14 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.OfdmaEnable?
-  note: Check OfdmaEnable
+  command: 1. Check OfdmaEnable root@prplOS:/tmp# ubus-cli WiFi.Radio.*.OfdmaEnable? > WiFi.Radio.*.OfdmaEnable? WiFi.Radio.1.OfdmaEnable=1
+    WiFi.Radio.2.OfdmaEnable=1 WiFi.Radio.3.OfdmaEnable=1
 - id: step2
   action: exec
   target: DUT
-  command: 'Capture Beacon and make sure the following bits map are present:'
-  capture: result
+  command: 'Capture Beacon and make sure the following bits map are present: HE Capabilities IE HE Operation IE'
   depends_on: step1
+  capture: result
 pass_criteria:
 - field: result.OfdmaEnable
   operator: contains
@@ -67,7 +67,12 @@ verification_command: 'root@prplOS:~# wl -i wl0 he features
 
   4_x0001_0x10_x0001_UL OFDMA / Trigger-based features
 
-  5_x0'
+  5_x0001_0x20_x0001_HE MIMO / related HE enhancements
+
+  6+_x0001_0x40+_x0001_Not enabled
+
+
+  So 0x3f means all basic HE features supported by this firmware are enable'
 results_reference:
   v4.0.1:
     5g: Pass

@@ -1,4 +1,4 @@
-id: wifi-llapi-r160-radio-ieee80211hsupported
+id: wifi-llapi-r160-ieee80211hsupported
 name: IEEE80211hSupported — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -18,14 +18,26 @@ topology:
     DUT:
       role: ap
       transport: serial
+    STA:
+      role: sta
+      transport: adb
+      config:
+      - iface: 5g
+        mode: sta
+        ssid: '{{SSID_5G}}'
+        key: '{{KEY_5G}}'
+  links:
+  - from: STA
+    to: DUT
+    band: 5g
 steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.IEEE80211hSupported?
+  command: '1. Read-only API, defines whether each radio supported 802.11h standard. Check the API value and compare them
+    with driver capability and packets'' tag from radio beacons: ubus-cli WiFi.Radio.*.IEEE80211hSupported? > WiFi.Radio.*.IEEE80211hSupported?
+    WiFi.Radio.1.IEEE80211hSupported=1 WiFi.Radio.2.IEEE80211hSupported=0 WiFi.Radio.3.IEEE80211hSupported=0'
   capture: result
-  note: Read-only API, defines whether each radio supported 802.11h standard. Check the API value and compare them with driver
-    c
 pass_criteria:
 - field: result.IEEE80211hSupported
   operator: contains
@@ -36,7 +48,26 @@ verification_command: 'wl -i wl0 cap | grep 802.11h
   ap sta wet led wme 802.11d 802.11h rm cac mbss8 ampdu ampdu_tx ampdu_rx amsdurx amsdutx rxchain_pwrsave wds dwds vht-prop-rates
   multi-user-beamformer single-user-beamformer multi-user-beamformee single-user-beamformee 160 dfrts stbc-tx stbc-rx-1ss
   pspretend probresp_mac_filter mfp wnm bsstrans scanmac cptlv-4 ve fbtoverds fbt_adpt ifver bgdfs bgdfs160 spp lpr_scan bkoff_evt
-  awd_data_info monitor cevent traffic_thresh 11ax 11be 320 stamon csimon cfp hwa-1a-1b-2a-2b-3a'
+  awd_data_info monitor cevent traffic_thresh 11ax 11be 320 stamon csimon cfp hwa-1a-1b-2a-2b-3a-3b-4b-pp-pr pqp sqs sae slaveradar
+  swpaging ba256 qosmgmt asr sbf_active assert gcmp suite-b chanswitch 11az pcap telemetry mrsno
+
+
+  wl -i wl1 cap | grep 802.11h
+
+  ap sta wet led wme 802.11d 802.11h rm cac mbss8 ampdu ampdu_tx ampdu_rx amsdurx amsdutx rxchain_pwrsave wds dwds vht-prop-rates
+  multi-user-beamformer single-user-beamformer multi-user-beamformee single-user-beamformee 160 dfrts stbc-tx stbc-rx-1ss
+  pspretend probresp_mac_filter mfp wnm bsstrans scanmac cptlv-4 ve fbtoverds fbt_adpt ifver bgdfs bgdfs160 spp lpr_scan bkoff_evt
+  awd_data_info monitor cevent traffic_thresh 11ax 11be 320 stamon csimon cfp hwa-1a-1b-2a-2b-3a-3b-4b-pp-pr pqp sqs sae slaveradar
+  swpaging ba256 qosmgmt asr sbf_active assert gcmp suite-b chanswitch 11az pcap telemetry mrsno
+
+
+  wl -i wl2 cap | grep 802.11h
+
+  ap sta wet led wme 802.11d 802.11h rm cac mbss8 ampdu ampdu_tx ampdu_rx amsdurx amsdutx rxchain_pwrsave wds dwds vht-prop-rates
+  multi-user-beamformer single-user-beamformer multi-user-beamformee single-user-beamformee 160 dfrts stbc-tx stbc-rx-1ss
+  pspretend probresp_mac_filter mfp wnm bsstrans scanmac cptlv-4 ve fbtoverds fbt_adpt ifver bgdfs bgdfs160 spp lpr_scan bkoff_evt
+  awd_data_info monitor cevent traffic_thresh 11ax 11be 320 stamon csimon cfp hwa-1a-1b-2a-2b-3a-3b-4b-pp-pr pqp sqs sae slaveradar
+  swpaging ba256 qosmgmt asr sbf_active assert gcmp suite-b chanswitch 11az pcap telemetry mrsno'
 results_reference:
   v4.0.1:
     5g: Pass

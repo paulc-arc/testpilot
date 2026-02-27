@@ -1,4 +1,4 @@
-id: wifi-llapi-r342-radio_ieee80211ax-srginformationvalid
+id: wifi-llapi-r342-srginformationvalid
 name: SRGInformationValid — WiFi.Radio.{i}.IEEE80211ax.
 version: '1.0'
 source:
@@ -22,20 +22,21 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.IEEE80211ax.SRGInformationValid?
-  note: 'Check API defualt value:'
+  command: '1. Check API defualt value: ubus-cli WiFi.Radio.*.IEEE80211ax.SRGInformationValid? > WiFi.Radio.*.IEEE80211ax.SRGInformationValid?
+    WiFi.Radio.1.IEEE80211ax.SRGInformationValid=0 WiFi.Radio.2.IEEE80211ax.SRGInformationValid=0 WiFi.Radio.3.IEEE80211ax.SRGInformationValid=0'
 - id: step2
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.IEEE80211ax.SRGInformationValid=1
+  command: 'Set the value to 1(enbaled): ubus-cli WiFi.Radio.*.IEEE80211ax.SRGInformationValid=1 > WiFi.Radio.*.IEEE80211ax.SRGInformationValid=1
+    WiFi.Radio.1.IEEE80211ax. WiFi.Radio.1.IEEE80211ax.SRGInformationValid=1 WiFi.Radio.2.IEEE80211ax. WiFi.Radio.2.IEEE80211ax.SRGInformationValid=1
+    WiFi.Radio.3.IEEE80211ax. WiFi.Radio.3.IEEE80211ax.SRGInformationValid=1'
   depends_on: step1
-  note: 'Set the value to 1(enbaled):'
 - id: step3
   action: exec
   target: DUT
   command: Check the radio beacons included SRC district from air.
-  capture: result
   depends_on: step2
+  capture: result
 pass_criteria:
 - field: result.SRGInformationValid
   operator: contains

@@ -1,4 +1,4 @@
-id: wifi-llapi-r175-radio-rifsenabled
+id: wifi-llapi-r175-rifsenabled
 name: RIFSEnabled — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -22,17 +22,16 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.RIFSEnabled?
-  note: 'Check the API default value for all radio:'
+  command: '1. Check the API default value for all radio: ubus-cli WiFi.Radio.*.RIFSEnabled? > WiFi.Radio.*.RIFSEnabled? WiFi.Radio.1.RIFSEnabled="Default"
+    WiFi.Radio.2.RIFSEnabled="Default" WiFi.Radio.3.RIFSEnabled="Default"'
 - id: step2
   action: exec
   target: DUT
-  command: 'ubus-cli WiFi.Radio.*.RIFSEnabled="Auto"
-
-    ubus-cli WiFi.Radio.*.RIFSEnabled?'
-  capture: result
+  command: 'Modify the API to "Auto"and check the API is correctly set: ubus-cli WiFi.Radio.*.RIFSEnabled="Auto" ubus-cli
+    WiFi.Radio.*.RIFSEnabled? > WiFi.Radio.*.RIFSEnabled? WiFi.Radio.1.RIFSEnabled="Auto" WiFi.Radio.2.RIFSEnabled="Auto"
+    WiFi.Radio.3.RIFSEnabled="Auto"'
   depends_on: step1
-  note: 'Modify the API to "Auto"and check the API is correctly set:'
+  capture: result
 pass_criteria:
 - field: result.RIFSEnabled
   operator: contains

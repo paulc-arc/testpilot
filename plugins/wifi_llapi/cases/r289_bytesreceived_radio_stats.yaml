@@ -1,0 +1,73 @@
+id: wifi-llapi-r289-bytesreceived-radio-stats
+name: BytesReceived — WiFi.Radio.{i}.Stats.
+version: '1.0'
+source:
+  report: 6.3.0GA_prplware_v403_LLAPI_Test_Report.xlsx
+  sheet: Wifi_LLAPI
+  row: 289
+  object: WiFi.Radio.{i}.Stats.
+  api: BytesReceived
+platform:
+  prplos: 4.0.3
+  bdk: 6.3.1
+hlapi_command: ubus-cli WiFi.Radio.{i}.Stats.BytesReceived=18167
+llapi_support: Support
+implemented_by: Vendor Module
+topology:
+  devices:
+    DUT:
+      role: ap
+      transport: serial
+    STA:
+      role: sta
+      transport: adb
+      config:
+      - iface: 5g
+        mode: sta
+        ssid: '{{SSID_5G}}'
+        key: '{{KEY_5G}}'
+  links:
+  - from: STA
+    to: DUT
+    band: 5g
+steps:
+- id: step1
+  action: exec
+  target: DUT
+  command: 1. Compare with 'ubus-cli "WiFi.Radio.*.getRadioStats()"'. Follow the test results of getRadioStats(). WiFi.Radio.1.Stats.BroadcastPacketsReceived=0
+    WiFi.Radio.1.Stats.BroadcastPacketsSent=0 WiFi.Radio.1.Stats.BytesReceived=4001870242 WiFi.Radio.1.Stats.BytesSent=27387731
+    WiFi.Radio.1.Stats.DiscardPacketsReceived=11 WiFi.Radio.1.Stats.DiscardPacketsSent=23 WiFi.Radio.1.Stats.ErrorsReceived=0
+    WiFi.Radio.1.Stats.ErrorsSent=0 WiFi.Radio.1.Stats.FailedRetransCount=0 WiFi.Radio.1.Stats.MulticastPacketsReceived=14665
+    WiFi.Radio.1.Stats.MulticastPacketsSent=0 WiFi.Radio.1.Stats.MultipleRetryCount=0 WiFi.Radio.1.Stats.Noise=0 WiFi.Radio.1.Stats.PacketsReceived=3012612
+    WiFi.Radio.1.Stats.PacketsSent=180701 WiFi.Radio.1.Stats.RetransCount=0 WiFi.Radio.1.Stats.RetryCount=0 WiFi.Radio.1.Stats.Temperature=81
+    WiFi.Radio.1.Stats.UnicastPacketsReceived=0 WiFi.Radio.1.Stats.UnicastPacketsSent=0 WiFi.Radio.1.Stats.UnknownProtoPacketsReceived=0
+    WiFi.Radio.2.Stats.BroadcastPacketsReceived=0 WiFi.Radio.2.Stats.BroadcastPacketsSent=0 WiFi.Radio.2.Stats.BytesReceived=0
+    WiFi.Radio.2.Stats.BytesSent=19261966 WiFi.Radio.2.Stats.DiscardPacketsReceived=16 WiFi.Radio.2.Stats.DiscardPacketsSent=13
+    WiFi.Radio.2.Stats.ErrorsReceived=0 WiFi.Radio.2.Stats.ErrorsSent=0 WiFi.Radio.2.Stats.FailedRetransCount=0 WiFi.Radio.2.Stats.MulticastPacketsReceived=0
+    WiFi.Radio.2.Stats.MulticastPacketsSent=0 WiFi.Radio.2.Stats.MultipleRetryCount=0 WiFi.Radio.2.Stats.Noise=0 WiFi.Radio.2.Stats.PacketsReceived=0
+    WiFi.Radio.2.Stats.PacketsSent=65306 WiFi.Radio.2.Stats.RetransCount=0 WiFi.Radio.2.Stats.RetryCount=0 WiFi.Radio.2.Stats.Temperature=82
+    WiFi.Radio.2.Stats.UnicastPacketsReceived=0 WiFi.Radio.2.Stats.UnicastPacketsSent=0 WiFi.Radio.2.Stats.UnknownProtoPacketsReceived=0
+    WiFi.Radio.3.Stats.BroadcastPacketsReceived=0 WiFi.Radio.3.Stats.BroadcastPacketsSent=0 WiFi.Radio.3.Stats.BytesReceived=1813299
+    WiFi.Radio.3.Stats.BytesSent=4011747628 WiFi.Radio.3.Stats.DiscardPacketsReceived=23 WiFi.Radio.3.Stats.DiscardPacketsSent=4
+    WiFi.Radio.3.Stats.ErrorsReceived=0 WiFi.Radio.3.Stats.ErrorsSent=0 WiFi.Radio.3.Stats.FailedRetransCount=0 WiFi.Radio.3.Stats.MulticastPacketsReceived=1064
+    WiFi.Radio.3.Stats.MulticastPacketsSent=0 WiFi.Radio.3.Stats.MultipleRetryCount=0 WiFi.Radio.3.Stats.Noise=0 WiFi.Radio.3.Stats.PacketsReceived=17331
+    WiFi.Radio.3.Stats.PacketsSent=2929609 WiFi.Radio.3.Stats.RetransCount=0 WiFi.Radio.3.Stats.RetryCount=0 WiFi.Radio.3.Stats.Temperature=78
+    WiFi.Radio.3.Stats.UnicastPacketsReceived=0 WiFi.Radio.3.Stats.UnicastPacketsSent=0 WiFi.Radio.3.Stats.UnknownProtoPacketsReceived=0
+  capture: result
+pass_criteria:
+- field: result.BytesReceived
+  operator: contains
+  value: '18167'
+  description: BytesReceived 應回傳包含 BytesReceived=18167
+verification_command: cat /proc/net/dev |grep wl0
+results_reference:
+  v4.0.1:
+    5g: Pass
+    6g: Pass
+    2.4g: Pass
+    comment: 'ARC : API return 0'
+  v4.0.3:
+    5g: To be tested
+    6g: To be tested
+    2.4g: To be tested
+    comment: ''

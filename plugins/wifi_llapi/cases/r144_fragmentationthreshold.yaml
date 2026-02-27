@@ -1,4 +1,4 @@
-id: wifi-llapi-r144-radio_driverconfig-fragmentationthreshold
+id: wifi-llapi-r144-fragmentationthreshold
 name: FragmentationThreshold — WiFi.Radio.{i}.DriverConfig.
 version: '1.0'
 source:
@@ -34,8 +34,9 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.DriverConfig.FragmentationThreshold=1500
-  note: Set Fragmentation Threshold to 1500
+  command: 1. Set Fragmentation Threshold to 1500 ubus-cli WiFi.Radio.*.DriverConfig.FragmentationThreshold=1500 > WiFi.Radio.*.DriverConfig.FragmentationThreshold=1500
+    WiFi.Radio.1.DriverConfig. WiFi.Radio.1.DriverConfig.FragmentationThreshold=1500 WiFi.Radio.2.DriverConfig. WiFi.Radio.2.DriverConfig.FragmentationThreshold=1500
+    WiFi.Radio.3.DriverConfig. WiFi.Radio.3.DriverConfig.FragmentationThreshold=1500
 - id: step2
   action: exec
   target: DUT
@@ -44,14 +45,15 @@ steps:
 - id: step3
   action: exec
   target: DUT
-  command: Run ping from GW to Station
+  command: 'Run ping from GW to Station Note: add -S "size" to Ping. Example given the threshold of 1500 then run ping with
+    data size larger than 1500.'
   depends_on: step2
 - id: step4
   action: exec
   target: DUT
   command: Capture air packet between GW and Station
-  capture: result
   depends_on: step3
+  capture: result
 pass_criteria:
 - field: result.FragmentationThreshold
   operator: contains

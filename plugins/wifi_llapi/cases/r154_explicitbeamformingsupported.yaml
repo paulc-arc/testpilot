@@ -1,4 +1,4 @@
-id: wifi-llapi-r154-radio-explicitbeamformingsupported
+id: wifi-llapi-r154-explicitbeamformingsupported
 name: ExplicitBeamFormingSupported — WiFi.Radio.{i}.
 version: '1.0'
 source:
@@ -18,14 +18,26 @@ topology:
     DUT:
       role: ap
       transport: serial
+    STA:
+      role: sta
+      transport: adb
+      config:
+      - iface: 5g
+        mode: sta
+        ssid: '{{SSID_5G}}'
+        key: '{{KEY_5G}}'
+  links:
+  - from: STA
+    to: DUT
+    band: 5g
 steps:
 - id: step1
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.*.ExplicitBeamFormingSupported?
+  command: '1. Read-only API, defines whether each radio supported ExplicitBeamForming. Check API value and compare with driver
+    return value: ubus-cli WiFi.Radio.*.ExplicitBeamFormingSupported? > WiFi.Radio.*.ExplicitBeamFormingSupported? WiFi.Radio.1.ExplicitBeamFormingSupported=1
+    WiFi.Radio.2.ExplicitBeamFormingSupported=1 WiFi.Radio.3.ExplicitBeamFormingSupported=1'
   capture: result
-  note: 'Read-only API, defines whether each radio supported ExplicitBeamForming. Check API value and compare with driver
-    return '
 pass_criteria:
 - field: result.ExplicitBeamFormingSupported
   operator: contains
