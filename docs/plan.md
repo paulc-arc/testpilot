@@ -27,6 +27,7 @@ TestPilot 是一套 plugin-based 嵌入式測試框架，核心目標是：
 1. `wifi_llapi` plugin 執行 hook（`setup_env/verify_env/execute_step/evaluate`）目前仍為 stub。
 2. `serial/adb/ssh/network` 真實 transport 尚未完成。
 3. monitor / remediation / integration 測試仍待補齊。
+4. plugin `agent-config` 的 runtime selector / case-level dispatcher / trace writer 尚未落地。
 
 ---
 
@@ -65,6 +66,8 @@ TestPilot 是一套 plugin-based 嵌入式測試框架，核心目標是：
 
 ### 4.3 YAML 規格
 
+目前既有格式：
+
 ```yaml
 version: 1
 default_mode: headless
@@ -84,11 +87,54 @@ runners:
     enabled: true
 ```
 
+校準後目標格式（新增 `execution`，尚未實作）：
+
+```yaml
+version: 1
+default_mode: headless
+selection_policy:
+  fallback: automatic
+  on_unavailable: next_priority
+execution:
+  scope: per_case
+  mode: sequential
+  max_concurrency: 1
+  failure_policy: retry_then_fail_and_continue
+  retry:
+    max_attempts: 2
+    backoff_seconds: 5
+  timeout:
+    base_seconds: 120
+    per_step_seconds: 45
+    retry_multiplier: 1.25
+    max_seconds: 900
+runners:
+  - priority: 1
+    cli_agent: codex
+    model: gpt-5.3-codex
+    effort: high
+    enabled: true
+  - priority: 2
+    cli_agent: copilot
+    model: sonnet-4.6
+    effort: high
+    enabled: true
+```
+
 ### 4.4 選擇規則
 
 1. 依 `priority` 由小到大選擇。
 2. 第一優先不可用時，自動降級到第二優先。
 3. 每次選擇需留存 `selection trace`（選擇結果、降級原因、時間戳）。
+
+### 4.5 Case-Level 執行策略（已定案，待實作）
+
+1. Agent 呼叫粒度：`per_case`，每個 test case 各自建立一次 agent 執行流程。
+2. 排程模式：`sequential`，`max_concurrency = 1`。
+3. Case 失敗策略：`retry_then_fail_and_continue`（重試後仍失敗則標記 fail，整批續跑）。
+4. Trace 粒度：每個 case 一份獨立 trace artifact。
+5. Timeout 策略：依重試次數調整，公式為  
+   `attempt_timeout = min(max_seconds, (base_seconds + steps_count * per_step_seconds) * retry_multiplier^(attempt_index - 1))`。
 
 ---
 
@@ -136,7 +182,7 @@ docs/
 3. Phase 2：env 管理（topology/provisioner/validator）。
 4. Phase 3：核心引擎（test-runner/monitor/reporter + verdict merge）。
 5. Phase 4：wifi_llapi 完整執行實作（非 stub）。
-6. Phase 5：CLI 與整合測試（含 agent selection trace）。
+6. Phase 5：CLI 與整合測試（含 case-level agent dispatcher、retry-aware timeout、per-case trace）。
 
 ---
 

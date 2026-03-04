@@ -18,8 +18,10 @@ TestPilot 採用 `Orchestrator -> Plugin -> YAML Cases` 架構，目標是支援
 
 1. 真實 transport（serial/adb/ssh/network）。
 2. env provision/validate 與 monitor。
-3. plugin evaluate + agent audit 合併判讀。
-4. post-run remediation（測後修正/重測）。
+3. 改為每個 test case 各自呼叫 agent（非單一 agent 吃完整批）。
+4. case-level retry-aware timeout 與 per-case selection trace。
+5. plugin evaluate + agent audit 合併判讀。
+6. post-run remediation（測後修正/重測）。
 
 詳見：`docs/plan.md` 與 `docs/todos.md`。
 
@@ -58,6 +60,8 @@ python -m testpilot.cli run wifi_llapi \
 1. 第一優先：`codex + gpt-5.3-codex + high`
 2. 第二優先：`copilot + sonnet-4.6 + high`
 3. 第一優先不可用時，自動降級第二優先（需留 trace）
+4. 執行模式目標：`per_case + sequential(max_concurrency=1)`（文件已校準，實作待完成）
+5. 失敗策略目標：`retry_then_fail_and_continue`，且 timeout 隨 retry attempt 調整
 
 ## 專案結構
 

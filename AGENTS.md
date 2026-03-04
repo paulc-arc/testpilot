@@ -57,6 +57,9 @@ pytest
    - Priority 1: `codex + gpt-5.3-codex + high`
    - Priority 2: `copilot + sonnet-4.6 + high`
 3. 第一優先不可用時允許自動降級，且需留 `selection trace`。
+4. `wifi_llapi` 執行策略以 case-level 為主（每個 test case 各自呼叫 agent）。
+5. `wifi_llapi` 排程策略預設為 `sequential`（`max_concurrency=1`）。
+6. case 失敗策略為 `retry_then_fail_and_continue`，且 timeout 需隨 retry attempt 調整。
 
 ## Code Style
 

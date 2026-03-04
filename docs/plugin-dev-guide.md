@@ -106,6 +106,19 @@ default_mode: headless
 selection_policy:
   fallback: automatic
   on_unavailable: next_priority
+execution:
+  scope: per_case
+  mode: sequential
+  max_concurrency: 1
+  failure_policy: retry_then_fail_and_continue
+  retry:
+    max_attempts: 2
+    backoff_seconds: 5
+  timeout:
+    base_seconds: 120
+    per_step_seconds: 45
+    retry_multiplier: 1.25
+    max_seconds: 900
 runners:
   - priority: 1
     cli_agent: codex
@@ -123,7 +136,11 @@ runners:
 
 1. 依 `priority` 選擇。
 2. 第一優先不可用時可自動降級。
-3. 必須記錄 selection trace（含降級原因）。
+3. `scope=per_case` 時，每個 case 都需獨立做 runner 選擇與呼叫。
+4. `mode=sequential` 時，`max_concurrency` 應為 `1`。
+5. `failure_policy=retry_then_fail_and_continue` 時，單 case 失敗不得中止整批 run。
+6. 必須記錄 per-case selection trace（含降級原因）。
+7. timeout 應隨 retry attempt 調整（建議採倍增或倍率增長並設上限）。
 
 ## 5. Transport 類型慣例
 

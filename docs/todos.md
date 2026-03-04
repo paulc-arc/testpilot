@@ -45,7 +45,7 @@
 
 | ID | 項目 | 狀態 | 註記 |
 |---|---|---|---|
-| P3-01 | test-runner loop | in_progress | orchestrator 已有 `wifi_llapi` 路徑 |
+| P3-01 | test-runner loop | in_progress | orchestrator 已有 `wifi_llapi` 路徑；待補 case-level agent dispatcher（sequential） |
 | P3-02 | monitor subsystem | pending | 尚未實作 |
 | P3-03 | reporter（MD/JSON） | in_progress | 已有 Wifi_LLAPI Excel reporter；MD/JSON 尚未完成 |
 | P3-04 | verdict merge policy（plugin + agent） | pending | 規格已定，runtime 尚未落地 |
@@ -68,5 +68,9 @@
 | P5-01 | cli-full | in_progress | 已有 `run/list` + `wifi-llapi build-template-report` |
 | P5-02 | orchestrator-full | in_progress | `wifi_llapi` 專屬流程已整合；其他 plugin 仍 skeleton |
 | P5-03 | integration tests（mock transport） | pending | 尚未補齊 |
-| P5-04 | plugin agent-config schema/runtime | in_progress | `wifi_llapi` 已有 `agent-config.yaml`；runtime selector 未落地 |
-| P5-05 | agent selection trace | pending | fallback trace 尚未實作 |
+| P5-04 | plugin agent-config schema/runtime | in_progress | `wifi_llapi` 已有 `agent-config.yaml`；待補 per-case runtime selector |
+| P5-05 | agent selection trace | in_progress | 目標改為每個 case 獨立 fallback/selection trace |
+| P5-06 | case-agent dispatcher（sequential） | pending | 每個 test case 各自呼叫 agent，`max_concurrency=1` |
+| P5-07 | retry-aware timeout policy | pending | timeout 需依 retry attempt 遞增並有上限 |
+| P5-08 | per-case trace artifact writer | pending | `reports/agent_trace/<run_id>/<case_id>.json` |
+| P5-09 | integration tests for per-case agent run | pending | 覆蓋 selector/fallback/retry/timeout/trace |
