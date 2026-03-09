@@ -25,33 +25,73 @@ TestPilot 採用 `Orchestrator -> Plugin -> YAML Cases` 架構，目標是支援
 
 詳見：`docs/plan.md` 與 `docs/todos.md`。
 
-## CLI 快速開始
+## Usage
+
+### 1) 環境準備
 
 ```bash
-cd ~/prj_pri/testpilot
+cd testpilot
 uv venv && source .venv/bin/activate
 uv pip install -e ".[dev]"
-
-# 設定 testbed（首次需要）
-cp configs/testbed.yaml.example configs/testbed.yaml
-# 依實際環境修改 configs/testbed.yaml
-
-# 驗證安裝
 python -m testpilot.cli --version
+```
 
-# 探索
+### 2) 設定 testbed（首次）
+
+```bash
+cp configs/testbed.yaml.example configs/testbed.yaml
+# 依實際環境修改 configs/testbed.yaml（DUT/STA/Endpoint）
+```
+
+`wifi_llapi` 常見使用 `DUT: transport: serial`，可用 `serial_port`/`selector`/`alias`/`session_id` 對應 serialwrap session。
+
+### 3) 驗證環境與案例列表
+
+```bash
+# 建議先確認 serialwrap session 狀態
+serialwrap session list | jq '.sessions[] | {session_id, com, alias, state, device_by_id, real_path}'
+
+# 探索 plugin / cases
 python -m testpilot.cli list-plugins
 python -m testpilot.cli list-cases wifi_llapi
+```
 
-# 建立 Wifi_LLAPI template
+### 4) 建立 Wifi_LLAPI 報告模板（可選）
+
+```bash
 python -m testpilot.cli wifi-llapi build-template-report \
-  --source-xlsx "/mnt/c/Users/paul_chen/Downloads/0302-AT&T_LLAPI_Test_Report_20260107.xlsx"
+  --source-xlsx "0302-AT&T_LLAPI_Test_Report_20260107.xlsx"
+```
 
-# 執行 wifi_llapi
+### 5) 執行 wifi_llapi 測試
+
+先跑單一 case（smoke）：
+
+```bash
+python -m testpilot.cli run wifi_llapi \
+  --case wifi-llapi-r002-kickstation \
+  --dut-fw-ver BGW720-B0-403 \
+  --report-source-xlsx "0302-AT&T_LLAPI_Test_Report_20260107.xlsx"
+```
+
+全量執行（預設會跑官方 row-indexed `wifi-llapi-r###`，目前 415 cases）：
+
+```bash
 python -m testpilot.cli run wifi_llapi \
   --dut-fw-ver BGW720-B0-403 \
-  --report-source-xlsx "/mnt/c/Users/paul_chen/Downloads/0302-AT&T_LLAPI_Test_Report_20260107.xlsx"
+  --report-source-xlsx "0302-AT&T_LLAPI_Test_Report_20260107.xlsx"
 ```
+
+### 6) 產出檔案
+
+1. Excel 報告：`plugins/wifi_llapi/reports/YYYYMMDD_<FW>_wifi_LLAPI.xlsx`
+2. 每 case trace：`plugins/wifi_llapi/reports/agent_trace/<run_id>/`
+3. 對齊失敗報告：`plugins/wifi_llapi/reports/alignment/*_alignment_issues.json`
+
+### 7) 常見錯誤
+
+若出現 `ModuleNotFoundError: testpilot`，先確認已執行 `uv pip install -e ".[dev]"`。  
+臨時排查可改用：`PYTHONPATH=src python -m testpilot.cli ...`
 
 ## 報告策略（雙軌）
 
