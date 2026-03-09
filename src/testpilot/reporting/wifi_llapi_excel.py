@@ -23,6 +23,14 @@ from openpyxl.utils import column_index_from_string
 
 DEFAULT_SHEET_NAME = "Wifi_LLAPI"
 DEFAULT_TEMPLATE_NAME = "wifi_llapi_template.xlsx"
+DEFAULT_TEMPLATE_MAX_COLUMN = "L"
+RESULT_GROUP_HEADER = "Result"
+RESULT_HEADERS_BY_COLUMN = {
+    "I": "WiFi 5G",
+    "J": "WiFi 6G",
+    "K": "WiFi 2.4G",
+}
+TESTER_HEADER = "Tester"
 DEFAULT_CLEAR_COLUMNS = (
     "G",   # Test steps
     "H",   # Driver-level verified command output
@@ -30,7 +38,6 @@ DEFAULT_CLEAR_COLUMNS = (
     "J",   # ARC 6g result
     "K",   # ARC 2.4g result
     "L",   # ARC tester
-    "M",   # ARC comment
 )
 DATA_START_ROW = 4
 EMPTY_STREAK_STOP = 200
@@ -139,6 +146,44 @@ def _to_col_idx(col: str | int) -> int:
     return column_index_from_string(col)
 
 
+def _trim_sheet_to_max_column(ws, max_col_idx: int) -> None:
+    """Trim worksheet columns to max_col_idx and clean residual metadata."""
+    if ws.max_column > max_col_idx:
+        ws.delete_cols(max_col_idx + 1, ws.max_column - max_col_idx)
+
+    # delete_cols may leave stale merges/dimensions from the source sheet.
+    for merged in list(ws.merged_cells.ranges):
+        if merged.max_col <= max_col_idx:
+            continue
+        ws.merged_cells.ranges.remove(merged)
+        if merged.min_col > max_col_idx:
+            continue
+        clipped_max_col = max_col_idx
+        if (
+            merged.min_col == clipped_max_col
+            and merged.min_row == merged.max_row
+        ):
+            continue
+        ws.merge_cells(
+            start_row=merged.min_row,
+            end_row=merged.max_row,
+            start_column=merged.min_col,
+            end_column=clipped_max_col,
+        )
+
+    stale_cells = [coord for coord in ws._cells if coord[1] > max_col_idx]
+    for coord in stale_cells:
+        del ws._cells[coord]
+
+    for col_letter in list(ws.column_dimensions.keys()):
+        try:
+            col_idx = column_index_from_string(col_letter)
+        except ValueError:
+            continue
+        if col_idx > max_col_idx:
+            del ws.column_dimensions[col_letter]
+
+
 def _set_cell_value_safe(ws, row: int, col: str, value: str) -> None:
     """Set worksheet cell value with merged-cell fallback.
 
@@ -163,6 +208,24 @@ def _set_cell_value_safe(ws, row: int, col: str, value: str) -> None:
         return
 
 
+def _normalize_template_headers(ws) -> None:
+    """Normalize Wifi_LLAPI result/tester header semantics for columns I~L."""
+    for merged in list(ws.merged_cells.ranges):
+        if merged.max_row < 2 or merged.min_row > 2:
+            continue
+        if merged.max_col < 9 or merged.min_col > 12:
+            continue
+        ws.unmerge_cells(str(merged))
+
+    ws.merge_cells(start_row=2, end_row=2, start_column=9, end_column=11)
+    ws.cell(row=2, column=9).value = RESULT_GROUP_HEADER
+    ws.cell(row=2, column=12).value = TESTER_HEADER
+    ws.cell(row=3, column=9).value = RESULT_HEADERS_BY_COLUMN["I"]
+    ws.cell(row=3, column=10).value = RESULT_HEADERS_BY_COLUMN["J"]
+    ws.cell(row=3, column=11).value = RESULT_HEADERS_BY_COLUMN["K"]
+    ws.cell(row=3, column=12).value = TESTER_HEADER
+
+
 def build_template_from_source(
     source_xlsx: Path | str,
     out_template_xlsx: Path | str,
@@ -170,7 +233,7 @@ def build_template_from_source(
     sheet_name: str = DEFAULT_SHEET_NAME,
     clear_rules: ClearRules | None = None,
 ) -> TemplateBuildResult:
-    """Extract wifi_LLAPI sheet as template and clear result/test command fields."""
+    """Extract wifi_LLAPI sheet as template, keep A~L columns, and clear runtime fields."""
     rules = clear_rules or ClearRules()
     source = Path(source_xlsx)
     out_path = Path(out_template_xlsx)
@@ -186,6 +249,11 @@ def build_template_from_source(
             wb.remove(wb[name])
     wb.active = 0
     ws = wb[actual_sheet_name]
+
+    # Keep template schema stable: only columns A~L are preserved.
+    template_max_col_idx = _to_col_idx(DEFAULT_TEMPLATE_MAX_COLUMN)
+    _trim_sheet_to_max_column(ws, template_max_col_idx)
+    _normalize_template_headers(ws)
 
     case_rows = _iter_case_rows(
         ws,
@@ -264,7 +332,6 @@ def fill_case_results(
         _set_cell_value_safe(ws, row, "J", item.result_6g)
         _set_cell_value_safe(ws, row, "K", item.result_24g)
         _set_cell_value_safe(ws, row, "L", item.tester)
-        _set_cell_value_safe(ws, row, "M", item.comment)
 
     wb.save(path)
     wb.close()

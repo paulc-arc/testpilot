@@ -2,6 +2,7 @@ from datetime import date
 from pathlib import Path
 
 from openpyxl import Workbook, load_workbook
+from openpyxl.utils import get_column_letter
 
 from testpilot.reporting.wifi_llapi_excel import (
     WifiLlapiCaseResult,
@@ -27,7 +28,15 @@ def _create_source_xlsx(path: Path) -> None:
     ws["J2"] = "ARC 4.0.3 Test Result\nWiFi 6g"
     ws["K2"] = "ARC 4.0.3 Test Result\nWiFi 2.4g"
     ws["L2"] = "Tester"
-    ws["M2"] = "ARC Comment"
+    ws["M2"] = "Legacy Extra Band"
+    ws["S1"] = "BCM"
+    ws["S2"] = "BCM v4.0.3 Test Result WiFi 5g"
+    ws["X1"] = "ARC"
+    ws["X2"] = "ARC 4.0.3 Test Result WiFi 5g"
+    ws.merge_cells("I1:Q1")
+    ws.merge_cells("L2:M2")
+    ws.column_dimensions["S"].width = 18
+    ws.column_dimensions["AB"].width = 24
 
     ws["A4"] = "WiFi.AccessPoint.{i}."
     ws["C4"] = "kickStation()"
@@ -37,7 +46,6 @@ def _create_source_xlsx(path: Path) -> None:
     ws["J4"] = "Pass"
     ws["K4"] = "Pass"
     ws["L4"] = "old-tester"
-    ws["M4"] = "old-comment"
 
     ws["A5"] = "WiFi.Radio.{i}."
     ws["C5"] = "scan()"
@@ -47,7 +55,6 @@ def _create_source_xlsx(path: Path) -> None:
     ws["J5"] = "Fail"
     ws["K5"] = "Fail"
     ws["L5"] = "old-tester2"
-    ws["M5"] = "old-comment2"
 
     wb.save(path)
     wb.close()
@@ -65,9 +72,20 @@ def test_build_template_from_source(tmp_path: Path):
     wb = load_workbook(template)
     assert wb.sheetnames == ["Wifi_LLAPI"]
     ws = wb["Wifi_LLAPI"]
+    assert ws.max_column == 12
+    assert get_column_letter(ws.max_column) == "L"
+    assert all(r.max_col <= 12 for r in ws.merged_cells.ranges)
+    assert ws["I2"].value == "Result"
+    assert ws["L2"].value == "Tester"
+    assert ws["I3"].value == "WiFi 5G"
+    assert ws["J3"].value == "WiFi 6G"
+    assert ws["K3"].value == "WiFi 2.4G"
+    assert ws["L3"].value == "Tester"
+    assert "S" not in ws.column_dimensions
+    assert "AB" not in ws.column_dimensions
     assert ws["C4"].value == "kickStation()"
     assert ws["C5"].value == "scan()"
-    for cell in ("G4", "H4", "I4", "J4", "K4", "L4", "M4", "G5", "H5", "I5", "J5", "K5", "L5", "M5"):
+    for cell in ("G4", "H4", "I4", "J4", "K4", "L4", "G5", "H5", "I5", "J5", "K5", "L5"):
         assert ws[cell].value is None
     wb.close()
 
@@ -91,7 +109,6 @@ def test_fill_case_results(tmp_path: Path):
                 result_5g="Pass",
                 result_6g="Pass",
                 result_24g="Pass",
-                comment="ok",
             )
         ],
     )
@@ -104,7 +121,6 @@ def test_fill_case_results(tmp_path: Path):
     assert ws["J4"].value == "Pass"
     assert ws["K4"].value == "Pass"
     assert ws["L4"].value == "testpilot"
-    assert ws["M4"].value == "ok"
     wb.close()
 
 
@@ -122,7 +138,6 @@ def test_fill_case_results_with_merged_row(tmp_path: Path):
     ws.merge_cells("J4:J5")
     ws.merge_cells("K4:K5")
     ws.merge_cells("L4:L5")
-    ws.merge_cells("M4:M5")
     wb.save(source)
     wb.close()
 
@@ -140,7 +155,6 @@ def test_fill_case_results_with_merged_row(tmp_path: Path):
                 result_5g="Fail",
                 result_6g="N/A",
                 result_24g="Pass",
-                comment="merged-ok",
             )
         ],
     )
@@ -153,7 +167,6 @@ def test_fill_case_results_with_merged_row(tmp_path: Path):
     assert ws["J4"].value == "N/A"
     assert ws["K4"].value == "Pass"
     assert ws["L4"].value == "testpilot"
-    assert ws["M4"].value == "merged-ok"
     wb.close()
 
 

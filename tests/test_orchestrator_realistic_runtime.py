@@ -321,7 +321,7 @@ def test_realistic_runtime_covers_hooks_and_report_outputs(tmp_path: Path, monke
     assert ws["J4"].value == "N/A"
     assert ws["K4"].value == "N/A"
     assert ws["L4"].value == "testpilot"
-    assert "pass_criteria not satisfied" in str(ws["M4"].value)
+    assert ws.max_column == 12
 
     assert ws["G5"].value == 'ubus-cli "WiFi.Radio.1.getRadioStats()"'
     assert PASS_TOKEN in str(ws["H5"].value)
