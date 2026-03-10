@@ -1,4 +1,6 @@
-id: wifi-llapi-r062-bridgeinterface
+id: wifi-llapi-D067-bridgeinterface
+aliases:
+  - wifi-llapi-r062-bridgeinterface
 name: BridgeInterface — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:

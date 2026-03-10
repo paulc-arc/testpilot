@@ -1,4 +1,6 @@
-id: wifi-llapi-r227-getssidstats-bytesreceived
+id: wifi-llapi-D304-getssidstats-bytesreceived
+aliases:
+  - wifi-llapi-r227-getssidstats-bytesreceived
 name: getSSIDStats() — WiFi.SSID.{i}.
 version: '1.0'
 source:

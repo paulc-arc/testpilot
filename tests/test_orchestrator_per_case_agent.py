@@ -10,8 +10,10 @@ from openpyxl import Workbook
 
 from testpilot.core.orchestrator import Orchestrator
 
-FAIL_CASE_ID = "wifi-llapi-r004-retry-fail"
-PASS_CASE_ID = "wifi-llapi-r005-pass-after-fail"
+FAIL_CASE_ID = "wifi-llapi-D004-retry-fail"
+PASS_CASE_ID = "wifi-llapi-D005-pass-after-fail"
+FAIL_CASE_LEGACY_ID = "wifi-llapi-r004-retry-fail"
+PASS_CASE_LEGACY_ID = "wifi-llapi-r005-pass-after-fail"
 
 
 def _write_testbed_yaml(path: Path) -> None:
@@ -60,7 +62,8 @@ from testpilot.core.plugin_base import PluginBase
 
 CASES = [
     {
-        "id": "wifi-llapi-r004-retry-fail",
+        "id": "wifi-llapi-D004-retry-fail",
+        "aliases": ["wifi-llapi-r004-retry-fail"],
         "name": "retry-fail",
         "source": {
             "row": 4,
@@ -72,7 +75,8 @@ CASES = [
         "bands": ["5g"],
     },
     {
-        "id": "wifi-llapi-r005-pass-after-fail",
+        "id": "wifi-llapi-D005-pass-after-fail",
+        "aliases": ["wifi-llapi-r005-pass-after-fail"],
         "name": "pass-after-fail",
         "source": {
             "row": 5,
@@ -193,7 +197,7 @@ def _run_wifi_llapi(tmp_path: Path) -> tuple[dict[str, Any], Orchestrator, Path]
     )
     result = orch.run(
         "wifi_llapi",
-        case_ids=[FAIL_CASE_ID, PASS_CASE_ID],
+        case_ids=[FAIL_CASE_LEGACY_ID, PASS_CASE_LEGACY_ID],
         dut_fw_ver="FW-TEST-1",
         report_source_xlsx=str(source_xlsx),
     )

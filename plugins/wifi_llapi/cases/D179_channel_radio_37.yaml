@@ -1,4 +1,6 @@
-id: wifi-llapi-r140-channel-radio-37
+id: wifi-llapi-D179-channel-radio-37
+aliases:
+  - wifi-llapi-r140-channel-radio-37
 name: Channel — WiFi.Radio.{i}.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r296-retranscount-radio-stats
+id: wifi-llapi-D403-retranscount-radio-stats
+aliases:
+  - wifi-llapi-r296-retranscount-radio-stats
 name: RetransCount — WiFi.Radio.{i}.Stats.
 version: '1.0'
 source:

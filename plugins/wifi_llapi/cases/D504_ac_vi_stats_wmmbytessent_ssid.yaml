@@ -1,4 +1,6 @@
-id: wifi-llapi-r369-ac-vi-stats-wmmbytessent-ssid
+id: wifi-llapi-D504-ac-vi-stats-wmmbytessent-ssid
+aliases:
+  - wifi-llapi-r369-ac-vi-stats-wmmbytessent-ssid
 name: AC_VI — WiFi.SSID.{i}.Stats.WmmBytesSent
 version: '1.0'
 source:

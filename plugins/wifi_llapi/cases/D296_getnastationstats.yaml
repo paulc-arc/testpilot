@@ -1,4 +1,6 @@
-id: wifi-llapi-r219-getnastationstats
+id: wifi-llapi-D296-getnastationstats
+aliases:
+  - wifi-llapi-r219-getnastationstats
 name: getNaStationStats() — WiFi.Radio.{i}.NaStaMonitor.
 version: '1.0'
 source:

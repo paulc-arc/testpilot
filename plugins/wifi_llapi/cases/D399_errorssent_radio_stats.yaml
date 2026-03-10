@@ -1,4 +1,6 @@
-id: wifi-llapi-r292-errorssent-radio-stats
+id: wifi-llapi-D399-errorssent-radio-stats
+aliases:
+  - wifi-llapi-r292-errorssent-radio-stats
 name: ErrorsSent — WiFi.Radio.{i}.Stats.
 version: '1.0'
 source:

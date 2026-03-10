@@ -1,4 +1,6 @@
-id: wifi-llapi-r003-kickstationreason
+id: wifi-llapi-D007-kickstationreason
+aliases:
+  - wifi-llapi-r003-kickstationreason
 name: kickStationReason() — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:

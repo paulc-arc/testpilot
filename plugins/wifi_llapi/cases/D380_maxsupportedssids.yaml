@@ -1,4 +1,6 @@
-id: wifi-llapi-r281-maxsupportedssids
+id: wifi-llapi-D380-maxsupportedssids
+aliases:
+  - wifi-llapi-r281-maxsupportedssids
 name: MaxSupportedSSIDs — WiFi.Radio.{i}.
 version: '1.0'
 source:

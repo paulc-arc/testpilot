@@ -1,4 +1,6 @@
-id: wifi-llapi-r046-supportedmcs
+id: wifi-llapi-D051-supportedmcs
+aliases:
+  - wifi-llapi-r046-supportedmcs
 name: SupportedMCS — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

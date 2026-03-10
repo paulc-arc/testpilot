@@ -1,4 +1,6 @@
-id: wifi-llapi-r187-getradioairstats-rxtime
+id: wifi-llapi-D261-getradioairstats-rxtime
+aliases:
+  - wifi-llapi-r187-getradioairstats-rxtime
 name: getRadioAirStats() — WiFi.Radio.{i}.
 version: '1.0'
 source:

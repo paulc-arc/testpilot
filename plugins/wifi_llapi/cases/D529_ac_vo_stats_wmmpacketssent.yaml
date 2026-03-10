@@ -1,4 +1,6 @@
-id: wifi-llapi-r394-ac-vo-stats-wmmpacketssent
+id: wifi-llapi-D529-ac-vo-stats-wmmpacketssent
+aliases:
+  - wifi-llapi-r394-ac-vo-stats-wmmpacketssent
 name: AC_VO — WiFi.SSID.{i}.Stats.WmmPacketsSent.
 version: '1.0'
 source:

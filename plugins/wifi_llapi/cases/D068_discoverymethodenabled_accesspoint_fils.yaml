@@ -1,4 +1,6 @@
-id: wifi-llapi-r063-discoverymethodenabled-accesspoint-fils
+id: wifi-llapi-D068-discoverymethodenabled-accesspoint-fils
+aliases:
+  - wifi-llapi-r063-discoverymethodenabled-accesspoint-fils
 name: DiscoveryMethodEnabled — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:

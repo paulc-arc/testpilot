@@ -1,4 +1,6 @@
-id: wifi-llapi-r283-multiaptypessupported
+id: wifi-llapi-D382-multiaptypessupported
+aliases:
+  - wifi-llapi-r283-multiaptypessupported
 name: MultiAPTypesSupported — WiFi.Radio.{i}.
 version: '1.0'
 source:

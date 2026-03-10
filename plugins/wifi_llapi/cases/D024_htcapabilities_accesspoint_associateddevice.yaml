@@ -1,4 +1,6 @@
-id: wifi-llapi-r019-htcapabilities-accesspoint-associateddevice
+id: wifi-llapi-D024-htcapabilities-accesspoint-associateddevice
+aliases:
+  - wifi-llapi-r019-htcapabilities-accesspoint-associateddevice
 name: HtCapabilities — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r117-getstats-rssi
+id: wifi-llapi-D131-getstats-rssi
+aliases:
+  - wifi-llapi-r117-getstats-rssi
 name: getStats() — WiFi.EndPoint.{i}.
 version: '1.0'
 source:

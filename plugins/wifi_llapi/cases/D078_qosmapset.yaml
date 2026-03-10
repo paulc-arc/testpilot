@@ -1,4 +1,6 @@
-id: wifi-llapi-r070-qosmapset
+id: wifi-llapi-D078-qosmapset
+aliases:
+  - wifi-llapi-r070-qosmapset
 name: QoSMapSet — WiFi.AccessPoint.{i}.IEEE80211u
 version: '1.0'
 source:

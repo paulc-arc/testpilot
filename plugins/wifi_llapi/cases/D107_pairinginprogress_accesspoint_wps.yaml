@@ -1,4 +1,6 @@
-id: wifi-llapi-r095-pairinginprogress-accesspoint-wps
+id: wifi-llapi-D107-pairinginprogress-accesspoint-wps
+aliases:
+  - wifi-llapi-r095-pairinginprogress-accesspoint-wps
 name: PairingInProgress — WiFi.AccessPoint.{i}.WPS.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r415-strsupport-capabilities-wifi7starole
+id: wifi-llapi-D602-strsupport-capabilities-wifi7starole
+aliases:
+  - wifi-llapi-r415-strsupport-capabilities-wifi7starole
 name: STRSupport — WiFi.Radio.{i}.Capabilities.WiFi7STARole.
 version: '1.0'
 source:

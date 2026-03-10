@@ -1,4 +1,6 @@
-id: wifi-llapi-r297-retrycount-radio-stats
+id: wifi-llapi-D404-retrycount-radio-stats
+aliases:
+  - wifi-llapi-r297-retrycount-radio-stats
 name: RetryCount — WiFi.Radio.{i}.Stats.
 version: '1.0'
 source:

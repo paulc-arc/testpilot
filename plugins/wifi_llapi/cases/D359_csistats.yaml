@@ -1,4 +1,6 @@
-id: wifi-llapi-r267-csistats
+id: wifi-llapi-D359-csistats
+aliases:
+  - wifi-llapi-r267-csistats
 name: csiStats() — WiFi.Radio.{i}.Sensing.
 version: '1.0'
 source:

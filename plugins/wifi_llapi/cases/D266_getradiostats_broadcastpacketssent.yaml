@@ -1,4 +1,6 @@
-id: wifi-llapi-r192-getradiostats-broadcastpacketssent
+id: wifi-llapi-D266-getradiostats-broadcastpacketssent
+aliases:
+  - wifi-llapi-r192-getradiostats-broadcastpacketssent
 name: getRadioStats() — WiFi.Radio.{i}.
 version: '1.0'
 source:

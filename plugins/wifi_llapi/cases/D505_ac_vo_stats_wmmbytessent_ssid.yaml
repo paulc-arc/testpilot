@@ -1,4 +1,6 @@
-id: wifi-llapi-r370-ac-vo-stats-wmmbytessent-ssid
+id: wifi-llapi-D505-ac-vo-stats-wmmbytessent-ssid
+aliases:
+  - wifi-llapi-r370-ac-vo-stats-wmmbytessent-ssid
 name: AC_VO — WiFi.SSID.{i}.Stats.WmmBytesSent
 version: '1.0'
 source:

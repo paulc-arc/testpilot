@@ -1,4 +1,6 @@
-id: wifi-llapi-r053-txpacketcount
+id: wifi-llapi-D058-txpacketcount
+aliases:
+  - wifi-llapi-r053-txpacketcount
 name: TxPacketCount — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

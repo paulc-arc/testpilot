@@ -1,4 +1,6 @@
-id: wifi-llapi-r307-maxuplinkratesupported
+id: wifi-llapi-D414-maxuplinkratesupported
+aliases:
+  - wifi-llapi-r307-maxuplinkratesupported
 name: MaxUplinkRateSupported — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

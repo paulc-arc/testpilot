@@ -1,4 +1,6 @@
-id: wifi-llapi-r196-getradiostats-discardpacketssent
+id: wifi-llapi-D270-getradiostats-discardpacketssent
+aliases:
+  - wifi-llapi-r196-getradiostats-discardpacketssent
 name: getRadioStats() — WiFi.Radio.{i}.
 version: '1.0'
 source:

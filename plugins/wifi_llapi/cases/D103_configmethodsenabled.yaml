@@ -1,4 +1,6 @@
-id: wifi-llapi-r092-configmethodsenabled
+id: wifi-llapi-D103-configmethodsenabled
+aliases:
+  - wifi-llapi-r092-configmethodsenabled
 name: ConfigMethodsEnabled — WiFi.AccessPoint.{i}.WPS.
 version: '1.0'
 source:

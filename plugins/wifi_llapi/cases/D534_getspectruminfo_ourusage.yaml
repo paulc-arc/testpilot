@@ -1,4 +1,6 @@
-id: wifi-llapi-r399-getspectruminfo-ourusage
+id: wifi-llapi-D534-getspectruminfo-ourusage
+aliases:
+  - wifi-llapi-r399-getspectruminfo-ourusage
 name: getSpectrumInfo() — WiFi.Radio.{i}.
 version: '1.0'
 source:

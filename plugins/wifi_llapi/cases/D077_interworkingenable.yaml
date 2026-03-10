@@ -1,4 +1,6 @@
-id: wifi-llapi-r069-interworkingenable
+id: wifi-llapi-D077-interworkingenable
+aliases:
+  - wifi-llapi-r069-interworkingenable
 name: InterworkingEnable — WiFi.AccessPoint.{i}.IEEE80211u
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r286-radcapabilitieshephysstr
+id: wifi-llapi-D385-radcapabilitieshephysstr
+aliases:
+  - wifi-llapi-r286-radcapabilitieshephysstr
 name: RadCapabilitiesHePhysStr — WiFi.Radio.{i}.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r236-getssidstats-packetsreceived
+id: wifi-llapi-D313-getssidstats-packetsreceived
+aliases:
+  - wifi-llapi-r236-getssidstats-packetsreceived
 name: getSSIDStats() — WiFi.SSID.{i}.
 version: '1.0'
 source:

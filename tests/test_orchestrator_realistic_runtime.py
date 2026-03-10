@@ -12,8 +12,8 @@ from openpyxl import Workbook, load_workbook
 
 from testpilot.core.orchestrator import Orchestrator
 
-FAIL_CASE_ID = "wifi-llapi-r900-evaluate-fail"
-PASS_CASE_ID = "wifi-llapi-r901-evaluate-pass"
+FAIL_CASE_ID = "wifi-llapi-D004-evaluate-fail"
+PASS_CASE_ID = "wifi-llapi-D005-evaluate-pass"
 PASS_TOKEN = "TOKEN_OK"
 
 

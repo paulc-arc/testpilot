@@ -1,4 +1,6 @@
-id: wifi-llapi-r365-ac-vi-stats-wmmbytesreceived-ssid
+id: wifi-llapi-D500-ac-vi-stats-wmmbytesreceived-ssid
+aliases:
+  - wifi-llapi-r365-ac-vi-stats-wmmbytesreceived-ssid
 name: AC_VI — WiFi.SSID.{i}.Stats.WmmBytesReceived.
 version: '1.0'
 source:

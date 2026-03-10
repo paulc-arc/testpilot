@@ -1,4 +1,6 @@
-id: wifi-llapi-r414-emlsrsupport-capabilities-wifi7starole
+id: wifi-llapi-D601-emlsrsupport-capabilities-wifi7starole
+aliases:
+  - wifi-llapi-r414-emlsrsupport-capabilities-wifi7starole
 name: EMLSRSupport — WiFi.Radio.{i}.Capabilities.WiFi7STARole.
 version: '1.0'
 source:

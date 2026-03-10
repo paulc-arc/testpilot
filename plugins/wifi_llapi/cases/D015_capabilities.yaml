@@ -1,4 +1,6 @@
-id: wifi-llapi-r010-capabilities
+id: wifi-llapi-D015-capabilities
+aliases:
+  - wifi-llapi-r010-capabilities
 name: Capabilities — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

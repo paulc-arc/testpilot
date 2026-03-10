@@ -1,4 +1,6 @@
-id: wifi-llapi-r168-multiusermimosupported
+id: wifi-llapi-D207-multiusermimosupported
+aliases:
+  - wifi-llapi-r168-multiusermimosupported
 name: MultiUserMIMOSupported — WiFi.Radio.{i}.
 version: '1.0'
 source:

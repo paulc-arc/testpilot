@@ -1,4 +1,6 @@
-id: wifi-llapi-r235-getssidstats-multicastpacketssent
+id: wifi-llapi-D312-getssidstats-multicastpacketssent
+aliases:
+  - wifi-llapi-r235-getssidstats-multicastpacketssent
 name: getSSIDStats() — WiFi.SSID.{i}.
 version: '1.0'
 source:

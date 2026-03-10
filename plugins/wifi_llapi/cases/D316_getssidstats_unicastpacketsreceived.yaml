@@ -1,4 +1,6 @@
-id: wifi-llapi-r239-getssidstats-unicastpacketsreceived
+id: wifi-llapi-D316-getssidstats-unicastpacketsreceived
+aliases:
+  - wifi-llapi-r239-getssidstats-unicastpacketsreceived
 name: getSSIDStats() — WiFi.SSID.{i}.
 version: '1.0'
 source:

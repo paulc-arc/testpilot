@@ -1,4 +1,6 @@
-id: wifi-llapi-r257-packetssent-ssid-stats
+id: wifi-llapi-D335-packetssent-ssid-stats
+aliases:
+  - wifi-llapi-r257-packetssent-ssid-stats
 name: PacketsSent — WiFi.SSID.{i}.Stats.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r362-retrycount-ssid-stats-verified
+id: wifi-llapi-D497-retrycount-ssid-stats-verified
+aliases:
+  - wifi-llapi-r362-retrycount-ssid-stats-verified
 name: RetryCount — WiFi.SSID.{i}.Stats.
 version: '1.0'
 source:

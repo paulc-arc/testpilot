@@ -1,4 +1,6 @@
-id: wifi-llapi-r127-multiapenable
+id: wifi-llapi-D141-multiapenable
+aliases:
+  - wifi-llapi-r127-multiapenable
 name: MultiAPEnable — WiFi.EndPoint.{i}.
 version: '1.0'
 source:

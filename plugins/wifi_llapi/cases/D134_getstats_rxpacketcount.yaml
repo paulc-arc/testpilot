@@ -1,4 +1,6 @@
-id: wifi-llapi-r120-getstats-rxpacketcount
+id: wifi-llapi-D134-getstats-rxpacketcount
+aliases:
+  - wifi-llapi-r120-getstats-rxpacketcount
 name: getStats() — WiFi.EndPoint.{i}.
 version: '1.0'
 source:

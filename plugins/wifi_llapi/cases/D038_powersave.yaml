@@ -1,4 +1,6 @@
-id: wifi-llapi-r033-powersave
+id: wifi-llapi-D038-powersave
+aliases:
+  - wifi-llapi-r033-powersave
 name: PowerSave — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

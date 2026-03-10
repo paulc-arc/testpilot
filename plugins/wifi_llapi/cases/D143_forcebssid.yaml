@@ -1,4 +1,6 @@
-id: wifi-llapi-r129-forcebssid
+id: wifi-llapi-D143-forcebssid
+aliases:
+  - wifi-llapi-r129-forcebssid
 name: ForceBSSID — WiFi.EndPoint.{i}.Profile.WPS.
 version: '1.0'
 source:

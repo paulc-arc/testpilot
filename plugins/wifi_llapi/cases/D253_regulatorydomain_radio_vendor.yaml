@@ -1,4 +1,6 @@
-id: wifi-llapi-r183-regulatorydomain-radio-vendor
+id: wifi-llapi-D253-regulatorydomain-radio-vendor
+aliases:
+  - wifi-llapi-r183-regulatorydomain-radio-vendor
 name: RegulatoryDomain — WiFi.Radio.{i}.Vendor.
 version: '1.0'
 source:

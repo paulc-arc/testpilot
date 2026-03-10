@@ -1,4 +1,6 @@
-id: wifi-llapi-r007-authenticationstate
+id: wifi-llapi-D012-authenticationstate
+aliases:
+  - wifi-llapi-r007-authenticationstate
 name: AuthenticationState — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

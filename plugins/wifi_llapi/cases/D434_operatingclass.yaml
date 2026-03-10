@@ -1,4 +1,6 @@
-id: wifi-llapi-r317-operatingclass
+id: wifi-llapi-D434-operatingclass
+aliases:
+  - wifi-llapi-r317-operatingclass
 name: OperatingClass — WiFi.AccessPoint.{i}.Neighbour.{i}.
 version: '1.0'
 source:

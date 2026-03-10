@@ -1,4 +1,6 @@
-id: wifi-llapi-r374-ac-vo-stats-wmmfailedbytesreceived-ssid
+id: wifi-llapi-D509-ac-vo-stats-wmmfailedbytesreceived-ssid
+aliases:
+  - wifi-llapi-r374-ac-vo-stats-wmmfailedbytesreceived-ssid
 name: AC_VO — WiFi.SSID.{i}.Stats.WmmFailedBytesReceived.
 version: '1.0'
 source:

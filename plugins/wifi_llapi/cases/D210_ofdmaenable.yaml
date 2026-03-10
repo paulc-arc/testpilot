@@ -1,4 +1,6 @@
-id: wifi-llapi-r170-ofdmaenable
+id: wifi-llapi-D210-ofdmaenable
+aliases:
+  - wifi-llapi-r170-ofdmaenable
 name: OfdmaEnable — WiFi.Radio.{i}.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r288-radcapabilitiesvhtstr
+id: wifi-llapi-D387-radcapabilitiesvhtstr
+aliases:
+  - wifi-llapi-r288-radcapabilitiesvhtstr
 name: RadCapabilitiesVHTStr — WiFi.Radio.{i}.
 version: '1.0'
 source:

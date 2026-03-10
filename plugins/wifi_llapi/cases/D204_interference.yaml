@@ -1,4 +1,6 @@
-id: wifi-llapi-r165-interference
+id: wifi-llapi-D204-interference
+aliases:
+  - wifi-llapi-r165-interference
 name: Interference — WiFi.Radio.{i}.
 version: '1.0'
 source:

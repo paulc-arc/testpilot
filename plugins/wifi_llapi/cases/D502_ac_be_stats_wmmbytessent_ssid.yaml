@@ -1,4 +1,6 @@
-id: wifi-llapi-r367-ac-be-stats-wmmbytessent-ssid
+id: wifi-llapi-D502-ac-be-stats-wmmbytessent-ssid
+aliases:
+  - wifi-llapi-r367-ac-be-stats-wmmbytessent-ssid
 name: AC_BE — WiFi.SSID.{i}.Stats.WmmBytesSent
 version: '1.0'
 source:

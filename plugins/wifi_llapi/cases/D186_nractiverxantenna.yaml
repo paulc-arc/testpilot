@@ -1,4 +1,6 @@
-id: wifi-llapi-r147-nractiverxantenna
+id: wifi-llapi-D186-nractiverxantenna
+aliases:
+  - wifi-llapi-r147-nractiverxantenna
 name: NrActiveRxAntenna — WiFi.Radio.{i}.DriverStatus.
 version: '1.0'
 source:

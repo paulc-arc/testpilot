@@ -1,4 +1,6 @@
-id: wifi-llapi-r364-ac-bk-stats-wmmbytesreceived-ssid
+id: wifi-llapi-D499-ac-bk-stats-wmmbytesreceived-ssid
+aliases:
+  - wifi-llapi-r364-ac-bk-stats-wmmbytesreceived-ssid
 name: AC_BK — WiFi.SSID.{i}.Stats.WmmBytesReceived.
 version: '1.0'
 source:

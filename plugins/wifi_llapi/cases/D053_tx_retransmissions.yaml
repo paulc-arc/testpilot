@@ -1,4 +1,6 @@
-id: wifi-llapi-r048-tx-retransmissions
+id: wifi-llapi-D053-tx-retransmissions
+aliases:
+  - wifi-llapi-r048-tx-retransmissions
 name: Tx_Retransmissions — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

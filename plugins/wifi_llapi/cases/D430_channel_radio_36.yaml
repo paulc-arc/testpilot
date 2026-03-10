@@ -1,4 +1,6 @@
-id: wifi-llapi-r313-channel-radio-36
+id: wifi-llapi-D430-channel-radio-36
+aliases:
+  - wifi-llapi-r313-channel-radio-36
 name: Channel — WiFi.Radio.
 version: '1.0'
 source:

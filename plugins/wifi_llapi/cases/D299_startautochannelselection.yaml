@@ -1,4 +1,6 @@
-id: wifi-llapi-r222-startautochannelselection
+id: wifi-llapi-D299-startautochannelselection
+aliases:
+  - wifi-llapi-r222-startautochannelselection
 name: startAutoChannelSelection() — WiFi.Radio.{i}.
 version: '1.0'
 source:

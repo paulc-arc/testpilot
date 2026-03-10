@@ -1,4 +1,6 @@
-id: wifi-llapi-r248-bytessent-ssid-stats
+id: wifi-llapi-D326-bytessent-ssid-stats
+aliases:
+  - wifi-llapi-r248-bytessent-ssid-stats
 name: BytesSent — WiFi.SSID.{i}.Stats.
 version: '1.0'
 source:

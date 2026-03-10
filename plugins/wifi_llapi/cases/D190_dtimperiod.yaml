@@ -1,4 +1,6 @@
-id: wifi-llapi-r151-dtimperiod
+id: wifi-llapi-D190-dtimperiod
+aliases:
+  - wifi-llapi-r151-dtimperiod
 name: DTIMPeriod — WiFi.Radio.{i}.
 version: '1.0'
 source:

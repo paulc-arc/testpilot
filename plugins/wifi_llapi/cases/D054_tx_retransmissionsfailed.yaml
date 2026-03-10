@@ -1,4 +1,6 @@
-id: wifi-llapi-r049-tx-retransmissionsfailed
+id: wifi-llapi-D054-tx-retransmissionsfailed
+aliases:
+  - wifi-llapi-r049-tx-retransmissionsfailed
 name: Tx_RetransmissionsFailed — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

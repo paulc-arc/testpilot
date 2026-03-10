@@ -1,4 +1,6 @@
-id: wifi-llapi-r076-multiaptype
+id: wifi-llapi-D084-multiaptype
+aliases:
+  - wifi-llapi-r076-multiaptype
 name: MultiAPType — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:

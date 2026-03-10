@@ -1,4 +1,6 @@
-id: wifi-llapi-r125-getstats-txpacketcount
+id: wifi-llapi-D139-getstats-txpacketcount
+aliases:
+  - wifi-llapi-r125-getstats-txpacketcount
 name: getStats() — WiFi.EndPoint.{i}.
 version: '1.0'
 source:

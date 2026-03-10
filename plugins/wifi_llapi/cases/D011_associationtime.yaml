@@ -1,4 +1,6 @@
-id: wifi-llapi-r006-associationtime
+id: wifi-llapi-D011-associationtime
+aliases:
+  - wifi-llapi-r006-associationtime
 name: AssociationTime — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

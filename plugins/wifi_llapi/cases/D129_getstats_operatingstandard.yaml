@@ -1,4 +1,6 @@
-id: wifi-llapi-r115-getstats-operatingstandard
+id: wifi-llapi-D129-getstats-operatingstandard
+aliases:
+  - wifi-llapi-r115-getstats-operatingstandard
 name: getStats() — WiFi.EndPoint.{i}.
 version: '1.0'
 source:

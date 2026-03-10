@@ -1,4 +1,6 @@
-id: wifi-llapi-r008-avgsignalstrength
+id: wifi-llapi-D013-avgsignalstrength
+aliases:
+  - wifi-llapi-r008-avgsignalstrength
 name: AvgSignalStrength — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

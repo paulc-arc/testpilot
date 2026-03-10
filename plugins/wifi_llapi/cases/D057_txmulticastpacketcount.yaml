@@ -1,4 +1,6 @@
-id: wifi-llapi-r052-txmulticastpacketcount
+id: wifi-llapi-D057-txmulticastpacketcount
+aliases:
+  - wifi-llapi-r052-txmulticastpacketcount
 name: TxMulticastPacketCount — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

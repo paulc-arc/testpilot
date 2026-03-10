@@ -1,4 +1,6 @@
-id: wifi-llapi-r188-getradioairstats-totaltime
+id: wifi-llapi-D262-getradioairstats-totaltime
+aliases:
+  - wifi-llapi-r188-getradioairstats-totaltime
 name: getRadioAirStats() — WiFi.Radio.{i}.
 version: '1.0'
 source:

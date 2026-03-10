@@ -1,4 +1,6 @@
-id: wifi-llapi-r393-ac-vi-stats-wmmpacketssent
+id: wifi-llapi-D528-ac-vi-stats-wmmpacketssent
+aliases:
+  - wifi-llapi-r393-ac-vi-stats-wmmpacketssent
 name: AC_VI — WiFi.SSID.{i}.Stats.WmmPacketsSent.
 version: '1.0'
 source:

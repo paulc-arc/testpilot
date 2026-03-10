@@ -1,4 +1,6 @@
-id: wifi-llapi-r315-information
+id: wifi-llapi-D432-information
+aliases:
+  - wifi-llapi-r315-information
 name: Information — WiFi.AccessPoint.{i}.Neighbour.{i}.
 version: '1.0'
 source:

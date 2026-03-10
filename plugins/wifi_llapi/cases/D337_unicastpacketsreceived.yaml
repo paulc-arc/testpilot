@@ -1,4 +1,6 @@
-id: wifi-llapi-r259-unicastpacketsreceived
+id: wifi-llapi-D337-unicastpacketsreceived
+aliases:
+  - wifi-llapi-r259-unicastpacketsreceived
 name: UnicastPacketsReceived — WiFi.SSID.{i}.Stats.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r392-ac-bk-stats-wmmpacketssent
+id: wifi-llapi-D527-ac-bk-stats-wmmpacketssent
+aliases:
+  - wifi-llapi-r392-ac-bk-stats-wmmpacketssent
 name: AC_BK — WiFi.SSID.{i}.Stats.WmmPacketsSent.
 version: '1.0'
 source:

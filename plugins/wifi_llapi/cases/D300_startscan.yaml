@@ -1,4 +1,6 @@
-id: wifi-llapi-r223-startscan
+id: wifi-llapi-D300-startscan
+aliases:
+  - wifi-llapi-r223-startscan
 name: startScan() — WiFi.Radio.{i}.
 version: '1.0'
 source:

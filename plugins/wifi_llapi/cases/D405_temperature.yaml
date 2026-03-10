@@ -1,4 +1,6 @@
-id: wifi-llapi-r298-temperature
+id: wifi-llapi-D405-temperature
+aliases:
+  - wifi-llapi-r298-temperature
 name: Temperature — WiFi.Radio.{i}.Stats.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r158-ieee80211-caps
+id: wifi-llapi-D197-ieee80211-caps
+aliases:
+  - wifi-llapi-r158-ieee80211-caps
 name: IEEE80211_Caps — WiFi.Radio.{i}.
 version: '1.0'
 source:

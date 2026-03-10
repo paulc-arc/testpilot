@@ -1,4 +1,6 @@
-id: wifi-llapi-r258-retranscount-ssid-stats
+id: wifi-llapi-D336-retranscount-ssid-stats
+aliases:
+  - wifi-llapi-r258-retranscount-ssid-stats
 name: RetransCount — WiFi.SSID.{i}.Stats.
 version: '1.0'
 source:

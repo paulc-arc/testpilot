@@ -1,4 +1,6 @@
-id: wifi-llapi-r266-delclient
+id: wifi-llapi-D358-delclient
+aliases:
+  - wifi-llapi-r266-delclient
 name: delClient() — WiFi.Radio.{i}.Sensing.
 version: '1.0'
 source:

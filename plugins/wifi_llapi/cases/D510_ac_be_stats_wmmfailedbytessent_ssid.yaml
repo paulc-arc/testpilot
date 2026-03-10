@@ -1,4 +1,6 @@
-id: wifi-llapi-r375-ac-be-stats-wmmfailedbytessent-ssid
+id: wifi-llapi-D510-ac-be-stats-wmmfailedbytessent-ssid
+aliases:
+  - wifi-llapi-r375-ac-be-stats-wmmfailedbytessent-ssid
 name: AC_BE — WiFi.SSID.{i}.Stats.WmmFailedbytesSent.
 version: '1.0'
 source:

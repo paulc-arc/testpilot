@@ -1,4 +1,6 @@
-id: wifi-llapi-r018-hecapabilities-accesspoint-associateddevice
+id: wifi-llapi-D023-hecapabilities-accesspoint-associateddevice
+aliases:
+  - wifi-llapi-r018-hecapabilities-accesspoint-associateddevice
 name: HeCapabilities — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

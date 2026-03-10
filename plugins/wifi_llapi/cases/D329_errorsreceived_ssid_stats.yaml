@@ -1,4 +1,6 @@
-id: wifi-llapi-r251-errorsreceived-ssid-stats
+id: wifi-llapi-D329-errorsreceived-ssid-stats
+aliases:
+  - wifi-llapi-r251-errorsreceived-ssid-stats
 name: ErrorsReceived — WiFi.SSID.{i}.Stats.
 version: '1.0'
 source:

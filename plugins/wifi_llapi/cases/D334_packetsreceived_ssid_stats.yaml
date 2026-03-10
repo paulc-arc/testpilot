@@ -1,4 +1,6 @@
-id: wifi-llapi-r256-packetsreceived-ssid-stats
+id: wifi-llapi-D334-packetsreceived-ssid-stats
+aliases:
+  - wifi-llapi-r256-packetsreceived-ssid-stats
 name: PacketsReceived — WiFi.SSID.{i}.Stats.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r352-ac-vo-stats-wmmbytessent-radio
+id: wifi-llapi-D487-ac-vo-stats-wmmbytessent-radio
+aliases:
+  - wifi-llapi-r352-ac-vo-stats-wmmbytessent-radio
 name: AC_VO — WiFi.Radio.{i}.Stats.WmmBytesSent.
 version: '1.0'
 source:

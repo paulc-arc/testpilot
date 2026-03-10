@@ -1,4 +1,6 @@
-id: wifi-llapi-r044-supportedhe160mcs
+id: wifi-llapi-D049-supportedhe160mcs
+aliases:
+  - wifi-llapi-r044-supportedhe160mcs
 name: SupportedHe160MCS — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

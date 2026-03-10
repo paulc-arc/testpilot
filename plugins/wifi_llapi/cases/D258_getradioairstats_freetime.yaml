@@ -1,4 +1,6 @@
-id: wifi-llapi-r184-getradioairstats-freetime
+id: wifi-llapi-D258-getradioairstats-freetime
+aliases:
+  - wifi-llapi-r184-getradioairstats-freetime
 name: getRadioAirStats() — WiFi.Radio.{i}.
 version: '1.0'
 source:

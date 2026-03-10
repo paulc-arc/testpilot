@@ -1,4 +1,6 @@
-id: wifi-llapi-r032-operatingstandard
+id: wifi-llapi-D037-operatingstandard
+aliases:
+  - wifi-llapi-r032-operatingstandard
 name: OperatingStandard — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

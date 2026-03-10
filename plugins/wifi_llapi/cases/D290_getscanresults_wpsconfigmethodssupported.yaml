@@ -1,4 +1,6 @@
-id: wifi-llapi-r216-getscanresults-wpsconfigmethodssupported
+id: wifi-llapi-D290-getscanresults-wpsconfigmethodssupported
+aliases:
+  - wifi-llapi-r216-getscanresults-wpsconfigmethodssupported
 name: getScanResults() — WiFi.Radio.{i}.
 version: '1.0'
 source:

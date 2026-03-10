@@ -1,4 +1,6 @@
-id: wifi-llapi-r269-mboassocdisallowreason
+id: wifi-llapi-D362-mboassocdisallowreason
+aliases:
+  - wifi-llapi-r269-mboassocdisallowreason
 name: MBOAssocDisallowReason — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r408-mldunit
+id: wifi-llapi-D591-mldunit
+aliases:
+  - wifi-llapi-r408-mldunit
 name: MLDUnit — WiFi.SSID.{i}.
 version: '1.0'
 source:

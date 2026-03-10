@@ -1,4 +1,6 @@
-id: wifi-llapi-r166-maxchannelbandwidth
+id: wifi-llapi-D205-maxchannelbandwidth
+aliases:
+  - wifi-llapi-r166-maxchannelbandwidth
 name: MaxChannelBandwidth — WiFi.Radio.{i}.
 version: '1.0'
 source:

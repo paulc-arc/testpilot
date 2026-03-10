@@ -1,4 +1,6 @@
-id: wifi-llapi-r015-downlinkshortguard
+id: wifi-llapi-D020-downlinkshortguard
+aliases:
+  - wifi-llapi-r015-downlinkshortguard
 name: DownlinkShortGuard — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r294-multipleretrycount-radio-stats
+id: wifi-llapi-D401-multipleretrycount-radio-stats
+aliases:
+  - wifi-llapi-r294-multipleretrycount-radio-stats
 name: MultipleRetryCount — WiFi.Radio.{i}.Stats.
 version: '1.0'
 source:

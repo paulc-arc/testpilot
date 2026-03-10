@@ -1,4 +1,6 @@
-id: wifi-llapi-r055-uniibandscapabilities
+id: wifi-llapi-D060-uniibandscapabilities
+aliases:
+  - wifi-llapi-r055-uniibandscapabilities
 name: UNIIBandsCapabilities — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

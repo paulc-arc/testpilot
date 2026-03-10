@@ -1,4 +1,6 @@
-id: wifi-llapi-r366-ac-vo-stats-wmmbytesreceived-ssid
+id: wifi-llapi-D501-ac-vo-stats-wmmbytesreceived-ssid
+aliases:
+  - wifi-llapi-r366-ac-vo-stats-wmmbytesreceived-ssid
 name: AC_VO — WiFi.SSID.{i}.Stats.WmmBytesReceived.
 version: '1.0'
 source:

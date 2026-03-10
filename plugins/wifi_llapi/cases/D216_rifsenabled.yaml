@@ -1,4 +1,6 @@
-id: wifi-llapi-r175-rifsenabled
+id: wifi-llapi-D216-rifsenabled
+aliases:
+  - wifi-llapi-r175-rifsenabled
 name: RIFSEnabled — WiFi.Radio.{i}.
 version: '1.0'
 source:

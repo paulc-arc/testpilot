@@ -1,4 +1,6 @@
-id: wifi-llapi-r395-getspectruminfo-bandwidth
+id: wifi-llapi-D530-getspectruminfo-bandwidth
+aliases:
+  - wifi-llapi-r395-getspectruminfo-bandwidth
 name: getSpectrumInfo() — WiFi.Radio.{i}.
 version: '1.0'
 source:

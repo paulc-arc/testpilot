@@ -1,4 +1,6 @@
-id: wifi-llapi-r040-securitymodeenabled
+id: wifi-llapi-D045-securitymodeenabled
+aliases:
+  - wifi-llapi-r040-securitymodeenabled
 name: SecurityModeEnabled — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

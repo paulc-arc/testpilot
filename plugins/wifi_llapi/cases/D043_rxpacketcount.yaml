@@ -1,4 +1,6 @@
-id: wifi-llapi-r038-rxpacketcount
+id: wifi-llapi-D043-rxpacketcount
+aliases:
+  - wifi-llapi-r038-rxpacketcount
 name: RxPacketCount — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

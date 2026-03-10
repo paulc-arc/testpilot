@@ -1,4 +1,6 @@
-id: wifi-llapi-r083-presharedkey-accesspoint-security
+id: wifi-llapi-D091-presharedkey-accesspoint-security
+aliases:
+  - wifi-llapi-r083-presharedkey-accesspoint-security
 name: PreSharedKey — WiFi.AccessPoint.{i}.Security
 version: '1.0'
 source:

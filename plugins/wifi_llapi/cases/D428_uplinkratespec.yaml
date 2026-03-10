@@ -1,4 +1,6 @@
-id: wifi-llapi-r311-uplinkratespec
+id: wifi-llapi-D428-uplinkratespec
+aliases:
+  - wifi-llapi-r311-uplinkratespec
 name: UplinkRateSpec — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

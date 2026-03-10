@@ -1,4 +1,6 @@
-id: wifi-llapi-r193-getradiostats-bytesreceived
+id: wifi-llapi-D267-getradiostats-bytesreceived
+aliases:
+  - wifi-llapi-r193-getradiostats-bytesreceived
 name: getRadioStats() — WiFi.Radio.{i}.
 version: '1.0'
 source:

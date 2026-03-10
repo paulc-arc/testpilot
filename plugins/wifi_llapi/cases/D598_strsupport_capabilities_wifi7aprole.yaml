@@ -1,4 +1,6 @@
-id: wifi-llapi-r411-strsupport-capabilities-wifi7aprole
+id: wifi-llapi-D598-strsupport-capabilities-wifi7aprole
+aliases:
+  - wifi-llapi-r411-strsupport-capabilities-wifi7aprole
 name: STRSupport — WiFi.Radio.{i}.Capabilities.WiFi7APRole.
 version: '1.0'
 source:

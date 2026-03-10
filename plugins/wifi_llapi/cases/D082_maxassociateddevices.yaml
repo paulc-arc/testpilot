@@ -1,4 +1,6 @@
-id: wifi-llapi-r074-maxassociateddevices
+id: wifi-llapi-D082-maxassociateddevices
+aliases:
+  - wifi-llapi-r074-maxassociateddevices
 name: MaxAssociatedDevices — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:

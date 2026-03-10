@@ -1,4 +1,6 @@
-id: wifi-llapi-r143-amsdu
+id: wifi-llapi-D182-amsdu
+aliases:
+  - wifi-llapi-r143-amsdu
 name: Amsdu — WiFi.Radio.{i}.DriverConfig.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r152-enable-radio
+id: wifi-llapi-D191-enable-radio
+aliases:
+  - wifi-llapi-r152-enable-radio
 name: Enable — WiFi.Radio.{i}.
 version: '1.0'
 source:

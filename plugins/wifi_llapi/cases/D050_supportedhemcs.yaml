@@ -1,4 +1,6 @@
-id: wifi-llapi-r045-supportedhemcs
+id: wifi-llapi-D050-supportedhemcs
+aliases:
+  - wifi-llapi-r045-supportedhemcs
 name: SupportedHeMCS — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

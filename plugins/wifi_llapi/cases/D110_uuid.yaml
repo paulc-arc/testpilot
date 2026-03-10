@@ -1,4 +1,6 @@
-id: wifi-llapi-r097-uuid
+id: wifi-llapi-D110-uuid
+aliases:
+  - wifi-llapi-r097-uuid
 name: UUID — WiFi.AccessPoint.{i}.WPS.
 version: '1.0'
 source:

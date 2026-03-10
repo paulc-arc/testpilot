@@ -1,4 +1,6 @@
-id: wifi-llapi-r167-multiusermimoenabled
+id: wifi-llapi-D206-multiusermimoenabled
+aliases:
+  - wifi-llapi-r167-multiusermimoenabled
 name: MultiUserMIMOEnabled — WiFi.Radio.{i}.
 version: '1.0'
 source:

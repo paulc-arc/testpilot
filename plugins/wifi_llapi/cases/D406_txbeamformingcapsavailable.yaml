@@ -1,4 +1,6 @@
-id: wifi-llapi-r299-txbeamformingcapsavailable
+id: wifi-llapi-D406-txbeamformingcapsavailable
+aliases:
+  - wifi-llapi-r299-txbeamformingcapsavailable
 name: TxBeamformingCapsAvailable — WiFi.Radio.{i}.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r318-phytype
+id: wifi-llapi-D435-phytype
+aliases:
+  - wifi-llapi-r318-phytype
 name: PhyType — WiFi.AccessPoint.{i}.Neighbour.{i}.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r265-addclient
+id: wifi-llapi-D357-addclient
+aliases:
+  - wifi-llapi-r265-addclient
 name: addClient() — WiFi.Radio.{i}.Sensing.
 version: '1.0'
 source:

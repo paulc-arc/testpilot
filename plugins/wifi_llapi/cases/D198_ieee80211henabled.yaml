@@ -1,4 +1,6 @@
-id: wifi-llapi-r159-ieee80211henabled
+id: wifi-llapi-D198-ieee80211henabled
+aliases:
+  - wifi-llapi-r159-ieee80211henabled
 name: IEEE80211hEnabled — WiFi.Radio.{i}.
 version: '1.0'
 source:

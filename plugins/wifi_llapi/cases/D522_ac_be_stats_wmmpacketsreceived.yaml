@@ -1,4 +1,6 @@
-id: wifi-llapi-r387-ac-be-stats-wmmpacketsreceived
+id: wifi-llapi-D522-ac-be-stats-wmmpacketsreceived
+aliases:
+  - wifi-llapi-r387-ac-be-stats-wmmpacketsreceived
 name: AC_BE — WiFi.SSID.{i}.Stats.WmmPacketsReceived.
 version: '1.0'
 source:

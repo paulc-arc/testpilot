@@ -1,4 +1,6 @@
-id: wifi-llapi-r090-wdsenable
+id: wifi-llapi-D100-wdsenable
+aliases:
+  - wifi-llapi-r090-wdsenable
 name: WDSEnable — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r314-colocatedap
+id: wifi-llapi-D431-colocatedap
+aliases:
+  - wifi-llapi-r314-colocatedap
 name: ColocatedAP — WiFi.AccessPoint.{i}.Neighbour.{i}.
 version: '1.0'
 source:

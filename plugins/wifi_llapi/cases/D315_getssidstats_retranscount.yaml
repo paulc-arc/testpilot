@@ -1,4 +1,6 @@
-id: wifi-llapi-r238-getssidstats-retranscount
+id: wifi-llapi-D315-getssidstats-retranscount
+aliases:
+  - wifi-llapi-r238-getssidstats-retranscount
 name: getSSIDStats() — WiFi.SSID.{i}.
 version: '1.0'
 source:

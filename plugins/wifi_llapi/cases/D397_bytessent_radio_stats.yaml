@@ -1,4 +1,6 @@
-id: wifi-llapi-r290-bytessent-radio-stats
+id: wifi-llapi-D397-bytessent-radio-stats
+aliases:
+  - wifi-llapi-r290-bytessent-radio-stats
 name: BytesSent — WiFi.Radio.{i}.Stats.
 version: '1.0'
 source:

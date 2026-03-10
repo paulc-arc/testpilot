@@ -1,4 +1,6 @@
-id: wifi-llapi-r026-mode-accesspoint-associateddevice
+id: wifi-llapi-D031-mode-accesspoint-associateddevice
+aliases:
+  - wifi-llapi-r026-mode-accesspoint-associateddevice
 name: Mode — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

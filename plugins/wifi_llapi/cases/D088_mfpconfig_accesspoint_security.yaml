@@ -1,4 +1,6 @@
-id: wifi-llapi-r080-mfpconfig-accesspoint-security
+id: wifi-llapi-D088-mfpconfig-accesspoint-security
+aliases:
+  - wifi-llapi-r080-mfpconfig-accesspoint-security
 name: MFPConfig — WiFi.AccessPoint.{i}.Security
 version: '1.0'
 source:

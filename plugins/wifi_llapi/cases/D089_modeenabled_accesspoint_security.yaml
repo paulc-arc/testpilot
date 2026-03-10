@@ -1,4 +1,6 @@
-id: wifi-llapi-r081-modeenabled-accesspoint-security
+id: wifi-llapi-D089-modeenabled-accesspoint-security
+aliases:
+  - wifi-llapi-r081-modeenabled-accesspoint-security
 name: ModeEnabled — WiFi.AccessPoint.{i}.Security
 version: '1.0'
 source:

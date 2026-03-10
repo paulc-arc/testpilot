@@ -1,4 +1,6 @@
-id: wifi-llapi-r284-noise-radio
+id: wifi-llapi-D383-noise-radio
+aliases:
+  - wifi-llapi-r284-noise-radio
 name: Noise — WiFi.Radio.{i}.
 version: '1.0'
 source:

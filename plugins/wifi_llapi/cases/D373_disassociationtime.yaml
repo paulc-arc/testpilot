@@ -1,4 +1,6 @@
-id: wifi-llapi-r278-disassociationtime
+id: wifi-llapi-D373-disassociationtime
+aliases:
+  - wifi-llapi-r278-disassociationtime
 name: DisassociationTime — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

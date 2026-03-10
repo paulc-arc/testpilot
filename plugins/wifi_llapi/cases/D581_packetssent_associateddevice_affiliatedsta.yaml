@@ -1,4 +1,6 @@
-id: wifi-llapi-r404-packetssent-associateddevice-affiliatedsta
+id: wifi-llapi-D581-packetssent-associateddevice-affiliatedsta
+aliases:
+  - wifi-llapi-r404-packetssent-associateddevice-affiliatedsta
 name: PacketsSent — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.AffiliatedSTA.​{i}.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r029-mumimotxpktspercentage
+id: wifi-llapi-D034-mumimotxpktspercentage
+aliases:
+  - wifi-llapi-r029-mumimotxpktspercentage
 name: MUMimoTxPktsPercentage — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

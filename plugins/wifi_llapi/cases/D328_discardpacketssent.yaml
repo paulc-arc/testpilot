@@ -1,4 +1,6 @@
-id: wifi-llapi-r250-discardpacketssent
+id: wifi-llapi-D328-discardpacketssent
+aliases:
+  - wifi-llapi-r250-discardpacketssent
 name: DiscardPacketsSent — WiFi.SSID.{i}.Stats.
 version: '1.0'
 source:

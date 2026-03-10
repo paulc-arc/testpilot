@@ -1,4 +1,6 @@
-id: wifi-llapi-r205-getscanresults-bandwidth
+id: wifi-llapi-D279-getscanresults-bandwidth
+aliases:
+  - wifi-llapi-r205-getscanresults-bandwidth
 name: getScanResults() — WiFi.Radio.{i}.
 version: '1.0'
 source:

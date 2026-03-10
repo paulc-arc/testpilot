@@ -1,4 +1,6 @@
-id: wifi-llapi-r252-errorssent-ssid-stats
+id: wifi-llapi-D330-errorssent-ssid-stats
+aliases:
+  - wifi-llapi-r252-errorssent-ssid-stats
 name: ErrorsSent — WiFi.SSID.{i}.Stats.
 version: '1.0'
 source:

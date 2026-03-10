@@ -1,4 +1,6 @@
-id: wifi-llapi-r078-encryptionmode-accesspoint-security
+id: wifi-llapi-D086-encryptionmode-accesspoint-security
+aliases:
+  - wifi-llapi-r078-encryptionmode-accesspoint-security
 name: EncryptionMode — WiFi.AccessPoint.{i}.Security
 version: '1.0'
 source:

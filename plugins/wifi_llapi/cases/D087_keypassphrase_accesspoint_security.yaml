@@ -1,4 +1,6 @@
-id: wifi-llapi-r079-keypassphrase-accesspoint-security
+id: wifi-llapi-D087-keypassphrase-accesspoint-security
+aliases:
+  - wifi-llapi-r079-keypassphrase-accesspoint-security
 name: KeyPassPhrase — WiFi.AccessPoint.{i}.Security
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r023-linkbandwidth
+id: wifi-llapi-D028-linkbandwidth
+aliases:
+  - wifi-llapi-r023-linkbandwidth
 name: LinkBandwidth — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

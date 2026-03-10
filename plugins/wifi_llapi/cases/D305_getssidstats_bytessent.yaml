@@ -1,4 +1,6 @@
-id: wifi-llapi-r228-getssidstats-bytessent
+id: wifi-llapi-D305-getssidstats-bytessent
+aliases:
+  - wifi-llapi-r228-getssidstats-bytessent
 name: getSSIDStats() — WiFi.SSID.{i}.
 version: '1.0'
 source:

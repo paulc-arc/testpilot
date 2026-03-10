@@ -1,4 +1,6 @@
-id: wifi-llapi-r400-getspectruminfo-availability
+id: wifi-llapi-D535-getspectruminfo-availability
+aliases:
+  - wifi-llapi-r400-getspectruminfo-availability
 name: getSpectrumInfo() — WiFi.Radio.{i}.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r050-txbytes
+id: wifi-llapi-D055-txbytes
+aliases:
+  - wifi-llapi-r050-txbytes
 name: TxBytes — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

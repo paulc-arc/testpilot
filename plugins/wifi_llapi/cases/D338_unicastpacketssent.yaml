@@ -1,4 +1,6 @@
-id: wifi-llapi-r260-unicastpacketssent
+id: wifi-llapi-D338-unicastpacketssent
+aliases:
+  - wifi-llapi-r260-unicastpacketssent
 name: UnicastPacketsSent — WiFi.SSID.{i}.Stats.
 version: '1.0'
 source:

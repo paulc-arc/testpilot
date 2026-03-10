@@ -1,4 +1,6 @@
-id: wifi-llapi-r215-getscanresults-ssid
+id: wifi-llapi-D289-getscanresults-ssid
+aliases:
+  - wifi-llapi-r215-getscanresults-ssid
 name: getScanResults() — WiFi.Radio.{i}.
 version: '1.0'
 source:

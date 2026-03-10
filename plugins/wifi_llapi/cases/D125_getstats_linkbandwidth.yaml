@@ -1,4 +1,6 @@
-id: wifi-llapi-r111-getstats-linkbandwidth
+id: wifi-llapi-D125-getstats-linkbandwidth
+aliases:
+  - wifi-llapi-r111-getstats-linkbandwidth
 name: getStats() — WiFi.EndPoint.{i}.
 version: '1.0'
 source:

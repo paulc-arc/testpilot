@@ -1,4 +1,6 @@
-id: wifi-llapi-r209-getscanresults-noise
+id: wifi-llapi-D283-getscanresults-noise
+aliases:
+  - wifi-llapi-r209-getscanresults-noise
 name: getScanResults() — WiFi.Radio.{i}.
 version: '1.0'
 source:

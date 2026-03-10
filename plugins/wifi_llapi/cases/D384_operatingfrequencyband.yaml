@@ -1,4 +1,6 @@
-id: wifi-llapi-r285-operatingfrequencyband
+id: wifi-llapi-D384-operatingfrequencyband
+aliases:
+  - wifi-llapi-r285-operatingfrequencyband
 name: OperatingFrequencyBand — WiFi.Radio.{i}.
 version: '1.0'
 source:

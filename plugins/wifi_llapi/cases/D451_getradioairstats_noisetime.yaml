@@ -1,4 +1,6 @@
-id: wifi-llapi-r326-getradioairstats-noisetime
+id: wifi-llapi-D451-getradioairstats-noisetime
+aliases:
+  - wifi-llapi-r326-getradioairstats-noisetime
 name: getRadioAirStats() — WiFi.Radio.{i}.
 version: '1.0'
 source:

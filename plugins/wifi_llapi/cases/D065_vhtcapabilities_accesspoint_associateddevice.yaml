@@ -1,4 +1,6 @@
-id: wifi-llapi-r060-vhtcapabilities-accesspoint-associateddevice
+id: wifi-llapi-D065-vhtcapabilities-accesspoint-associateddevice
+aliases:
+  - wifi-llapi-r060-vhtcapabilities-accesspoint-associateddevice
 name: VhtCapabilities — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

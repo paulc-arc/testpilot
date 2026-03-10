@@ -1,4 +1,6 @@
-id: wifi-llapi-r405-packetsreceived-associateddevice-affiliatedsta
+id: wifi-llapi-D582-packetsreceived-associateddevice-affiliatedsta
+aliases:
+  - wifi-llapi-r405-packetsreceived-associateddevice-affiliatedsta
 name: PacketsReceived — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.AffiliatedSTA.​{i}.
 version: '1.0'
 source:

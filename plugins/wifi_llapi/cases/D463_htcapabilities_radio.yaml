@@ -1,4 +1,6 @@
-id: wifi-llapi-r338-htcapabilities-radio
+id: wifi-llapi-D463-htcapabilities-radio
+aliases:
+  - wifi-llapi-r338-htcapabilities-radio
 name: HTCapabilities — WiFi.Radio.{i}.
 version: '1.0'
 source:

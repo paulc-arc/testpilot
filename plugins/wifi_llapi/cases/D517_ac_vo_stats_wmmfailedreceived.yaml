@@ -1,4 +1,6 @@
-id: wifi-llapi-r382-ac-vo-stats-wmmfailedreceived
+id: wifi-llapi-D517-ac-vo-stats-wmmfailedreceived
+aliases:
+  - wifi-llapi-r382-ac-vo-stats-wmmfailedreceived
 name: AC_VO — WiFi.SSID.{i}.Stats.WmmFailedReceived.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r214-getscanresults-signalstrength
+id: wifi-llapi-D288-getscanresults-signalstrength
+aliases:
+  - wifi-llapi-r214-getscanresults-signalstrength
 name: getScanResults() — WiFi.Radio.{i}.
 version: '1.0'
 source:

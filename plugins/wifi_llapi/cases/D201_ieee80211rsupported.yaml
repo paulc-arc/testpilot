@@ -1,4 +1,6 @@
-id: wifi-llapi-r162-ieee80211rsupported
+id: wifi-llapi-D201-ieee80211rsupported
+aliases:
+  - wifi-llapi-r162-ieee80211rsupported
 name: IEEE80211rSupported — WiFi.Radio.{i}.
 version: '1.0'
 source:

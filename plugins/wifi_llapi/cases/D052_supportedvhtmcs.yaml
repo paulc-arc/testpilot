@@ -1,4 +1,6 @@
-id: wifi-llapi-r047-supportedvhtmcs
+id: wifi-llapi-D052-supportedvhtmcs
+aliases:
+  - wifi-llapi-r047-supportedvhtmcs
 name: SupportedVhtMCS — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

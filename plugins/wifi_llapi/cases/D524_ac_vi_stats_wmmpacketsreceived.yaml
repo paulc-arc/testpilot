@@ -1,4 +1,6 @@
-id: wifi-llapi-r389-ac-vi-stats-wmmpacketsreceived
+id: wifi-llapi-D524-ac-vi-stats-wmmpacketsreceived
+aliases:
+  - wifi-llapi-r389-ac-vi-stats-wmmpacketsreceived
 name: AC_VI — WiFi.SSID.{i}.Stats.WmmPacketsReceived.
 version: '1.0'
 source:

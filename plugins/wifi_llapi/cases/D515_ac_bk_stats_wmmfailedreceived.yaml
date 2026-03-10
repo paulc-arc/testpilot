@@ -1,4 +1,6 @@
-id: wifi-llapi-r380-ac-bk-stats-wmmfailedreceived
+id: wifi-llapi-D515-ac-bk-stats-wmmfailedreceived
+aliases:
+  - wifi-llapi-r380-ac-bk-stats-wmmfailedreceived
 name: AC_BK — WiFi.SSID.{i}.Stats.WmmFailedReceived.
 version: '1.0'
 source:

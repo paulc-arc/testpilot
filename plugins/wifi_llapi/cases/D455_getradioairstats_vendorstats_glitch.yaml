@@ -1,4 +1,6 @@
-id: wifi-llapi-r330-getradioairstats-vendorstats-glitch
+id: wifi-llapi-D455-getradioairstats-vendorstats-glitch
+aliases:
+  - wifi-llapi-r330-getradioairstats-vendorstats-glitch
 name: getRadioAirStats() — WiFi.Radio.{i}.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r273-srgbsscolorbitmap
+id: wifi-llapi-D368-srgbsscolorbitmap
+aliases:
+  - wifi-llapi-r273-srgbsscolorbitmap
 name: SRGBSSColorBitmap — WiFi.Radio.{i}.IEEE80211ax.
 version: '1.0'
 source:

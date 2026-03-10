@@ -1,4 +1,6 @@
-id: wifi-llapi-r113-getstats-maxtxspatialstreamssupported
+id: wifi-llapi-D127-getstats-maxtxspatialstreamssupported
+aliases:
+  - wifi-llapi-r113-getstats-maxtxspatialstreamssupported
 name: getStats() — WiFi.EndPoint.{i}.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r272-psrdisallowed
+id: wifi-llapi-D367-psrdisallowed
+aliases:
+  - wifi-llapi-r272-psrdisallowed
 name: PSRDisallowed — WiFi.Radio.{i}.IEEE80211ax.
 version: '1.0'
 source:

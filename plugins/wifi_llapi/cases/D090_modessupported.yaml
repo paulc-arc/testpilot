@@ -1,4 +1,6 @@
-id: wifi-llapi-r082-modessupported
+id: wifi-llapi-D090-modessupported
+aliases:
+  - wifi-llapi-r082-modessupported
 name: ModesSupported — WiFi.AccessPoint.{i}.Security
 version: '1.0'
 source:

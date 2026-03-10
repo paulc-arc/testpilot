@@ -1,4 +1,6 @@
-id: wifi-llapi-r139-beaconperiod
+id: wifi-llapi-D178-beaconperiod
+aliases:
+  - wifi-llapi-r139-beaconperiod
 name: BeaconPeriod — WiFi.Radio.{i}.
 version: '1.0'
 source:

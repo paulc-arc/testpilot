@@ -1,4 +1,6 @@
-id: wifi-llapi-r203-getradiostats-unicastpacketsreceived
+id: wifi-llapi-D277-getradiostats-unicastpacketsreceived
+aliases:
+  - wifi-llapi-r203-getradiostats-unicastpacketsreceived
 name: getRadioStats() — WiFi.Radio.{i}.
 version: '1.0'
 source:

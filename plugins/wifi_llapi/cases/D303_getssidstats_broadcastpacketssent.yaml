@@ -1,4 +1,6 @@
-id: wifi-llapi-r226-getssidstats-broadcastpacketssent
+id: wifi-llapi-D303-getssidstats-broadcastpacketssent
+aliases:
+  - wifi-llapi-r226-getssidstats-broadcastpacketssent
 name: getSSIDStats() — WiFi.SSID.{i}.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r012-connectionduration
+id: wifi-llapi-D017-connectionduration
+aliases:
+  - wifi-llapi-r012-connectionduration
 name: ConnectionDuration — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

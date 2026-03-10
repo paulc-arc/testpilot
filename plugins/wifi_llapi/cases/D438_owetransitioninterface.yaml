@@ -1,4 +1,6 @@
-id: wifi-llapi-r321-owetransitioninterface
+id: wifi-llapi-D438-owetransitioninterface
+aliases:
+  - wifi-llapi-r321-owetransitioninterface
 name: OWETransitionInterface — WiFi.AccessPoint.{i}.Security.
 version: '1.0'
 source:

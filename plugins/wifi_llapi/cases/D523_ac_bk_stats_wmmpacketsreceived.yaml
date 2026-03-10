@@ -1,4 +1,6 @@
-id: wifi-llapi-r388-ac-bk-stats-wmmpacketsreceived
+id: wifi-llapi-D523-ac-bk-stats-wmmpacketsreceived
+aliases:
+  - wifi-llapi-r388-ac-bk-stats-wmmpacketsreceived
 name: AC_BK — WiFi.SSID.{i}.Stats.WmmPacketsReceived.
 version: '1.0'
 source:

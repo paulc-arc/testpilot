@@ -1,4 +1,6 @@
-id: wifi-llapi-r351-ac-vi-stats-wmmbytessent-radio
+id: wifi-llapi-D486-ac-vi-stats-wmmbytessent-radio
+aliases:
+  - wifi-llapi-r351-ac-vi-stats-wmmbytessent-radio
 name: AC_VI — WiFi.Radio.{i}.Stats.WmmBytesSent.
 version: '1.0'
 source:

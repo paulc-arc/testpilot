@@ -1,4 +1,6 @@
-id: wifi-llapi-r309-rrmoffchannelmaxduration
+id: wifi-llapi-D416-rrmoffchannelmaxduration
+aliases:
+  - wifi-llapi-r309-rrmoffchannelmaxduration
 name: RrmOffChannelMaxDuration — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

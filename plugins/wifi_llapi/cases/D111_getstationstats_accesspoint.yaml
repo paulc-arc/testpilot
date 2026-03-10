@@ -1,4 +1,6 @@
-id: wifi-llapi-r098-getstationstats-accesspoint
+id: wifi-llapi-D111-getstationstats-accesspoint
+aliases:
+  - wifi-llapi-r098-getstationstats-accesspoint
 name: getStationStats() — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:

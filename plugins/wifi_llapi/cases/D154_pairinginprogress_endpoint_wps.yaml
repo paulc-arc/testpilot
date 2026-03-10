@@ -1,4 +1,6 @@
-id: wifi-llapi-r137-pairinginprogress-endpoint-wps
+id: wifi-llapi-D154-pairinginprogress-endpoint-wps
+aliases:
+  - wifi-llapi-r137-pairinginprogress-endpoint-wps
 name: PairingInProgress — WiFi.EndPoint.{i}.WPS.
 version: '1.0'
 source:

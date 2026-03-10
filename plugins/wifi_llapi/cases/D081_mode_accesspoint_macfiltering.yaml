@@ -1,4 +1,6 @@
-id: wifi-llapi-r073-mode-accesspoint-macfiltering
+id: wifi-llapi-D081-mode-accesspoint-macfiltering
+aliases:
+  - wifi-llapi-r073-mode-accesspoint-macfiltering
 name: Mode — WiFi.AccessPoint.{i}.MACFiltering.Mode
 version: '1.0'
 source:

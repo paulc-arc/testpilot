@@ -1,4 +1,6 @@
-id: wifi-llapi-r155-guardinterval
+id: wifi-llapi-D194-guardinterval
+aliases:
+  - wifi-llapi-r155-guardinterval
 name: GuardInterval — WiFi.Radio.{i}.
 version: '1.0'
 source:

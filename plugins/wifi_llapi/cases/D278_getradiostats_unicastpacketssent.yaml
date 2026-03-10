@@ -1,4 +1,6 @@
-id: wifi-llapi-r204-getradiostats-unicastpacketssent
+id: wifi-llapi-D278-getradiostats-unicastpacketssent
+aliases:
+  - wifi-llapi-r204-getradiostats-unicastpacketssent
 name: getRadioStats() — WiFi.Radio.{i}.
 version: '1.0'
 source:

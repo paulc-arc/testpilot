@@ -1,4 +1,6 @@
-id: wifi-llapi-r320-ssid-accesspoint-neighbour
+id: wifi-llapi-D437-ssid-accesspoint-neighbour
+aliases:
+  - wifi-llapi-r320-ssid-accesspoint-neighbour
 name: SSID — WiFi.AccessPoint.{i}.Neighbour.{i}.
 version: '1.0'
 source:

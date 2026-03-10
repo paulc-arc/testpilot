@@ -1,4 +1,6 @@
-id: wifi-llapi-r308-rrmcapabilities
+id: wifi-llapi-D415-rrmcapabilities
+aliases:
+  - wifi-llapi-r308-rrmcapabilities
 name: RrmCapabilities — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

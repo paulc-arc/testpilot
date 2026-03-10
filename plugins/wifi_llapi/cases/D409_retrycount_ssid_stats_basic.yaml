@@ -1,4 +1,6 @@
-id: wifi-llapi-r302-retrycount-ssid-stats-basic
+id: wifi-llapi-D409-retrycount-ssid-stats-basic
+aliases:
+  - wifi-llapi-r302-retrycount-ssid-stats-basic
 name: RetryCount — WiFi.SSID.{i}.Stats.
 version: '1.0'
 source:

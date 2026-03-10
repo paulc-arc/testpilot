@@ -1,4 +1,6 @@
-id: wifi-llapi-r145-rtsthreshold
+id: wifi-llapi-D184-rtsthreshold
+aliases:
+  - wifi-llapi-r145-rtsthreshold
 name: RtsThreshold — WiFi.Radio.{i}.DriverConfig.
 version: '1.0'
 source:

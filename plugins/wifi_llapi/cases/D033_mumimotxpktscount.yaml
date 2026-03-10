@@ -1,4 +1,6 @@
-id: wifi-llapi-r028-mumimotxpktscount
+id: wifi-llapi-D033-mumimotxpktscount
+aliases:
+  - wifi-llapi-r028-mumimotxpktscount
 name: MUMimoTxPktsCount — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

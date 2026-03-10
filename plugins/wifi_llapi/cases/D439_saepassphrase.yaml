@@ -1,4 +1,6 @@
-id: wifi-llapi-r322-saepassphrase
+id: wifi-llapi-D439-saepassphrase
+aliases:
+  - wifi-llapi-r322-saepassphrase
 name: SAEPassphrase — WiFi.AccessPoint.{i}.Security.
 version: '1.0'
 source:

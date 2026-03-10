@@ -1,4 +1,6 @@
-id: wifi-llapi-r031-noise-accesspoint-associateddevice
+id: wifi-llapi-D036-noise-accesspoint-associateddevice
+aliases:
+  - wifi-llapi-r031-noise-accesspoint-associateddevice
 name: Noise — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

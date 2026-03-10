@@ -1,4 +1,6 @@
-id: wifi-llapi-r136-status-profile-wps
+id: wifi-llapi-D150-status-profile-wps
+aliases:
+  - wifi-llapi-r136-status-profile-wps
 name: Status — WiFi.EndPoint.{i}.Profile.WPS.
 version: '1.0'
 source:

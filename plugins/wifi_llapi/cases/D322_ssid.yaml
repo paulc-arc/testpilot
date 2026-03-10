@@ -1,4 +1,6 @@
-id: wifi-llapi-r244-ssid
+id: wifi-llapi-D322-ssid
+aliases:
+  - wifi-llapi-r244-ssid
 name: SSID — WiFi.SSID.{i}.
 version: '1.0'
 source:

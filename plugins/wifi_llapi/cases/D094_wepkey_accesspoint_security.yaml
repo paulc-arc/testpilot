@@ -1,4 +1,6 @@
-id: wifi-llapi-r086-wepkey-accesspoint-security
+id: wifi-llapi-D094-wepkey-accesspoint-security
+aliases:
+  - wifi-llapi-r086-wepkey-accesspoint-security
 name: WEPKey — WiFi.AccessPoint.{i}.Security
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r264-enable-radio-sensing
+id: wifi-llapi-D356-enable-radio-sensing
+aliases:
+  - wifi-llapi-r264-enable-radio-sensing
 name: Enable — WiFi.Radio.{i}.Sensing.
 version: '1.0'
 source:

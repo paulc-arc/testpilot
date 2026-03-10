@@ -1,4 +1,6 @@
-id: wifi-llapi-r232-getssidstats-errorssent
+id: wifi-llapi-D309-getssidstats-errorssent
+aliases:
+  - wifi-llapi-r232-getssidstats-errorssent
 name: getSSIDStats() — WiFi.SSID.{i}.
 version: '1.0'
 source:

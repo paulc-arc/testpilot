@@ -1,4 +1,6 @@
-id: wifi-llapi-r119-getstats-rxbytes
+id: wifi-llapi-D133-getstats-rxbytes
+aliases:
+  - wifi-llapi-r119-getstats-rxbytes
 name: getStats() — WiFi.EndPoint.{i}.
 version: '1.0'
 source:

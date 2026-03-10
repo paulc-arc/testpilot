@@ -1,4 +1,6 @@
-id: wifi-llapi-r174-regulatorydomain-radio
+id: wifi-llapi-D215-regulatorydomain-radio
+aliases:
+  - wifi-llapi-r174-regulatorydomain-radio
 name: RegulatoryDomain — WiFi.Radio.{i}.
 version: '1.0'
 source:

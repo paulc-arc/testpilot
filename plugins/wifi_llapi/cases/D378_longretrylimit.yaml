@@ -1,4 +1,6 @@
-id: wifi-llapi-r279-longretrylimit
+id: wifi-llapi-D378-longretrylimit
+aliases:
+  - wifi-llapi-r279-longretrylimit
 name: LongRetryLimit — WiFi.Radio.{i}.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r068-mobilitydomain
+id: wifi-llapi-D074-mobilitydomain
+aliases:
+  - wifi-llapi-r068-mobilitydomain
 name: MobilityDomain — WiFi.AccessPoint.{i}.IEEE80211r.
 version: '1.0'
 source:

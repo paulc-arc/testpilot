@@ -1,4 +1,6 @@
-id: wifi-llapi-r305-maxrxspatialstreamssupported
+id: wifi-llapi-D412-maxrxspatialstreamssupported
+aliases:
+  - wifi-llapi-r305-maxrxspatialstreamssupported
 name: MaxRxSpatialStreamsSupported — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

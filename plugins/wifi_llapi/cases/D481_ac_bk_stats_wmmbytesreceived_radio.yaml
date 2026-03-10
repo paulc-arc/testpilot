@@ -1,4 +1,6 @@
-id: wifi-llapi-r346-ac-bk-stats-wmmbytesreceived-radio
+id: wifi-llapi-D481-ac-bk-stats-wmmbytesreceived-radio
+aliases:
+  - wifi-llapi-r346-ac-bk-stats-wmmbytesreceived-radio
 name: AC_BK — WiFi.Radio.{i}.Stats.WmmBytesReceived.
 version: '1.0'
 source:

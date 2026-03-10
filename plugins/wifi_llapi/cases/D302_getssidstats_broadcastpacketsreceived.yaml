@@ -1,4 +1,6 @@
-id: wifi-llapi-r225-getssidstats-broadcastpacketsreceived
+id: wifi-llapi-D302-getssidstats-broadcastpacketsreceived
+aliases:
+  - wifi-llapi-r225-getssidstats-broadcastpacketsreceived
 name: getSSIDStats() — WiFi.SSID.{i}.
 version: '1.0'
 source:

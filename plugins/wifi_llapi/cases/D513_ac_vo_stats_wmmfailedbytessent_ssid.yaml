@@ -1,4 +1,6 @@
-id: wifi-llapi-r378-ac-vo-stats-wmmfailedbytessent-ssid
+id: wifi-llapi-D513-ac-vo-stats-wmmfailedbytessent-ssid
+aliases:
+  - wifi-llapi-r378-ac-vo-stats-wmmfailedbytessent-ssid
 name: AC_VO — WiFi.SSID.{i}.Stats.WmmFailedbytesSent.
 version: '1.0'
 source:

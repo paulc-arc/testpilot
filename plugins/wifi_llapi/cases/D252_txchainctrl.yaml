@@ -1,4 +1,6 @@
-id: wifi-llapi-r182-txchainctrl
+id: wifi-llapi-D252-txchainctrl
+aliases:
+  - wifi-llapi-r182-txchainctrl
 name: TxChainCtrl — WiFi.Radio.{i}.
 version: '1.0'
 source:

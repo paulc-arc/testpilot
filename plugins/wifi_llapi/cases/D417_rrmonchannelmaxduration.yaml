@@ -1,4 +1,6 @@
-id: wifi-llapi-r310-rrmonchannelmaxduration
+id: wifi-llapi-D417-rrmonchannelmaxduration
+aliases:
+  - wifi-llapi-r310-rrmonchannelmaxduration
 name: RrmOnChannelMaxDuration — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

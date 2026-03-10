@@ -1,4 +1,6 @@
-id: wifi-llapi-r354-ac-bk-stats-wmmfailedbytesreceived-radio
+id: wifi-llapi-D489-ac-bk-stats-wmmfailedbytesreceived-radio
+aliases:
+  - wifi-llapi-r354-ac-bk-stats-wmmfailedbytesreceived-radio
 name: AC_BK — WiFi.Radio.{i}.Stats.WmmFailedBytesReceived.
 version: '1.0'
 source:

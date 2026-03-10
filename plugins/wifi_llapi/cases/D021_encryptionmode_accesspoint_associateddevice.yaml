@@ -1,4 +1,6 @@
-id: wifi-llapi-r016-encryptionmode-accesspoint-associateddevice
+id: wifi-llapi-D021-encryptionmode-accesspoint-associateddevice
+aliases:
+  - wifi-llapi-r016-encryptionmode-accesspoint-associateddevice
 name: EncryptionMode — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

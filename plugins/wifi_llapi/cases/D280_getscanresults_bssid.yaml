@@ -1,4 +1,6 @@
-id: wifi-llapi-r206-getscanresults-bssid
+id: wifi-llapi-D280-getscanresults-bssid
+aliases:
+  - wifi-llapi-r206-getscanresults-bssid
 name: getScanResults() — WiFi.Radio.{i}.
 version: '1.0'
 source:

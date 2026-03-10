@@ -1,4 +1,6 @@
-id: wifi-llapi-r022-lastdatauplinkrate
+id: wifi-llapi-D027-lastdatauplinkrate
+aliases:
+  - wifi-llapi-r022-lastdatauplinkrate
 name: LastDataUplinkRate — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r057-uplinkmcs
+id: wifi-llapi-D062-uplinkmcs
+aliases:
+  - wifi-llapi-r057-uplinkmcs
 name: UplinkMCS — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

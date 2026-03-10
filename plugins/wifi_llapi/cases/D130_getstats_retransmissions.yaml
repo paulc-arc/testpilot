@@ -1,4 +1,6 @@
-id: wifi-llapi-r116-getstats-retransmissions
+id: wifi-llapi-D130-getstats-retransmissions
+aliases:
+  - wifi-llapi-r116-getstats-retransmissions
 name: getStats() — WiFi.EndPoint.{i}.
 version: '1.0'
 source:

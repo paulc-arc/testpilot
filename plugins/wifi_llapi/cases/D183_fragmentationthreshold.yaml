@@ -1,4 +1,6 @@
-id: wifi-llapi-r144-fragmentationthreshold
+id: wifi-llapi-D183-fragmentationthreshold
+aliases:
+  - wifi-llapi-r144-fragmentationthreshold
 name: FragmentationThreshold — WiFi.Radio.{i}.DriverConfig.
 version: '1.0'
 source:

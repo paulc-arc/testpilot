@@ -1,4 +1,6 @@
-id: wifi-llapi-r270-bsscolorpartial
+id: wifi-llapi-D365-bsscolorpartial
+aliases:
+  - wifi-llapi-r270-bsscolorpartial
 name: BssColorPartial — WiFi.Radio.{i}.IEEE80211ax.
 version: '1.0'
 source:

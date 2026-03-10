@@ -1,4 +1,6 @@
-id: wifi-llapi-r368-ac-bk-stats-wmmbytessent-ssid
+id: wifi-llapi-D503-ac-bk-stats-wmmbytessent-ssid
+aliases:
+  - wifi-llapi-r368-ac-bk-stats-wmmbytessent-ssid
 name: AC_BK — WiFi.SSID.{i}.Stats.WmmBytesSent
 version: '1.0'
 source:

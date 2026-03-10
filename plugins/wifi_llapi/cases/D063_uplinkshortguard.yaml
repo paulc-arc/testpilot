@@ -1,4 +1,6 @@
-id: wifi-llapi-r058-uplinkshortguard
+id: wifi-llapi-D063-uplinkshortguard
+aliases:
+  - wifi-llapi-r058-uplinkshortguard
 name: UplinkShortGuard — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

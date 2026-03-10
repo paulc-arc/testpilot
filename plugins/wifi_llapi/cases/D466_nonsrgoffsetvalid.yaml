@@ -1,4 +1,6 @@
-id: wifi-llapi-r341-nonsrgoffsetvalid
+id: wifi-llapi-D466-nonsrgoffsetvalid
+aliases:
+  - wifi-llapi-r341-nonsrgoffsetvalid
 name: NonSRGOffsetValid — WiFi.Radio.{i}.IEEE80211ax.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r282-mcs
+id: wifi-llapi-D381-mcs
+aliases:
+  - wifi-llapi-r282-mcs
 name: MCS — WiFi.Radio.{i}.
 version: '1.0'
 source:

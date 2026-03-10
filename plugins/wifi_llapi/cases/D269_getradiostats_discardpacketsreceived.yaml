@@ -1,4 +1,6 @@
-id: wifi-llapi-r195-getradiostats-discardpacketsreceived
+id: wifi-llapi-D269-getradiostats-discardpacketsreceived
+aliases:
+  - wifi-llapi-r195-getradiostats-discardpacketsreceived
 name: getRadioStats() — WiFi.Radio.{i}.
 version: '1.0'
 source:

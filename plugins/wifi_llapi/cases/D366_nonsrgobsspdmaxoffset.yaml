@@ -1,4 +1,6 @@
-id: wifi-llapi-r271-nonsrgobsspdmaxoffset
+id: wifi-llapi-D366-nonsrgobsspdmaxoffset
+aliases:
+  - wifi-llapi-r271-nonsrgobsspdmaxoffset
 name: NonSRGOBSSPDMaxOffset — WiFi.Radio.{i}.IEEE80211ax.
 version: '1.0'
 source:

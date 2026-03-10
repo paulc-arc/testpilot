@@ -1,4 +1,6 @@
-id: wifi-llapi-r268-isolationenable
+id: wifi-llapi-D361-isolationenable
+aliases:
+  - wifi-llapi-r268-isolationenable
 name: IsolationEnable — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:

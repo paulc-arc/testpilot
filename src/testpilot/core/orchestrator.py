@@ -109,6 +109,34 @@ class Orchestrator:
         normalized = re.sub(r"[^A-Za-z0-9._-]+", "_", case_id.strip())
         return normalized or "case"
 
+    @staticmethod
+    def _case_aliases(case: dict[str, Any]) -> list[str]:
+        raw_aliases = case.get("aliases")
+        if not isinstance(raw_aliases, list):
+            return []
+        aliases: list[str] = []
+        for item in raw_aliases:
+            alias = str(item).strip()
+            if alias:
+                aliases.append(alias)
+        return aliases
+
+    @classmethod
+    def _case_matches_requested_ids(
+        cls,
+        case: dict[str, Any],
+        requested_ids: set[str],
+    ) -> bool:
+        if not requested_ids:
+            return False
+        case_ids = {str(case.get("id", "")).strip(), *cls._case_aliases(case)}
+        case_ids.discard("")
+        return bool(case_ids & requested_ids)
+
+    @staticmethod
+    def _is_wifi_llapi_official_case(case: dict[str, Any]) -> bool:
+        return re.match(r"^wifi-llapi-D\d+", str(case.get("id", "")).strip()) is not None
+
     def _load_wifi_llapi_agent_config(self, plugin_name: str) -> dict[str, Any]:
         path = self.plugins_dir / plugin_name / "agent-config.yaml"
         if not path.exists():
@@ -608,13 +636,16 @@ class Orchestrator:
         plugin = self.loader.load(plugin_name)
         discovered_cases = plugin.discover_cases()
         if case_ids:
-            cases = [c for c in discovered_cases if c.get("id") in case_ids]
+            requested_ids = {str(case_id).strip() for case_id in case_ids if str(case_id).strip()}
+            cases = [
+                c for c in discovered_cases if self._case_matches_requested_ids(c, requested_ids)
+            ]
         else:
-            # Default to official row-indexed cases.
+            # Default to official D{row} row-indexed cases.
             cases = [
                 c
                 for c in discovered_cases
-                if re.match(r"^wifi-llapi-r\d+", str(c.get("id", "")))
+                if self._is_wifi_llapi_official_case(c)
             ]
 
         reports_root = self.plugins_dir / plugin_name / "reports"
@@ -849,7 +880,8 @@ class Orchestrator:
         plugin = self.loader.load(plugin_name)
         cases = plugin.discover_cases()
         if case_ids:
-            cases = [c for c in cases if c.get("id") in case_ids]
+            requested_ids = {str(case_id).strip() for case_id in case_ids if str(case_id).strip()}
+            cases = [c for c in cases if self._case_matches_requested_ids(c, requested_ids)]
 
         log.info("would run %d cases from plugin '%s'", len(cases), plugin_name)
         return {

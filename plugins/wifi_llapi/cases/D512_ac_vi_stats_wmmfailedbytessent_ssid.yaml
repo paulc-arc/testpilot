@@ -1,4 +1,6 @@
-id: wifi-llapi-r377-ac-vi-stats-wmmfailedbytessent-ssid
+id: wifi-llapi-D512-ac-vi-stats-wmmfailedbytessent-ssid
+aliases:
+  - wifi-llapi-r377-ac-vi-stats-wmmfailedbytessent-ssid
 name: AC_VI — WiFi.SSID.{i}.Stats.WmmFailedbytesSent.
 version: '1.0'
 source:

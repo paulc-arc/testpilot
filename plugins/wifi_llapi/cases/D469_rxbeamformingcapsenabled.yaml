@@ -1,4 +1,6 @@
-id: wifi-llapi-r343-rxbeamformingcapsenabled
+id: wifi-llapi-D469-rxbeamformingcapsenabled
+aliases:
+  - wifi-llapi-r343-rxbeamformingcapsenabled
 name: RxBeamformingCapsEnabled — WiFi.Radio.{i}.
 version: '1.0'
 source:

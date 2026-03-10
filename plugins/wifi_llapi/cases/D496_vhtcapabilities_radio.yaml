@@ -1,4 +1,6 @@
-id: wifi-llapi-r361-vhtcapabilities-radio
+id: wifi-llapi-D496-vhtcapabilities-radio
+aliases:
+  - wifi-llapi-r361-vhtcapabilities-radio
 name: VHTCapabilities — WiFi.Radio.{i}.
 version: '1.0'
 source:

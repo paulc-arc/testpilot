@@ -1,4 +1,6 @@
-id: wifi-llapi-r334-getradiostats-retranscount
+id: wifi-llapi-D459-getradiostats-retranscount
+aliases:
+  - wifi-llapi-r334-getradiostats-retranscount
 name: getRadioStats() — WiFi.Radio.{i}.
 version: '1.0'
 source:

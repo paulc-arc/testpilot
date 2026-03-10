@@ -1,4 +1,6 @@
-id: wifi-llapi-r066-enable-accesspoint
+id: wifi-llapi-D072-enable-accesspoint
+aliases:
+  - wifi-llapi-r066-enable-accesspoint
 name: Enable — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:

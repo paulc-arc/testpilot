@@ -1,4 +1,6 @@
-id: wifi-llapi-r014-downlinkmcs
+id: wifi-llapi-D019-downlinkmcs
+aliases:
+  - wifi-llapi-r014-downlinkmcs
 name: DownlinkMCS — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

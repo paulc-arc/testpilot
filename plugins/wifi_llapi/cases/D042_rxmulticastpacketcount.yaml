@@ -1,4 +1,6 @@
-id: wifi-llapi-r037-rxmulticastpacketcount
+id: wifi-llapi-D042-rxmulticastpacketcount
+aliases:
+  - wifi-llapi-r037-rxmulticastpacketcount
 name: RxMulticastPacketCount — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

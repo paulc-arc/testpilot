@@ -1,4 +1,6 @@
-id: wifi-llapi-r372-ac-bk-stats-wmmfailedbytesreceived-ssid
+id: wifi-llapi-D507-ac-bk-stats-wmmfailedbytesreceived-ssid
+aliases:
+  - wifi-llapi-r372-ac-bk-stats-wmmfailedbytesreceived-ssid
 name: AC_BK — WiFi.SSID.{i}.Stats.WmmFailedBytesReceived.
 version: '1.0'
 source:

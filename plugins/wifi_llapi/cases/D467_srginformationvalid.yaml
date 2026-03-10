@@ -1,4 +1,6 @@
-id: wifi-llapi-r342-srginformationvalid
+id: wifi-llapi-D467-srginformationvalid
+aliases:
+  - wifi-llapi-r342-srginformationvalid
 name: SRGInformationValid — WiFi.Radio.{i}.IEEE80211ax.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r067-ftoverdsenable
+id: wifi-llapi-D073-ftoverdsenable
+aliases:
+  - wifi-llapi-r067-ftoverdsenable
 name: FTOverDSEnable — WiFi.AccessPoint.{i}.IEEE80211r.
 version: '1.0'
 source:

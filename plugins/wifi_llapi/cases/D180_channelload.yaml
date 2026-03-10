@@ -1,4 +1,6 @@
-id: wifi-llapi-r141-channelload
+id: wifi-llapi-D180-channelload
+aliases:
+  - wifi-llapi-r141-channelload
 name: ChannelLoad — WiFi.Radio.{i}.
 version: '1.0'
 source:

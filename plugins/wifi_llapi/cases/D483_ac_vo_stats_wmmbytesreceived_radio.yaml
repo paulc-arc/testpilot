@@ -1,4 +1,6 @@
-id: wifi-llapi-r348-ac-vo-stats-wmmbytesreceived-radio
+id: wifi-llapi-D483-ac-vo-stats-wmmbytesreceived-radio
+aliases:
+  - wifi-llapi-r348-ac-vo-stats-wmmbytesreceived-radio
 name: AC_VO — WiFi.Radio.{i}.Stats.WmmBytesReceived.
 version: '1.0'
 source:

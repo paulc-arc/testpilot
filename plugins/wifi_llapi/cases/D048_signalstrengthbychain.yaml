@@ -1,4 +1,6 @@
-id: wifi-llapi-r043-signalstrengthbychain
+id: wifi-llapi-D048-signalstrengthbychain
+aliases:
+  - wifi-llapi-r043-signalstrengthbychain
 name: SignalStrengthByChain — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

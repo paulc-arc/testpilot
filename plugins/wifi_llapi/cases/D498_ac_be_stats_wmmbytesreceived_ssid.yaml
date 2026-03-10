@@ -1,4 +1,6 @@
-id: wifi-llapi-r363-ac-be-stats-wmmbytesreceived-ssid
+id: wifi-llapi-D498-ac-be-stats-wmmbytesreceived-ssid
+aliases:
+  - wifi-llapi-r363-ac-be-stats-wmmbytesreceived-ssid
 name: AC_BE — WiFi.SSID.{i}.Stats.WmmBytesReceived.
 version: '1.0'
 source:

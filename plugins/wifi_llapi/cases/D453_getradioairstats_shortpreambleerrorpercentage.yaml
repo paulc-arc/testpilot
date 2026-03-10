@@ -1,4 +1,6 @@
-id: wifi-llapi-r328-getradioairstats-shortpreambleerrorpercentage
+id: wifi-llapi-D453-getradioairstats-shortpreambleerrorpercentage
+aliases:
+  - wifi-llapi-r328-getradioairstats-shortpreambleerrorpercentage
 name: getRadioAirStats() — WiFi.Radio.{i}.
 version: '1.0'
 source:

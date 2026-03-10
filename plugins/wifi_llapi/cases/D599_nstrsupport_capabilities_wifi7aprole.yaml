@@ -1,4 +1,6 @@
-id: wifi-llapi-r412-nstrsupport-capabilities-wifi7aprole
+id: wifi-llapi-D599-nstrsupport-capabilities-wifi7aprole
+aliases:
+  - wifi-llapi-r412-nstrsupport-capabilities-wifi7aprole
 name: NSTRSupport — WiFi.Radio.{i}.Capabilities.WiFi7APRole.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r276-srgpartialbssidbitmap
+id: wifi-llapi-D371-srgpartialbssidbitmap
+aliases:
+  - wifi-llapi-r276-srgpartialbssidbitmap
 name: SRGPartialBSSIDBitmap — WiFi.Radio.{i}.IEEE80211ax.
 version: '1.0'
 source:

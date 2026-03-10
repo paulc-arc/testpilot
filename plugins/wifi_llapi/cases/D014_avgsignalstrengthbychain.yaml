@@ -1,4 +1,6 @@
-id: wifi-llapi-r009-avgsignalstrengthbychain
+id: wifi-llapi-D014-avgsignalstrengthbychain
+aliases:
+  - wifi-llapi-r009-avgsignalstrengthbychain
 name: AvgSignalStrengthByChain — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

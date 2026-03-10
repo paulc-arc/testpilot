@@ -1,4 +1,6 @@
-id: wifi-llapi-r293-failedretranscount-radio-stats
+id: wifi-llapi-D400-failedretranscount-radio-stats
+aliases:
+  - wifi-llapi-r293-failedretranscount-radio-stats
 name: FailedRetransCount — WiFi.Radio.{i}.Stats.
 version: '1.0'
 source:

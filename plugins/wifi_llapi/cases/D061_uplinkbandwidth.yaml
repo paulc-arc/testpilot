@@ -1,4 +1,6 @@
-id: wifi-llapi-r056-uplinkbandwidth
+id: wifi-llapi-D061-uplinkbandwidth
+aliases:
+  - wifi-llapi-r056-uplinkbandwidth
 name: UplinkBandwidth — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

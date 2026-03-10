@@ -1,4 +1,6 @@
-id: wifi-llapi-r344-unknownprotopacketsreceived-radio-stats
+id: wifi-llapi-D479-unknownprotopacketsreceived-radio-stats
+aliases:
+  - wifi-llapi-r344-unknownprotopacketsreceived-radio-stats
 name: UnknownProtoPacketsReceived — WiFi.Radio.{i}.Stats.
 version: '1.0'
 source:

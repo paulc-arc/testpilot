@@ -1,4 +1,6 @@
-id: wifi-llapi-r247-bytesreceived-ssid-stats
+id: wifi-llapi-D325-bytesreceived-ssid-stats
+aliases:
+  - wifi-llapi-r247-bytesreceived-ssid-stats
 name: BytesReceived — WiFi.SSID.{i}.Stats.
 version: '1.0'
 source:

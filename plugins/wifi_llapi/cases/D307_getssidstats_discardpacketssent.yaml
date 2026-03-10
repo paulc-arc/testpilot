@@ -1,4 +1,6 @@
-id: wifi-llapi-r230-getssidstats-discardpacketssent
+id: wifi-llapi-D307-getssidstats-discardpacketssent
+aliases:
+  - wifi-llapi-r230-getssidstats-discardpacketssent
 name: getSSIDStats() — WiFi.SSID.{i}.
 version: '1.0'
 source:

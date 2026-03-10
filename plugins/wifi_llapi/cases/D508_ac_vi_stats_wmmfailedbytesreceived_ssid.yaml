@@ -1,4 +1,6 @@
-id: wifi-llapi-r373-ac-vi-stats-wmmfailedbytesreceived-ssid
+id: wifi-llapi-D508-ac-vi-stats-wmmfailedbytesreceived-ssid
+aliases:
+  - wifi-llapi-r373-ac-vi-stats-wmmfailedbytesreceived-ssid
 name: AC_VI — WiFi.SSID.{i}.Stats.WmmFailedBytesReceived.
 version: '1.0'
 source:

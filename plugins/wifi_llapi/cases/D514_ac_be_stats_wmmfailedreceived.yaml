@@ -1,4 +1,6 @@
-id: wifi-llapi-r379-ac-be-stats-wmmfailedreceived
+id: wifi-llapi-D514-ac-be-stats-wmmfailedreceived
+aliases:
+  - wifi-llapi-r379-ac-be-stats-wmmfailedreceived
 name: AC_BE — WiFi.SSID.{i}.Stats.WmmFailedReceived.
 version: '1.0'
 source:

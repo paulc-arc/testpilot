@@ -1,4 +1,6 @@
-id: wifi-llapi-r108-getstats-htcapabilities
+id: wifi-llapi-D122-getstats-htcapabilities
+aliases:
+  - wifi-llapi-r108-getstats-htcapabilities
 name: getStats() — WiFi.EndPoint.{i}.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r059-vendoroui
+id: wifi-llapi-D064-vendoroui
+aliases:
+  - wifi-llapi-r059-vendoroui
 name: VendorOUI — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r329-getradioairstats-vendorstats-badplcp
+id: wifi-llapi-D454-getradioairstats-vendorstats-badplcp
+aliases:
+  - wifi-llapi-r329-getradioairstats-vendorstats-badplcp
 name: getRadioAirStats() — WiFi.Radio.{i}.
 version: '1.0'
 source:

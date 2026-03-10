@@ -1,4 +1,6 @@
-id: wifi-llapi-r084-rekeyinginterval
+id: wifi-llapi-D092-rekeyinginterval
+aliases:
+  - wifi-llapi-r084-rekeyinginterval
 name: RekeyingInterval — WiFi.AccessPoint.{i}.Security
 version: '1.0'
 source:

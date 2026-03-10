@@ -1,4 +1,6 @@
-id: wifi-llapi-r122-getstats-supportedmcs
+id: wifi-llapi-D136-getstats-supportedmcs
+aliases:
+  - wifi-llapi-r122-getstats-supportedmcs
 name: getStats() — WiFi.EndPoint.{i}.
 version: '1.0'
 source:

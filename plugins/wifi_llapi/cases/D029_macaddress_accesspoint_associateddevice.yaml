@@ -1,4 +1,6 @@
-id: wifi-llapi-r024-macaddress-accesspoint-associateddevice
+id: wifi-llapi-D029-macaddress-accesspoint-associateddevice
+aliases:
+  - wifi-llapi-r024-macaddress-accesspoint-associateddevice
 name: MACAddress — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

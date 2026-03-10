@@ -1,4 +1,6 @@
-id: wifi-llapi-r253-failedretranscount-ssid-stats
+id: wifi-llapi-D331-failedretranscount-ssid-stats
+aliases:
+  - wifi-llapi-r253-failedretranscount-ssid-stats
 name: FailedRetransCount — WiFi.SSID.{i}.Stats.
 version: '1.0'
 source:

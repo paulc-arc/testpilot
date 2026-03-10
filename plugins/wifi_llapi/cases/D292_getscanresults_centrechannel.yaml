@@ -1,4 +1,6 @@
-id: wifi-llapi-r218-getscanresults-centrechannel
+id: wifi-llapi-D292-getscanresults-centrechannel
+aliases:
+  - wifi-llapi-r218-getscanresults-centrechannel
 name: getScanResults() — WiFi.Radio.{i}.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r289-bytesreceived-radio-stats
+id: wifi-llapi-D396-bytesreceived-radio-stats
+aliases:
+  - wifi-llapi-r289-bytesreceived-radio-stats
 name: BytesReceived — WiFi.Radio.{i}.Stats.
 version: '1.0'
 source:

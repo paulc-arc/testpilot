@@ -1,4 +1,6 @@
-id: wifi-llapi-r186-getradioairstats-noise
+id: wifi-llapi-D260-getradioairstats-noise
+aliases:
+  - wifi-llapi-r186-getradioairstats-noise
 name: getRadioAirStats() — WiFi.Radio.{i}.
 version: '1.0'
 source:

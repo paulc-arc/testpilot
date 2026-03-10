@@ -1,4 +1,6 @@
-id: wifi-llapi-r030-muuserpositionid
+id: wifi-llapi-D035-muuserpositionid
+aliases:
+  - wifi-llapi-r030-muuserpositionid
 name: MUUserPositionId — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

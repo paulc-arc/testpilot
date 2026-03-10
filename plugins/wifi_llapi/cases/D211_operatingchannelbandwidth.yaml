@@ -1,4 +1,6 @@
-id: wifi-llapi-r171-operatingchannelbandwidth
+id: wifi-llapi-D211-operatingchannelbandwidth
+aliases:
+  - wifi-llapi-r171-operatingchannelbandwidth
 name: OperatingChannelBandwidth — WiFi.Radio.{i}.
 version: '1.0'
 source:

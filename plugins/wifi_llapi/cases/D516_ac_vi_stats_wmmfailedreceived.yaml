@@ -1,4 +1,6 @@
-id: wifi-llapi-r381-ac-vi-stats-wmmfailedreceived
+id: wifi-llapi-D516-ac-vi-stats-wmmfailedreceived
+aliases:
+  - wifi-llapi-r381-ac-vi-stats-wmmfailedreceived
 name: AC_VI — WiFi.SSID.{i}.Stats.WmmFailedReceived.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r172-operatingstandards
+id: wifi-llapi-D213-operatingstandards
+aliases:
+  - wifi-llapi-r172-operatingstandards
 name: OperatingStandards — WiFi.Radio.{i}.
 version: '1.0'
 source:

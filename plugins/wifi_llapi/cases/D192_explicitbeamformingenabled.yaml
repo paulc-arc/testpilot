@@ -1,4 +1,6 @@
-id: wifi-llapi-r153-explicitbeamformingenabled
+id: wifi-llapi-D192-explicitbeamformingenabled
+aliases:
+  - wifi-llapi-r153-explicitbeamformingenabled
 name: ExplicitBeamFormingEnabled — WiFi.Radio.{i}.
 version: '1.0'
 source:

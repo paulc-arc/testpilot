@@ -1,4 +1,6 @@
-id: wifi-llapi-r132-modeenabled-wps-security
+id: wifi-llapi-D146-modeenabled-wps-security
+aliases:
+  - wifi-llapi-r132-modeenabled-wps-security
 name: ModeEnabled — WiFi.EndPoint.{i}.Profile.WPS.Security.
 version: '1.0'
 source:

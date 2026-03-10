@@ -1,4 +1,6 @@
-id: wifi-llapi-r156-hecapsenabled
+id: wifi-llapi-D195-hecapsenabled
+aliases:
+  - wifi-llapi-r156-hecapsenabled
 name: HeCapsEnabled — WiFi.Radio.{i}.
 version: '1.0'
 source:

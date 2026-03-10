@@ -1,4 +1,6 @@
-id: wifi-llapi-r327-getradioairstats-obsstime
+id: wifi-llapi-D452-getradioairstats-obsstime
+aliases:
+  - wifi-llapi-r327-getradioairstats-obsstime
 name: getRadioAirStats() — WiFi.Radio.{i}.
 version: '1.0'
 source:

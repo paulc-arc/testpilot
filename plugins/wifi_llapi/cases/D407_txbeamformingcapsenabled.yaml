@@ -1,4 +1,6 @@
-id: wifi-llapi-r300-txbeamformingcapsenabled
+id: wifi-llapi-D407-txbeamformingcapsenabled
+aliases:
+  - wifi-llapi-r300-txbeamformingcapsenabled
 name: TxBeamformingCapsEnabled — WiFi.Radio.{i}.
 version: '1.0'
 source:

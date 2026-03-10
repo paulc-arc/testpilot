@@ -1,4 +1,6 @@
-id: wifi-llapi-r384-ac-bk-stats-wmmfailedsent
+id: wifi-llapi-D519-ac-bk-stats-wmmfailedsent
+aliases:
+  - wifi-llapi-r384-ac-bk-stats-wmmfailedsent
 name: AC_BK — WiFi.SSID.{i}.Stats.WmmFailedSent.
 version: '1.0'
 source:

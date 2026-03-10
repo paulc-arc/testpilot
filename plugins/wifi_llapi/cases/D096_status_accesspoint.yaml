@@ -1,4 +1,6 @@
-id: wifi-llapi-r088-status-accesspoint
+id: wifi-llapi-D096-status-accesspoint
+aliases:
+  - wifi-llapi-r088-status-accesspoint
 name: Status — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:

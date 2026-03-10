@@ -1,4 +1,6 @@
-id: wifi-llapi-r185-getradioairstats-load
+id: wifi-llapi-D259-getradioairstats-load
+aliases:
+  - wifi-llapi-r185-getradioairstats-load
 name: getRadioAirStats() — WiFi.Radio.{i}.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r323-transitiondisable
+id: wifi-llapi-D440-transitiondisable
+aliases:
+  - wifi-llapi-r323-transitiondisable
 name: TransitionDisable — WiFi.AccessPoint.{i}.Security.
 version: '1.0'
 source:

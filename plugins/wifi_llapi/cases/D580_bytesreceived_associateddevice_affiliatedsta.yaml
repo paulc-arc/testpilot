@@ -1,4 +1,6 @@
-id: wifi-llapi-r403-bytesreceived-associateddevice-affiliatedsta
+id: wifi-llapi-D580-bytesreceived-associateddevice-affiliatedsta
+aliases:
+  - wifi-llapi-r403-bytesreceived-associateddevice-affiliatedsta
 name: BytesReceived — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.AffiliatedSTA.​{i}.
 version: '1.0'
 source:

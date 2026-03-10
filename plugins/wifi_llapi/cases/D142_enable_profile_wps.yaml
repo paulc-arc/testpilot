@@ -1,4 +1,6 @@
-id: wifi-llapi-r128-enable-profile-wps
+id: wifi-llapi-D142-enable-profile-wps
+aliases:
+  - wifi-llapi-r128-enable-profile-wps
 name: Enable — WiFi.EndPoint.{i}.Profile.WPS.
 version: '1.0'
 source:

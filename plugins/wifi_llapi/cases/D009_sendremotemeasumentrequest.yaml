@@ -1,4 +1,6 @@
-id: wifi-llapi-r005-sendremotemeasumentrequest
+id: wifi-llapi-D009-sendremotemeasumentrequest
+aliases:
+  - wifi-llapi-r005-sendremotemeasumentrequest
 name: sendRemoteMeasumentRequest() — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:

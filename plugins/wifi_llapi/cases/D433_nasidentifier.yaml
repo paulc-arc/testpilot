@@ -1,4 +1,6 @@
-id: wifi-llapi-r316-nasidentifier
+id: wifi-llapi-D433-nasidentifier
+aliases:
+  - wifi-llapi-r316-nasidentifier
 name: NASIdentifier — WiFi.AccessPoint.{i}.Neighbour.{i}.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r291-errorsreceived-radio-stats
+id: wifi-llapi-D398-errorsreceived-radio-stats
+aliases:
+  - wifi-llapi-r291-errorsreceived-radio-stats
 name: ErrorsReceived — WiFi.Radio.{i}.Stats.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r401-macaddress-associateddevice-affiliatedsta
+id: wifi-llapi-D578-macaddress-associateddevice-affiliatedsta
+aliases:
+  - wifi-llapi-r401-macaddress-associateddevice-affiliatedsta
 name: MACAddress — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.AffiliatedSTA.​{i}.
 version: '1.0'
 source:

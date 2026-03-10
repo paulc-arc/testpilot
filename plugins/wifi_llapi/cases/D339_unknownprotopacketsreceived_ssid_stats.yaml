@@ -1,4 +1,6 @@
-id: wifi-llapi-r261-unknownprotopacketsreceived-ssid-stats
+id: wifi-llapi-D339-unknownprotopacketsreceived-ssid-stats
+aliases:
+  - wifi-llapi-r261-unknownprotopacketsreceived-ssid-stats
 name: UnknownProtoPacketsReceived — WiFi.SSID.{i}.Stats.
 version: '1.0'
 source:

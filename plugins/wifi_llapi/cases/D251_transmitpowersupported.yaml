@@ -1,4 +1,6 @@
-id: wifi-llapi-r181-transmitpowersupported
+id: wifi-llapi-D251-transmitpowersupported
+aliases:
+  - wifi-llapi-r181-transmitpowersupported
 name: TransmitPowerSupported — WiFi.Radio.{i}.
 version: '1.0'
 source:

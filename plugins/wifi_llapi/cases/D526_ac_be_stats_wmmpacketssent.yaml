@@ -1,4 +1,6 @@
-id: wifi-llapi-r391-ac-be-stats-wmmpacketssent
+id: wifi-llapi-D526-ac-be-stats-wmmpacketssent
+aliases:
+  - wifi-llapi-r391-ac-be-stats-wmmpacketssent
 name: AC_BE — WiFi.SSID.{i}.Stats.WmmPacketsSent.
 version: '1.0'
 source:

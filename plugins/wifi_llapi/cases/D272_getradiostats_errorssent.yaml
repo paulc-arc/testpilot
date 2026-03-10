@@ -1,4 +1,6 @@
-id: wifi-llapi-r198-getradiostats-errorssent
+id: wifi-llapi-D272-getradiostats-errorssent
+aliases:
+  - wifi-llapi-r198-getradiostats-errorssent
 name: getRadioStats() — WiFi.Radio.{i}.
 version: '1.0'
 source:

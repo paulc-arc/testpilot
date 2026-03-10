@@ -1,4 +1,6 @@
-id: wifi-llapi-r347-ac-vi-stats-wmmbytesreceived-radio
+id: wifi-llapi-D482-ac-vi-stats-wmmbytesreceived-radio
+aliases:
+  - wifi-llapi-r347-ac-vi-stats-wmmbytesreceived-radio
 name: AC_VI — WiFi.Radio.{i}.Stats.WmmBytesReceived.
 version: '1.0'
 source:

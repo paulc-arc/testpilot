@@ -1,4 +1,6 @@
-id: wifi-llapi-r304-maxdownlinkratesupported
+id: wifi-llapi-D411-maxdownlinkratesupported
+aliases:
+  - wifi-llapi-r304-maxdownlinkratesupported
 name: MaxDownlinkRateSupported — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

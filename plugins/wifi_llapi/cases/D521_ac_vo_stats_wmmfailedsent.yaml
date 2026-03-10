@@ -1,4 +1,6 @@
-id: wifi-llapi-r386-ac-vo-stats-wmmfailedsent
+id: wifi-llapi-D521-ac-vo-stats-wmmfailedsent
+aliases:
+  - wifi-llapi-r386-ac-vo-stats-wmmfailedsent
 name: AC_VO — WiFi.SSID.{i}.Stats.WmmFailedSent.
 version: '1.0'
 source:

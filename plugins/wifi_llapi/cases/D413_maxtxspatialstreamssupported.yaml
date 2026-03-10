@@ -1,4 +1,6 @@
-id: wifi-llapi-r306-maxtxspatialstreamssupported
+id: wifi-llapi-D413-maxtxspatialstreamssupported
+aliases:
+  - wifi-llapi-r306-maxtxspatialstreamssupported
 name: MaxTxSpatialStreamsSupported — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

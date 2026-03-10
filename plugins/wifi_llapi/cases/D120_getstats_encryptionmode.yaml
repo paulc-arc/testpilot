@@ -1,4 +1,6 @@
-id: wifi-llapi-r106-getstats-encryptionmode
+id: wifi-llapi-D120-getstats-encryptionmode
+aliases:
+  - wifi-llapi-r106-getstats-encryptionmode
 name: getStats() — WiFi.EndPoint.{i}.
 version: '1.0'
 source:

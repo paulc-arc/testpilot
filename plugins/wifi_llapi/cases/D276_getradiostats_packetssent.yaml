@@ -1,4 +1,6 @@
-id: wifi-llapi-r202-getradiostats-packetssent
+id: wifi-llapi-D276-getradiostats-packetssent
+aliases:
+  - wifi-llapi-r202-getradiostats-packetssent
 name: getRadioStats() — WiFi.Radio.{i}.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r212-getscanresults-securitymodeenabled
+id: wifi-llapi-D286-getscanresults-securitymodeenabled
+aliases:
+  - wifi-llapi-r212-getscanresults-securitymodeenabled
 name: getScanResults() — WiFi.Radio.{i}.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r340-hesigaspatialreusevalue15allowed
+id: wifi-llapi-D465-hesigaspatialreusevalue15allowed
+aliases:
+  - wifi-llapi-r340-hesigaspatialreusevalue15allowed
 name: HESIGASpatialReuseValue15Allowed — WiFi.Radio.{i}.IEEE80211ax.
 version: '1.0'
 source:

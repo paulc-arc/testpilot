@@ -1,4 +1,6 @@
-id: wifi-llapi-r064-discoverymethodenabled-accesspoint-upr
+id: wifi-llapi-D069-discoverymethodenabled-accesspoint-upr
+aliases:
+  - wifi-llapi-r064-discoverymethodenabled-accesspoint-upr
 name: DiscoveryMethodEnabled — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:

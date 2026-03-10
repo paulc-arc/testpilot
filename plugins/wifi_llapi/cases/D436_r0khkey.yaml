@@ -1,4 +1,6 @@
-id: wifi-llapi-r319-r0khkey
+id: wifi-llapi-D436-r0khkey
+aliases:
+  - wifi-llapi-r319-r0khkey
 name: R0KHKey — WiFi.AccessPoint.{i}.Neighbour.{i}.
 version: '1.0'
 source:

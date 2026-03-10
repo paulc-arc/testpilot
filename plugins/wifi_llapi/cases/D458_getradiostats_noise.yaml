@@ -1,4 +1,6 @@
-id: wifi-llapi-r333-getradiostats-noise
+id: wifi-llapi-D458-getradiostats-noise
+aliases:
+  - wifi-llapi-r333-getradiostats-noise
 name: getRadioStats() — WiFi.Radio.{i}.
 version: '1.0'
 source:

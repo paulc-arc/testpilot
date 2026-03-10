@@ -1,4 +1,6 @@
-id: wifi-llapi-r359-ac-vi-stats-wmmfailedbytessent-radio
+id: wifi-llapi-D494-ac-vi-stats-wmmfailedbytessent-radio
+aliases:
+  - wifi-llapi-r359-ac-vi-stats-wmmfailedbytessent-radio
 name: AC_VI — WiFi.Radio.{i}.Stats.WmmFailedbytesSent.
 version: '1.0'
 source:

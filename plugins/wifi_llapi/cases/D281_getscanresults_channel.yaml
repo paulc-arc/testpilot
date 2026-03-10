@@ -1,4 +1,6 @@
-id: wifi-llapi-r207-getscanresults-channel
+id: wifi-llapi-D281-getscanresults-channel
+aliases:
+  - wifi-llapi-r207-getscanresults-channel
 name: getScanResults() — WiFi.Radio.{i}.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r350-ac-bk-stats-wmmbytessent-radio
+id: wifi-llapi-D485-ac-bk-stats-wmmbytessent-radio
+aliases:
+  - wifi-llapi-r350-ac-bk-stats-wmmbytessent-radio
 name: AC_BK — WiFi.Radio.{i}.Stats.WmmBytesSent.
 version: '1.0'
 source:

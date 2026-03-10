@@ -69,12 +69,12 @@ python -m testpilot.cli wifi-llapi build-template-report \
 
 ```bash
 python -m testpilot.cli run wifi_llapi \
-  --case wifi-llapi-r002-kickstation \
+  --case wifi-llapi-D006-kickstation \
   --dut-fw-ver BGW720-B0-403 \
   --report-source-xlsx "0302-AT&T_LLAPI_Test_Report_20260107.xlsx"
 ```
 
-全量執行（預設會跑官方 row-indexed `wifi-llapi-r###`，目前 415 cases）：
+全量執行（預設會跑官方 row-indexed `wifi-llapi-D###`，目前 415 cases）：
 
 ```bash
 python -m testpilot.cli run wifi_llapi \

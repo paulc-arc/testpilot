@@ -1,4 +1,6 @@
-id: wifi-llapi-r396-getspectruminfo-channel
+id: wifi-llapi-D531-getspectruminfo-channel
+aliases:
+  - wifi-llapi-r396-getspectruminfo-channel
 name: getSpectrumInfo() — WiFi.Radio.{i}.
 version: '1.0'
 source:

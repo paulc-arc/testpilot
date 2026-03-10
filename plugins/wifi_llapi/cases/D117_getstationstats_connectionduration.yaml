@@ -1,4 +1,6 @@
-id: wifi-llapi-r104-getstationstats-connectionduration
+id: wifi-llapi-D117-getstationstats-connectionduration
+aliases:
+  - wifi-llapi-r104-getstationstats-connectionduration
 name: getStationStats() — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:

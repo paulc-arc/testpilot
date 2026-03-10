@@ -1,4 +1,6 @@
-id: wifi-llapi-r335-getradiostats-retrycount
+id: wifi-llapi-D460-getradiostats-retrycount
+aliases:
+  - wifi-llapi-r335-getradiostats-retrycount
 name: getRadioStats() — WiFi.Radio.{i}.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r176-rxchainctrl
+id: wifi-llapi-D217-rxchainctrl
+aliases:
+  - wifi-llapi-r176-rxchainctrl
 name: RxChainCtrl — WiFi.Radio.{i}.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r356-ac-vo-stats-wmmfailedbytesreceived-radio
+id: wifi-llapi-D491-ac-vo-stats-wmmfailedbytesreceived-radio
+aliases:
+  - wifi-llapi-r356-ac-vo-stats-wmmfailedbytesreceived-radio
 name: AC_VO — WiFi.Radio.{i}.Stats.WmmFailedBytesReceived.
 version: '1.0'
 source:

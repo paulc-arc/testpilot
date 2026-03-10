@@ -1,4 +1,6 @@
-id: wifi-llapi-r085-sha256enable
+id: wifi-llapi-D093-sha256enable
+aliases:
+  - wifi-llapi-r085-sha256enable
 name: SHA256Enable — WiFi.AccessPoint.{i}.Security
 version: '1.0'
 source:

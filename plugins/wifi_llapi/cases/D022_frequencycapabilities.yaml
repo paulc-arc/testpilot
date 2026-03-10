@@ -1,4 +1,6 @@
-id: wifi-llapi-r017-frequencycapabilities
+id: wifi-llapi-D022-frequencycapabilities
+aliases:
+  - wifi-llapi-r017-frequencycapabilities
 name: FrequencyCapabilities — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

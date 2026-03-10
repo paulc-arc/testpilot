@@ -1,4 +1,6 @@
-id: wifi-llapi-r041-signalnoiseratio
+id: wifi-llapi-D046-signalnoiseratio
+aliases:
+  - wifi-llapi-r041-signalnoiseratio
 name: SignalNoiseRatio — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

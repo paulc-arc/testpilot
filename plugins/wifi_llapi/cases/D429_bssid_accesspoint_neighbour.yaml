@@ -1,4 +1,6 @@
-id: wifi-llapi-r312-bssid-accesspoint-neighbour
+id: wifi-llapi-D429-bssid-accesspoint-neighbour
+aliases:
+  - wifi-llapi-r312-bssid-accesspoint-neighbour
 name: BSSID — WiFi.AccessPoint.{i}.Neighbour.{i}.
 version: '1.0'
 source:

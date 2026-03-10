@@ -1,4 +1,6 @@
-id: wifi-llapi-r301-multipleretrycount-ssid-stats
+id: wifi-llapi-D408-multipleretrycount-ssid-stats
+aliases:
+  - wifi-llapi-r301-multipleretrycount-ssid-stats
 name: MultipleRetryCount — WiFi.SSID.{i}.Stats.
 version: '1.0'
 source:

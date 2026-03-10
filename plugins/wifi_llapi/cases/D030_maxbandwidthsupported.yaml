@@ -1,4 +1,6 @@
-id: wifi-llapi-r025-maxbandwidthsupported
+id: wifi-llapi-D030-maxbandwidthsupported
+aliases:
+  - wifi-llapi-r025-maxbandwidthsupported
 name: MaxBandwidthSupported — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

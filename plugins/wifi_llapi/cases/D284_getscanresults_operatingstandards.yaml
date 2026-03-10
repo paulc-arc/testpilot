@@ -1,4 +1,6 @@
-id: wifi-llapi-r210-getscanresults-operatingstandards
+id: wifi-llapi-D284-getscanresults-operatingstandards
+aliases:
+  - wifi-llapi-r210-getscanresults-operatingstandards
 name: getScanResults() — WiFi.Radio.{i}.
 version: '1.0'
 source:

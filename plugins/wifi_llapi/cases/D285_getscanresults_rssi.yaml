@@ -1,4 +1,6 @@
-id: wifi-llapi-r211-getscanresults-rssi
+id: wifi-llapi-D285-getscanresults-rssi
+aliases:
+  - wifi-llapi-r211-getscanresults-rssi
 name: getScanResults() — WiFi.Radio.{i}.
 version: '1.0'
 source:

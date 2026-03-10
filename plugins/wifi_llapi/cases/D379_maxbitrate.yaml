@@ -1,4 +1,6 @@
-id: wifi-llapi-r280-maxbitrate
+id: wifi-llapi-D379-maxbitrate
+aliases:
+  - wifi-llapi-r280-maxbitrate
 name: MaxBitRate — WiFi.Radio.{i}.
 version: '1.0'
 source:

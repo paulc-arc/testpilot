@@ -1,4 +1,6 @@
-id: wifi-llapi-r134-wepkey-wps-security
+id: wifi-llapi-D148-wepkey-wps-security
+aliases:
+  - wifi-llapi-r134-wepkey-wps-security
 name: WEPKey — WiFi.EndPoint.{i}.Profile.WPS.Security.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r180-transmitpower
+id: wifi-llapi-D250-transmitpower
+aliases:
+  - wifi-llapi-r180-transmitpower
 name: TransmitPower — WiFi.Radio.{i}.
 version: '1.0'
 source:

@@ -2,7 +2,7 @@
 # 每個 .yaml 檔描述一條 test case
 # 以 _ 開頭的檔案會被 plugin 忽略
 
-id: "template-example"
+id: "wifi-llapi-D000-example"         # 官方 row-indexed 命名: wifi-llapi-D{row:03d}-<slug>
 name: "Example test case"
 version: "1.0"
 

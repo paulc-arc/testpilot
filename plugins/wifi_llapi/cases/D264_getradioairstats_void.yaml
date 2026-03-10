@@ -1,4 +1,6 @@
-id: wifi-llapi-r190-getradioairstats-void
+id: wifi-llapi-D264-getradioairstats-void
+aliases:
+  - wifi-llapi-r190-getradioairstats-void
 name: getRadioAirStats() — WiFi.Radio.{i}.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r336-getradiostats-temperature
+id: wifi-llapi-D461-getradiostats-temperature
+aliases:
+  - wifi-llapi-r336-getradiostats-temperature
 name: getRadioStats() — WiFi.Radio.{i}.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r100-getstationstats-associationtime
+id: wifi-llapi-D113-getstationstats-associationtime
+aliases:
+  - wifi-llapi-r100-getstationstats-associationtime
 name: getStationStats() — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:

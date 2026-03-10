@@ -1,4 +1,6 @@
-id: wifi-llapi-r194-getradiostats-bytessent
+id: wifi-llapi-D268-getradiostats-bytessent
+aliases:
+  - wifi-llapi-r194-getradiostats-bytessent
 name: getRadioStats() — WiFi.Radio.{i}.
 version: '1.0'
 source:

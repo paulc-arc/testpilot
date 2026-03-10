@@ -1,4 +1,6 @@
-id: wifi-llapi-r020-inactive
+id: wifi-llapi-D025-inactive
+aliases:
+  - wifi-llapi-r020-inactive
 name: Inactive — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

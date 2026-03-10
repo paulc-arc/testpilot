@@ -1,4 +1,6 @@
-id: wifi-llapi-r277-active
+id: wifi-llapi-D372-active
+aliases:
+  - wifi-llapi-r277-active
 name: Active — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r240-getssidstats-unicastpacketssent
+id: wifi-llapi-D317-getssidstats-unicastpacketssent
+aliases:
+  - wifi-llapi-r240-getssidstats-unicastpacketssent
 name: getSSIDStats() — WiFi.SSID.{i}.
 version: '1.0'
 source:

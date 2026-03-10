@@ -1,4 +1,6 @@
-id: wifi-llapi-r242-bssid-ssid
+id: wifi-llapi-D319-bssid-ssid
+aliases:
+  - wifi-llapi-r242-bssid-ssid
 name: BSSID — WiFi.SSID.{i}.
 version: '1.0'
 source:

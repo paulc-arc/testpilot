@@ -1,4 +1,6 @@
-id: wifi-llapi-r065-discoverymethodenabled-accesspoint-rnr
+id: wifi-llapi-D070-discoverymethodenabled-accesspoint-rnr
+aliases:
+  - wifi-llapi-r065-discoverymethodenabled-accesspoint-rnr
 name: DiscoveryMethodEnabled — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:

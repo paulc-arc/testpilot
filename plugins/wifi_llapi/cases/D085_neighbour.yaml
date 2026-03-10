@@ -1,4 +1,6 @@
-id: wifi-llapi-r077-neighbour
+id: wifi-llapi-D085-neighbour
+aliases:
+  - wifi-llapi-r077-neighbour
 name: Neighbour — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:

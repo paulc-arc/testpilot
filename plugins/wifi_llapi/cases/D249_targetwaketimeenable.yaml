@@ -1,4 +1,6 @@
-id: wifi-llapi-r179-targetwaketimeenable
+id: wifi-llapi-D249-targetwaketimeenable
+aliases:
+  - wifi-llapi-r179-targetwaketimeenable
 name: TargetWakeTimeEnable — WiFi.Radio.{i}.
 version: '1.0'
 source:

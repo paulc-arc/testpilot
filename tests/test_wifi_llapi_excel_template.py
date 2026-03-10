@@ -102,7 +102,7 @@ def test_fill_case_results(tmp_path: Path):
         report,
         [
             WifiLlapiCaseResult(
-                case_id="wifi-llapi-r006-kickstation",
+                case_id="wifi-llapi-D004-kickstation",
                 source_row=4,
                 executed_test_command="ubus-cli ...kickStation...",
                 command_output="assoclist empty",
@@ -148,7 +148,7 @@ def test_fill_case_results_with_merged_row(tmp_path: Path):
         report,
         [
             WifiLlapiCaseResult(
-                case_id="wifi-llapi-r007-merged",
+                case_id="wifi-llapi-D005-merged",
                 source_row=5,
                 executed_test_command="cmd-from-merged-row",
                 command_output="out-from-merged-row",

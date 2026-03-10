@@ -1,4 +1,6 @@
-id: wifi-llapi-r109-getstats-lastdatadownlinkrate
+id: wifi-llapi-D123-getstats-lastdatadownlinkrate
+aliases:
+  - wifi-llapi-r109-getstats-lastdatadownlinkrate
 name: getStats() — WiFi.EndPoint.{i}.
 version: '1.0'
 source:

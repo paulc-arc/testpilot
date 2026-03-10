@@ -1,4 +1,6 @@
-id: wifi-llapi-r061-apbridgedisable
+id: wifi-llapi-D066-apbridgedisable
+aliases:
+  - wifi-llapi-r061-apbridgedisable
 name: APBridgeDisable — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:

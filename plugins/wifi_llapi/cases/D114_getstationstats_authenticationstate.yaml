@@ -1,4 +1,6 @@
-id: wifi-llapi-r101-getstationstats-authenticationstate
+id: wifi-llapi-D114-getstationstats-authenticationstate
+aliases:
+  - wifi-llapi-r101-getstationstats-authenticationstate
 name: getStationStats() — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:

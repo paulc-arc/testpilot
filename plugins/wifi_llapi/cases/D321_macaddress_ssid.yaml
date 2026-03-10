@@ -1,4 +1,6 @@
-id: wifi-llapi-r243-macaddress-ssid
+id: wifi-llapi-D321-macaddress-ssid
+aliases:
+  - wifi-llapi-r243-macaddress-ssid
 name: MACAddress — WiFi.SSID.{i}.
 version: '1.0'
 source:

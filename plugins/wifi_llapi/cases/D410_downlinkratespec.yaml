@@ -1,4 +1,6 @@
-id: wifi-llapi-r303-downlinkratespec
+id: wifi-llapi-D410-downlinkratespec
+aliases:
+  - wifi-llapi-r303-downlinkratespec
 name: DownlinkRateSpec — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

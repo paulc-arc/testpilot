@@ -1,4 +1,6 @@
-id: wifi-llapi-r131-mfpconfig-wps-security
+id: wifi-llapi-D145-mfpconfig-wps-security
+aliases:
+  - wifi-llapi-r131-mfpconfig-wps-security
 name: MFPConfig — WiFi.EndPoint.{i}.Profile.WPS.Security.
 version: '1.0'
 source:

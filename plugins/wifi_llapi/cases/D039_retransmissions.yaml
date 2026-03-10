@@ -1,4 +1,6 @@
-id: wifi-llapi-r034-retransmissions
+id: wifi-llapi-D039-retransmissions
+aliases:
+  - wifi-llapi-r034-retransmissions
 name: Retransmissions — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

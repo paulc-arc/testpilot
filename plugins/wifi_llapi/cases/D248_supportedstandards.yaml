@@ -1,4 +1,6 @@
-id: wifi-llapi-r178-supportedstandards
+id: wifi-llapi-D248-supportedstandards
+aliases:
+  - wifi-llapi-r178-supportedstandards
 name: SupportedStandards — WiFi.Radio.{i}.
 version: '1.0'
 source:

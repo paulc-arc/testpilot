@@ -1,4 +1,6 @@
-id: wifi-llapi-r245-broadcastpacketsreceived
+id: wifi-llapi-D323-broadcastpacketsreceived
+aliases:
+  - wifi-llapi-r245-broadcastpacketsreceived
 name: BroadcastPacketsReceived — WiFi.SSID.{i}.Stats.
 version: '1.0'
 source:

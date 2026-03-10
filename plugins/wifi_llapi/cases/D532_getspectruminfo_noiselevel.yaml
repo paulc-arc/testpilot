@@ -1,4 +1,6 @@
-id: wifi-llapi-r397-getspectruminfo-noiselevel
+id: wifi-llapi-D532-getspectruminfo-noiselevel
+aliases:
+  - wifi-llapi-r397-getspectruminfo-noiselevel
 name: getSpectrumInfo() — WiFi.Radio.{i}.
 version: '1.0'
 source:

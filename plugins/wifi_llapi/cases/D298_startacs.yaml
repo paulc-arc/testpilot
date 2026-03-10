@@ -1,4 +1,6 @@
-id: wifi-llapi-r221-startacs
+id: wifi-llapi-D298-startacs
+aliases:
+  - wifi-llapi-r221-startacs
 name: startACS() — WiFi.Radio.{i}.
 version: '1.0'
 source:

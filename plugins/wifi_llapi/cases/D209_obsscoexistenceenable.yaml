@@ -1,4 +1,6 @@
-id: wifi-llapi-r169-obsscoexistenceenable
+id: wifi-llapi-D209-obsscoexistenceenable
+aliases:
+  - wifi-llapi-r169-obsscoexistenceenable
 name: ObssCoexistenceEnable — WiFi.Radio.{i}.
 version: '1.0'
 source:

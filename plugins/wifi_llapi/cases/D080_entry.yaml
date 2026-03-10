@@ -1,4 +1,6 @@
-id: wifi-llapi-r072-entry
+id: wifi-llapi-D080-entry
+aliases:
+  - wifi-llapi-r072-entry
 name: Entry — WiFi.AccessPoint.{i}.MACFiltering.Entry
 version: '1.0'
 source:

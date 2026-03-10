@@ -1,4 +1,6 @@
-id: wifi-llapi-r036-rxbytes
+id: wifi-llapi-D041-rxbytes
+aliases:
+  - wifi-llapi-r036-rxbytes
 name: RxBytes — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

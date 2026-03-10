@@ -1,4 +1,6 @@
-id: wifi-llapi-r013-downlinkbandwidth
+id: wifi-llapi-D018-downlinkbandwidth
+aliases:
+  - wifi-llapi-r013-downlinkbandwidth
 name: DownlinkBandwidth — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

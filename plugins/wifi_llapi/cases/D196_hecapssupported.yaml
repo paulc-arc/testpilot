@@ -1,4 +1,6 @@
-id: wifi-llapi-r157-hecapssupported
+id: wifi-llapi-D196-hecapssupported
+aliases:
+  - wifi-llapi-r157-hecapssupported
 name: HeCapsSupported — WiFi.Radio.{i}.
 version: '1.0'
 source:

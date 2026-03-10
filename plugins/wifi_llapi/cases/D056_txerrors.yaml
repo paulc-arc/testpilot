@@ -1,4 +1,6 @@
-id: wifi-llapi-r051-txerrors
+id: wifi-llapi-D056-txerrors
+aliases:
+  - wifi-llapi-r051-txerrors
 name: TxErrors — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

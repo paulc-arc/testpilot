@@ -1,4 +1,6 @@
-id: wifi-llapi-r114-getstats-noise
+id: wifi-llapi-D128-getstats-noise
+aliases:
+  - wifi-llapi-r114-getstats-noise
 name: getStats() — WiFi.EndPoint.{i}.
 version: '1.0'
 source:

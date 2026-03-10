@@ -1,4 +1,6 @@
-id: wifi-llapi-r249-discardpacketsreceived
+id: wifi-llapi-D327-discardpacketsreceived
+aliases:
+  - wifi-llapi-r249-discardpacketsreceived
 name: DiscardPacketsReceived — WiFi.SSID.{i}.Stats.
 version: '1.0'
 source:

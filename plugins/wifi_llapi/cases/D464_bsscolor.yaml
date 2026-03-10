@@ -1,4 +1,6 @@
-id: wifi-llapi-r339-bsscolor
+id: wifi-llapi-D464-bsscolor
+aliases:
+  - wifi-llapi-r339-bsscolor
 name: BssColor — WiFi.Radio.{i}.IEEE80211ax.
 version: '1.0'
 source:

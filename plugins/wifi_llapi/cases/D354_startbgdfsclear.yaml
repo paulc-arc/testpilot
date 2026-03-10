@@ -1,4 +1,6 @@
-id: wifi-llapi-r262-startbgdfsclear
+id: wifi-llapi-D354-startbgdfsclear
+aliases:
+  - wifi-llapi-r262-startbgdfsclear
 name: startBgDfsClear() — WiFi.wps_DefParam.
 version: '1.0'
 source:

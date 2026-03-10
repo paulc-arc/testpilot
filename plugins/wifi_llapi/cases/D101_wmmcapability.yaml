@@ -1,4 +1,6 @@
-id: wifi-llapi-r091-wmmcapability
+id: wifi-llapi-D101-wmmcapability
+aliases:
+  - wifi-llapi-r091-wmmcapability
 name: WMMCapability — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:

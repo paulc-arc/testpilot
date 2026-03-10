@@ -1,4 +1,6 @@
-id: wifi-llapi-r121-getstats-securitymodeenabled
+id: wifi-llapi-D135-getstats-securitymodeenabled
+aliases:
+  - wifi-llapi-r121-getstats-securitymodeenabled
 name: getStats() — WiFi.EndPoint.{i}.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r124-getstats-txbytes
+id: wifi-llapi-D138-getstats-txbytes
+aliases:
+  - wifi-llapi-r124-getstats-txbytes
 name: getStats() — WiFi.EndPoint.{i}.
 version: '1.0'
 source:

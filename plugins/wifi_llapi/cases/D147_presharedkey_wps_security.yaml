@@ -1,4 +1,6 @@
-id: wifi-llapi-r133-presharedkey-wps-security
+id: wifi-llapi-D147-presharedkey-wps-security
+aliases:
+  - wifi-llapi-r133-presharedkey-wps-security
 name: PreSharedKey — WiFi.EndPoint.{i}.Profile.WPS.Security.
 version: '1.0'
 source:

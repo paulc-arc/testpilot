@@ -1,4 +1,6 @@
-id: wifi-llapi-r138-activeantennactrl
+id: wifi-llapi-D176-activeantennactrl
+aliases:
+  - wifi-llapi-r138-activeantennactrl
 name: ActiveAntennaCtrl — WiFi.Radio.{i}.
 version: '1.0'
 source:

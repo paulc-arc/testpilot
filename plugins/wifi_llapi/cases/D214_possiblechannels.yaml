@@ -1,4 +1,6 @@
-id: wifi-llapi-r173-possiblechannels
+id: wifi-llapi-D214-possiblechannels
+aliases:
+  - wifi-llapi-r173-possiblechannels
 name: PossibleChannels — WiFi.Radio.{i}.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r402-bytessent-associateddevice-affiliatedsta
+id: wifi-llapi-D579-bytessent-associateddevice-affiliatedsta
+aliases:
+  - wifi-llapi-r402-bytessent-associateddevice-affiliatedsta
 name: BytesSent — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.AffiliatedSTA.​{i}.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r096-selfpin
+id: wifi-llapi-D109-selfpin
+aliases:
+  - wifi-llapi-r096-selfpin
 name: SelfPIN — WiFi.AccessPoint.{i}.WPS.
 version: '1.0'
 source:

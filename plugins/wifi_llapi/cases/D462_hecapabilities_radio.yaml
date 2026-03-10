@@ -1,4 +1,6 @@
-id: wifi-llapi-r337-hecapabilities-radio
+id: wifi-llapi-D462-hecapabilities-radio
+aliases:
+  - wifi-llapi-r337-hecapabilities-radio
 name: HECapabilities — WiFi.Radio.{i}.
 version: '1.0'
 source:

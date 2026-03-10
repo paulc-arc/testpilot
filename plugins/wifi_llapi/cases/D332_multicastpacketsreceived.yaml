@@ -1,4 +1,6 @@
-id: wifi-llapi-r254-multicastpacketsreceived
+id: wifi-llapi-D332-multicastpacketsreceived
+aliases:
+  - wifi-llapi-r254-multicastpacketsreceived
 name: MulticastPacketsReceived — WiFi.SSID.{i}.Stats.
 version: '1.0'
 source:

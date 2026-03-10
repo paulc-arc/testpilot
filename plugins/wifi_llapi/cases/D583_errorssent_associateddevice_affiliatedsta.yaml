@@ -1,4 +1,6 @@
-id: wifi-llapi-r406-errorssent-associateddevice-affiliatedsta
+id: wifi-llapi-D583-errorssent-associateddevice-affiliatedsta
+aliases:
+  - wifi-llapi-r406-errorssent-associateddevice-affiliatedsta
 name: ErrorsSent — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.AffiliatedSTA.​{i}.
 version: '1.0'
 source:

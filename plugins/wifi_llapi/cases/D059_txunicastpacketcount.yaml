@@ -1,4 +1,6 @@
-id: wifi-llapi-r054-txunicastpacketcount
+id: wifi-llapi-D059-txunicastpacketcount
+aliases:
+  - wifi-llapi-r054-txunicastpacketcount
 name: TxUnicastPacketCount — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

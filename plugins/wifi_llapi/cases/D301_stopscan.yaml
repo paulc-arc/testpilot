@@ -1,4 +1,6 @@
-id: wifi-llapi-r224-stopscan
+id: wifi-llapi-D301-stopscan
+aliases:
+  - wifi-llapi-r224-stopscan
 name: stopScan() — WiFi.Radio.{i}.
 version: '1.0'
 source:

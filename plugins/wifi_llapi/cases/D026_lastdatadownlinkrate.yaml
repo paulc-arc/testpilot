@@ -1,4 +1,6 @@
-id: wifi-llapi-r021-lastdatadownlinkrate
+id: wifi-llapi-D026-lastdatadownlinkrate
+aliases:
+  - wifi-llapi-r021-lastdatadownlinkrate
 name: LastDataDownlinkRate — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

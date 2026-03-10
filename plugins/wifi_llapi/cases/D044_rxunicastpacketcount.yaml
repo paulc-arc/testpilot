@@ -1,4 +1,6 @@
-id: wifi-llapi-r039-rxunicastpacketcount
+id: wifi-llapi-D044-rxunicastpacketcount
+aliases:
+  - wifi-llapi-r039-rxunicastpacketcount
 name: RxUnicastPacketCount — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

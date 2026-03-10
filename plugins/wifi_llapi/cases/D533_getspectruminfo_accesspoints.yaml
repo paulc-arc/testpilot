@@ -1,4 +1,6 @@
-id: wifi-llapi-r398-getspectruminfo-accesspoints
+id: wifi-llapi-D533-getspectruminfo-accesspoints
+aliases:
+  - wifi-llapi-r398-getspectruminfo-accesspoints
 name: getSpectrumInfo() — WiFi.Radio.{i}.
 version: '1.0'
 source:

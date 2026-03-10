@@ -1,4 +1,6 @@
-id: wifi-llapi-r094-enable-accesspoint-wps
+id: wifi-llapi-D106-enable-accesspoint-wps
+aliases:
+  - wifi-llapi-r094-enable-accesspoint-wps
 name: Enable — WiFi.AccessPoint.{i}.WPS.
 version: '1.0'
 source:

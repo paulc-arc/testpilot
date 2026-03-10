@@ -1,4 +1,6 @@
-id: wifi-llapi-r324-getradioairstats-inttime
+id: wifi-llapi-D449-getradioairstats-inttime
+aliases:
+  - wifi-llapi-r324-getradioairstats-inttime
 name: getRadioAirStats() — WiFi.Radio.{i}.
 version: '1.0'
 source:

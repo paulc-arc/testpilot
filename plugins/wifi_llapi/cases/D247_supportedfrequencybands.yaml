@@ -1,4 +1,6 @@
-id: wifi-llapi-r177-supportedfrequencybands
+id: wifi-llapi-D247-supportedfrequencybands
+aliases:
+  - wifi-llapi-r177-supportedfrequencybands
 name: SupportedFrequencyBands — WiFi.Radio.{i}.
 version: '1.0'
 source:

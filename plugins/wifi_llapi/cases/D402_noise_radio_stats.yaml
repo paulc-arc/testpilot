@@ -1,4 +1,6 @@
-id: wifi-llapi-r295-noise-radio-stats
+id: wifi-llapi-D402-noise-radio-stats
+aliases:
+  - wifi-llapi-r295-noise-radio-stats
 name: Noise — WiFi.Radio.{i}.Stats.
 version: '1.0'
 source:

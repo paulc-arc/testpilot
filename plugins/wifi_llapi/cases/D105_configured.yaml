@@ -1,4 +1,6 @@
-id: wifi-llapi-r093-configured
+id: wifi-llapi-D105-configured
+aliases:
+  - wifi-llapi-r093-configured
 name: Configured — WiFi.AccessPoint.{i}.WPS.
 version: '1.0'
 source:

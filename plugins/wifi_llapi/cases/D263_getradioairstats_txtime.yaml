@@ -1,4 +1,6 @@
-id: wifi-llapi-r189-getradioairstats-txtime
+id: wifi-llapi-D263-getradioairstats-txtime
+aliases:
+  - wifi-llapi-r189-getradioairstats-txtime
 name: getRadioAirStats() — WiFi.Radio.{i}.
 version: '1.0'
 source:

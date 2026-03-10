@@ -1,4 +1,6 @@
-id: wifi-llapi-r353-ac-be-stats-wmmfailedbytesreceived-radio
+id: wifi-llapi-D488-ac-be-stats-wmmfailedbytesreceived-radio
+aliases:
+  - wifi-llapi-r353-ac-be-stats-wmmfailedbytesreceived-radio
 name: AC_BE — WiFi.Radio.{i}.Stats.WmmFailedBytesReceived.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r241-getssidstats-unknownprotopacketsreceived
+id: wifi-llapi-D318-getssidstats-unknownprotopacketsreceived
+aliases:
+  - wifi-llapi-r241-getssidstats-unknownprotopacketsreceived
 name: getSSIDStats() — WiFi.SSID.{i}.
 version: '1.0'
 source:

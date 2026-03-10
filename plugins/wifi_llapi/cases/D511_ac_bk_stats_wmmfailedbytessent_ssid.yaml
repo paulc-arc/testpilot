@@ -1,4 +1,6 @@
-id: wifi-llapi-r376-ac-bk-stats-wmmfailedbytessent-ssid
+id: wifi-llapi-D511-ac-bk-stats-wmmfailedbytessent-ssid
+aliases:
+  - wifi-llapi-r376-ac-bk-stats-wmmfailedbytessent-ssid
 name: AC_BK — WiFi.SSID.{i}.Stats.WmmFailedbytesSent.
 version: '1.0'
 source:

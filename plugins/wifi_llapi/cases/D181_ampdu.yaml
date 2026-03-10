@@ -1,4 +1,6 @@
-id: wifi-llapi-r142-ampdu
+id: wifi-llapi-D181-ampdu
+aliases:
+  - wifi-llapi-r142-ampdu
 name: Ampdu — WiFi.Radio.{i}.DriverConfig.
 version: '1.0'
 source:

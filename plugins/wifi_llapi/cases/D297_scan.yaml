@@ -1,4 +1,6 @@
-id: wifi-llapi-r220-scan
+id: wifi-llapi-D297-scan
+aliases:
+  - wifi-llapi-r220-scan
 name: scan() — WiFi.Radio.{i}.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r371-ac-be-stats-wmmfailedbytesreceived-ssid
+id: wifi-llapi-D506-ac-be-stats-wmmfailedbytesreceived-ssid
+aliases:
+  - wifi-llapi-r371-ac-be-stats-wmmfailedbytesreceived-ssid
 name: AC_BE — WiFi.SSID.{i}.Stats.WmmFailedBytesReceived.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r102-getstationstats-avgsignalstrength
+id: wifi-llapi-D115-getstationstats-avgsignalstrength
+aliases:
+  - wifi-llapi-r102-getstationstats-avgsignalstrength
 name: getStationStats() — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:

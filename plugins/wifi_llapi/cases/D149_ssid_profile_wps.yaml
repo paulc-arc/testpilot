@@ -1,4 +1,6 @@
-id: wifi-llapi-r135-ssid-profile-wps
+id: wifi-llapi-D149-ssid-profile-wps
+aliases:
+  - wifi-llapi-r135-ssid-profile-wps
 name: SSID — WiFi.EndPoint.{i}.Profile.WPS.
 version: '1.0'
 source:

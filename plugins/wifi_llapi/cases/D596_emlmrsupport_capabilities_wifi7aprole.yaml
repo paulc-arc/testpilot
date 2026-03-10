@@ -1,4 +1,6 @@
-id: wifi-llapi-r409-emlmrsupport-capabilities-wifi7aprole
+id: wifi-llapi-D596-emlmrsupport-capabilities-wifi7aprole
+aliases:
+  - wifi-llapi-r409-emlmrsupport-capabilities-wifi7aprole
 name: EMLMRSupport — WiFi.Radio.{i}.Capabilities.WiFi7APRole.
 version: '1.0'
 source:

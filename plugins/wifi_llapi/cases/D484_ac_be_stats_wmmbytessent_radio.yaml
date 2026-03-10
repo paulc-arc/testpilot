@@ -1,4 +1,6 @@
-id: wifi-llapi-r349-ac-be-stats-wmmbytessent-radio
+id: wifi-llapi-D484-ac-be-stats-wmmbytessent-radio
+aliases:
+  - wifi-llapi-r349-ac-be-stats-wmmbytessent-radio
 name: AC_BE — WiFi.Radio.{i}.Stats.WmmBytesSent.
 version: '1.0'
 source:

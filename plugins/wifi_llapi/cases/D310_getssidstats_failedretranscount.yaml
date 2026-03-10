@@ -1,4 +1,6 @@
-id: wifi-llapi-r233-getssidstats-failedretranscount
+id: wifi-llapi-D310-getssidstats-failedretranscount
+aliases:
+  - wifi-llapi-r233-getssidstats-failedretranscount
 name: getSSIDStats() — WiFi.SSID.{i}.
 version: '1.0'
 source:

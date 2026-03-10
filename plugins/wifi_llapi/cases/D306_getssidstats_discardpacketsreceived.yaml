@@ -1,4 +1,6 @@
-id: wifi-llapi-r229-getssidstats-discardpacketsreceived
+id: wifi-llapi-D306-getssidstats-discardpacketsreceived
+aliases:
+  - wifi-llapi-r229-getssidstats-discardpacketsreceived
 name: getSSIDStats() — WiFi.SSID.{i}.
 version: '1.0'
 source:

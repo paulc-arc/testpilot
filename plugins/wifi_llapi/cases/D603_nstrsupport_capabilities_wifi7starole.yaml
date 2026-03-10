@@ -1,4 +1,6 @@
-id: wifi-llapi-r416-nstrsupport-capabilities-wifi7starole
+id: wifi-llapi-D603-nstrsupport-capabilities-wifi7starole
+aliases:
+  - wifi-llapi-r416-nstrsupport-capabilities-wifi7starole
 name: NSTRSupport — WiFi.Radio.{i}.Capabilities.WiFi7STARole.
 version: '1.0'
 source:

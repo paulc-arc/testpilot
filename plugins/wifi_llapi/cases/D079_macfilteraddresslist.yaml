@@ -1,4 +1,6 @@
-id: wifi-llapi-r071-macfilteraddresslist
+id: wifi-llapi-D079-macfilteraddresslist
+aliases:
+  - wifi-llapi-r071-macfilteraddresslist
 name: MACFilterAddressList — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:

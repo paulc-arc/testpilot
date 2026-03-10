@@ -1,4 +1,6 @@
-id: wifi-llapi-r011-chargeableuserid
+id: wifi-llapi-D016-chargeableuserid
+aliases:
+  - wifi-llapi-r011-chargeableuserid
 name: ChargeableUserId — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

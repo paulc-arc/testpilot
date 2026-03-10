@@ -1,4 +1,6 @@
-id: wifi-llapi-r213-getscanresults-signalnoiseratio
+id: wifi-llapi-D287-getscanresults-signalnoiseratio
+aliases:
+  - wifi-llapi-r213-getscanresults-signalnoiseratio
 name: getScanResults() — WiFi.Radio.{i}.
 version: '1.0'
 source:

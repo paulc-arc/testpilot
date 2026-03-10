@@ -1,4 +1,6 @@
-id: wifi-llapi-r208-getscanresults-encryptionmode
+id: wifi-llapi-D282-getscanresults-encryptionmode
+aliases:
+  - wifi-llapi-r208-getscanresults-encryptionmode
 name: getScanResults() — WiFi.Radio.{i}.
 version: '1.0'
 source:

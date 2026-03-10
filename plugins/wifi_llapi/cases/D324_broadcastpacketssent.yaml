@@ -1,4 +1,6 @@
-id: wifi-llapi-r246-broadcastpacketssent
+id: wifi-llapi-D324-broadcastpacketssent
+aliases:
+  - wifi-llapi-r246-broadcastpacketssent
 name: BroadcastPacketsSent — WiFi.SSID.{i}.Stats.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r255-multicastpacketssent
+id: wifi-llapi-D333-multicastpacketssent
+aliases:
+  - wifi-llapi-r255-multicastpacketssent
 name: MulticastPacketsSent — WiFi.SSID.{i}.Stats.
 version: '1.0'
 source:

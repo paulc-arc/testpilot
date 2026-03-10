@@ -1,4 +1,6 @@
-id: wifi-llapi-r390-ac-vo-stats-wmmpacketsreceived
+id: wifi-llapi-D525-ac-vo-stats-wmmpacketsreceived
+aliases:
+  - wifi-llapi-r390-ac-vo-stats-wmmpacketsreceived
 name: AC_VO — WiFi.SSID.{i}.Stats.WmmPacketsReceived.
 version: '1.0'
 source:

@@ -1,4 +1,6 @@
-id: wifi-llapi-r075-mboenable
+id: wifi-llapi-D083-mboenable
+aliases:
+  - wifi-llapi-r075-mboenable
 name: MBOEnable — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:

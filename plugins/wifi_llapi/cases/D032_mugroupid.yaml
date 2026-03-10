@@ -1,4 +1,6 @@
-id: wifi-llapi-r027-mugroupid
+id: wifi-llapi-D032-mugroupid
+aliases:
+  - wifi-llapi-r027-mugroupid
 name: MUGroupId — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

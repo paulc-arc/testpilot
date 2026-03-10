@@ -1,4 +1,6 @@
-id: wifi-llapi-r042-signalstrength-accesspoint-associateddevice
+id: wifi-llapi-D047-signalstrength-accesspoint-associateddevice
+aliases:
+  - wifi-llapi-r042-signalstrength-accesspoint-associateddevice
 name: SignalStrength — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
 version: '1.0'
 source:

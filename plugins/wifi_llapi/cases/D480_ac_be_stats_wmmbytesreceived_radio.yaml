@@ -1,4 +1,6 @@
-id: wifi-llapi-r345-ac-be-stats-wmmbytesreceived-radio
+id: wifi-llapi-D480-ac-be-stats-wmmbytesreceived-radio
+aliases:
+  - wifi-llapi-r345-ac-be-stats-wmmbytesreceived-radio
 name: AC_BE — WiFi.Radio.{i}.Stats.WmmBytesReceived.
 version: '1.0'
 source:
