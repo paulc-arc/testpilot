@@ -61,12 +61,15 @@ sta_env_setup: |
      sleep 3
      iw dev wl0 link
   3) 6G connect verify (wl1 -> B0_6G_AP, SAE):
-     killall wpa_supplicant 2>/dev/null || true
+     wpa_cli terminate 2>/dev/null || true
+     sleep 1
      iw dev wl1.1 del 2>/dev/null || true
+     iw dev wl1 disconnect 2>/dev/null || true
      iw dev wl1 set type managed
      ifconfig wl1 up
      printf 'ctrl_interface=/var/run/wpa_supplicant\nupdate_config=1\nsae_pwe=2\n' > /tmp/wpa_wl1.conf
      wpa_supplicant -B -D nl80211 -i wl1 -c /tmp/wpa_wl1.conf
+     sleep 2
      wpa_cli -i wl1 remove_network all
      wpa_cli -i wl1 add_network
      wpa_cli -i wl1 set_network 0 ssid '"B0_6G_AP"'
@@ -76,8 +79,9 @@ sta_env_setup: |
      wpa_cli -i wl1 set_network 0 scan_ssid 1
      wpa_cli -i wl1 enable_network 0
      wpa_cli -i wl1 reconnect
-     sleep 10
+     sleep 15
      iw dev wl1 link
+     wpa_cli -i wl1 status
   4) 2.4G connect verify (wl2 -> B0_24G_AP):
      ubus-cli WiFi.AccessPoint.5.Enable=0
      ubus-cli WiFi.AccessPoint.6.Enable=0
@@ -104,57 +108,47 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: '1. Check API default value: ubus-cli WiFi.Radio.*.ExplicitBeamFormingEnabled? > WiFi.Radio.*.ExplicitBeamFormingEnabled?
-    WiFi.Radio.1.ExplicitBeamFormingEnabled=1 WiFi.Radio.2.ExplicitBeamFormingEnabled=1 WiFi.Radio.3.ExplicitBeamFormingEnabled=1'
+  command: 'Check API default value: ubus-cli WiFi.Radio.*.ExplicitBeamFormingEnabled?'
+  capture: result_on
 - id: step2
   action: exec
   target: DUT
-  command: Compare with driver returned value and beacon capability.
+  command: Run wl -i wl0 beacon_info, wl -i wl1 beacon_info, and wl -i wl2 beacon_info; compare the HE Capabilities payload with LLAPI and driver state when API=1.
   depends_on: step1
 - id: step3
   action: exec
   target: DUT
-  command: 'Change the ExplicitBeamFormingEnabled to 0: ubus-cli WiFi.Radio.*.ExplicitBeamFormingEnabled=0'
+  command: 'Change ExplicitBeamFormingEnabled to 0: ubus-cli WiFi.Radio.*.ExplicitBeamFormingEnabled=0'
   depends_on: step2
 - id: step4
   action: exec
   target: DUT
-  command: Compare with driver returned value and beacon capability.
+  command: 'Read back ExplicitBeamFormingEnabled after disable: ubus-cli WiFi.Radio.*.ExplicitBeamFormingEnabled?'
   depends_on: step3
-  capture: result
+  capture: result_off
+- id: step5
+  action: exec
+  target: DUT
+  command: Run wl -i wl0 beacon_info, wl -i wl1 beacon_info, and wl -i wl2 beacon_info again; compare the HE Capabilities payload with LLAPI and driver state when API=0.
+  depends_on: step4
 pass_criteria:
-- field: result.ExplicitBeamFormingEnabled
-  operator: contains
+- field: result_on.ExplicitBeamFormingEnabled
+  operator: equals
   value: '1'
-  description: ExplicitBeamFormingEnabled 應回傳包含 ExplicitBeamFormingEnabled=1
-verification_command: '(API=1)
-
-  root@prplOS:/# wl -i wl0 txbf
-
-  1
-
-  root@prplOS:/# wl -i wl1 txbf
-
-  1
-
-  root@prplOS:/# wl -i wl2 txbf
-
-  1
-
-
-  (API=0)
-
-  root@prplOS:/# wl -i wl0 txbf
-
-  0
-
-  root@prplOS:/# wl -i wl1 txbf
-
-  0
-
-  root@prplOS:/# wl -i wl2 txbf
-
-  0'
+  description: 預設情況下 ExplicitBeamFormingEnabled 應回傳 1。
+- field: result_off.ExplicitBeamFormingEnabled
+  operator: equals
+  value: '0'
+  description: 關閉後 ExplicitBeamFormingEnabled 應回傳 0。
+verification_command: |
+  wl -i wl0 txbf
+  wl -i wl1 txbf
+  wl -i wl2 txbf
+  wl -i wl0 beacon_info
+  wl -i wl1 beacon_info
+  wl -i wl2 beacon_info
+  # Use beacon_info to inspect the HE Capabilities block for beamformer-bit changes.
+  # txbf and beacon_info should both follow the LLAPI setting on the same radio.
 results_reference:
   v4.0.1:
     5g: Fail

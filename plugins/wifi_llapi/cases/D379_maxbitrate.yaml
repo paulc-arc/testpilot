@@ -10,7 +10,7 @@ source:
 platform:
   prplos: 4.0.3
   bdk: 6.3.1
-hlapi_command: ubus-cli WiFi.Radio.{i}.MaxBitRate=0
+hlapi_command: ubus-cli "WiFi.Radio.{i}.MaxBitRate?"
 llapi_support: Support
 implemented_by: Vendor Module
 topology:
@@ -40,9 +40,13 @@ setup_steps: |
      ubus-cli WiFi.AccessPoint.1.Enable=1
      ubus-cli WiFi.AccessPoint.3.Enable=1
      ubus-cli WiFi.AccessPoint.5.Enable=1
-  2) Apply case command context on DUT:
-     ubus-cli WiFi.Radio.{i}.MaxBitRate=0
-  3) For pure query cases, keep configuration unchanged and only collect readback evidence.
+  2) 6G dependency before wl1 association:
+     ubus-cli WiFi.AccessPoint.3.Security.ModeEnabled="WPA3-Personal"
+     ubus-cli WiFi.AccessPoint.3.Security.SAEPassphrase="B0StaTest1234"
+     ubus-cli WiFi.AccessPoint.3.Security.MFPConfig="Required"
+     ubus-cli WiFi.AccessPoint.3.MultiAPType="FronthaulBSS"
+  3) MaxBitRate is read-only; do not attempt to set it.
+  4) Collect readback while the radios are up and while wl1 has an authenticated 6G STA when possible.
 
 sta_env_setup: |
   STA env setup baseline (COM1 / A0, serialwrap):
@@ -61,23 +65,27 @@ sta_env_setup: |
      sleep 3
      iw dev wl0 link
   3) 6G connect verify (wl1 -> B0_6G_AP, SAE):
-     killall wpa_supplicant 2>/dev/null || true
-     iw dev wl1.1 del 2>/dev/null || true
-     iw dev wl1 set type managed
-     ifconfig wl1 up
-     printf 'ctrl_interface=/var/run/wpa_supplicant\nupdate_config=1\nsae_pwe=2\n' > /tmp/wpa_wl1.conf
-     wpa_supplicant -B -D nl80211 -i wl1 -c /tmp/wpa_wl1.conf
-     wpa_cli -i wl1 remove_network all
-     wpa_cli -i wl1 add_network
-     wpa_cli -i wl1 set_network 0 ssid '"B0_6G_AP"'
-     wpa_cli -i wl1 set_network 0 key_mgmt SAE
-     wpa_cli -i wl1 set_network 0 sae_password '"B0StaTest1234"'
-     wpa_cli -i wl1 set_network 0 ieee80211w 2
-     wpa_cli -i wl1 set_network 0 scan_ssid 1
-     wpa_cli -i wl1 enable_network 0
-     wpa_cli -i wl1 reconnect
-     sleep 10
-     iw dev wl1 link
+      wpa_cli terminate 2>/dev/null || true
+      sleep 1
+      iw dev wl1.1 del 2>/dev/null || true
+      iw dev wl1 disconnect 2>/dev/null || true
+      iw dev wl1 set type managed
+      ifconfig wl1 up
+      printf 'ctrl_interface=/var/run/wpa_supplicant\nupdate_config=1\nsae_pwe=2\n' > /tmp/wpa_wl1.conf
+      wpa_supplicant -B -D nl80211 -i wl1 -c /tmp/wpa_wl1.conf
+      sleep 2
+      wpa_cli -i wl1 remove_network all
+      wpa_cli -i wl1 add_network
+      wpa_cli -i wl1 set_network 0 ssid '"B0_6G_AP"'
+      wpa_cli -i wl1 set_network 0 key_mgmt SAE
+      wpa_cli -i wl1 set_network 0 sae_password '"B0StaTest1234"'
+      wpa_cli -i wl1 set_network 0 ieee80211w 2
+      wpa_cli -i wl1 set_network 0 scan_ssid 1
+      wpa_cli -i wl1 enable_network 0
+      wpa_cli -i wl1 reconnect
+      sleep 15
+      iw dev wl1 link
+      wpa_cli -i wl1 status
   4) 2.4G connect verify (wl2 -> B0_24G_AP):
      ubus-cli WiFi.AccessPoint.5.Enable=0
      ubus-cli WiFi.AccessPoint.6.Enable=0
@@ -94,31 +102,39 @@ sta_env_setup: |
      wl -i wl2 assoclist
 
 test_procedure: |
-  1) Execute case command on DUT:
-     ubus-cli WiFi.Radio.{i}.MaxBitRate=0
-  2) LLAPI readback on DUT:
-     ubus-cli "WiFi.Radio.*.MaxBitRate?"
-  3) Cross-check with verification_command (driver/hostapd/iw/proc evidence).
+  1) Bring the radios up and establish the wl1 6G STA link on COM1 so the 6G associated path is exercised.
+  2) Read WiFi.Radio.{i}.MaxBitRate from LLAPI; this is a getter-only API.
+  3) Cross-check with verification_command. The current source path uses `WLC_GET_MAX_RATE` and should not stay `0` when the selected radio rateset is non-empty.
 
 steps:
 - id: step1
   action: exec
   target: DUT
-  command: '1. Read-only API, defines max bitrate for each radio: ubus-cli WiFi.Radio.*.MaxBitRate? > WiFi.Radio.*.MaxBitRate?
-    WiFi.Radio.1.MaxBitRate=0 WiFi.Radio.2.MaxBitRate=0 WiFi.Radio.3.MaxBitRate=0'
+  command: Ensure DUT radios are up and, for wl1, associate COM1 to B0_6G_AP with the sta_env_setup SAE flow before reading MaxBitRate.
+- id: step2
+  action: exec
+  target: DUT
+  command: 'Read MaxBitRate for all radios: ubus-cli WiFi.Radio.*.MaxBitRate?'
+  depends_on: step1
   capture: result
 pass_criteria:
 - field: result.MaxBitRate
-  operator: contains
+  operator: '>'
   value: '0'
-  description: MaxBitRate 應回傳包含 MaxBitRate=0
+  description: MaxBitRate 為 read-only；當 radio 已啟用、supported rateset 非空，且 wl1 的 6G STA 已完成 authentication 時，仍應回傳大於 0 的值，而不是 0。
 
 verification_command: |
-  ubus-cli "WiFi.Radio.*.?" | sed -n "1,200p"
-  ubus-cli "WiFi.Radio.*.MaxBitRate?" 2>/dev/null || true
-  wl -i wl0 status; wl -i wl1 status; wl -i wl2 status
-  wl -i wl0 channel 2>/dev/null || true; wl -i wl1 channel 2>/dev/null || true; wl -i wl2 channel 2>/dev/null || true
-
+  ubus-cli "WiFi.Radio.*.MaxBitRate?"
+  wl -i wl0 status
+  wl -i wl1 status
+  wl -i wl2 status
+  wl -i wl0 rateset
+  wl -i wl1 rateset
+  wl -i wl2 rateset
+  wl -i wl1 assoclist
+  ubus-cli "WiFi.AccessPoint.3.AssociatedDevice.*.AuthenticationState?"
+  # Backend source is WLC_GET_MAX_RATE (500 Kbps units / 2 => Mbps).
+  # Treat LLAPI=0 as fail when rateset is non-empty and wl1 reaches AuthenticationState=1.
 results_reference:
   v4.0.1:
     5g: Fail
@@ -126,7 +142,7 @@ results_reference:
     2.4g: Fail
     comment: 'ARC : This API should not be 0'
   v4.0.3:
-    5g: To be tested
-    6g: To be tested
-    2.4g: To be tested
-    comment: whm_brcm_rad_get_maxbitrate has been implemented. Need pwhm to run
+    5g: Fail
+    6g: Fail
+    2.4g: Fail
+    comment: Serialwrap retest still returns 0 even after wl1 reaches AuthenticationState=1 and all radios show non-empty ratesets.

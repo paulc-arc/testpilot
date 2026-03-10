@@ -40,9 +40,13 @@ setup_steps: |
      ubus-cli WiFi.AccessPoint.1.Enable=1
      ubus-cli WiFi.AccessPoint.3.Enable=1
      ubus-cli WiFi.AccessPoint.5.Enable=1
-  2) Apply case command context on DUT:
+  2) Enable OFDMA prerequisite on DUT:
+     ubus-cli WiFi.Radio.1.OfdmaEnable=1
+     ubus-cli WiFi.Radio.2.OfdmaEnable=1
+     ubus-cli WiFi.Radio.3.OfdmaEnable=1
+  3) Apply case command context on DUT:
      ubus-cli WiFi.Radio.{i}.HeCapsEnabled=DL_OFDMA,UL_OFDMA,DL_MUMIMO
-  3) For pure query cases, keep configuration unchanged and only collect readback evidence.
+  4) For pure query cases, keep configuration unchanged and only collect readback evidence.
 
 sta_env_setup: |
   STA env setup baseline (COM1 / A0, serialwrap):
@@ -61,12 +65,15 @@ sta_env_setup: |
      sleep 3
      iw dev wl0 link
   3) 6G connect verify (wl1 -> B0_6G_AP, SAE):
-     killall wpa_supplicant 2>/dev/null || true
+     wpa_cli terminate 2>/dev/null || true
+     sleep 1
      iw dev wl1.1 del 2>/dev/null || true
+     iw dev wl1 disconnect 2>/dev/null || true
      iw dev wl1 set type managed
      ifconfig wl1 up
      printf 'ctrl_interface=/var/run/wpa_supplicant\nupdate_config=1\nsae_pwe=2\n' > /tmp/wpa_wl1.conf
      wpa_supplicant -B -D nl80211 -i wl1 -c /tmp/wpa_wl1.conf
+     sleep 2
      wpa_cli -i wl1 remove_network all
      wpa_cli -i wl1 add_network
      wpa_cli -i wl1 set_network 0 ssid '"B0_6G_AP"'
@@ -76,8 +83,9 @@ sta_env_setup: |
      wpa_cli -i wl1 set_network 0 scan_ssid 1
      wpa_cli -i wl1 enable_network 0
      wpa_cli -i wl1 reconnect
-     sleep 10
+     sleep 15
      iw dev wl1 link
+     wpa_cli -i wl1 status
   4) 2.4G connect verify (wl2 -> B0_24G_AP):
      ubus-cli WiFi.AccessPoint.5.Enable=0
      ubus-cli WiFi.AccessPoint.6.Enable=0
@@ -104,34 +112,27 @@ steps:
 - id: step1
   action: exec
   target: DUT
-  command: '1. Try enabled all supporting HE capablitities for all readios: ubus-cli WiFi.Radio.*.HeCapsEnabled="DL_OFDMA,UL_OFDMA,DL_MUMIMO,
-    UL_MUMIMO"'
+  command: 'Enable OFDMA then set HeCapsEnabled for all radios: ubus-cli WiFi.Radio.1.OfdmaEnable=1; ubus-cli WiFi.Radio.2.OfdmaEnable=1; ubus-cli WiFi.Radio.3.OfdmaEnable=1; ubus-cli WiFi.Radio.*.HeCapsEnabled="DL_OFDMA,UL_OFDMA,DL_MUMIMO"'
 - id: step2
   action: exec
   target: DUT
-  command: 'Check the settings: ubus-cli WiFi.Radio.*.HeCapsEnabled? > WiFi.Radio.*.HeCapsEnabled? WiFi.Radio.1.HeCapsEnabled="UL_MUMIMO"
-    WiFi.Radio.2.HeCapsEnabled="UL_MUMIMO" WiFi.Radio.3.HeCapsEnabled="UL_MUMIMO"'
+  command: 'Check the settings: ubus-cli WiFi.Radio.*.HeCapsEnabled? > WiFi.Radio.*.HeCapsEnabled? WiFi.Radio.1.HeCapsEnabled="DL_OFDMA,UL_OFDMA,DL_MUMIMO" WiFi.Radio.2.HeCapsEnabled="DL_OFDMA,UL_OFDMA,DL_MUMIMO" WiFi.Radio.3.HeCapsEnabled="DL_OFDMA,UL_OFDMA,DL_MUMIMO"'
   depends_on: step1
   capture: result
 pass_criteria:
 - field: result.HeCapsEnabled
-  operator: contains
+  operator: equals
   value: DL_OFDMA,UL_OFDMA,DL_MUMIMO
-  description: HeCapsEnabled 應回傳包含 HeCapsEnabled=DL_OFDMA,UL_OFDMA,DL_MUMIMO
-verification_command: 'wl -i wl[x] he features
+  description: HeCapsEnabled 應精確回傳已設定的 capability 組合。
+verification_command: |
+  wl -i wl0 he enab
+  wl -i wl1 he enab
+  wl -i wl2 he enab
+  wl -i wl0 he features
+  wl -i wl1 he features
+  wl -i wl2 he features
 
-
-  root@prplOS:/# wl -i wl0 he features
-
-  0 (0x0)
-
-  root@prplOS:/# wl -i wl1 he features
-
-  0 (0x0)
-
-  root@prplOS:/# wl -i wl2 he features
-
-  63 (0x3f)'
+  # With OfdmaEnable=1, DL_OFDMA + UL_OFDMA + DL_MUMIMO should map to 28 (0x1c).
 results_reference:
   v4.0.1:
     5g: Fail

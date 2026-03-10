@@ -10,7 +10,7 @@ source:
 platform:
   prplos: 4.0.3
   bdk: 6.3.1
-hlapi_command: ubus-cli WiFi.SSID.{i}.Stats.MulticastPacketsSent=0
+hlapi_command: ubus-cli "WiFi.SSID.{i}.Stats.MulticastPacketsSent?"
 llapi_support: Support
 implemented_by: pWHM
 topology:
@@ -86,12 +86,15 @@ sta_env_setup: |
      sleep 3
      iw dev wl0 link
   3) 6G connect verify (wl1 -> B0_6G_AP, SAE):
-     killall wpa_supplicant 2>/dev/null || true
+     wpa_cli terminate 2>/dev/null || true
+     sleep 1
      iw dev wl1.1 del 2>/dev/null || true
+     iw dev wl1 disconnect 2>/dev/null || true
      iw dev wl1 set type managed
      ifconfig wl1 up
      printf 'ctrl_interface=/var/run/wpa_supplicant\nupdate_config=1\nsae_pwe=2\n' > /tmp/wpa_wl1.conf
      wpa_supplicant -B -D nl80211 -i wl1 -c /tmp/wpa_wl1.conf
+     sleep 2
      wpa_cli -i wl1 remove_network all
      wpa_cli -i wl1 add_network
      wpa_cli -i wl1 set_network 0 ssid '"B0_6G_AP"'
@@ -101,8 +104,9 @@ sta_env_setup: |
      wpa_cli -i wl1 set_network 0 scan_ssid 1
      wpa_cli -i wl1 enable_network 0
      wpa_cli -i wl1 reconnect
-     sleep 10
+     sleep 15
      iw dev wl1 link
+     wpa_cli -i wl1 status
   4) 2.4G connect verify (wl2 -> B0_24G_AP):
      ubus-cli WiFi.AccessPoint.5.Enable=0
      ubus-cli WiFi.AccessPoint.6.Enable=0
@@ -119,55 +123,35 @@ sta_env_setup: |
      wl -i wl2 assoclist
 
 test_procedure: |
-  1) Execute case command on DUT:
-     ubus-cli WiFi.SSID.{i}.Stats.MulticastPacketsSent=0
-  2) LLAPI readback on DUT:
-     ubus-cli "WiFi.SSID.*.Stats.MulticastPacketsSent?"
-  3) For stats/AssociatedDevice cases, generate traffic (ping/iperf) before re-read.
-  4) STA link validation:
-     iw dev wl0 link
-     iw dev wl1 link
-     wpa_cli -i wl1 status
-     iw dev wl2 link
-  5) Cross-check with verification_command (driver/hostapd/iw/proc evidence).
+  1) Record a baseline value for WiFi.SSID.{i}.Stats.MulticastPacketsSent.
+  2) Generate multicast traffic on the target SSID.
+  3) Read the counter again and confirm it increased from multicast activity.
+  4) Cross-check with verification_command (/proc/net/dev_extstats rather than /proc/net/dev).
 
 steps:
 - id: step1
   action: exec
   target: DUT
-  command: 1. Connect WiFi station to GW
+  command: 'Record MulticastPacketsSent baseline: ubus-cli WiFi.SSID.*.Stats.MulticastPacketsSent?'
 - id: step2
   action: exec
   target: DUT
-  command: Create Multicast group and send Multicast Data between station's and GW Station server = iperf -s -u -B 239.1.2.3%br0
-    -i 1 Station Joiner = iperf -c 239.1.2.3 -u -t 10 -b 20M -i 1 -t 100
+  command: Create multicast group and send multicast data between stations and GW (for example iperf -s -u -B 239.1.2.3%br0 and iperf -c 239.1.2.3 -u).
   depends_on: step1
 - id: step3
   action: exec
   target: DUT
-  command: Check MulticastPacketsSent ubus-cli WiFi.SSID.*.Stats.MulticastPacketsSent? > WiFi.SSID.*.Stats.MulticastPacketsSent?
-    WiFi.SSID.4.Stats.MulticastPacketsSent=0 WiFi.SSID.6.Stats.MulticastPacketsSent=0 WiFi.SSID.8.Stats.MulticastPacketsSent=0
+  command: 'Read MulticastPacketsSent again after multicast traffic: ubus-cli WiFi.SSID.*.Stats.MulticastPacketsSent?'
   depends_on: step2
   capture: result
 pass_criteria:
-- field: result.MulticastPacketsSent
-  operator: contains
-  value: '0'
-  description: MulticastPacketsSent 應回傳包含 MulticastPacketsSent=0
-verification_command: 'cat /proc/net/dev | grep wl0
-
-
-  root@prplOS:/# cat /proc/net/dev
-
-  Inter-| Receive | Transmit
-
-  face |bytes packets errs drop fifo frame compressed multicast|bytes packets errs drop fifo colls carrier compressed
-
-  wl0: 6395774 33265 0 27 0 0 0 1207 153744631 225100 0 102 0 0 0 0
-
-  wl1: 1606749304 1091082 0 10 0 0 0 13511 156618564 251946 0 83 0 0 0 0
-
-  wl2: 903667 2955 0 41 0 0 0 56 52065676 146033 0 180 0 0 0 0'
+- field: result
+  operator: regex
+  value: 'MulticastPacketsSent[^0-9]*[1-9][0-9]*'
+  description: 產生 multicast 流量後，至少一個 SSID 的 MulticastPacketsSent 應為非 0。
+verification_command: |
+  cat /proc/net/dev_extstats | grep -E 'wl0|wl1|wl2'
+  # /proc/net/dev has no TX multicast column; use /proc/net/dev_extstats for SSID TX multicast evidence.
 results_reference:
   v4.0.1:
     5g: Fail

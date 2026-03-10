@@ -10,7 +10,7 @@ source:
 platform:
   prplos: 4.0.3
   bdk: 6.3.1
-hlapi_command: 'ubus-cli WiFi.SSID.{i}.getSSIDStats() MulticastPacketsSent : 0,'
+hlapi_command: ubus-cli "WiFi.SSID.{i}.getSSIDStats()"
 llapi_support: Support
 implemented_by: pWHM
 topology:
@@ -80,12 +80,15 @@ sta_env_setup: |
      sleep 3
      iw dev wl0 link
   3) 6G connect verify (wl1 -> B0_6G_AP, SAE):
-     killall wpa_supplicant 2>/dev/null || true
+     wpa_cli terminate 2>/dev/null || true
+     sleep 1
      iw dev wl1.1 del 2>/dev/null || true
+     iw dev wl1 disconnect 2>/dev/null || true
      iw dev wl1 set type managed
      ifconfig wl1 up
      printf 'ctrl_interface=/var/run/wpa_supplicant\nupdate_config=1\nsae_pwe=2\n' > /tmp/wpa_wl1.conf
      wpa_supplicant -B -D nl80211 -i wl1 -c /tmp/wpa_wl1.conf
+     sleep 2
      wpa_cli -i wl1 remove_network all
      wpa_cli -i wl1 add_network
      wpa_cli -i wl1 set_network 0 ssid '"B0_6G_AP"'
@@ -95,8 +98,9 @@ sta_env_setup: |
      wpa_cli -i wl1 set_network 0 scan_ssid 1
      wpa_cli -i wl1 enable_network 0
      wpa_cli -i wl1 reconnect
-     sleep 10
+     sleep 15
      iw dev wl1 link
+     wpa_cli -i wl1 status
   4) 2.4G connect verify (wl2 -> B0_24G_AP):
      ubus-cli WiFi.AccessPoint.5.Enable=0
      ubus-cli WiFi.AccessPoint.6.Enable=0
@@ -113,54 +117,35 @@ sta_env_setup: |
      wl -i wl2 assoclist
 
 test_procedure: |
-  1) Execute case command on DUT:
-     ubus-cli WiFi.SSID.{i}.getSSIDStats() MulticastPacketsSent : 0,
-  2) LLAPI readback on DUT:
-     ubus-cli "WiFi.SSID.*.getSSIDStats()"
-  3) For stats/AssociatedDevice cases, generate traffic (ping/iperf) before re-read.
-  4) STA link validation:
-     iw dev wl0 link
-     iw dev wl1 link
-     wpa_cli -i wl1 status
-     iw dev wl2 link
-  5) Cross-check with verification_command (driver/hostapd/iw/proc evidence).
+  1) Call getSSIDStats() for the target SSID.
+  2) Generate multicast traffic on that SSID.
+  3) Call getSSIDStats() again and confirm MulticastPacketsSent reflects the traffic.
+  4) Cross-check with verification_command (/proc/net/dev_extstats rather than /proc/net/dev).
 
 steps:
 - id: step1
   action: exec
   target: DUT
-  command: 1. Connect WiFi Station to GW SSID4, SSID6 and SSID8
+  command: Connect WiFi Station to GW SSID4, SSID6 and SSID8.
 - id: step2
   action: exec
   target: DUT
-  command: Send Multicast packet between station
+  command: Send multicast packets between stations.
   depends_on: step1
 - id: step3
   action: exec
   target: DUT
-  command: Get stats MulticastPacketsSent ubus-cli "WiFi.SSID.8.getSSIDStats()" | grep \.MulticastPacketsSent MulticastPacketsSent
-    = 0, ubus-cli "WiFi.SSID.6.getSSIDStats()" | grep \.MulticastPacketsSent MulticastPacketsSent = 0, ubus-cli "WiFi.SSID.4.getSSIDStats()"
-    | grep \.MulticastPacketsSent MulticastPacketsSent = 0,
+  command: 'Get getSSIDStats() after multicast traffic: ubus-cli "WiFi.SSID.8.getSSIDStats()" | grep \.MulticastPacketsSent; ubus-cli "WiFi.SSID.6.getSSIDStats()" | grep \.MulticastPacketsSent; ubus-cli "WiFi.SSID.4.getSSIDStats()" | grep \.MulticastPacketsSent'
   depends_on: step2
   capture: result
 pass_criteria:
 - field: result
-  operator: not_contains
-  value: error
-  description: getSSIDStats() 執行不應回傳 error
-verification_command: 'cat /proc/net/dev | grep wl0
-
-  root@prplOS:/# cat /proc/net/dev | grep -E ''Inter|face|wl0|wl1|wl2''
-
-  Inter-| Receive | Transmit
-
-  face |bytes packets errs drop fifo frame compressed multicast|bytes packets errs drop fifo colls carrier compressed
-
-  wl0: 2158103 10370 0 10 0 0 0 154 3600502 15896 0 58 0 0 0 0
-
-  wl1: 552654 5906 0 10 0 0 0 350 3676486 15621 0 13 0 0 0 0
-
-  wl2: 11812087 173333 0 18 0 0 0 150 476124582 329604 0 5 0 0 0 0'
+  operator: regex
+  value: 'MulticastPacketsSent[^0-9]*[1-9][0-9]*'
+  description: getSSIDStats() 在 multicast 流量後應回傳非 0 的 MulticastPacketsSent。
+verification_command: |
+  cat /proc/net/dev_extstats | grep -E 'wl0|wl1|wl2'
+  # /proc/net/dev has no TX multicast column; use /proc/net/dev_extstats for SSID TX multicast evidence.
 results_reference:
   v4.0.1:
     5g: Fail

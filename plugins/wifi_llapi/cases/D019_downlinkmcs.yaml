@@ -10,7 +10,7 @@ source:
 platform:
   prplos: 4.0.3
   bdk: 6.3.1
-hlapi_command: ubus-cli WiFi.AccessPoint.{i}.AssociatedDevice.{i}.DownlinkMCS=0
+hlapi_command: ubus-cli "WiFi.AccessPoint.{i}.AssociatedDevice.{i}.DownlinkMCS?"
 llapi_support: Support
 implemented_by: pWHM
 topology:
@@ -80,23 +80,27 @@ sta_env_setup: |
      sleep 3
      iw dev wl0 link
   3) 6G connect verify (wl1 -> B0_6G_AP, SAE):
-     killall wpa_supplicant 2>/dev/null || true
-     iw dev wl1.1 del 2>/dev/null || true
-     iw dev wl1 set type managed
-     ifconfig wl1 up
-     printf 'ctrl_interface=/var/run/wpa_supplicant\nupdate_config=1\nsae_pwe=2\n' > /tmp/wpa_wl1.conf
-     wpa_supplicant -B -D nl80211 -i wl1 -c /tmp/wpa_wl1.conf
-     wpa_cli -i wl1 remove_network all
-     wpa_cli -i wl1 add_network
-     wpa_cli -i wl1 set_network 0 ssid '"B0_6G_AP"'
-     wpa_cli -i wl1 set_network 0 key_mgmt SAE
-     wpa_cli -i wl1 set_network 0 sae_password '"B0StaTest1234"'
-     wpa_cli -i wl1 set_network 0 ieee80211w 2
-     wpa_cli -i wl1 set_network 0 scan_ssid 1
-     wpa_cli -i wl1 enable_network 0
-     wpa_cli -i wl1 reconnect
-     sleep 10
-     iw dev wl1 link
+      wpa_cli terminate 2>/dev/null || true
+      sleep 1
+      iw dev wl1.1 del 2>/dev/null || true
+      iw dev wl1 disconnect 2>/dev/null || true
+      iw dev wl1 set type managed
+      ifconfig wl1 up
+      printf 'ctrl_interface=/var/run/wpa_supplicant\nupdate_config=1\nsae_pwe=2\n' > /tmp/wpa_wl1.conf
+      wpa_supplicant -B -D nl80211 -i wl1 -c /tmp/wpa_wl1.conf
+      sleep 2
+      wpa_cli -i wl1 remove_network all
+      wpa_cli -i wl1 add_network
+      wpa_cli -i wl1 set_network 0 ssid '"B0_6G_AP"'
+      wpa_cli -i wl1 set_network 0 key_mgmt SAE
+      wpa_cli -i wl1 set_network 0 sae_password '"B0StaTest1234"'
+      wpa_cli -i wl1 set_network 0 ieee80211w 2
+      wpa_cli -i wl1 set_network 0 scan_ssid 1
+      wpa_cli -i wl1 enable_network 0
+      wpa_cli -i wl1 reconnect
+      sleep 15
+      iw dev wl1 link
+      wpa_cli -i wl1 status
   4) 2.4G connect verify (wl2 -> B0_24G_AP):
      ubus-cli WiFi.AccessPoint.5.Enable=0
      ubus-cli WiFi.AccessPoint.6.Enable=0
@@ -113,40 +117,33 @@ sta_env_setup: |
      wl -i wl2 assoclist
 
 test_procedure: |
-  1) Execute case command on DUT:
-     ubus-cli WiFi.AccessPoint.{i}.AssociatedDevice.{i}.DownlinkMCS=0
-  2) LLAPI readback on DUT:
+  1) Ensure the target-band STA is associated to the DUT.
+  2) Generate DUT -> STA traffic (ping/iperf) before readback so the API reflects live downlink rate instead of the idle cached zero.
+  3) LLAPI readback on DUT:
      ubus-cli "WiFi.AccessPoint.*.AssociatedDevice.*.DownlinkMCS?"
-  3) For stats/AssociatedDevice cases, generate traffic (ping/iperf) before re-read.
-  4) STA link validation:
-     iw dev wl0 link
-     iw dev wl1 link
-     wpa_cli -i wl1 status
-     iw dev wl2 link
-  5) Cross-check with verification_command (driver/hostapd/iw/proc evidence).
+  4) Cross-check with verification_command (driver sta_info evidence).
 
 steps:
 - id: step1
   action: exec
   target: DUT
-  command: 1. Connect WiFi Station to GW.
+  command: Connect WiFi station to GW and generate DUT-to-STA traffic on the active band before reading DownlinkMCS.
 - id: step2
   action: exec
   target: DUT
-  command: Verify Associated Station DownlinkMCS. ubus-cli WiFi.AccessPoint.*.AssociatedDevice.? | grep DownlinkMCS WiFi.AccessPoint.1.AssociatedDevice.1.DownlinkMCS=0
-    WiFi.AccessPoint.3.AssociatedDevice.1.DownlinkMCS=0 WiFi.AccessPoint.5.AssociatedDevice.1.DownlinkMCS=0
+  command: 'Check Associated Station DownlinkMCS while traffic is flowing. ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.DownlinkMCS?'
   depends_on: step1
   capture: result
 pass_criteria:
 - field: result.DownlinkMCS
-  operator: contains
+  operator: not_equals
   value: '0'
-  description: DownlinkMCS 應回傳包含 DownlinkMCS=0
-verification_command: 'root@prplOS:/# wl -i wl0 sta_info 4A:0A:A5:80:23:7B | grep -A 1 ''^rx''
-
-  rx nrate
-
-  eht mcs 8 Nss 2 Tx Exp 0 bw80 ldpc 2xLTF GI 0.8us auto'
+  description: DownlinkMCS 應在有實際 DUT->STA 資料流量時回傳非 0；閒置時的 0 只代表沒有最近的 downlink rspec。
+verification_command: |
+  wl -i wl0 sta_info <STA_MAC> | grep -A 1 '^tx'
+  wl -i wl1 sta_info <STA_MAC> | grep -A 1 '^tx'
+  wl -i wl2 sta_info <STA_MAC> | grep -A 1 '^tx'
+  # tx nrate = AP -> STA = DownlinkMCS source. Do not use rx nrate for this case.
 results_reference:
   v4.0.1:
     5g: Fail
