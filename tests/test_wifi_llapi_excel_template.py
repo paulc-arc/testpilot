@@ -2,6 +2,7 @@ from datetime import date
 from pathlib import Path
 
 from openpyxl import Workbook, load_workbook
+from openpyxl.utils import get_column_letter
 
 from testpilot.reporting.wifi_llapi_excel import (
     WifiLlapiCaseResult,
@@ -23,28 +24,37 @@ def _create_source_xlsx(path: Path) -> None:
     ws["C2"] = "Parameter Name"
     ws["G2"] = "Test steps"
     ws["H2"] = "Command Output"
-    ws["S2"] = "BCM 5g result"
-    ws["T2"] = "BCM 6g result"
-    ws["U2"] = "BCM 2.4g result"
-    ws["V2"] = "BCM Comment"
+    ws["I2"] = "ARC 4.0.3 Test Result\nWiFi 5g"
+    ws["J2"] = "ARC 4.0.3 Test Result\nWiFi 6g"
+    ws["K2"] = "ARC 4.0.3 Test Result\nWiFi 2.4g"
+    ws["L2"] = "Tester"
+    ws["M2"] = "Legacy Extra Band"
+    ws["S1"] = "BCM"
+    ws["S2"] = "BCM v4.0.3 Test Result WiFi 5g"
+    ws["X1"] = "ARC"
+    ws["X2"] = "ARC 4.0.3 Test Result WiFi 5g"
+    ws.merge_cells("I1:Q1")
+    ws.merge_cells("L2:M2")
+    ws.column_dimensions["S"].width = 18
+    ws.column_dimensions["AB"].width = 24
 
     ws["A4"] = "WiFi.AccessPoint.{i}."
     ws["C4"] = "kickStation()"
     ws["G4"] = "old-step"
     ws["H4"] = "old-output"
-    ws["S4"] = "Pass"
-    ws["T4"] = "Pass"
-    ws["U4"] = "Pass"
-    ws["V4"] = "old-comment"
+    ws["I4"] = "Pass"
+    ws["J4"] = "Pass"
+    ws["K4"] = "Pass"
+    ws["L4"] = "old-tester"
 
     ws["A5"] = "WiFi.Radio.{i}."
     ws["C5"] = "scan()"
     ws["G5"] = "old-step2"
     ws["H5"] = "old-output2"
-    ws["S5"] = "Fail"
-    ws["T5"] = "Fail"
-    ws["U5"] = "Fail"
-    ws["V5"] = "old-comment2"
+    ws["I5"] = "Fail"
+    ws["J5"] = "Fail"
+    ws["K5"] = "Fail"
+    ws["L5"] = "old-tester2"
 
     wb.save(path)
     wb.close()
@@ -62,9 +72,20 @@ def test_build_template_from_source(tmp_path: Path):
     wb = load_workbook(template)
     assert wb.sheetnames == ["Wifi_LLAPI"]
     ws = wb["Wifi_LLAPI"]
+    assert ws.max_column == 12
+    assert get_column_letter(ws.max_column) == "L"
+    assert all(r.max_col <= 12 for r in ws.merged_cells.ranges)
+    assert ws["I2"].value == "Result"
+    assert ws["L2"].value == "Tester"
+    assert ws["I3"].value == "WiFi 5G"
+    assert ws["J3"].value == "WiFi 6G"
+    assert ws["K3"].value == "WiFi 2.4G"
+    assert ws["L3"].value == "Tester"
+    assert "S" not in ws.column_dimensions
+    assert "AB" not in ws.column_dimensions
     assert ws["C4"].value == "kickStation()"
     assert ws["C5"].value == "scan()"
-    for cell in ("G4", "H4", "S4", "T4", "U4", "V4", "G5", "H5", "S5", "T5", "U5", "V5"):
+    for cell in ("G4", "H4", "I4", "J4", "K4", "L4", "G5", "H5", "I5", "J5", "K5", "L5"):
         assert ws[cell].value is None
     wb.close()
 
@@ -81,14 +102,13 @@ def test_fill_case_results(tmp_path: Path):
         report,
         [
             WifiLlapiCaseResult(
-                case_id="wifi-llapi-r006-kickstation",
+                case_id="wifi-llapi-D004-kickstation",
                 source_row=4,
                 executed_test_command="ubus-cli ...kickStation...",
                 command_output="assoclist empty",
                 result_5g="Pass",
                 result_6g="Pass",
                 result_24g="Pass",
-                comment="ok",
             )
         ],
     )
@@ -97,10 +117,56 @@ def test_fill_case_results(tmp_path: Path):
     ws = wb["Wifi_LLAPI"]
     assert ws["G4"].value == "ubus-cli ...kickStation..."
     assert ws["H4"].value == "assoclist empty"
-    assert ws["S4"].value == "Pass"
-    assert ws["T4"].value == "Pass"
-    assert ws["U4"].value == "Pass"
-    assert ws["V4"].value == "ok"
+    assert ws["I4"].value == "Pass"
+    assert ws["J4"].value == "Pass"
+    assert ws["K4"].value == "Pass"
+    assert ws["L4"].value == "testpilot"
+    wb.close()
+
+
+def test_fill_case_results_with_merged_row(tmp_path: Path):
+    source = tmp_path / "source.xlsx"
+    template = tmp_path / "wifi_llapi_template.xlsx"
+    report = tmp_path / "20260304_BGW720-B0-403_wifi_LLAPI.xlsx"
+    _create_source_xlsx(source)
+
+    wb = load_workbook(source)
+    ws = wb["Wifi_LLAPI"]
+    ws.merge_cells("G4:G5")
+    ws.merge_cells("H4:H5")
+    ws.merge_cells("I4:I5")
+    ws.merge_cells("J4:J5")
+    ws.merge_cells("K4:K5")
+    ws.merge_cells("L4:L5")
+    wb.save(source)
+    wb.close()
+
+    build_template_from_source(source, template)
+    create_run_report_from_template(template, report)
+
+    fill_case_results(
+        report,
+        [
+            WifiLlapiCaseResult(
+                case_id="wifi-llapi-D005-merged",
+                source_row=5,
+                executed_test_command="cmd-from-merged-row",
+                command_output="out-from-merged-row",
+                result_5g="Fail",
+                result_6g="N/A",
+                result_24g="Pass",
+            )
+        ],
+    )
+
+    wb = load_workbook(report)
+    ws = wb["Wifi_LLAPI"]
+    assert ws["G4"].value == "cmd-from-merged-row"
+    assert ws["H4"].value == "out-from-merged-row"
+    assert ws["I4"].value == "Fail"
+    assert ws["J4"].value == "N/A"
+    assert ws["K4"].value == "Pass"
+    assert ws["L4"].value == "testpilot"
     wb.close()
 
 

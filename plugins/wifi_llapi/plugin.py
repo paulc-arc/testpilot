@@ -2,12 +2,18 @@
 
 from __future__ import annotations
 
+import importlib
+import json
 import logging
 from pathlib import Path
+import re
+import shlex
+import time
 from typing import Any
 
 from testpilot.core.plugin_base import PluginBase
 from testpilot.schema.case_schema import load_cases_dir
+from testpilot.transport.base import StubTransport
 
 log = logging.getLogger(__name__)
 
@@ -18,6 +24,35 @@ class Plugin(PluginBase):
     測試 prplOS WiFi.Radio / WiFi.AccessPoint 的 LLAPI 介面，
     透過 ubus-cli 與 wl 指令驗證參數讀寫與功能正確性。
     """
+
+    CLI_FALLBACK_TOKENS = (
+        "ubus-cli",
+        "wl",
+        "iw",
+        "ifconfig",
+        "wpa_cli",
+        "ping",
+        "arping",
+        "iperf",
+        "cat",
+    )
+    EXECUTABLE_TOKENS = CLI_FALLBACK_TOKENS + (
+        "echo",
+        "printf",
+        "sleep",
+        "killall",
+        "grep",
+        "sed",
+        "awk",
+        "true",
+        "false",
+        "wpa_supplicant",
+    )
+
+    def __init__(self) -> None:
+        self._transports: dict[str, Any] = {}
+        self._device_specs: dict[str, dict[str, Any]] = {}
+        self._sta_env_verified = False
 
     @property
     def name(self) -> str:
@@ -34,31 +69,1134 @@ class Plugin(PluginBase):
     def discover_cases(self) -> list[dict[str, Any]]:
         return load_cases_dir(self.cases_dir)
 
-    def setup_env(self, case: dict[str, Any], topology: Any) -> bool:
-        """佈建 WiFi 測試環境。（Phase 4 完整實作）"""
-        log.info("[%s] setup_env: %s (stub)", self.name, case.get("id"))
+    @staticmethod
+    def _first_non_empty_line(text: str) -> str:
+        for raw in text.splitlines():
+            line = raw.strip()
+            if line:
+                return line
+        return ""
+
+    @staticmethod
+    def _to_float(value: Any, default: float) -> float:
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return default
+
+    @staticmethod
+    def _to_number(value: Any) -> float | None:
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return None
+
+    @staticmethod
+    def _as_mapping(value: Any) -> dict[str, Any]:
+        return value if isinstance(value, dict) else {}
+
+    def _resolve_text(self, topology: Any, text: str) -> str:
+        resolver = getattr(topology, "resolve", None)
+        if callable(resolver):
+            try:
+                return str(resolver(text))
+            except Exception:  # pragma: no cover - defensive
+                log.exception("[%s] resolve failed, keep original text", self.name)
+        return text
+
+    def _load_factory(self) -> Any:
+        try:
+            module = importlib.import_module("testpilot.transport.factory")
+        except Exception as exc:
+            log.warning(
+                "[%s] testpilot.transport.factory unavailable, fallback StubTransport: %s",
+                self.name,
+                exc,
+            )
+            return None
+
+        create_transport = getattr(module, "create_transport", None)
+        if not callable(create_transport):
+            log.warning("[%s] create_transport not callable, fallback StubTransport", self.name)
+            return None
+        return create_transport
+
+    def _create_transport_instance(self, transport_type: str, merged_config: dict[str, Any]) -> Any:
+        create_transport = self._load_factory()
+        if create_transport is None:
+            return StubTransport()
+
+        kwargs_wo_transport = dict(merged_config)
+        kwargs_wo_transport.pop("transport", None)
+        with_transport = dict(kwargs_wo_transport)
+        with_transport.setdefault("transport", transport_type)
+
+        attempts = (
+            lambda: create_transport(transport_type, merged_config),
+            lambda: create_transport(transport=transport_type, config=merged_config),
+            lambda: create_transport(transport_type, **kwargs_wo_transport),
+            lambda: create_transport(**with_transport),
+        )
+
+        for attempt in attempts:
+            try:
+                transport = attempt()
+            except TypeError:
+                continue
+            except Exception as exc:
+                log.warning("[%s] create_transport(%s) failed: %s", self.name, transport_type, exc)
+                return StubTransport()
+            if transport is not None:
+                return transport
+
+        log.warning("[%s] create_transport signature mismatch, fallback StubTransport", self.name)
+        return StubTransport()
+
+    def _connect_transport(self, device: str, transport: Any, merged_config: dict[str, Any]) -> bool:
+        connect_kwargs = dict(merged_config)
+        for key in ("transport", "role", "config"):
+            connect_kwargs.pop(key, None)
+        try:
+            try:
+                transport.connect(**connect_kwargs)
+            except TypeError:
+                transport.connect()
+        except Exception as exc:
+            log.warning("[%s] connect failed for %s: %s", self.name, device, exc)
+            return False
+
+        return bool(getattr(transport, "is_connected", True))
+
+    def _extract_cli_fragment(self, text: str) -> str | None:
+        if not text:
+            return None
+        lines = [line.strip() for line in text.splitlines() if line.strip()]
+        for token in self.CLI_FALLBACK_TOKENS:
+            pattern = re.compile(rf"\b{re.escape(token)}\b")
+            for line in lines:
+                match = pattern.search(line)
+                if not match:
+                    continue
+                fragment = line[match.start():].strip().strip("`'\"")
+                fragment = fragment.rstrip("，。;")
+                fragment = self._sanitize_cli_fragment(fragment)
+                if fragment:
+                    return fragment
+        return None
+
+    @staticmethod
+    def _join_shell_tokens(tokens: list[str]) -> str:
+        operators = {"|", "||", "&&", ";", "(", ")", ">", ">>", "<", "2>", "2>>"}
+        safe_unquoted = re.compile(r"[A-Za-z0-9_./:@%+=,-]+$")
+        parts: list[str] = []
+        for token in tokens:
+            if token in operators:
+                parts.append(token)
+                continue
+            if safe_unquoted.fullmatch(token):
+                parts.append(token)
+            else:
+                parts.append(shlex.quote(token))
+        return " ".join(parts).strip()
+
+    def _trim_transcript_tokens(self, tokens: list[str]) -> list[str]:
+        if not tokens:
+            return []
+
+        cleaned: list[str] = []
+        seen_pipe = False
+        seen_wifi_assignment = False
+
+        for token in tokens:
+            if token in {";", "&&", "||"}:
+                break
+            if token in {">", ">>", "<", "1>", "2>", "2>>"}:
+                break
+            if token in self.CLI_FALLBACK_TOKENS and cleaned:
+                # Stop at next command; each step should execute one command deterministically.
+                break
+            if token.startswith("//") or token.startswith("#"):
+                break
+            if token.startswith(("root@", "__TP_")):
+                break
+
+            lowered = token.lower()
+            if lowered.startswith(("error:", "grep:", "root@")):
+                break
+
+            if token.startswith("WiFi.") and "=" in token:
+                allow_first_assignment = (
+                    bool(cleaned)
+                    and cleaned[0] == "ubus-cli"
+                    and not seen_pipe
+                    and not seen_wifi_assignment
+                )
+                if not allow_first_assignment:
+                    break
+                seen_wifi_assignment = True
+                cleaned.append(token)
+                continue
+
+            cleaned.append(token)
+            if token == "|":
+                seen_pipe = True
+
+        return cleaned
+
+    def _sanitize_cli_fragment(self, fragment: str) -> str:
+        text = fragment.strip()
+        if not text:
+            return ""
+
+        text = re.sub(r"\s+", " ", text).strip()
+        text = text.lstrip("`'\"; ")
+
+        # Force single-command execution: truncate transcript wrappers and chained statements.
+        for marker in ("; __tp_rc", ";__tp_rc", "; __TP_", ";__TP_", "; printf '__TP_", "; printf \"__TP_"):
+            pos = text.find(marker)
+            if pos > 0:
+                text = text[:pos].strip()
+        if ";" in text:
+            text = text.split(";", 1)[0].strip()
+
+        # Remove console prompt / marker tails appended from captured transcript.
+        for marker in (" root@prplOS", " __TP_BEGIN_", " __TP_END_", " __TP_RC_"):
+            pos = text.find(marker)
+            if pos > 0:
+                text = text[:pos].strip()
+
+        # Transcript often embeds "command > expected-output"; keep command side only.
+        if " > " in text:
+            left, right = text.split(" > ", 1)
+            right = right.lstrip()
+            if right.startswith(("WiFi.", "ERROR", "root@", "__TP_")):
+                text = left.strip()
+
+        # In malformed transcript strings, quotes are often unbalanced; remove them to recover.
+        if text.count('"') % 2 == 1:
+            text = text.replace('"', "")
+        if text.count("'") % 2 == 1:
+            text = text.replace("'", "")
+
+        try:
+            tokens = shlex.split(text, posix=True)
+        except ValueError:
+            return text
+
+        trimmed = self._trim_transcript_tokens(tokens)
+        if not trimmed:
+            return text
+        return self._join_shell_tokens(trimmed)
+
+    def _looks_executable(self, command: str) -> bool:
+        stripped = command.strip()
+        if not stripped:
+            return False
+        first = stripped.split(maxsplit=1)[0].strip("`'\"")
+        first_base = first.rsplit("/", 1)[-1]
+        if first_base in self.EXECUTABLE_TOKENS:
+            return True
+        return False
+
+    @staticmethod
+    def _stringify(value: Any) -> str:
+        if value is None:
+            return ""
+        if isinstance(value, dict):
+            lines = [f"{key}={val}" for key, val in value.items()]
+            return "\n".join(lines)
+        if isinstance(value, list):
+            return "\n".join(str(item) for item in value)
+        return str(value)
+
+    @classmethod
+    def _preview_value(cls, value: Any, limit: int = 240) -> str:
+        text = cls._stringify(value).replace("\n", "\\n")
+        if len(text) <= limit:
+            return text
+        return f"{text[:limit]}...(truncated {len(text) - limit} chars)"
+
+    def _select_fallback_command(
+        self,
+        case: dict[str, Any],
+        original_command: str,
+        topology: Any,
+        step_id: str,
+    ) -> tuple[str, str]:
+        fragment = self._extract_cli_fragment(original_command)
+        if fragment:
+            return self._resolve_text(topology, fragment), "extract_from_step_text"
+
+        for field in ("hlapi_command", "verification_command"):
+            raw = str(case.get(field, "")).strip()
+            if not raw:
+                continue
+            fallback = self._extract_cli_fragment(raw) or self._first_non_empty_line(raw)
+            if fallback:
+                return self._resolve_text(topology, fallback), f"fallback_{field}"
+
+        return f'echo "[skip] non-executable step {step_id}"', "fallback_skip_echo"
+
+    @staticmethod
+    def _is_unexecutable_result(result: dict[str, Any]) -> bool:
+        rc = int(result.get("returncode", 1))
+        if rc in (126, 127):
+            return True
+        combined = f"{result.get('stdout', '')}\n{result.get('stderr', '')}".lower()
+        return ("not found" in combined) or ("unknown command" in combined) or ("syntax error" in combined)
+
+    @staticmethod
+    def _extract_key_values(output: str) -> dict[str, Any]:
+        captured: dict[str, Any] = {}
+        if not output:
+            return captured
+
+        try:
+            parsed = json.loads(output)
+            if isinstance(parsed, dict):
+                for key, value in parsed.items():
+                    captured[str(key)] = value
+        except Exception:
+            pass
+
+        pattern = re.compile(r"([A-Za-z0-9_.()/-]+)\s*[:=]\s*\"?([^\"\n,]+)\"?")
+        for line in output.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            # Trim serialwrap wrappers/tails so random rc markers do not pollute captured values.
+            line = re.sub(r"^['\"];\s*", "", line)
+            line = re.sub(
+                r";?\s*__tp_rc=.*$",
+                "",
+                line,
+                flags=re.IGNORECASE,
+            )
+            line = re.sub(
+                r";?\s*printf\s+['\"]__TP_[^'\"]+['\"].*$",
+                "",
+                line,
+                flags=re.IGNORECASE,
+            )
+            line = re.sub(
+                r"__TP_[A-Z_0-9a-f]+__=?[^\s]*",
+                " ",
+                line,
+                flags=re.IGNORECASE,
+            ).strip()
+            if not line:
+                continue
+            for key, value in pattern.findall(line):
+                normalized = value.strip().strip("'\"")
+                normalized = re.sub(
+                    r"\s*__tp_(?:rc|end)_[^\s]*.*$",
+                    "",
+                    normalized,
+                    flags=re.IGNORECASE,
+                ).strip().strip("'\"")
+                if normalized:
+                    captured[key] = normalized
+
+        return captured
+
+    @staticmethod
+    def _normalize_transcript_noise(text: str) -> str:
+        if not text:
+            return ""
+        # Remove serialwrap markers/prompt echoes to reduce random matching noise.
+        cleaned = re.sub(r"__TP_[A-Z_0-9a-f]+__=?[^\s]*", " ", text, flags=re.IGNORECASE)
+        cleaned = re.sub(r"printf\s+['\"]__TP_[^'\"]+['\"]", " ", cleaned, flags=re.IGNORECASE)
+        lines: list[str] = []
+        for raw in cleaned.splitlines():
+            line = raw.strip()
+            if not line:
+                continue
+            line = re.sub(r"^['\"];\s*", "", line)
+            line = re.sub(r";?\s*__tp_rc=.*$", "", line, flags=re.IGNORECASE)
+            line = re.sub(
+                r";?\s*printf\s+['\"]__TP_[^'\"]+['\"].*$",
+                "",
+                line,
+                flags=re.IGNORECASE,
+            )
+            line = line.strip()
+            if not line:
+                continue
+            if line in {">", "$", "#"}:
+                continue
+            if line.startswith("root@"):
+                continue
+            lines.append(line)
+        return "\n".join(lines).strip()
+
+    def _field_fallback_output(self, aggregate_output: str, field: str) -> str:
+        cleaned = self._normalize_transcript_noise(aggregate_output)
+        if not cleaned:
+            return ""
+        key = field.split(".")[-1].strip() if field else ""
+        key = key.rstrip("()")
+        if not key:
+            return cleaned
+
+        pattern = re.compile(rf"(^|[.\s]){re.escape(key)}([:=.\s(]|$)", re.IGNORECASE)
+        matched = [line for line in cleaned.splitlines() if pattern.search(line)]
+        if matched:
+            return "\n".join(matched).strip()
+        return ""
+
+    def _resolve_field(self, payload: dict[str, Any], field: str) -> Any:
+        current: Any = payload
+        for part in field.split("."):
+            if isinstance(current, dict):
+                if part in current:
+                    current = current[part]
+                    continue
+                suffix_matches = [
+                    value
+                    for key, value in current.items()
+                    if isinstance(key, str) and (key == part or key.endswith(f".{part}"))
+                ]
+                if len(suffix_matches) == 1:
+                    current = suffix_matches[0]
+                    continue
+            return None
+        return current
+
+    def _build_eval_context(self, case: dict[str, Any], results: dict[str, Any]) -> dict[str, Any]:
+        step_results = self._as_mapping(results.get("steps"))
+        context: dict[str, Any] = {"steps": {}, "_aggregate_output": ""}
+        aggregate_lines: list[str] = []
+        aggregate_fields: dict[str, Any] = {}
+
+        steps_meta: dict[str, dict[str, Any]] = {}
+        for step in case.get("steps", []):
+            if not isinstance(step, dict):
+                continue
+            step_id = str(step.get("id", "")).strip()
+            if step_id:
+                steps_meta[step_id] = step
+
+        for step_id, result in step_results.items():
+            sid = str(step_id)
+            item = self._as_mapping(result)
+            output = str(item.get("output", ""))
+            parsed = self._extract_key_values(output)
+            user_captured = item.get("captured")
+            if isinstance(user_captured, dict):
+                parsed.update(user_captured)
+
+            step_context = {
+                "success": bool(item.get("success", False)),
+                "output": output,
+                "captured": parsed,
+                "returncode": item.get("returncode"),
+            }
+            context["steps"][sid] = step_context
+            context[sid] = step_context
+            aggregate_fields.update(parsed)
+
+            if output:
+                aggregate_lines.append(output)
+
+            capture_name = str(steps_meta.get(sid, {}).get("capture", "")).strip()
+            if capture_name:
+                context[capture_name] = parsed if parsed else output
+
+        aggregate_output = "\n".join(aggregate_lines).strip()
+        context["_aggregate_output"] = aggregate_output
+        if "result" not in context:
+            context["result"] = aggregate_fields if aggregate_fields else aggregate_output
+        return context
+
+    def _compare(self, actual: Any, operator: str, expected: Any) -> bool:
+        op = operator.strip().lower()
+        actual_text = self._stringify(actual)
+        expected_text = self._stringify(expected)
+
+        if op in {"contains"}:
+            return expected_text in actual_text
+        if op in {"not_contains"}:
+            return expected_text not in actual_text
+        if op in {"equals", "==", "eq"}:
+            return actual_text == expected_text
+        if op in {"!=", "not_equals", "ne"}:
+            return actual_text != expected_text
+        if op in {"regex", "matches"}:
+            try:
+                return re.search(expected_text, actual_text) is not None
+            except re.error:
+                log.warning("[%s] invalid regex: %s", self.name, expected_text)
+                return False
+        if op in {"not_empty"}:
+            return bool(actual_text.strip())
+        if op in {"empty"}:
+            return not actual_text.strip()
+        if op in {">", ">=", "<", "<="}:
+            left_num = self._to_number(actual)
+            right_num = self._to_number(expected)
+            if left_num is not None and right_num is not None:
+                if op == ">":
+                    return left_num > right_num
+                if op == ">=":
+                    return left_num >= right_num
+                if op == "<":
+                    return left_num < right_num
+                return left_num <= right_num
+            if op == ">":
+                return actual_text > expected_text
+            if op == ">=":
+                return actual_text >= expected_text
+            if op == "<":
+                return actual_text < expected_text
+            return actual_text <= expected_text
+
+        log.warning("[%s] unsupported operator: %s", self.name, operator)
+        return False
+
+    def _resolve_ping_target(self, topology: Any, device_name: str) -> str | None:
+        device_cfg: dict[str, Any] = {}
+        try:
+            getter = getattr(topology, "get_device", None)
+            if callable(getter):
+                got = getter(device_name)
+                if isinstance(got, dict):
+                    device_cfg = got
+        except Exception:
+            device_cfg = {}
+
+        for key in ("host", "ip", "management_ip", "lan_ip", "wan_ip"):
+            value = device_cfg.get(key)
+            if value:
+                return self._resolve_text(topology, str(value))
+
+        variables = getattr(topology, "variables", {})
+        if isinstance(variables, dict):
+            for key in (f"{device_name}_IP", f"{device_name.lower()}_ip"):
+                if key in variables and variables[key]:
+                    return self._resolve_text(topology, str(variables[key]))
+        return None
+
+    def _iter_env_script_commands(self, script: str) -> list[tuple[str, str]]:
+        commands: list[tuple[str, str]] = []
+        target = "STA"
+        for raw in script.splitlines():
+            line = raw.strip()
+            if not line:
+                continue
+            lower_line = line.lower()
+            if lower_line.endswith(":"):
+                if "dut" in lower_line:
+                    target = "DUT"
+                    continue
+                if "sta" in lower_line:
+                    target = "STA"
+                    continue
+
+            # Keep exact quoted command for sta_env_setup lines that already
+            # begin with an executable token (e.g. wpa_cli with nested quotes).
+            first_token = line.split(maxsplit=1)[0].strip("`'\"")
+            if first_token in self.CLI_FALLBACK_TOKENS:
+                command = line
+            else:
+                command = self._extract_cli_fragment(line)
+            if command:
+                commands.append((target, command))
+        return commands
+
+    def _run_sta_env_setup(self, case: dict[str, Any], topology: Any) -> bool:
+        sta_setup = case.get("sta_env_setup")
+        if not isinstance(sta_setup, str) or not sta_setup.strip():
+            return True
+
+        case_id = str(case.get("id", ""))
+        for index, (target_name, raw_command) in enumerate(self._iter_env_script_commands(sta_setup), start=1):
+            transport = self._transports.get(target_name)
+            if transport is None:
+                log.warning(
+                    "[%s] verify_env: %s sta_env_setup[%d] missing target transport=%s",
+                    self.name,
+                    case_id,
+                    index,
+                    target_name,
+                )
+                return False
+
+            command = self._resolve_text(topology, raw_command)
+            result = transport.execute(command, timeout=45.0)
+            rc = int(result.get("returncode", 1))
+            if rc != 0:
+                log.warning(
+                    "[%s] verify_env: %s sta_env_setup[%d] failed target=%s rc=%s cmd=%s",
+                    self.name,
+                    case_id,
+                    index,
+                    target_name,
+                    rc,
+                    self._preview_value(command, limit=96),
+                )
+                return False
         return True
 
+    def _run_required_command(
+        self,
+        *,
+        transport: Any,
+        case_id: str,
+        label: str,
+        command: str,
+        timeout: float = 30.0,
+    ) -> bool:
+        result = transport.execute(command, timeout=timeout)
+        rc = int(result.get("returncode", 1))
+        if rc == 0:
+            return True
+        log.warning(
+            "[%s] verify_env: %s %s failed rc=%s cmd=%s out=%s",
+            self.name,
+            case_id,
+            label,
+            rc,
+            self._preview_value(command, limit=120),
+            self._preview_value(result.get("stdout", "")),
+        )
+        return False
+
+    def _connect_with_retry(
+        self,
+        *,
+        transport: Any,
+        case_id: str,
+        label: str,
+        connect_cmd: str,
+        verify_cmd: str,
+        attempts: int = 3,
+        sleep_seconds: int = 3,
+    ) -> bool:
+        for attempt in range(1, max(1, attempts) + 1):
+            self._run_required_command(
+                transport=transport,
+                case_id=case_id,
+                label=f"{label}.connect.{attempt}",
+                command=connect_cmd,
+                timeout=20.0,
+            )
+            self._run_required_command(
+                transport=transport,
+                case_id=case_id,
+                label=f"{label}.sleep.{attempt}",
+                command=f"sleep {sleep_seconds}",
+                timeout=max(5.0, float(sleep_seconds + 2)),
+            )
+            verify_result = transport.execute(verify_cmd, timeout=20.0)
+            if int(verify_result.get("returncode", 1)) == 0:
+                return True
+            log.warning(
+                "[%s] verify_env: %s %s verify attempt=%d failed",
+                self.name,
+                case_id,
+                label,
+                attempt,
+            )
+        return False
+
+    def _run_sta_band_connect_sequence(self, case: dict[str, Any]) -> bool:
+        case_id = str(case.get("id", ""))
+        sta = self._transports.get("STA")
+        if sta is None:
+            return False
+
+        # 5G
+        five_g_prep = (
+            "ubus-cli WiFi.AccessPoint.1.Enable=0",
+            "ubus-cli WiFi.AccessPoint.2.Enable=0",
+            "killall wpa_supplicant 2>/dev/null || true",
+            "iw dev wl0.1 del 2>/dev/null || true",
+            "iw dev wl0 set type managed",
+            "ifconfig wl0 up",
+        )
+        for idx, cmd in enumerate(five_g_prep, start=1):
+            if not self._run_required_command(
+                transport=sta,
+                case_id=case_id,
+                label=f"sta_5g_prep.{idx}",
+                command=cmd,
+            ):
+                return False
+        if not self._connect_with_retry(
+            transport=sta,
+            case_id=case_id,
+            label="sta_5g",
+            connect_cmd="iw dev wl0 connect B0_5G_AP",
+            verify_cmd="iw dev wl0 link | grep -q 'Connected to '",
+            attempts=3,
+            sleep_seconds=3,
+        ):
+            return False
+
+        # 6G (SAE)
+        six_g_prep = (
+            "ubus-cli WiFi.AccessPoint.3.Enable=0",
+            "ubus-cli WiFi.AccessPoint.4.Enable=0",
+            "killall wpa_supplicant 2>/dev/null || true",
+            "iw dev wl1.1 del 2>/dev/null || true",
+            "iw dev wl1 set type managed",
+            "ifconfig wl1 up",
+            "printf 'ctrl_interface=/var/run/wpa_supplicant\\nupdate_config=1\\nsae_pwe=2\\n' > /tmp/wpa_wl1.conf",
+            "mkdir -p /var/run/wpa_supplicant",
+            "wpa_supplicant -B -D nl80211 -i wl1 -c /tmp/wpa_wl1.conf -C /var/run/wpa_supplicant",
+            "sleep 2",
+        )
+        for idx, cmd in enumerate(six_g_prep, start=1):
+            if not self._run_required_command(
+                transport=sta,
+                case_id=case_id,
+                label=f"sta_6g_prep.{idx}",
+                command=cmd,
+            ):
+                return False
+        if not self._connect_with_retry(
+            transport=sta,
+            case_id=case_id,
+            label="sta_6g_ctrl",
+            connect_cmd="wpa_cli -i wl1 ping",
+            verify_cmd="wpa_cli -i wl1 ping | grep -q PONG",
+            attempts=3,
+            sleep_seconds=1,
+        ):
+            return False
+        six_g_network = (
+            "wpa_cli -i wl1 remove_network all",
+            "wpa_cli -i wl1 add_network",
+            "wpa_cli -i wl1 set_network 0 ssid '\"B0_6G_AP\"'",
+            "wpa_cli -i wl1 set_network 0 key_mgmt SAE",
+            "wpa_cli -i wl1 set_network 0 sae_password '\"B0StaTest1234\"'",
+            "wpa_cli -i wl1 set_network 0 ieee80211w 2",
+            "wpa_cli -i wl1 set_network 0 scan_ssid 1",
+            "wpa_cli -i wl1 enable_network 0",
+        )
+        for idx, cmd in enumerate(six_g_network, start=1):
+            if not self._run_required_command(
+                transport=sta,
+                case_id=case_id,
+                label=f"sta_6g_net.{idx}",
+                command=cmd,
+            ):
+                return False
+        if not self._connect_with_retry(
+            transport=sta,
+            case_id=case_id,
+            label="sta_6g",
+            connect_cmd="wpa_cli -i wl1 reconnect",
+            verify_cmd="iw dev wl1 link | grep -q 'Connected to '",
+            attempts=3,
+            sleep_seconds=8,
+        ):
+            return False
+        if not self._run_required_command(
+            transport=sta,
+            case_id=case_id,
+            label="sta_6g_status",
+            command="wpa_cli -i wl1 status | grep -q 'wpa_state=COMPLETED'",
+            timeout=20.0,
+        ):
+            return False
+
+        # 2.4G
+        two_g_prep = (
+            "ubus-cli WiFi.AccessPoint.5.Enable=0",
+            "ubus-cli WiFi.AccessPoint.6.Enable=0",
+            "iw dev wl2.1 del 2>/dev/null || true",
+            "iw dev wl2 set type managed",
+            "ifconfig wl2 up",
+        )
+        for idx, cmd in enumerate(two_g_prep, start=1):
+            if not self._run_required_command(
+                transport=sta,
+                case_id=case_id,
+                label=f"sta_24g_prep.{idx}",
+                command=cmd,
+            ):
+                return False
+        if not self._connect_with_retry(
+            transport=sta,
+            case_id=case_id,
+            label="sta_24g",
+            connect_cmd="iw dev wl2 connect B0_24G_AP",
+            verify_cmd="iw dev wl2 link | grep -q 'Connected to '",
+            attempts=3,
+            sleep_seconds=3,
+        ):
+            return False
+        return True
+
+    def _run_sta_band_baseline(self, case: dict[str, Any]) -> bool:
+        case_id = str(case.get("id", ""))
+        dut = self._transports.get("DUT")
+        if dut is None:
+            return False
+
+        dut_commands = (
+            "ubus-cli WiFi.SSID.4.SSID=B0_5G_AP",
+            "ubus-cli WiFi.SSID.6.SSID=B0_6G_AP",
+            "ubus-cli WiFi.SSID.8.SSID=B0_24G_AP",
+            "ubus-cli WiFi.AccessPoint.1.Security.ModeEnabled=None",
+            "ubus-cli WiFi.AccessPoint.1.Security.MFPConfig=Disabled",
+            "ubus-cli WiFi.AccessPoint.5.Security.ModeEnabled=None",
+            "ubus-cli WiFi.AccessPoint.5.Security.MFPConfig=Disabled",
+            "ubus-cli WiFi.AccessPoint.3.Security.ModeEnabled=WPA3-Personal",
+            "ubus-cli WiFi.AccessPoint.3.Security.SAEPassphrase=B0StaTest1234",
+            "ubus-cli WiFi.AccessPoint.3.Security.MFPConfig=Required",
+            "ubus-cli WiFi.AccessPoint.3.MultiAPType=FronthaulBSS",
+            "ubus-cli WiFi.AccessPoint.1.Enable=1",
+            "ubus-cli WiFi.AccessPoint.3.Enable=1",
+            "ubus-cli WiFi.AccessPoint.5.Enable=1",
+        )
+        for index, command in enumerate(dut_commands, start=1):
+            result = dut.execute(command, timeout=20.0)
+            rc = int(result.get("returncode", 1))
+            if rc != 0:
+                log.warning(
+                    "[%s] verify_env: %s sta_baseline[%d] failed rc=%s cmd=%s",
+                    self.name,
+                    case_id,
+                    index,
+                    rc,
+                    command,
+                )
+                return False
+        return True
+
+    def _verify_sta_band_connectivity(self, case: dict[str, Any]) -> bool:
+        case_id = str(case.get("id", ""))
+        sta = self._transports.get("STA")
+        dut = self._transports.get("DUT")
+        if sta is None or dut is None:
+            return True
+
+        checks = (
+            ("5g", "wl0", "1"),
+            ("6g", "wl1", "3"),
+            ("2.4g", "wl2", "5"),
+        )
+        for band, sta_iface, ap_index in checks:
+            link_result = sta.execute(
+                f"iw dev {sta_iface} link | grep -q 'Connected to '",
+                timeout=15.0,
+            )
+            link_stdout = str(link_result.get("stdout", ""))
+            link_ok = int(link_result.get("returncode", 1)) == 0
+            if not link_ok:
+                log.warning(
+                    "[%s] verify_env: %s STA %s link check failed (iface=%s, rc=%s): %s",
+                    self.name,
+                    case_id,
+                    band,
+                    sta_iface,
+                    int(link_result.get("returncode", 1)),
+                    self._preview_value(link_stdout),
+                )
+                return False
+
+            assoc_result = dut.execute(
+                f"ubus-cli WiFi.AccessPoint.{ap_index}.AssociatedDevice.*.MACAddress? "
+                "| grep -Eiq '([0-9a-f]{2}:){5}[0-9a-f]{2}'",
+                timeout=15.0,
+            )
+            assoc_stdout = str(assoc_result.get("stdout", ""))
+            assoc_ok = int(assoc_result.get("returncode", 1)) == 0
+            if not assoc_ok:
+                log.warning(
+                    "[%s] verify_env: %s DUT %s associated-device check failed (AP=%s, rc=%s): %s",
+                    self.name,
+                    case_id,
+                    band,
+                    ap_index,
+                    int(assoc_result.get("returncode", 1)),
+                    self._preview_value(assoc_stdout),
+                )
+                return False
+        return True
+
+    def _ensure_sta_band_ready(self, case: dict[str, Any], topology: Any) -> bool:
+        del topology
+        if not self._run_sta_band_baseline(case):
+            return False
+        if not self._run_sta_band_connect_sequence(case):
+            return False
+        if not self._verify_sta_band_connectivity(case):
+            return False
+        return True
+
+    def setup_env(self, case: dict[str, Any], topology: Any) -> bool:
+        """佈建 WiFi 測試環境。"""
+        case_id = str(case.get("id", ""))
+        if self._transports:
+            self.teardown(case, topology)
+
+        topo = self._as_mapping(case.get("topology"))
+        devices = self._as_mapping(topo.get("devices"))
+        if not devices:
+            log.warning("[%s] setup_env: %s topology.devices is empty", self.name, case_id)
+            return False
+
+        all_connected = True
+        for device_name, case_device_cfg in devices.items():
+            dev_name = str(device_name)
+            case_cfg = case_device_cfg if isinstance(case_device_cfg, dict) else {}
+
+            testbed_cfg: dict[str, Any] = {}
+            try:
+                getter = getattr(topology, "get_device", None)
+                if callable(getter):
+                    got = getter(dev_name)
+                    if isinstance(got, dict):
+                        testbed_cfg = dict(got)
+            except KeyError:
+                log.warning("[%s] setup_env: %s missing in testbed config, degrade", self.name, dev_name)
+            except Exception:
+                log.exception("[%s] setup_env: get_device failed for %s", self.name, dev_name)
+
+            merged = dict(testbed_cfg)
+            merged.update(case_cfg)
+            transport_type = str(
+                case_cfg.get("transport") or testbed_cfg.get("transport") or "stub"
+            ).strip() or "stub"
+
+            transport = self._create_transport_instance(transport_type, merged)
+            connected = self._connect_transport(dev_name, transport, merged)
+            if not connected:
+                all_connected = False
+                log.warning("[%s] setup_env: %s connect failed", self.name, dev_name)
+
+            self._transports[dev_name] = transport
+            self._device_specs[dev_name] = merged
+
+        log.info(
+            "[%s] setup_env: %s connected=%s devices=%s",
+            self.name,
+            case_id,
+            all_connected,
+            sorted(self._transports.keys()),
+        )
+        return all_connected and bool(self._transports)
+
     def verify_env(self, case: dict[str, Any], topology: Any) -> bool:
-        """驗證 WiFi 連線就緒。（Phase 4 完整實作）"""
-        log.info("[%s] verify_env: %s (stub)", self.name, case.get("id"))
+        """驗證 WiFi 連線就緒。"""
+        case_id = str(case.get("id", ""))
+        dut = self._transports.get("DUT")
+        if dut is None:
+            log.warning("[%s] verify_env: %s missing DUT transport", self.name, case_id)
+            return False
+
+        gate_result = dut.execute('echo "__testpilot_env_gate__"', timeout=10.0)
+        if int(gate_result.get("returncode", 1)) != 0:
+            log.warning("[%s] verify_env: %s DUT gate failed", self.name, case_id)
+            return False
+
+        if "STA" in self._transports:
+            if not self._sta_env_verified:
+                if not self._ensure_sta_band_ready(case, topology):
+                    return False
+                self._sta_env_verified = True
+            elif not self._verify_sta_band_connectivity(case):
+                log.warning(
+                    "[%s] verify_env: %s quick STA band check failed, re-prepare env",
+                    self.name,
+                    case_id,
+                )
+                if not self._ensure_sta_band_ready(case, topology):
+                    return False
+                self._sta_env_verified = True
+
+        env_verify = case.get("env_verify")
+        if not isinstance(env_verify, list):
+            return True
+
+        for index, item in enumerate(env_verify):
+            if not isinstance(item, dict):
+                log.warning("[%s] verify_env: env_verify[%d] invalid, skip", self.name, index)
+                continue
+
+            action = str(item.get("action", "")).strip().lower()
+            if action != "ping":
+                log.warning("[%s] verify_env: unsupported action=%s, skip", self.name, action)
+                continue
+
+            src_name = str(item.get("from", "")).strip()
+            dst_name = str(item.get("to", "")).strip()
+            expect = str(item.get("expect", "pass")).strip().lower()
+            src_transport = self._transports.get(src_name)
+
+            if not src_name or not dst_name or src_transport is None:
+                log.warning(
+                    "[%s] verify_env: ping gate missing endpoint transport (%s -> %s), skip",
+                    self.name,
+                    src_name,
+                    dst_name,
+                )
+                continue
+
+            target = self._resolve_ping_target(topology, dst_name)
+            if not target:
+                log.warning(
+                    "[%s] verify_env: cannot resolve ping target for %s, skip", self.name, dst_name
+                )
+                continue
+
+            command = self._resolve_text(topology, f"ping -c 1 {target}")
+            ping_result = src_transport.execute(command, timeout=10.0)
+            passed = int(ping_result.get("returncode", 1)) == 0
+
+            if expect in {"pass", "ok", "true", "1"} and not passed:
+                log.warning("[%s] verify_env: ping expected pass but failed (%s -> %s)", self.name, src_name, dst_name)
+                return False
+            if expect in {"fail", "false", "0"} and passed:
+                log.warning("[%s] verify_env: ping expected fail but passed (%s -> %s)", self.name, src_name, dst_name)
+                return False
+
         return True
 
     def execute_step(self, case: dict[str, Any], step: dict[str, Any], topology: Any) -> dict[str, Any]:
-        """執行單一 ubus-cli / wl 測試步驟。（Phase 4 完整實作）"""
-        log.info("[%s] execute_step: %s.%s (stub)", self.name, case.get("id"), step.get("id"))
+        """執行單一 ubus-cli / wl 測試步驟。"""
+        step_id = str(step.get("id", "step"))
+        action = str(step.get("action", "exec")).strip().lower()
+        target_name = str(step.get("target", "DUT")).strip() or "DUT"
+        timeout = self._to_float(step.get("timeout"), 30.0)
+
+        if action == "wait":
+            duration = max(0.0, self._to_float(step.get("duration"), 0.0))
+            start = time.monotonic()
+            time.sleep(duration)
+            elapsed = time.monotonic() - start
+            return {
+                "success": True,
+                "output": f"waited {duration:.3f}s",
+                "captured": {"duration": duration},
+                "timing": elapsed,
+            }
+
+        transport = self._transports.get(target_name) or self._transports.get("DUT")
+        if transport is None:
+            return {
+                "success": False,
+                "output": f"transport not found for target={target_name}",
+                "captured": {},
+                "timing": 0.0,
+            }
+
+        raw_command = str(step.get("command", "")).strip()
+        resolved_command = self._resolve_text(topology, raw_command)
+        command_to_run = resolved_command
+        fallback_reason = ""
+
+        # 若 step 文字中夾帶可執行片段（例如自然語言描述 + ubus-cli），優先抽取可執行部分。
+        extracted = self._extract_cli_fragment(command_to_run)
+        if extracted and extracted != command_to_run:
+            command_to_run = extracted
+            fallback_reason = "extract_from_step_text"
+        command_to_run = self._sanitize_cli_fragment(command_to_run)
+
+        if not command_to_run or not self._looks_executable(command_to_run):
+            command_to_run, fallback_reason = self._select_fallback_command(
+                case, raw_command, topology, step_id
+            )
+            command_to_run = self._sanitize_cli_fragment(command_to_run)
+
+        try:
+            result = transport.execute(command_to_run, timeout=timeout)
+        except Exception as exc:
+            log.warning("[%s] execute_step failed: %s.%s err=%s", self.name, case.get("id"), step_id, exc)
+            return {
+                "success": False,
+                "output": str(exc),
+                "captured": {},
+                "timing": 0.0,
+                "command": command_to_run,
+                "fallback_reason": fallback_reason,
+            }
+
+        if not fallback_reason and self._is_unexecutable_result(self._as_mapping(result)):
+            fallback_command, reason = self._select_fallback_command(case, raw_command, topology, step_id)
+            fallback_command = self._sanitize_cli_fragment(fallback_command)
+            if fallback_command != command_to_run:
+                command_to_run = fallback_command
+                fallback_reason = reason
+                result = transport.execute(command_to_run, timeout=timeout)
+
+        result_map = self._as_mapping(result)
+        stdout = str(result_map.get("stdout", ""))
+        stderr = str(result_map.get("stderr", ""))
+        output = "\n".join(chunk for chunk in (stdout, stderr) if chunk).strip()
+        captured = self._extract_key_values(output)
+        elapsed = self._to_float(result_map.get("elapsed"), 0.0)
+        returncode = int(result_map.get("returncode", 1))
+
         return {
-            "success": True,
-            "output": f"[stub] {step.get('command', '')}",
-            "captured": {},
-            "timing": 0.0,
+            "success": returncode == 0,
+            "output": output,
+            "captured": captured,
+            "timing": elapsed,
+            "returncode": returncode,
+            "command": command_to_run,
+            "fallback_reason": fallback_reason,
         }
 
     def evaluate(self, case: dict[str, Any], results: dict[str, Any]) -> bool:
-        """評估通過條件。（Phase 4 完整實作）"""
-        log.info("[%s] evaluate: %s (stub)", self.name, case.get("id"))
+        """評估通過條件。"""
+        context = self._build_eval_context(case, results)
+        aggregate_output = str(context.get("_aggregate_output", ""))
+        criteria = case.get("pass_criteria")
+        if not isinstance(criteria, list) or not criteria:
+            return False
+
+        for idx, criterion in enumerate(criteria):
+            if not isinstance(criterion, dict):
+                log.warning("[%s] evaluate: invalid criteria[%d]", self.name, idx)
+                return False
+
+            field = str(criterion.get("field", "")).strip()
+            operator = str(criterion.get("operator", "contains"))
+            expected = criterion.get("value")
+            reference = str(criterion.get("reference", "")).strip()
+
+            actual = self._resolve_field(context, field) if field else None
+            if actual is None:
+                log.warning("[%s] evaluate: field not found (%s), fallback aggregate output", self.name, field)
+                actual = self._field_fallback_output(aggregate_output, field)
+
+            if expected is None and reference:
+                expected = self._resolve_field(context, reference)
+                if expected is None:
+                    log.warning(
+                        "[%s] evaluate: reference not found (%s), fallback aggregate output",
+                        self.name,
+                        reference,
+                    )
+                    expected = aggregate_output
+
+            if not self._compare(actual, operator, expected):
+                log.info(
+                    "[%s] evaluate failed: field=%s op=%s expected=%s actual=%s",
+                    self.name,
+                    field,
+                    operator,
+                    self._preview_value(expected),
+                    self._preview_value(actual),
+                )
+                return False
+
         return True
 
     def teardown(self, case: dict[str, Any], topology: Any) -> None:
-        """清理環境。（Phase 4 完整實作）"""
-        log.info("[%s] teardown: %s (stub)", self.name, case.get("id"))
+        """清理環境。"""
+        case_id = str(case.get("id", ""))
+        for device_name, transport in list(self._transports.items()):
+            try:
+                disconnect = getattr(transport, "disconnect", None)
+                if callable(disconnect):
+                    disconnect()
+            except Exception as exc:
+                log.warning("[%s] teardown: disconnect failed for %s: %s", self.name, device_name, exc)
+        self._transports.clear()
+        self._device_specs.clear()
+        log.info("[%s] teardown: %s done", self.name, case_id)

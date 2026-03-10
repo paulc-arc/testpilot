@@ -2,7 +2,7 @@
 """
 Generate YAML case descriptors from Wifi_LLAPI xlsx sheet.
 v4: Proper disambiguation with readable filenames.
-    Strategy: build human-readable suffix FIRST, then add r{row} prefix.
+    Strategy: build human-readable suffix FIRST, then add D{row} prefix.
     Collision resolution: hlapi_value → deeper object context → guaranteed unique.
 """
 import re, yaml, sys
@@ -169,14 +169,14 @@ for sfx, row_list in suffix_groups_final.items():
         print(f"  WARN: still duplicate suffix '{sfx}' for rows {row_list} (row prefix ensures uniqueness)")
 
 # ── Build final filenames with row prefix ──
-filenames = {row: f"r{row:03d}_{sfx}" for row, sfx in suffixes.items()}
+filenames = {row: f"D{row:03d}_{sfx}" for row, sfx in suffixes.items()}
 
 # Verify all unique
 all_stems = list(filenames.values())
 assert len(set(all_stems)) == len(all_stems), "Filename collision!"
 
 # ── Remove old files ──
-removed = sum(1 for f in OUT_DIR.glob("r[0-9]*.yaml") if (f.unlink() or True))
+removed = sum(1 for f in OUT_DIR.glob("D[0-9]*.yaml") if (f.unlink() or True))
 print(f"Removed {removed} old files")
 
 # ── Generate YAML ──
@@ -251,10 +251,10 @@ wb.close()
 print(f"Generated {generated} YAML files, all unique: {len(set(filenames.values()))}/{len(filenames)}")
 
 # ── Verify: show previously problematic groups ──
-for label, pat in [("getssidstats", "r*getssidstats*"), ("getradiostats", "r*getradiostats*"),
-                    ("ac_vo", "r*ac_vo*"), ("enable", "r*_enable_*"),
-                    ("discoverymethodenabled", "r*discoverymethodenabled*"),
-                    ("channel", "r*_channel_*"), ("retrycount", "r*retrycount*")]:
+for label, pat in [("getssidstats", "D*getssidstats*"), ("getradiostats", "D*getradiostats*"),
+                    ("ac_vo", "D*ac_vo*"), ("enable", "D*_enable_*"),
+                    ("discoverymethodenabled", "D*discoverymethodenabled*"),
+                    ("channel", "D*_channel_*"), ("retrycount", "D*retrycount*")]:
     files = sorted(OUT_DIR.glob(f"{pat}.yaml"))
     if files:
         print(f"\n--- {label} ({len(files)}) ---")
