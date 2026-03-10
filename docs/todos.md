@@ -9,6 +9,8 @@
 5. Plan Mode：才允許增減項次、重編排序、調整 phase 結構。
 6. 本檔狀態需對齊 `docs/plan.md` 的「現況快照」與 phase 邊界。
 
+---
+
 ## Phase 0：Scaffold
 
 | ID | 項目 | 狀態 | 註記 |
@@ -22,16 +24,16 @@
 | P0-07 | skeleton-orchestrator | done | 已可載入 plugin/cases |
 | P0-08 | wifi-plugin-stub | done | plugin hook 目前仍為 stub |
 | P0-09 | docs-init | done | 已完成 master plan/todos/phases 對齊 |
-| P0-10 | github-push | pending | 尚未標記完成 |
+| P0-10 | github-push | done | v0.0.3-draft tag 已推送 |
 
 ## Phase 1：Transport Layer
 
 | ID | 項目 | 狀態 | 註記 |
 |---|---|---|---|
-| P1-01 | serial-wrap transport | done | 已完成 serialwrap transport（session resolve / submit-status-tail / marker parse），並完成實機全量 wifi_llapi run 驗證 |
-| P1-02 | adb transport | done | 已完成 `src/testpilot/transport/adb.py` |
-| P1-03 | ssh transport | done | 已完成 `src/testpilot/transport/ssh.py` |
-| P1-04 | network utils（ping/arping/iperf） | done | 已完成 `src/testpilot/transport/network.py` |
+| P1-01 | serial-wrap transport | done | 已完成 serialwrap transport，實機全量 run 驗證 |
+| P1-02 | adb transport | done | `src/testpilot/transport/adb.py` |
+| P1-03 | ssh transport | done | `src/testpilot/transport/ssh.py` |
+| P1-04 | network utils（ping/arping/iperf） | done | `src/testpilot/transport/network.py` |
 
 ## Phase 2：Environment Management
 
@@ -45,32 +47,81 @@
 
 | ID | 項目 | 狀態 | 註記 |
 |---|---|---|---|
-| P3-01 | test-runner loop | in_progress | orchestrator 已有 `wifi_llapi` per-case sequential dispatcher；其餘 plugin 仍待完整 runner loop |
+| P3-01 | test-runner loop | in_progress | wifi_llapi per-case dispatcher 已有；其餘 plugin 仍待 |
 | P3-02 | monitor subsystem | pending | 尚未實作 |
-| P3-03 | reporter（MD/JSON） | in_progress | 已有 Wifi_LLAPI Excel reporter；MD/JSON 尚未完成 |
-| P3-04 | verdict merge policy（plugin + agent） | pending | 規格已定，runtime 尚未落地 |
+| P3-03 | reporter（MD/JSON） | in_progress | Excel reporter 已有；MD/JSON 尚未完成 |
+| P3-04 | verdict merge policy | pending | 規格已定，runtime 尚未落地 |
 | P3-05 | post-run remediation loop | pending | 策略已定，runtime 尚未落地 |
 
 ## Phase 4：Wifi_LLAPI Plugin
 
 | ID | 項目 | 狀態 | 註記 |
 |---|---|---|---|
-| P4-01 | wifi-plugin full implementation | done | `setup/verify/execute/evaluate` 已完成 runtime 實作，支援 transport/fallback/evaluate 比對 |
+| P4-01 | wifi-plugin full implementation | done | setup/verify/execute/evaluate 已完成 |
 | P4-02 | case-getRadioStats | done | case 已存在 |
 | P4-03 | case-kickStation | done | case 已存在 |
-| P4-04 | 417 case source 對齊治理 | in_progress | 已完成 row-indexed 官方 415 cases 實機全量 run；2 條 legacy non-row-indexed case（getRadioStats/kickStation）維持獨立治理 |
-| P4-05 | Wifi_LLAPI Excel report pipeline | done | template + run report 已落地，並修正 merged-cell 寫入相容性 |
+| P4-04 | 417 case source 對齊治理 | done | 415 官方 D### + 2 legacy，Case ID 已對齊 |
+| P4-05 | Wifi_LLAPI Excel report pipeline | done | template + run report + merged-cell 相容 |
 
 ## Phase 5：CLI & Integration
 
 | ID | 項目 | 狀態 | 註記 |
 |---|---|---|---|
-| P5-01 | cli-full | in_progress | 已有 `run/list` + `wifi-llapi build-template-report` |
-| P5-02 | orchestrator-full | in_progress | `wifi_llapi` 專屬流程已整合；其他 plugin 仍 skeleton |
-| P5-03 | integration tests（mock transport） | done | 已補齊 transport/plugin/orchestrator realistic runtime 測試 |
-| P5-04 | plugin agent-config schema/runtime | done | 已新增 `src/testpilot/core/agent_runtime.py`，支援 execution/retry/timeout 與 runner selector |
-| P5-05 | agent selection trace | done | 已有 per-case selection/fallback trace，含 unavailable reason |
-| P5-06 | case-agent dispatcher（sequential） | done | `wifi_llapi` 已改為每個 case 獨立 dispatcher（`max_concurrency=1`） |
-| P5-07 | retry-aware timeout policy | done | 已依 attempt 套用遞增 timeout 公式並設上限 |
-| P5-08 | per-case trace artifact writer | done | 已輸出 `reports/agent_trace/<run_id>/<case_id>.json` |
-| P5-09 | integration tests for per-case agent run | done | 新增 `tests/test_orchestrator_per_case_agent.py` 覆蓋 selector/fallback/retry/timeout/trace |
+| P5-01 | cli-full | done | `run/list` + `wifi-llapi build-template-report` |
+| P5-02 | orchestrator-full | in_progress | wifi_llapi 流程已整合；其他 plugin 仍 skeleton |
+| P5-03 | integration tests（mock transport） | done | 已補齊 realistic runtime 測試 |
+| P5-04 | plugin agent-config schema/runtime | done | `agent_runtime.py` |
+| P5-05 | agent selection trace | done | per-case selection/fallback trace |
+| P5-06 | case-agent dispatcher（sequential） | done | per-case dispatcher（max_concurrency=1） |
+| P5-07 | retry-aware timeout policy | done | 遞增 timeout + 上限 |
+| P5-08 | per-case trace artifact writer | done | `reports/agent_trace/<run_id>/` |
+| P5-09 | integration tests for per-case agent | done | selector/fallback/retry/timeout/trace 全覆蓋 |
+
+---
+
+## Phase R1：指令格式與 Report 清理
+
+| ID | 項目 | 狀態 | 對應隱患 | 說明 |
+|---|---|---|---|---|
+| R1-01 | Report 保存不覆蓋 | pending | H3 | 檔名加 run_id，舊報告保留 |
+| R1-02 | xlsx report output 清理 marker | pending | H4 | sanitize_output() 清除 `__TP_*`、`root@prplOS` |
+| R1-03 | xlsx report cmd 欄單行化 | pending | 需求 | G 欄每條指令一行 |
+| R1-04 | YAML 指令單行化工具 | pending | H5 | 批次拆 `&&`/`;` 串接 |
+
+## Phase R2：Orchestrator 解耦
+
+| ID | 項目 | 狀態 | 對應隱患 | 說明 |
+|---|---|---|---|---|
+| R2-01 | 拆分 Orchestrator | pending | H1 | CaseDiscovery / TestRunner / RetryPolicy / ReportCoordinator |
+| R2-02 | Plugin 自宣告執行流程 | pending | H2 | PluginBase.run_pipeline() |
+| R2-03 | Plugin 自宣告 Reporter | pending | H2 | PluginBase.create_reporter() |
+| R2-04 | Retry 歷史保留 | pending | H8 | 所有 attempt 結果存入 list |
+
+## Phase R3：Plugin Template
+
+| ID | 項目 | 狀態 | 對應隱患 | 說明 |
+|---|---|---|---|---|
+| R3-01 | 乾淨 plugin template | pending | 需求 | `plugins/_template/` 完整骨架 |
+| R3-02 | Plugin scaffold CLI | pending | 需求 | `testpilot create-plugin <name>` |
+| R3-03 | Plugin 拆檔示範 | pending | H6 | executor / evaluator / environment / output_parser |
+| R3-04 | PluginBase 瘦身 | pending | H14 | Executable / EnvironmentManager / Evaluator protocol |
+
+## Phase R4：自然語言執行介面
+
+| ID | 項目 | 狀態 | 對應隱患 | 說明 |
+|---|---|---|---|---|
+| R4-01 | Copilot SDK 整合 | pending | 需求 | 取代 dummy agent runtime |
+| R4-02 | 自然語言 case 選擇 | pending | 需求 | 解析自然語言 → case id → 執行 |
+| R4-03 | 自然語言 plugin 建立 | pending | 需求 | agent 從 xlsx 產生 plugin |
+| R4-04 | Hook 確認測試完成 | pending | 需求 | callback 通知 agent |
+
+## Phase R5：可靠性與測試補強
+
+| ID | 項目 | 狀態 | 對應隱患 | 說明 |
+|---|---|---|---|---|
+| R5-01 | serialwrap RC 擷取修正 | pending | H7 | FIRST match 取代 LAST |
+| R5-02 | Plugin loader 改良 | pending | H9 | 移除 sys.path 污染 |
+| R5-03 | openpyxl API 隔離 | pending | H10 | 封裝進 adapter |
+| R5-04 | Session 解析簡化 | pending | H12 | 減少 fallback 層數 |
+| R5-05 | 測試覆蓋 >80% | pending | 品質 | 補邊界條件與 CLI integration |
+| R5-06 | MD/JSON report 實作 | pending | H13 | agent 分析用報告 |
