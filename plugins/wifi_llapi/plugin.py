@@ -986,7 +986,20 @@ class Plugin(PluginBase):
             return False
 
         if "iw dev wl" in lowered_command and " link" in lowered_command:
-            return "Connected to " in output
+            if "not connected" in lowered_output:
+                return False
+            return "connected to " in lowered_output or (
+                "ssid:" in lowered_output
+                and any(
+                    marker in lowered_output
+                    for marker in (
+                        "signal:",
+                        "tx bitrate",
+                        "rx:",
+                        "tx:",
+                    )
+                )
+            )
         if "wpa_cli" in lowered_command and " ping" in lowered_command:
             return "PONG" in output.upper()
         if "wpa_cli" in lowered_command and " status" in lowered_command:

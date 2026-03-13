@@ -7,6 +7,8 @@ import sys
 import types
 from typing import Any
 
+import yaml
+
 from testpilot.core.plugin_loader import PluginLoader
 
 
@@ -483,6 +485,123 @@ def test_setup_env_fails_on_yaml_dut_command_failure(monkeypatch):
 
     assert plugin.setup_env(case, topology=topology) is False
     plugin.teardown(case, topology=topology)
+
+
+def test_env_command_succeeds_for_iw_link_with_ssid_metrics():
+    plugin = _load_plugin()
+
+    result = {
+        "returncode": 0,
+        "stdout": (
+            "SSID: TestPilot_5G\n"
+            "freq: 5180\n"
+            "RX: 266 bytes (2 packets)\n"
+            "TX: 0 bytes (7 packets)\n"
+            "signal: -41 dBm\n"
+            "tx bitrate: 649.9 MBit/s\n"
+        ),
+        "stderr": "",
+        "elapsed": 0.01,
+    }
+
+    assert plugin._env_command_succeeded("iw dev wl0 link", result) is True
+
+
+def test_case_yaml_band_baselines_reset_radio_defaults():
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    required_resets = {
+        "ubus-cli WiFi.SSID.4.SSID={{SSID_5G}}": [
+            "ubus-cli WiFi.Radio.1.BeaconPeriod=100",
+            "ubus-cli WiFi.Radio.1.DTIMPeriod=3",
+            "ubus-cli WiFi.Radio.1.DriverConfig.FragmentationThreshold=-1",
+            "ubus-cli WiFi.Radio.1.DriverConfig.RtsThreshold=-1",
+            "ubus-cli WiFi.Radio.1.DriverConfig.TPCMode=Auto",
+            "ubus-cli WiFi.Radio.1.ExplicitBeamFormingEnabled=1",
+            "ubus-cli WiFi.Radio.1.ImplicitBeamFormingEnabled=1",
+            "ubus-cli WiFi.Radio.1.OfdmaEnable=1",
+            "ubus-cli WiFi.Radio.1.ObssCoexistenceEnable=0",
+            "ubus-cli WiFi.Radio.1.OperatingStandards=ax",
+            "ubus-cli WiFi.Radio.1.RxChainCtrl=-1",
+            "ubus-cli WiFi.Radio.1.TxChainCtrl=-1",
+            "ubus-cli WiFi.Radio.1.Vendor.Brcm.RegulatoryDomainRev=0",
+            "ubus-cli WiFi.Radio.1.Sensing.Enable=1",
+            "ubus-cli WiFi.Radio.1.IEEE80211ax.BssColorPartial=0",
+            "ubus-cli WiFi.Radio.1.IEEE80211ax.NonSRGOBSSPDMaxOffset=0",
+            "ubus-cli WiFi.Radio.1.IEEE80211ax.PSRDisallowed=0",
+            "ubus-cli WiFi.Radio.1.IEEE80211ax.SRGOBSSPDMaxOffset=0",
+            "ubus-cli WiFi.Radio.1.IEEE80211ax.SRGOBSSPDMinOffset=0",
+            "ubus-cli WiFi.Radio.1.LongRetryLimit=6",
+            "ubus-cli WiFi.Radio.1.MultiUserMIMOEnabled=1",
+            "ubus-cli WiFi.Radio.1.TargetWakeTimeEnable=1",
+            "ubus-cli WiFi.AccessPoint.1.IEEE80211u.QoSMapSet=",
+            "ubus-cli WiFi.AccessPoint.2.IEEE80211u.QoSMapSet=",
+        ],
+        "ubus-cli WiFi.SSID.6.SSID={{SSID_6G}}": [
+            "ubus-cli WiFi.Radio.2.BeaconPeriod=100",
+            "ubus-cli WiFi.Radio.2.DTIMPeriod=3",
+            "ubus-cli WiFi.Radio.2.DriverConfig.FragmentationThreshold=-1",
+            "ubus-cli WiFi.Radio.2.DriverConfig.RtsThreshold=-1",
+            "ubus-cli WiFi.Radio.2.DriverConfig.TPCMode=Auto",
+            "ubus-cli WiFi.Radio.2.ExplicitBeamFormingEnabled=1",
+            "ubus-cli WiFi.Radio.2.ImplicitBeamFormingEnabled=1",
+            "ubus-cli WiFi.Radio.2.OfdmaEnable=1",
+            "ubus-cli WiFi.Radio.2.ObssCoexistenceEnable=0",
+            "ubus-cli WiFi.Radio.2.OperatingStandards=ax",
+            "ubus-cli WiFi.Radio.2.RxChainCtrl=-1",
+            "ubus-cli WiFi.Radio.2.TxChainCtrl=-1",
+            "ubus-cli WiFi.Radio.2.Vendor.Brcm.RegulatoryDomainRev=0",
+            "ubus-cli WiFi.Radio.2.Sensing.Enable=1",
+            "ubus-cli WiFi.Radio.2.IEEE80211ax.BssColorPartial=0",
+            "ubus-cli WiFi.Radio.2.IEEE80211ax.NonSRGOBSSPDMaxOffset=0",
+            "ubus-cli WiFi.Radio.2.IEEE80211ax.PSRDisallowed=0",
+            "ubus-cli WiFi.Radio.2.IEEE80211ax.SRGOBSSPDMaxOffset=0",
+            "ubus-cli WiFi.Radio.2.IEEE80211ax.SRGOBSSPDMinOffset=0",
+            "ubus-cli WiFi.Radio.2.LongRetryLimit=6",
+            "ubus-cli WiFi.Radio.2.MultiUserMIMOEnabled=1",
+            "ubus-cli WiFi.Radio.2.TargetWakeTimeEnable=1",
+            "ubus-cli WiFi.AccessPoint.3.IEEE80211u.QoSMapSet=",
+            "ubus-cli WiFi.AccessPoint.4.IEEE80211u.QoSMapSet=",
+        ],
+        "ubus-cli WiFi.SSID.8.SSID={{SSID_24G}}": [
+            "ubus-cli WiFi.Radio.3.BeaconPeriod=100",
+            "ubus-cli WiFi.Radio.3.DTIMPeriod=3",
+            "ubus-cli WiFi.Radio.3.DriverConfig.FragmentationThreshold=-1",
+            "ubus-cli WiFi.Radio.3.DriverConfig.RtsThreshold=-1",
+            "ubus-cli WiFi.Radio.3.DriverConfig.TPCMode=Auto",
+            "ubus-cli WiFi.Radio.3.ExplicitBeamFormingEnabled=1",
+            "ubus-cli WiFi.Radio.3.ImplicitBeamFormingEnabled=1",
+            "ubus-cli WiFi.Radio.3.OfdmaEnable=1",
+            "ubus-cli WiFi.Radio.3.ObssCoexistenceEnable=0",
+            "ubus-cli WiFi.Radio.3.OperatingStandards=ax",
+            "ubus-cli WiFi.Radio.3.RxChainCtrl=-1",
+            "ubus-cli WiFi.Radio.3.TxChainCtrl=-1",
+            "ubus-cli WiFi.Radio.3.Vendor.Brcm.RegulatoryDomainRev=0",
+            "ubus-cli WiFi.Radio.3.Sensing.Enable=1",
+            "ubus-cli WiFi.Radio.3.IEEE80211ax.BssColorPartial=0",
+            "ubus-cli WiFi.Radio.3.IEEE80211ax.NonSRGOBSSPDMaxOffset=0",
+            "ubus-cli WiFi.Radio.3.IEEE80211ax.PSRDisallowed=0",
+            "ubus-cli WiFi.Radio.3.IEEE80211ax.SRGOBSSPDMaxOffset=0",
+            "ubus-cli WiFi.Radio.3.IEEE80211ax.SRGOBSSPDMinOffset=0",
+            "ubus-cli WiFi.Radio.3.LongRetryLimit=6",
+            "ubus-cli WiFi.Radio.3.MultiUserMIMOEnabled=1",
+            "ubus-cli WiFi.Radio.3.TargetWakeTimeEnable=1",
+            "ubus-cli WiFi.AccessPoint.5.IEEE80211u.QoSMapSet=",
+            "ubus-cli WiFi.AccessPoint.6.IEEE80211u.QoSMapSet=",
+        ],
+    }
+
+    for path in sorted(cases_dir.glob("*.yaml")):
+        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        sta_env_setup = str(data.get("sta_env_setup") or "")
+        if not sta_env_setup:
+            continue
+        for anchor, expected_lines in required_resets.items():
+            if anchor not in sta_env_setup:
+                continue
+            for expected in expected_lines:
+                assert expected in sta_env_setup, (
+                    f"{path.name} missing radio baseline reset: {expected}"
+                )
 
 
 def test_run_required_command_retries_after_recovery_signal():
