@@ -2269,6 +2269,7 @@ def test_pending_counter_pass_associateddevice_cases_use_supported_contracts():
         "wifi-llapi-D041-rxbytes",
         "wifi-llapi-D043-rxpacketcount",
         "wifi-llapi-D058-txpacketcount",
+        "wifi-llapi-D061-uplinkbandwidth",
     }.issubset(discoverable_ids)
 
     pass_cases = {
@@ -2293,6 +2294,13 @@ def test_pending_counter_pass_associateddevice_cases_use_supported_contracts():
             "driver_token": "DriverTxPacketCount=",
             "driver_field": "driver_counter.DriverTxPacketCount",
         },
+        "D061_uplinkbandwidth.yaml": {
+            "id": "wifi-llapi-D061-uplinkbandwidth",
+            "row": 61,
+            "api": "UplinkBandwidth",
+            "driver_token": "DriverUplinkBandwidth=",
+            "driver_field": "driver_counter.DriverUplinkBandwidth",
+        },
     }
 
     for filename, meta in pass_cases.items():
@@ -2311,6 +2319,9 @@ def test_pending_counter_pass_associateddevice_cases_use_supported_contracts():
         assert "MACAddress?" in commands
         assert "DriverAssocMac=" in commands
         assert meta["driver_token"] in commands
+        if filename == "D061_uplinkbandwidth.yaml":
+            assert "sed -n '/rx nrate/,$p'" in commands
+            assert "head -n 1" in commands
         assert any(
             criterion["field"] == f'result.{meta["api"]}'
             and criterion["operator"] == "regex"
@@ -2365,6 +2376,11 @@ def test_pending_counter_pass_associateddevice_cases_evaluate_live_examples():
             "api": "TxPacketCount",
             "driver_output": "DriverTxPacketCount=12956",
             "driver_fail_output": "DriverTxPacketCount=0",
+        },
+        "D061_uplinkbandwidth.yaml": {
+            "api": "UplinkBandwidth",
+            "driver_output": "DriverUplinkBandwidth=20",
+            "driver_fail_output": "DriverUplinkBandwidth=0",
         },
     }
 
@@ -3347,6 +3363,7 @@ def test_sta_env_setup_parser_preserves_wpa_cli_quoted_value():
         "D045_securitymodeenabled.yaml",
         "D047_signalstrength_accesspoint_associateddevice.yaml",
         "D058_txpacketcount.yaml",
+        "D061_uplinkbandwidth.yaml",
         "D060_uniibandscapabilities.yaml",
     ],
 )
@@ -3464,6 +3481,7 @@ def test_extract_cli_fragments_ignores_prose_after_ubus_keyword():
         ("D047_signalstrength_accesspoint_associateddevice.yaml", 2, "DriverSignalStrength="),
         ("D051_supportedmcs.yaml", 2, "DriverMCSSetPresent="),
         ("D058_txpacketcount.yaml", 2, "DriverTxPacketCount="),
+        ("D061_uplinkbandwidth.yaml", 2, "DriverUplinkBandwidth="),
         ("D060_uniibandscapabilities.yaml", 2, "DriverUNIIBandsCapabilities="),
     ],
 )
