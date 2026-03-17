@@ -349,16 +349,25 @@ class Plugin(PluginBase):
         if text.count("WiFi.") > 1 or "?" in text or "|" in text:
             text = re.sub(r"\s+WiFi\.[A-Za-z0-9_.{}-]+\s*=\s*.*$", "", text).strip()
 
+        text = self._truncate_ubus_function_tail(text)
+
+        if self._looks_shell_command(text):
+            stripped = text.strip()
+            # Complex shell fragments may legitimately contain an odd total number of quote
+            # characters across nested sed/grep expressions; preserve them as-authored.
+            if (
+                "$(" in stripped
+                or re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", stripped)
+                or any(op in stripped for op in ("&&", "||", ";", "|"))
+            ):
+                return stripped
+            return self._quote_ubus_operand(stripped)
+
         # In malformed transcript strings, quotes are often unbalanced; remove them to recover.
         if text.count('"') % 2 == 1:
             text = text.replace('"', "")
         if text.count("'") % 2 == 1:
             text = text.replace("'", "")
-
-        text = self._truncate_ubus_function_tail(text)
-
-        if self._looks_shell_command(text):
-            return self._quote_ubus_operand(text.strip())
 
         try:
             tokens = shlex.split(text, posix=True)
