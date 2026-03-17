@@ -1877,6 +1877,141 @@ def test_pending_mu_stub_cases_evaluate_live_examples():
         assert plugin.evaluate(case_data, fail_results) is False
 
 
+def test_pending_failure_shaped_associateddevice_cases_use_supported_contracts():
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    plugin = _load_plugin()
+    discoverable_ids = {case["id"] for case in plugin.discover_cases()}
+    assert {
+        "wifi-llapi-D036-noise-accesspoint-associateddevice",
+        "wifi-llapi-D038-powersave",
+    }.issubset(discoverable_ids)
+
+    failure_cases = {
+        "D036_noise_accesspoint_associateddevice.yaml": {
+            "id": "wifi-llapi-D036-noise-accesspoint-associateddevice",
+            "row": 36,
+            "api": "Noise",
+            "driver_token": "DriverNoise=",
+            "driver_field": "driver_noise.DriverNoise",
+            "driver_operator": "<",
+            "driver_value": "0",
+        },
+        "D038_powersave.yaml": {
+            "id": "wifi-llapi-D038-powersave",
+            "row": 38,
+            "api": "PowerSave",
+            "driver_token": "DriverPowerSaveFlags=",
+            "driver_field": "driver_flags.DriverPowerSaveFlags",
+            "driver_operator": "contains",
+            "driver_value": "APSD_BE",
+        },
+    }
+
+    for filename, meta in failure_cases.items():
+        raw_case = yaml.safe_load((cases_dir / filename).read_text(encoding="utf-8"))
+        case_data = load_case(cases_dir / filename)
+        commands = "\n".join(str(step.get("command", "")) for step in case_data["steps"])
+        links = {link["band"] for link in case_data["topology"]["links"]}
+
+        assert "aliases" not in raw_case
+        assert case_data["id"] == meta["id"]
+        assert case_data["source"]["row"] == meta["row"]
+        assert case_data["source"]["baseline"] == "BCM v4.0.3"
+        assert case_data["bands"] == ["5g"]
+        assert links == {"5g"}
+        assert case_data["hlapi_command"] == f'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.{meta["api"]}?"'
+        assert "MACAddress?" in commands
+        assert meta["driver_token"] in commands
+        assert any(
+            criterion["field"] == f'result.{meta["api"]}'
+            and criterion["operator"] == "equals"
+            and str(criterion["value"]) == "0"
+            for criterion in case_data["pass_criteria"]
+        )
+        assert any(
+            criterion["field"] == meta["driver_field"]
+            and criterion["operator"] == meta["driver_operator"]
+            and str(criterion["value"]) == meta["driver_value"]
+            for criterion in case_data["pass_criteria"]
+        )
+        assert case_data["results_reference"]["v4.0.3"]["5g"] == "Fail"
+        assert case_data["results_reference"]["v4.0.3"]["6g"] == "N/A"
+        assert case_data["results_reference"]["v4.0.3"]["2.4g"] == "N/A"
+
+
+def test_pending_failure_shaped_associateddevice_cases_evaluate_live_examples():
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+
+    d036 = load_case(cases_dir / "D036_noise_accesspoint_associateddevice.yaml")
+    d036_results = {
+        "steps": {
+            "step1": {
+                "success": True,
+                "output": 'WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress="2C:59:17:00:04:85"',
+                "timing": 0.01,
+            },
+            "step2": {
+                "success": True,
+                "output": "WiFi.AccessPoint.1.AssociatedDevice.1.Noise=0",
+                "timing": 0.01,
+            },
+            "step3": {
+                "success": True,
+                "output": "DriverNoise=-85",
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d036, d036_results) is True
+
+    d036_fail_results = {
+        "steps": {
+            **d036_results["steps"],
+            "step3": {
+                "success": True,
+                "output": "DriverNoise=0",
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d036, d036_fail_results) is False
+
+    d038 = load_case(cases_dir / "D038_powersave.yaml")
+    d038_results = {
+        "steps": {
+            "step1": {
+                "success": True,
+                "output": 'WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress="2C:59:17:00:04:85"',
+                "timing": 0.01,
+            },
+            "step2": {
+                "success": True,
+                "output": "WiFi.AccessPoint.1.AssociatedDevice.1.PowerSave=0",
+                "timing": 0.01,
+            },
+            "step3": {
+                "success": True,
+                "output": "DriverPowerSaveFlags=APSD_BE,APSD_BK,APSD_VI,APSD_VO",
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d038, d038_results) is True
+
+    d038_fail_results = {
+        "steps": {
+            **d038_results["steps"],
+            "step3": {
+                "success": True,
+                "output": "DriverPowerSaveFlags=WME",
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d038, d038_fail_results) is False
+
+
 def test_run_required_command_retries_after_recovery_signal():
     plugin = _load_plugin()
     calls: list[str] = []
