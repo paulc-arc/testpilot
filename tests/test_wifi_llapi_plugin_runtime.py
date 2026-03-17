@@ -1352,6 +1352,147 @@ def test_pending_readonly_associateddevice_cases_evaluate_live_examples():
     assert plugin.evaluate(d015, d015_fail_results) is False
 
 
+def test_pending_boolean_and_frequency_cases_use_supported_contracts():
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    plugin = _load_plugin()
+    discoverable_ids = {case["id"] for case in plugin.discover_cases()}
+    assert {
+        "wifi-llapi-D020-downlinkshortguard",
+        "wifi-llapi-D022-frequencycapabilities",
+    }.issubset(discoverable_ids)
+
+    d020 = load_case(cases_dir / "D020_downlinkshortguard.yaml")
+    d020_commands = "\n".join(str(step.get("command", "")) for step in d020["steps"])
+    d020_links = {link["band"] for link in d020["topology"]["links"]}
+    assert d020_links == {"5g", "2.4g"}
+    assert "operator: in" not in yaml.safe_dump(d020["pass_criteria"])
+    assert "wl -i wl0 assoclist" in d020_commands
+    assert "wl -i wl2 assoclist" in d020_commands
+    assert any(
+        criterion["field"] == "result_5g.DownlinkShortGuard"
+        and criterion["operator"] == "equals"
+        and str(criterion["value"]) == "1"
+        for criterion in d020["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "result_24g.DownlinkShortGuard"
+        and criterion["operator"] == "equals"
+        and str(criterion["value"]) == "1"
+        for criterion in d020["pass_criteria"]
+    )
+
+    d022 = load_case(cases_dir / "D022_frequencycapabilities.yaml")
+    d022_commands = "\n".join(str(step.get("command", "")) for step in d022["steps"])
+    d022_links = {link["band"] for link in d022["topology"]["links"]}
+    assert d022_links == {"5g", "2.4g"}
+    assert "wl -i wl0 assoclist" in d022_commands
+    assert "wl -i wl2 assoclist" in d022_commands
+    assert any(
+        criterion["field"] == "result_5g.FrequencyCapabilities"
+        and criterion["operator"] == "equals"
+        and criterion["value"] == "5GHz"
+        for criterion in d022["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "result_24g.FrequencyCapabilities"
+        and criterion["operator"] == "empty"
+        for criterion in d022["pass_criteria"]
+    )
+
+
+def test_pending_boolean_and_frequency_cases_evaluate_live_examples():
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+
+    d020 = load_case(cases_dir / "D020_downlinkshortguard.yaml")
+    d020_results = {
+        "steps": {
+            "step1_5g_assoc": {
+                "success": True,
+                "output": "AssocMac5g=2c:59:17:00:04:85",
+                "captured": {"AssocMac5g": "2c:59:17:00:04:85"},
+                "timing": 0.01,
+            },
+            "step2_5g": {
+                "success": True,
+                "output": "WiFi.AccessPoint.1.AssociatedDevice.1.DownlinkShortGuard=1",
+                "captured": {"DownlinkShortGuard": "1"},
+                "timing": 0.01,
+            },
+            "step4_24g_assoc": {
+                "success": True,
+                "output": "AssocMac24g=2c:59:17:00:04:97",
+                "captured": {"AssocMac24g": "2c:59:17:00:04:97"},
+                "timing": 0.01,
+            },
+            "step5_24g": {
+                "success": True,
+                "output": "WiFi.AccessPoint.5.AssociatedDevice.1.DownlinkShortGuard=1",
+                "captured": {"DownlinkShortGuard": "1"},
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d020, d020_results) is True
+
+    d020_fail_results = {
+        "steps": {
+            **d020_results["steps"],
+            "step5_24g": {
+                "success": True,
+                "output": "WiFi.AccessPoint.5.AssociatedDevice.1.DownlinkShortGuard=0",
+                "captured": {"DownlinkShortGuard": "0"},
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d020, d020_fail_results) is False
+
+    d022 = load_case(cases_dir / "D022_frequencycapabilities.yaml")
+    d022_results = {
+        "steps": {
+            "step1_5g_assoc": {
+                "success": True,
+                "output": "AssocMac5g=2c:59:17:00:04:85",
+                "captured": {"AssocMac5g": "2c:59:17:00:04:85"},
+                "timing": 0.01,
+            },
+            "step2_5g": {
+                "success": True,
+                "output": 'WiFi.AccessPoint.1.AssociatedDevice.1.FrequencyCapabilities="5GHz"',
+                "captured": {"FrequencyCapabilities": "5GHz"},
+                "timing": 0.01,
+            },
+            "step4_24g_assoc": {
+                "success": True,
+                "output": "AssocMac24g=2c:59:17:00:04:97",
+                "captured": {"AssocMac24g": "2c:59:17:00:04:97"},
+                "timing": 0.01,
+            },
+            "step5_24g": {
+                "success": True,
+                "output": 'WiFi.AccessPoint.5.AssociatedDevice.1.FrequencyCapabilities=""',
+                "captured": {"FrequencyCapabilities": ""},
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d022, d022_results) is True
+
+    d022_fail_results = {
+        "steps": {
+            **d022_results["steps"],
+            "step2_5g": {
+                "success": True,
+                "output": 'WiFi.AccessPoint.1.AssociatedDevice.1.FrequencyCapabilities="2.4GHz"',
+                "captured": {"FrequencyCapabilities": "2.4GHz"},
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d022, d022_fail_results) is False
+
+
 def test_run_required_command_retries_after_recovery_signal():
     plugin = _load_plugin()
     calls: list[str] = []
