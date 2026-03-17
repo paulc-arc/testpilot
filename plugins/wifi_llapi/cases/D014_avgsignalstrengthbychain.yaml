@@ -27,6 +27,9 @@ topology:
   - from: STA
     to: DUT
     band: 5g
+  - from: STA
+    to: DUT
+    band: 2.4g
 test_environment: |
   Topology: DUT=COM0(AP) / STA=COM1(station)
   Live band mapping:
@@ -39,34 +42,72 @@ test_procedure: |
   驗證步驟：
   1) 確認 5G STA 已關聯至 AP1 (AssociatedDevice.1 = STA MAC 2C:59:17:00:04:85)。
   2) 讀取 AP1 AssociatedDevice.1 的 AvgSignalStrengthByChain。
-  3) 讀取 AP5 AssociatedDevice.1 的 AvgSignalStrengthByChain (2.4G)。
+  3) 以 STA `iw dev wl0 link` 的 signal 作人工 cross-check（audit truth source）。
+  4) 確認 2.4G STA 已關聯至 AP5。
+  5) 讀取 AP5 AssociatedDevice.1 的 AvgSignalStrengthByChain。
+  6) 以 STA `iw dev wl2 link` 的 signal 作人工 cross-check。
   6G 因 BCME_NOTREADY，跳過不測。
-  Pass 條件：回傳非零整數（負 dBm 值）。
+  Pass 條件：LLAPI 回傳負整數 dBm 值；實測 audit 中再與 STA signal cross-check。
 steps:
-- id: step1_5g
+- id: step1_5g_assoc
   action: exec
   target: DUT
+  band: 5g
+  command: wl -i wl0 assoclist | tr 'A-F' 'a-f' | sed -n 's/^assoclist \([^ ]*\).*$/AssocMac5g=\1/p'
+  capture: assoc_5g
+- id: step2_5g
+  action: exec
+  target: DUT
+  band: 5g
   command: ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.AvgSignalStrengthByChain?"
+  depends_on: step1_5g_assoc
   capture: result_5g
-- id: step2_6g
+- id: step3_6g
   action: skip
   target: DUT
+  band: 6g
   reason: 6G BCME_NOTREADY — STA cannot associate on wl1/AP3 in current lab.
-- id: step3_24g
+- id: step4_24g_assoc
   action: exec
   target: DUT
+  band: 2.4g
+  command: wl -i wl2 assoclist | tr 'A-F' 'a-f' | sed -n 's/^assoclist \([^ ]*\).*$/AssocMac24g=\1/p'
+  capture: assoc_24g
+- id: step5_24g
+  action: exec
+  target: DUT
+  band: 2.4g
   command: ubus-cli "WiFi.AccessPoint.5.AssociatedDevice.1.AvgSignalStrengthByChain?"
+  depends_on: step4_24g_assoc
   capture: result_24g
 pass_criteria:
+- field: assoc_5g.AssocMac5g
+  operator: equals
+  value: 2c:59:17:00:04:85
+  description: "5G — AvgSignalStrengthByChain 前必須先確認 wl0 STA 已關聯"
 - field: result_5g.AvgSignalStrengthByChain
   operator: regex
-  value: '^-?[0-9]+'
-  description: "5G — must return a non-empty integer dBm value (live evidence: -34)."
+  value: '^-?[0-9]+$'
+  description: "5G — LLAPI AvgSignalStrengthByChain 必須是可解析的整數 dBm"
+- field: result_5g.AvgSignalStrengthByChain
+  operator: <
+  value: 0
+  description: "5G — AvgSignalStrengthByChain 應維持負 dBm 值"
+- field: assoc_24g.AssocMac24g
+  operator: equals
+  value: 2c:59:17:00:04:97
+  description: "2.4G — AvgSignalStrengthByChain 前必須先確認 wl2 STA 已關聯"
 - field: result_24g.AvgSignalStrengthByChain
   operator: regex
-  value: '^-?[0-9]+'
-  description: "2.4G — must return a non-empty integer dBm value (live evidence: -16)."
+  value: '^-?[0-9]+$'
+  description: "2.4G — LLAPI AvgSignalStrengthByChain 必須是可解析的整數 dBm"
+- field: result_24g.AvgSignalStrengthByChain
+  operator: <
+  value: 0
+  description: "2.4G — AvgSignalStrengthByChain 應維持負 dBm 值"
 verification_command: |
+  STA# iw dev wl0 link
+  STA# iw dev wl2 link
   ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.AvgSignalStrengthByChain?"
   ubus-cli "WiFi.AccessPoint.5.AssociatedDevice.1.AvgSignalStrengthByChain?"
 results_reference:

@@ -1,18 +1,16 @@
 id: wifi-llapi-D015-capabilities
-aliases:
-  - wifi-llapi-r010-capabilities
-name: Capabilities — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
-version: '1.0'
+name: "Capabilities — WiFi.AccessPoint.{i}.AssociatedDevice.{i}."
+version: '1.1'
 source:
-  report: "0302-AT&T_LLAPI_Test_Report_20260107.xlsx"
+  report: 0310-BGW720-300_LLAPI_Test_Report.xlsx
   sheet: Wifi_LLAPI
-  row: 15
+  row: 10
   object: "WiFi.AccessPoint.{i}.AssociatedDevice.{i}."
-  api: "Capabilities"
+  api: Capabilities
+  baseline: BCM v4.0.3
 platform:
   prplos: 4.0.3
   bdk: 6.3.1
-hlapi_command: ubus-cli WiFi.AccessPoint.{i}.AssociatedDevice.{i}.Capabilities=RRM,BTM,QOS_MAP
 llapi_support: Support
 implemented_by: pWHM
 topology:
@@ -25,130 +23,103 @@ topology:
       role: sta
       transport: serial
       selector: COM1
-      config:
-      - iface: 5g
-        mode: sta
-        ssid: '{{SSID_5G}}'
-        key: '{{KEY_5G}}'
   links:
   - from: STA
     to: DUT
     band: 5g
+  - from: STA
+    to: DUT
+    band: 2.4g
 test_environment: |
-  Topology:
-  - DUT: COM0 (B0, AP role)
-  - STA: COM1 (A0, STA role, STA-required cases only)
-  Transport:
-  - serialwrap attach COM0 / COM1
-  Band mapping:
-  - 5G: DUT wl0 / AP1 / SSID.4
-  - 6G: DUT wl1 / AP3 / SSID.6
-  - 2.4G: DUT wl2 / AP5 / SSID.8
-  Pre-check:
-  - cat /proc/socinfo | grep Revision | cut -d: -f2
-  - iw dev
-  - ubus-cli "WiFi.Radio.?" | sed -n "1,120p"
-
-setup_steps: |
-  1) DUT 5G baseline:
-     - set Radio.1/SSID.4 for the 5G AP under test
-     - configure AP1 as open with MFP disabled
-     - enable AP1 before station association
-  2) STA 5G preparation:
-     - disable local AP1/AP2 on A0
-     - clear wl0 AP child interface and switch wl0 to managed mode
-     - connect wl0 to {{SSID_5G}}
-  3) Association evidence:
-     - A0: iw dev wl0 link
-     - B0: wl -i wl0 assoclist
-sta_env_setup: |
-  DUT 5G AP baseline:
-    ubus-cli WiFi.Radio.1.Enable=1
-    ubus-cli WiFi.Radio.1.BeaconPeriod=100
-    ubus-cli WiFi.Radio.1.DTIMPeriod=3
-    ubus-cli WiFi.Radio.1.DriverConfig.FragmentationThreshold=-1
-    ubus-cli WiFi.Radio.1.DriverConfig.RtsThreshold=-1
-    ubus-cli WiFi.Radio.1.DriverConfig.TPCMode=Auto
-    ubus-cli WiFi.Radio.1.ExplicitBeamFormingEnabled=1
-    ubus-cli WiFi.Radio.1.ImplicitBeamFormingEnabled=1
-    ubus-cli WiFi.Radio.1.OfdmaEnable=1
-    ubus-cli WiFi.Radio.1.ObssCoexistenceEnable=0
-    ubus-cli WiFi.Radio.1.OperatingStandards=ax
-    ubus-cli WiFi.Radio.1.RxChainCtrl=-1
-    ubus-cli WiFi.Radio.1.TxChainCtrl=-1
-    ubus-cli WiFi.Radio.1.Vendor.Brcm.RegulatoryDomainRev=0
-    ubus-cli WiFi.Radio.1.Sensing.Enable=1
-    ubus-cli WiFi.Radio.1.IEEE80211ax.BssColorPartial=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.NonSRGOBSSPDMaxOffset=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.PSRDisallowed=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.SRGOBSSPDMaxOffset=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.SRGOBSSPDMinOffset=0
-    ubus-cli WiFi.Radio.1.LongRetryLimit=6
-    ubus-cli WiFi.Radio.1.MultiUserMIMOEnabled=1
-    ubus-cli WiFi.Radio.1.TargetWakeTimeEnable=1
-    ubus-cli WiFi.SSID.4.SSID={{SSID_5G}}
-    ubus-cli WiFi.AccessPoint.1.IEEE80211u.QoSMapSet=
-    ubus-cli WiFi.AccessPoint.2.IEEE80211u.QoSMapSet=
-    ubus-cli WiFi.AccessPoint.1.Security.ModeEnabled=None
-    ubus-cli WiFi.AccessPoint.1.Security.MFPConfig=Disabled
-    ubus-cli WiFi.AccessPoint.1.Enable=1
-  STA 5G preparation:
-    ubus-cli WiFi.AccessPoint.1.Enable=0
-    ubus-cli WiFi.AccessPoint.2.Enable=0
-    killall wpa_supplicant 2>/dev/null || true
-    iw dev wl0.1 del 2>/dev/null || true
-    iw dev wl0 disconnect 2>/dev/null || true
-    iw dev wl0 set type managed
-    ifconfig wl0 up
-  STA 5G connect verify:
-    iw dev wl0 connect {{SSID_5G}}
-    sleep 2
-    iw dev wl0 link
-  DUT association evidence:
-    wl -i wl0 assoclist
+  Topology: DUT=COM0(AP) / STA=COM1(station)
+  Live band mapping:
+  - 5G : DUT wl0 / AP1 / BSSID 2c:59:17:00:19:95 / STA MAC 2C:59:17:00:04:85
+  - 6G : DUT wl1 / AP3 -- BCME_NOTREADY (STA cannot associate; skip all 6G steps)
+  - 2.4G: DUT wl2 / AP5 / BSSID 2C:59:17:00:19:A7 / STA MAC 2C:59:17:00:04:97
+  Precondition: STA associated on the target band so AssociatedDevice.1 is deterministic.
 test_procedure: |
-  1) Execute case command on DUT:
-     ubus-cli WiFi.AccessPoint.{i}.AssociatedDevice.{i}.Capabilities=RRM,BTM,QOS_MAP
-  2) LLAPI readback on DUT:
-     ubus-cli "WiFi.AccessPoint.*.AssociatedDevice.*.Capabilities?"
-  3) For stats/AssociatedDevice cases, generate traffic (ping/iperf) before re-read.
-  4) STA link validation:
-     iw dev wl0 link
-     iw dev wl1 link
-     wpa_cli -i wl1 status
-     iw dev wl2 link
-  5) Cross-check with verification_command (driver/hostapd/iw/proc evidence).
-
+  Read-only telemetry. Capabilities returns the STA's advertised capability string (comma-separated).
+  Steps:
+  1) Confirm 5G STA is associated; read AP1 AssociatedDevice.1.Capabilities.
+  2) 5G live value should advertise BTM/QOS_MAP/PMF and should not advertise RRM.
+  3) Confirm 2.4G STA is associated; read AP5 AssociatedDevice.1.Capabilities.
+  4) 2.4G live value should remain empty string.
+  6G is skipped (BCME_NOTREADY).
+  Pass: 5G value matches the live-advertised capability bits; 2.4G empty string is valid.
+  Note: 5G STA wl0 has RRM capability=0x0 (no RRM), but has BTM via Extended Caps.
+        2.4G STA wl2 shows no BTM/QOS_MAP/PMF bits -> empty string is correct.
 steps:
-- id: step1
+- id: step1_5g_assoc
   action: exec
   target: DUT
-  command: |
-    wl -i wl0 assoclist
-    wl -i wl1 assoclist
-    wl -i wl2 assoclist
-- id: step2
+  band: 5g
+  command: wl -i wl0 assoclist | tr 'A-F' 'a-f' | sed -n 's/^assoclist \([^ ]*\).*$/AssocMac5g=\1/p'
+  capture: assoc_5g
+- id: step2_5g
   action: exec
   target: DUT
-  command: 'ubus-cli "WiFi.AccessPoint.*.AssociatedDevice.*.Capabilities?"'
-  depends_on: step1
-  capture: result
+  band: 5g
+  command: ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.Capabilities?"
+  depends_on: step1_5g_assoc
+  capture: result_5g
+- id: step3_6g
+  action: skip
+  target: DUT
+  band: 6g
+  reason: 6G BCME_NOTREADY -- STA cannot associate on wl1/AP3 in current lab.
+- id: step4_24g_assoc
+  action: exec
+  target: DUT
+  band: 2.4g
+  command: wl -i wl2 assoclist | tr 'A-F' 'a-f' | sed -n 's/^assoclist \([^ ]*\).*$/AssocMac24g=\1/p'
+  capture: assoc_24g
+- id: step5_24g
+  action: exec
+  target: DUT
+  band: 2.4g
+  command: ubus-cli "WiFi.AccessPoint.5.AssociatedDevice.1.Capabilities?"
+  depends_on: step4_24g_assoc
+  capture: result_24g
 pass_criteria:
-- field: result.Capabilities
+- field: assoc_5g.AssocMac5g
+  operator: equals
+  value: 2c:59:17:00:04:85
+  description: "5G -- Capabilities 讀取前必須先確認 wl0 STA 已關聯"
+- field: result_5g.Capabilities
   operator: contains
-  value: RRM,BTM,QOS_MAP
-  description: Capabilities 應回傳包含 Capabilities=RRM,BTM,QOS_MAP
+  value: BTM
+  description: "5G -- live Capabilities must advertise BTM"
+- field: result_5g.Capabilities
+  operator: contains
+  value: QOS_MAP
+  description: "5G -- live Capabilities must advertise QOS_MAP"
+- field: result_5g.Capabilities
+  operator: contains
+  value: PMF
+  description: "5G -- live Capabilities must advertise PMF"
+- field: result_5g.Capabilities
+  operator: not_contains
+  value: RRM
+  description: "5G -- wl0 RRM capability=0x0, so Capabilities must not claim RRM"
+- field: assoc_24g.AssocMac24g
+  operator: equals
+  value: 2c:59:17:00:04:97
+  description: "2.4G -- Capabilities 讀取前必須先確認 wl2 STA 已關聯"
+- field: result_24g.Capabilities
+  operator: empty
+  description: "2.4G -- live Capabilities should remain empty string for wl2 STA"
 verification_command: |
-  ubus-cli "WiFi.AccessPoint.*.AssociatedDevice.*.Capabilities?"
-  wl -i wl0 sta_info "$(wl -i wl0 assoclist 2>/dev/null | awk 'NR==1{print $2}')" 2>/dev/null | grep capability || true
+  DUT# ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.Capabilities?"
+  DUT# ubus-cli "WiFi.AccessPoint.5.AssociatedDevice.1.Capabilities?"
 results_reference:
-  v4.0.1:
-    5g: Fail
-    6g: Fail
-    2.4g: Fail
-    comment: 'ARC : Station info does not include QOS_MAP'
   v4.0.3:
-    5g: Fail
-    6g: Fail
-    2.4g: Fail
-    comment: wld_ad_handleAssocMsg/swl_80211_parseInfoElementsBuffer/wld_assocDev_copyAssocDevInfoFromIEs(old version hostapd)
+    5g: Pass
+    6g: Skip
+    2.4g: Pass
+    comment: |
+      Live evidence (BCM v4.0.3):
+      5G: WiFi.AccessPoint.1.AssociatedDevice.1.Capabilities=BTM,QOS_MAP,PMF
+          (5G STA wl0 RRM capability=0x0 -- no RRM; BTM present via Extended Caps)
+      2.4G: WiFi.AccessPoint.5.AssociatedDevice.1.Capabilities=
+          (2.4G STA wl2 flags show no BTM/QOS_MAP/PMF bits -- empty string is correct)
+      Value is STA-dependent; LLAPI correctly reflects what each STA advertises.

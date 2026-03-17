@@ -1164,6 +1164,194 @@ def test_pending_method_calibration_cases_use_runtime_supported_contracts():
     )
 
 
+def test_pending_readonly_associateddevice_cases_use_live_cross_checks():
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    plugin = _load_plugin()
+    discoverable_ids = {case["id"] for case in plugin.discover_cases()}
+    assert {
+        "wifi-llapi-D014-avgsignalstrengthbychain",
+        "wifi-llapi-D015-capabilities",
+    }.issubset(discoverable_ids)
+
+    d014 = load_case(cases_dir / "D014_avgsignalstrengthbychain.yaml")
+    d014_commands = "\n".join(str(step.get("command", "")) for step in d014["steps"])
+    d014_links = {link["band"] for link in d014["topology"]["links"]}
+    assert d014_links == {"5g", "2.4g"}
+    assert "wl -i wl0 assoclist" in d014_commands
+    assert "wl -i wl2 assoclist" in d014_commands
+    assert any(
+        criterion["field"] == "assoc_5g.AssocMac5g"
+        and criterion["operator"] == "equals"
+        and criterion["value"] == "2c:59:17:00:04:85"
+        for criterion in d014["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "result_5g.AvgSignalStrengthByChain"
+        and criterion["operator"] == "regex"
+        and criterion["value"] == "^-?[0-9]+$"
+        for criterion in d014["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "result_24g.AvgSignalStrengthByChain"
+        and criterion["operator"] == "regex"
+        and criterion["value"] == "^-?[0-9]+$"
+        for criterion in d014["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "result_5g.AvgSignalStrengthByChain"
+        and criterion["operator"] == "<"
+        and str(criterion["value"]) == "0"
+        for criterion in d014["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "result_24g.AvgSignalStrengthByChain"
+        and criterion["operator"] == "<"
+        and str(criterion["value"]) == "0"
+        for criterion in d014["pass_criteria"]
+    )
+
+    d015 = load_case(cases_dir / "D015_capabilities.yaml")
+    d015_commands = "\n".join(str(step.get("command", "")) for step in d015["steps"])
+    d015_links = {link["band"] for link in d015["topology"]["links"]}
+    assert d015_links == {"5g", "2.4g"}
+    assert 'WiFi.AccessPoint.1.AssociatedDevice.1.Capabilities?' in d015_commands
+    assert 'WiFi.AccessPoint.5.AssociatedDevice.1.Capabilities?' in d015_commands
+    assert any(
+        criterion["field"] == "assoc_5g.AssocMac5g"
+        and criterion["operator"] == "equals"
+        and criterion["value"] == "2c:59:17:00:04:85"
+        for criterion in d015["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "result_5g.Capabilities"
+        and criterion["operator"] == "contains"
+        and criterion["value"] == "BTM"
+        for criterion in d015["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "result_5g.Capabilities"
+        and criterion["operator"] == "contains"
+        and criterion["value"] == "QOS_MAP"
+        for criterion in d015["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "result_5g.Capabilities"
+        and criterion["operator"] == "contains"
+        and criterion["value"] == "PMF"
+        for criterion in d015["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "result_5g.Capabilities"
+        and criterion["operator"] == "not_contains"
+        and criterion["value"] == "RRM"
+        for criterion in d015["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "assoc_24g.AssocMac24g"
+        and criterion["operator"] == "equals"
+        and criterion["value"] == "2c:59:17:00:04:97"
+        for criterion in d015["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "result_24g.Capabilities"
+        and criterion["operator"] == "empty"
+        for criterion in d015["pass_criteria"]
+    )
+
+
+def test_pending_readonly_associateddevice_cases_evaluate_live_examples():
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+
+    d014 = load_case(cases_dir / "D014_avgsignalstrengthbychain.yaml")
+    d014_results = {
+        "steps": {
+            "step1_5g_assoc": {
+                "success": True,
+                "output": "AssocMac5g=2c:59:17:00:04:85",
+                "captured": {"AssocMac5g": "2c:59:17:00:04:85"},
+                "timing": 0.01,
+            },
+            "step2_5g": {
+                "success": True,
+                "output": "WiFi.AccessPoint.1.AssociatedDevice.1.AvgSignalStrengthByChain=-34",
+                "captured": {"AvgSignalStrengthByChain": "-34"},
+                "timing": 0.01,
+            },
+            "step4_24g_assoc": {
+                "success": True,
+                "output": "AssocMac24g=2c:59:17:00:04:97",
+                "captured": {"AssocMac24g": "2c:59:17:00:04:97"},
+                "timing": 0.01,
+            },
+            "step5_24g": {
+                "success": True,
+                "output": "WiFi.AccessPoint.5.AssociatedDevice.1.AvgSignalStrengthByChain=-16",
+                "captured": {"AvgSignalStrengthByChain": "-16"},
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d014, d014_results) is True
+
+    d014_fail_results = {
+        "steps": {
+            **d014_results["steps"],
+            "step5_24g": {
+                "success": True,
+                "output": "WiFi.AccessPoint.5.AssociatedDevice.1.AvgSignalStrengthByChain=3",
+                "captured": {"AvgSignalStrengthByChain": "3"},
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d014, d014_fail_results) is False
+
+    d015 = load_case(cases_dir / "D015_capabilities.yaml")
+    d015_results = {
+        "steps": {
+            "step1_5g_assoc": {
+                "success": True,
+                "output": "AssocMac5g=2c:59:17:00:04:85",
+                "captured": {"AssocMac5g": "2c:59:17:00:04:85"},
+                "timing": 0.01,
+            },
+            "step2_5g": {
+                "success": True,
+                "output": 'WiFi.AccessPoint.1.AssociatedDevice.1.Capabilities="BTM,QOS_MAP,PMF"',
+                "captured": {"Capabilities": "BTM,QOS_MAP,PMF"},
+                "timing": 0.01,
+            },
+            "step4_24g_assoc": {
+                "success": True,
+                "output": "AssocMac24g=2c:59:17:00:04:97",
+                "captured": {"AssocMac24g": "2c:59:17:00:04:97"},
+                "timing": 0.01,
+            },
+            "step5_24g": {
+                "success": True,
+                "output": 'WiFi.AccessPoint.5.AssociatedDevice.1.Capabilities=""',
+                "captured": {"Capabilities": ""},
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d015, d015_results) is True
+
+    d015_fail_results = {
+        "steps": {
+            **d015_results["steps"],
+            "step2_5g": {
+                "success": True,
+                "output": 'WiFi.AccessPoint.1.AssociatedDevice.1.Capabilities="BTM,QOS_MAP,PMF,RRM"',
+                "captured": {"Capabilities": "BTM,QOS_MAP,PMF,RRM"},
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d015, d015_fail_results) is False
+
+
 def test_run_required_command_retries_after_recovery_signal():
     plugin = _load_plugin()
     calls: list[str] = []
