@@ -3194,6 +3194,173 @@ def test_d049_supportedhe160mcs_evaluate_live_examples():
     assert plugin.evaluate(d049, d049_wrong_sta_results) is False
 
 
+def test_d050_supportedhemcs_uses_supported_contracts():
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    plugin = _load_plugin()
+    discoverable_ids = {case["id"] for case in plugin.discover_cases()}
+    assert "wifi-llapi-D050-supportedhemcs" in discoverable_ids
+
+    d050_raw = yaml.safe_load(
+        (cases_dir / "D050_supportedhemcs.yaml").read_text(encoding="utf-8")
+    )
+    d050 = load_case(cases_dir / "D050_supportedhemcs.yaml")
+    d050_commands = "\n".join(str(step.get("command", "")) for step in d050["steps"])
+    d050_links = {link["band"] for link in d050["topology"]["links"]}
+
+    assert "aliases" not in d050_raw
+    assert d050["id"] == "wifi-llapi-D050-supportedhemcs"
+    assert d050["source"]["row"] == 50
+    assert d050["source"]["baseline"] == "BCM v4.0.3"
+    assert d050["llapi_support"] == "Not Supported"
+    assert d050["bands"] == ["5g"]
+    assert d050_links == {"5g"}
+    assert (
+        d050["hlapi_command"]
+        == 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.SupportedHeMCS?"'
+    )
+    assert "cat /sys/class/net/wl0/address" in d050_commands
+    assert "MACAddress?" in d050_commands
+    assert 'SupportedHeMCS?" 2>&1' in d050_commands
+    assert "error=" in d050_commands
+    assert "message=" in d050_commands
+    assert "DriverRxSupportedHeMCS=" in d050_commands
+    assert "DriverTxSupportedHeMCS=" in d050_commands
+    assert "DriverHeCapsPresent=1" in d050_commands
+    assert "DriverMCSSetPresent=1" in d050_commands
+    assert "DriverHeSetPresent=1" in d050_commands
+    assert "DriverHeMcsLinePresent=1" in d050_commands
+    assert any(
+        criterion["field"] == "sta_identity.StaMac"
+        and criterion["operator"] == "regex"
+        and criterion["value"] == r"^([0-9A-F]{2}:){5}[0-9A-F]{2}$"
+        for criterion in d050["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "assoc_entry.MACAddress"
+        and criterion["operator"] == "equals"
+        and criterion["reference"] == "sta_identity.StaMac"
+        for criterion in d050["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "result.error"
+        and criterion["operator"] == "equals"
+        and str(criterion["value"]) == "4"
+        for criterion in d050["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "result.message"
+        and criterion["operator"] == "contains"
+        and criterion["value"] == "parameter not found"
+        for criterion in d050["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "sibling_support.SiblingAssocMac"
+        and criterion["operator"] == "equals"
+        and criterion["reference"] == "assoc_entry.MACAddress"
+        for criterion in d050["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "sibling_support.DriverRxSupportedHeMCS"
+        and criterion["operator"] == "regex"
+        and criterion["value"] == r"^[0-9]+(,[0-9]+)*$"
+        for criterion in d050["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "driver_capability.DriverHeMcsLinePresent"
+        and criterion["operator"] == "equals"
+        and str(criterion["value"]) == "1"
+        for criterion in d050["pass_criteria"]
+    )
+    assert d050["results_reference"]["v4.0.3"]["5g"] == "Not Supported"
+    assert d050["results_reference"]["v4.0.3"]["6g"] == "N/A"
+    assert d050["results_reference"]["v4.0.3"]["2.4g"] == "N/A"
+
+
+def test_d050_supportedhemcs_evaluate_live_examples():
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d050 = load_case(cases_dir / "D050_supportedhemcs.yaml")
+
+    d050_results = {
+        "steps": {
+            "step1": {
+                "success": True,
+                "output": "StaMac=2C:59:17:00:04:85",
+                "timing": 0.01,
+            },
+            "step2": {
+                "success": True,
+                "output": 'WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress="2C:59:17:00:04:85"',
+                "timing": 0.01,
+            },
+            "step3": {
+                "success": True,
+                "output": "ERROR: get WiFi.AccessPoint.1.AssociatedDevice.1.SupportedHeMCS failed (4 - parameter not found)\nerror=4\nmessage=parameter not found",
+                "timing": 0.01,
+            },
+            "step4": {
+                "success": True,
+                "output": "SiblingAssocMac=2C:59:17:00:04:85\nDriverRxSupportedHeMCS=11,11,11,11\nDriverTxSupportedHeMCS=11,11,11,11",
+                "timing": 0.01,
+            },
+            "step5": {
+                "success": True,
+                "output": "DriverAssocMac=2C:59:17:00:04:85\nDriverHeCapsPresent=1\nDriverMCSSetPresent=1\nDriverHeSetPresent=1\nDriverHeMcsLinePresent=1",
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d050, d050_results) is True
+
+    d050_wrong_error_results = {
+        "steps": {
+            **d050_results["steps"],
+            "step3": {
+                "success": True,
+                "output": "error=7\nmessage=unexpected error",
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d050, d050_wrong_error_results) is False
+
+    d050_missing_sibling_results = {
+        "steps": {
+            **d050_results["steps"],
+            "step4": {
+                "success": True,
+                "output": "SiblingAssocMac=2C:59:17:00:04:85\nDriverTxSupportedHeMCS=11,11,11,11",
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d050, d050_missing_sibling_results) is False
+
+    d050_missing_driver_line_results = {
+        "steps": {
+            **d050_results["steps"],
+            "step5": {
+                "success": True,
+                "output": "DriverAssocMac=2C:59:17:00:04:85\nDriverHeCapsPresent=1\nDriverMCSSetPresent=1\nDriverHeSetPresent=1",
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d050, d050_missing_driver_line_results) is False
+
+    d050_wrong_sta_results = {
+        "steps": {
+            **d050_results["steps"],
+            "step1": {
+                "success": True,
+                "output": "StaMac=AA:AA:AA:AA:AA:AA",
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d050, d050_wrong_sta_results) is False
+
+
 def test_run_required_command_retries_after_recovery_signal():
     plugin = _load_plugin()
     calls: list[str] = []
@@ -3668,6 +3835,7 @@ def test_sta_env_setup_parser_preserves_wpa_cli_quoted_value():
         "D047_signalstrength_accesspoint_associateddevice.yaml",
         "D048_signalstrengthbychain.yaml",
         "D049_supportedhe160mcs.yaml",
+        "D050_supportedhemcs.yaml",
         "D058_txpacketcount.yaml",
         "D061_uplinkbandwidth.yaml",
         "D060_uniibandscapabilities.yaml",
@@ -3786,6 +3954,7 @@ def test_extract_cli_fragments_ignores_prose_after_ubus_keyword():
         ("D045_securitymodeenabled.yaml", 2, "DriverSecurityModeEnabled="),
         ("D047_signalstrength_accesspoint_associateddevice.yaml", 2, "DriverSignalStrength="),
         ("D048_signalstrengthbychain.yaml", 3, "DriverSignalStrengthByChain="),
+        ("D050_supportedhemcs.yaml", 4, "DriverHeMcsLinePresent="),
         ("D051_supportedmcs.yaml", 2, "DriverMCSSetPresent="),
         ("D058_txpacketcount.yaml", 2, "DriverTxPacketCount="),
         ("D061_uplinkbandwidth.yaml", 2, "DriverUplinkBandwidth="),
@@ -3812,6 +3981,12 @@ def test_sanitize_cli_fragment_preserves_nested_quotes_for_associateddevice_driv
         assert verification_commands[0] == "cat /sys/class/net/wl0/address | tr 'a-f' 'A-F' | sed 's/^/StaMac=/'"
         assert verification_commands[1].startswith('ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.')
         assert verification_commands[2] == command
+    elif filename in {"D049_supportedhe160mcs.yaml", "D050_supportedhemcs.yaml"}:
+        assert len(verification_commands) == 4
+        assert verification_commands[0] == "cat /sys/class/net/wl0/address | tr 'a-f' 'A-F' | sed 's/^/StaMac=/'"
+        assert verification_commands[1].startswith('OUT=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.')
+        assert "SiblingAssocMac=" in verification_commands[2]
+        assert verification_commands[3] == command
     else:
         assert len(verification_commands) == 2
         assert verification_commands[0].startswith('ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.')
@@ -3836,6 +4011,27 @@ def test_d049_supportedhe160mcs_verification_fragments_preserve_error_and_driver
     assert verification_commands[0] == "cat /sys/class/net/wl0/address | tr 'a-f' 'A-F' | sed 's/^/StaMac=/'"
     assert verification_commands[1] == step3_command
     assert "DriverRxSupportedHe160MCS=" in verification_commands[2]
+    assert verification_commands[3] == step5_command
+
+
+def test_d050_supportedhemcs_verification_fragments_preserve_error_and_driver_checks():
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d050 = load_case(cases_dir / "D050_supportedhemcs.yaml")
+
+    step3_command = d050["steps"][2]["command"]
+    step5_command = d050["steps"][4]["command"]
+    verification_commands = plugin._extract_cli_fragments(d050["verification_command"])
+
+    assert "SupportedHeMCS?" in step3_command
+    assert "error=" in step3_command
+    assert "message=" in step3_command
+    assert plugin._sanitize_cli_fragment(step5_command) == step5_command
+    assert plugin._extract_cli_fragments(step5_command) == [step5_command]
+    assert len(verification_commands) == 4
+    assert verification_commands[0] == "cat /sys/class/net/wl0/address | tr 'a-f' 'A-F' | sed 's/^/StaMac=/'"
+    assert verification_commands[1] == step3_command
+    assert "DriverRxSupportedHeMCS=" in verification_commands[2]
     assert verification_commands[3] == step5_command
 
 
