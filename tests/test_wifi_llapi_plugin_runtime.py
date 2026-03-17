@@ -604,6 +604,435 @@ def test_case_yaml_band_baselines_reset_radio_defaults():
                 )
 
 
+def test_pre_skip_aligned_manual_cases_avoid_stale_sample_values():
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+
+    # Post-skip cases are still pending review; keep this guard focused on the
+    # pre-skip YAMLs that the audit report already treats as aligned.
+    d013 = yaml.safe_load(
+        (cases_dir / "D013_avgsignalstrength.yaml").read_text(encoding="utf-8")
+    )
+    d013_commands = "\n".join(str(step.get("command", "")) for step in d013["steps"])
+    assert d013["source"]["report"] == "0310-BGW720-300_LLAPI_Test_Report.xlsx"
+    assert d013["source"]["row"] == 8
+    assert d013["hlapi_command"] == 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.AvgSignalStrength?"'
+    assert "AvgSignalStrength=" not in d013["hlapi_command"]
+    assert "DriverSmoothedRSSI=" in d013_commands
+    assert any(
+        criterion["field"] == "result.AvgSignalStrength"
+        and criterion["operator"] == "equals"
+        and str(criterion["value"]) == "0"
+        for criterion in d013["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "driver_rssi.DriverSmoothedRSSI"
+        and criterion["operator"] == "<"
+        and str(criterion["value"]) == "0"
+        for criterion in d013["pass_criteria"]
+    )
+
+    d017 = yaml.safe_load(
+        (cases_dir / "D017_connectionduration.yaml").read_text(encoding="utf-8")
+    )
+    d017_commands = "\n".join(str(step.get("command", "")) for step in d017["steps"])
+    assert d017["source"]["report"] == "0310-BGW720-300_LLAPI_Test_Report.xlsx"
+    assert d017["source"]["row"] == 12
+    assert "ConnectionDuration?" in d017["hlapi_command"]
+    assert "ConnectionDuration=8229" not in d017["hlapi_command"]
+    assert "DriverConnectionSeconds=" in d017_commands
+    assert any(
+        criterion["field"] == "result_after_wait.ConnectionDuration"
+        and criterion["operator"] == ">"
+        and criterion["reference"] == "result.ConnectionDuration"
+        for criterion in d017["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "driver_duration.DriverConnectionSeconds"
+        and criterion["operator"] == ">="
+        and criterion["reference"] == "result_after_wait.ConnectionDuration"
+        for criterion in d017["pass_criteria"]
+    )
+
+    d019 = yaml.safe_load(
+        (cases_dir / "D019_downlinkmcs.yaml").read_text(encoding="utf-8")
+    )
+    d019_commands = "\n".join(str(step.get("command", "")) for step in d019["steps"])
+    assert d019["source"]["report"] == "0310-BGW720-300_LLAPI_Test_Report.xlsx"
+    assert d019["source"]["row"] == 14
+    assert 'WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?' in d019_commands
+    assert 'WiFi.SSID.4.BSSID?' in d019_commands
+    assert 'WiFi.AccessPoint.1.AssociatedDevice.1.DownlinkMCS?' in d019_commands
+    assert "DriverDownlinkMCS=" in d019_commands
+    assert any(
+        criterion["field"] == "ap_bssid.BSSID"
+        and criterion["operator"] == "not_equals"
+        and criterion["reference"] == "assoc_entry.MACAddress"
+        for criterion in d019["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "result.DownlinkMCS"
+        and criterion["operator"] == "equals"
+        and criterion["reference"] == "driver_mcs.DriverDownlinkMCS"
+        for criterion in d019["pass_criteria"]
+    )
+
+    d011 = yaml.safe_load(
+        (cases_dir / "D011_associationtime.yaml").read_text(encoding="utf-8")
+    )
+    d011_commands = "\n".join(str(step.get("command", "")) for step in d011["steps"])
+    assert d011["source"]["report"] == "0310-BGW720-300_LLAPI_Test_Report.xlsx"
+    assert d011["source"]["row"] == 6
+    assert "AssociationTime?" in d011["hlapi_command"]
+    assert "AssociationTime=" not in d011["hlapi_command"]
+    assert "AssocMAC=" in d011_commands
+    assert "ConnectionSeconds=" in d011_commands
+    assert any(
+        criterion["field"] == "result.AssociationTime"
+        and criterion["operator"] == "regex"
+        for criterion in d011["pass_criteria"]
+    )
+
+    d012 = yaml.safe_load(
+        (cases_dir / "D012_authenticationstate.yaml").read_text(encoding="utf-8")
+    )
+    d012_commands = "\n".join(str(step.get("command", "")) for step in d012["steps"])
+    assert d012["source"]["row"] == 7
+    assert "AuthenticationState?" in d012["hlapi_command"]
+    assert "AuthenticationState=" not in d012["hlapi_command"]
+    assert "DriverAuthState=" in d012_commands
+    assert any(
+        criterion["field"] == "result.AuthenticationState"
+        and criterion["operator"] == "equals"
+        and criterion["reference"] == "driver_state.DriverAuthState"
+        for criterion in d012["pass_criteria"]
+    )
+
+    d018 = yaml.safe_load(
+        (cases_dir / "D018_downlinkbandwidth.yaml").read_text(encoding="utf-8")
+    )
+    d018_commands = "\n".join(str(step.get("command", "")) for step in d018["steps"])
+    assert d018["source"]["row"] == 13
+    assert "DownlinkBandwidth?" in d018["hlapi_command"]
+    assert "DownlinkBandwidth=0" not in d018["hlapi_command"]
+    assert "DriverBandwidth=" in d018_commands
+    assert any(
+        criterion["field"] == "result.DownlinkBandwidth"
+        and criterion["operator"] == "equals"
+        and criterion["reference"] == "driver_bandwidth.DriverBandwidth"
+        for criterion in d018["pass_criteria"]
+    )
+
+    d021 = yaml.safe_load(
+        (cases_dir / "D021_encryptionmode_accesspoint_associateddevice.yaml").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert d021["source"]["row"] == 16
+    assert d021["results_reference"]["v4.0.3"]["5g"] == "Pass"
+    assert d021["results_reference"]["v4.0.3"]["6g"] == "Pass"
+    assert d021["results_reference"]["v4.0.3"]["2.4g"] == "Pass"
+    assert "EncryptionMode?" in d021["hlapi_command"]
+    assert "EncryptionMode=AES" not in d021["hlapi_command"]
+    assert any(
+        criterion["field"] == "result.EncryptionMode"
+        and criterion["operator"] == "equals"
+        and criterion["value"] == "Default"
+        for criterion in d021["pass_criteria"]
+    )
+
+    d023 = yaml.safe_load(
+        (cases_dir / "D023_hecapabilities_accesspoint_associateddevice.yaml").read_text(
+            encoding="utf-8"
+        )
+    )
+    d023_commands = "\n".join(str(step.get("command", "")) for step in d023["steps"])
+    assert d023["source"]["report"] == "0310-BGW720-300_LLAPI_Test_Report.xlsx"
+    assert d023["source"]["row"] == 18
+    assert d023["hlapi_command"] == 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.HeCapabilities?"'
+    assert "HeCapabilities=" not in d023["hlapi_command"]
+    assert "DriverHeMuBfe=1" in d023_commands
+    assert any(
+        criterion["field"] == "result.HeCapabilities"
+        and criterion["operator"] == "contains"
+        and criterion["value"] == "SU&MU-BFE"
+        for criterion in d023["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "driver_he.DriverHeMuBfe"
+        and criterion["operator"] == "equals"
+        and str(criterion["value"]) == "1"
+        for criterion in d023["pass_criteria"]
+    )
+
+    d024 = yaml.safe_load(
+        (cases_dir / "D024_htcapabilities_accesspoint_associateddevice.yaml").read_text(
+            encoding="utf-8"
+        )
+    )
+    d024_commands = "\n".join(str(step.get("command", "")) for step in d024["steps"])
+    assert d024["source"]["report"] == "0310-BGW720-300_LLAPI_Test_Report.xlsx"
+    assert d024["source"]["row"] == 19
+    assert d024["hlapi_command"] == 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.HtCapabilities?"'
+    assert "HtCapabilities=40MHz,SGI20,SGI40" not in d024["hlapi_command"]
+    assert "DriverHt40MHz=1" in d024_commands
+    assert "DriverHtSgi20=1" in d024_commands
+    assert "DriverHtSgi40=1" in d024_commands
+    assert any(
+        criterion["field"] == "result.HtCapabilities"
+        and criterion["operator"] == "equals"
+        and criterion["value"] == "40MHz,SGI20,SGI40"
+        for criterion in d024["pass_criteria"]
+    )
+
+    d026 = yaml.safe_load(
+        (cases_dir / "D026_lastdatadownlinkrate.yaml").read_text(encoding="utf-8")
+    )
+    d026_commands = "\n".join(str(step.get("command", "")) for step in d026["steps"])
+    assert d026["source"]["report"] == "0310-BGW720-300_LLAPI_Test_Report.xlsx"
+    assert d026["source"]["row"] == 21
+    assert d026["hlapi_command"] == 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.LastDataDownlinkRate?"'
+    assert "LastDataDownlinkRate=1733333" not in d026["hlapi_command"]
+    assert 'WiFi.SSID.4.BSSID?' in d026_commands
+    assert "DriverLastDownlinkRateRounded=" in d026_commands
+    assert any(
+        criterion["field"] == "ap_bssid.BSSID"
+        and criterion["operator"] == "not_equals"
+        and criterion["reference"] == "assoc_entry.MACAddress"
+        for criterion in d026["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "result.LastDataDownlinkRate"
+        and criterion["operator"] == "equals"
+        and criterion["reference"] == "driver_rate.DriverLastDownlinkRateRounded"
+        for criterion in d026["pass_criteria"]
+    )
+
+    d027 = yaml.safe_load(
+        (cases_dir / "D027_lastdatauplinkrate.yaml").read_text(encoding="utf-8")
+    )
+    d027_commands = "\n".join(str(step.get("command", "")) for step in d027["steps"])
+    assert d027["source"]["report"] == "0310-BGW720-300_LLAPI_Test_Report.xlsx"
+    assert d027["source"]["row"] == 22
+    assert d027["hlapi_command"] == 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.LastDataUplinkRate?"'
+    assert "LastDataUplinkRate=1733333" not in d027["hlapi_command"]
+    assert 'WiFi.SSID.4.BSSID?' in d027_commands
+    assert "DriverLastUplinkRateRounded=" in d027_commands
+    assert any(
+        criterion["field"] == "result.LastDataUplinkRate"
+        and criterion["operator"] == "equals"
+        and criterion["reference"] == "driver_rate.DriverLastUplinkRateRounded"
+        for criterion in d027["pass_criteria"]
+    )
+
+    d028 = yaml.safe_load(
+        (cases_dir / "D028_linkbandwidth.yaml").read_text(encoding="utf-8")
+    )
+    d028_commands = "\n".join(str(step.get("command", "")) for step in d028["steps"])
+    assert d028["source"]["report"] == "0310-BGW720-300_LLAPI_Test_Report.xlsx"
+    assert d028["source"]["row"] == 23
+    assert d028["hlapi_command"] == 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.LinkBandwidth?"'
+    assert "LinkBandwidth=160MHz" not in d028["hlapi_command"]
+    assert 'WiFi.Radio.1.OperatingChannelBandwidth?' in d028_commands
+    assert "DriverLinkBandwidth=" in d028_commands
+    assert any(
+        criterion["field"] == "result.LinkBandwidth"
+        and criterion["operator"] == "equals"
+        and criterion["reference"] == "radio_bw.OperatingChannelBandwidth"
+        for criterion in d028["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "result.LinkBandwidth"
+        and criterion["operator"] == "equals"
+        and criterion["reference"] == "driver_bw.DriverLinkBandwidth"
+        for criterion in d028["pass_criteria"]
+    )
+
+    d029 = yaml.safe_load(
+        (cases_dir / "D029_macaddress_accesspoint_associateddevice.yaml").read_text(
+            encoding="utf-8"
+        )
+    )
+    d029_commands = "\n".join(str(step.get("command", "")) for step in d029["steps"])
+    assert d029["source"]["row"] == 24
+    assert "MACAddress?" in d029["hlapi_command"]
+    assert "MACAddress=AA:6B:30:4E:8E:5C" not in d029["hlapi_command"]
+    assert "StaMAC=" in d029_commands
+    assert "AssocMAC=" in d029_commands
+    assert any(
+        criterion["field"] == "assoc_driver.AssocMAC"
+        and criterion["reference"] == "sta_status.STAMAC"
+        for criterion in d029["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "result.MACAddress"
+        and criterion["reference"] == "assoc_driver.AssocMAC"
+        for criterion in d029["pass_criteria"]
+    )
+
+    multiband_direct_cases = {
+        "D323_broadcastpacketsreceived.yaml": {"row": 245, "api": "BroadcastPacketsReceived", "driver": "DriverBroadcastPacketsReceived", "awk_field": "$23", "expected": "Pass"},
+        "D324_broadcastpacketssent.yaml": {"row": 246, "api": "BroadcastPacketsSent", "driver": "DriverBroadcastPacketsSent", "awk_field": "$24", "expected": "Pass"},
+        "D325_bytesreceived_ssid_stats.yaml": {"row": 247, "api": "BytesReceived", "driver": "DriverBytesReceived", "awk_field": "$2", "expected": "Pass"},
+        "D326_bytessent_ssid_stats.yaml": {"row": 248, "api": "BytesSent", "driver": "DriverBytesSent", "awk_field": "$10", "expected": "Pass"},
+        "D327_discardpacketsreceived.yaml": {"row": 249, "api": "DiscardPacketsReceived", "driver": "DriverDiscardPacketsReceived", "awk_field": "$5", "expected": "To be tested"},
+        "D328_discardpacketssent.yaml": {"row": 250, "api": "DiscardPacketsSent", "driver": "DriverDiscardPacketsSent", "awk_field": "$13", "expected": "To be tested"},
+        "D329_errorsreceived_ssid_stats.yaml": {"row": 251, "api": "ErrorsReceived", "driver": "DriverErrorsReceived", "awk_field": "$4", "expected": "To be tested"},
+        "D330_errorssent_ssid_stats.yaml": {"row": 252, "api": "ErrorsSent", "driver": "DriverErrorsSent", "awk_field": "$12", "expected": "To be tested"},
+        "D331_failedretranscount_ssid_stats.yaml": {"row": 253, "api": "FailedRetransCount", "expected": "To be tested"},
+        "D332_multicastpacketsreceived.yaml": {"row": 254, "api": "MulticastPacketsReceived", "driver": "DriverMulticastPacketsReceived", "awk_field": "$9", "expected": "Pass"},
+        "D333_multicastpacketssent.yaml": {"row": 255, "api": "MulticastPacketsSent", "driver": "DriverMulticastPacketsSent", "awk_field": "$18", "expected": "Pass"},
+        "D334_packetsreceived_ssid_stats.yaml": {"row": 256, "api": "PacketsReceived", "driver": "DriverPacketsReceived", "awk_field": "$3", "expected": "Pass"},
+        "D335_packetssent_ssid_stats.yaml": {"row": 257, "api": "PacketsSent", "driver": "DriverPacketsSent", "awk_field": "$11", "expected": "Pass"},
+        "D336_retranscount_ssid_stats.yaml": {"row": 258, "api": "RetransCount", "expected": "To be tested"},
+        "D337_unicastpacketsreceived.yaml": {"row": 259, "api": "UnicastPacketsReceived", "driver": "DriverUnicastPacketsReceived", "awk_field": "$21", "expected": "Pass"},
+        "D338_unicastpacketssent.yaml": {"row": 260, "api": "UnicastPacketsSent", "driver": "DriverUnicastPacketsSent", "awk_field": "$22", "expected": "Pass"},
+        "D339_unknownprotopacketsreceived_ssid_stats.yaml": {"row": 261, "api": "UnknownProtoPacketsReceived", "expected": "To be tested"},
+        "D408_multipleretrycount_ssid_stats.yaml": {"row": 301, "api": "MultipleRetryCount", "expected": "To be tested"},
+        "D409_retrycount_ssid_stats_basic.yaml": {"row": 302, "api": "RetryCount", "expected": "To be tested"},
+        "D497_retrycount_ssid_stats_verified.yaml": {"row": 362, "api": "RetryCount", "expected": "Not Supported"},
+    }
+
+    for filename, meta in multiband_direct_cases.items():
+        case_data = yaml.safe_load((cases_dir / filename).read_text(encoding="utf-8"))
+        commands = "\n".join(str(step.get("command", "")) for step in case_data["steps"])
+        assert "aliases" not in case_data
+        assert case_data["source"]["report"] == "0310-BGW720-300_LLAPI_Test_Report.xlsx"
+        assert case_data["source"]["row"] == meta["row"]
+        assert case_data["hlapi_command"] == f'ubus-cli "WiFi.SSID.{{i}}.Stats.{meta["api"]}?"'
+        assert "5G -> 6G -> 2.4G sequentially" in case_data["test_environment"]
+        assert "attempt STA-generated traffic" in case_data["test_environment"]
+        assert f"WiFi.SSID.4.Stats.{meta['api']}?" in commands
+        assert f"WiFi.SSID.6.Stats.{meta['api']}?" in commands
+        assert f"WiFi.SSID.8.Stats.{meta['api']}?" in commands
+        assert f"GetSSIDStats{meta['api']}5g=" in commands
+        assert f"GetSSIDStats{meta['api']}6g=" in commands
+        assert f"GetSSIDStats{meta['api']}24g=" in commands
+        assert "AssocMac5g=" in commands
+        assert "AssocMac6g=" in commands
+        assert "AssocMac24g=" in commands
+        assert case_data["results_reference"]["v4.0.3"]["5g"] == meta["expected"]
+        assert case_data["results_reference"]["v4.0.3"]["6g"] == meta["expected"]
+        assert case_data["results_reference"]["v4.0.3"]["2.4g"] == meta["expected"]
+        assert any(
+            criterion["field"] == "assoc_5g.AssocMac5g"
+            and criterion["operator"] == "equals"
+            and criterion["value"] == "2c:59:17:00:04:85"
+            for criterion in case_data["pass_criteria"]
+        )
+        assert any(
+            criterion["field"] == f"direct_5g.{meta['api']}"
+            and criterion["operator"] == "equals"
+            and criterion["reference"] == f"getssid_5g.GetSSIDStats{meta['api']}5g"
+            for criterion in case_data["pass_criteria"]
+        )
+        if "driver" in meta:
+            assert f"{meta['driver']}5g=" in commands
+            assert f"{meta['driver']}6g=" in commands
+            assert f"{meta['driver']}24g=" in commands
+            assert meta["awk_field"] in commands
+            assert any(
+                criterion["field"] == f"direct_5g.{meta['api']}"
+                and criterion["operator"] == "equals"
+                and criterion["reference"] == f"driver_5g.{meta['driver']}5g"
+                for criterion in case_data["pass_criteria"]
+            )
+        elif meta["expected"] == "Not Supported":
+            assert any(
+                criterion["field"] == f"direct_5g.{meta['api']}"
+                and criterion["operator"] == "equals"
+                and str(criterion.get("value")) == "0"
+                for criterion in case_data["pass_criteria"]
+            )
+
+    multiband_getssid_cases = {
+        "D302_getssidstats_broadcastpacketsreceived.yaml": {"row": 225, "api": "BroadcastPacketsReceived", "driver": "DriverBroadcastPacketsReceived", "awk_field": "$23", "expected": "Pass"},
+        "D303_getssidstats_broadcastpacketssent.yaml": {"row": 226, "api": "BroadcastPacketsSent", "driver": "DriverBroadcastPacketsSent", "awk_field": "$24", "expected": "Pass"},
+        "D304_getssidstats_bytesreceived.yaml": {"row": 227, "api": "BytesReceived", "driver": "DriverBytesReceived", "awk_field": "$2", "expected": "Pass"},
+        "D305_getssidstats_bytessent.yaml": {"row": 228, "api": "BytesSent", "driver": "DriverBytesSent", "awk_field": "$10", "expected": "Pass"},
+        "D306_getssidstats_discardpacketsreceived.yaml": {"row": 229, "api": "DiscardPacketsReceived", "driver": "DriverDiscardPacketsReceived", "awk_field": "$5", "expected": "Pass"},
+        "D307_getssidstats_discardpacketssent.yaml": {"row": 230, "api": "DiscardPacketsSent", "driver": "DriverDiscardPacketsSent", "awk_field": "$13", "expected": "Pass"},
+        "D308_getssidstats_errorsreceived.yaml": {"row": 231, "api": "ErrorsReceived", "driver": "DriverErrorsReceived", "awk_field": "$4", "expected": "Pass"},
+        "D309_getssidstats_errorssent.yaml": {"row": 232, "api": "ErrorsSent", "driver": "DriverErrorsSent", "awk_field": "$12", "expected": "Pass"},
+        "D310_getssidstats_failedretranscount.yaml": {"row": 233, "api": "FailedRetransCount", "expected": "Not Supported"},
+        "D311_getssidstats_multicastpacketsreceived.yaml": {"row": 234, "api": "MulticastPacketsReceived", "driver": "DriverMulticastPacketsReceived", "awk_field": "$9", "expected": "Pass"},
+        "D312_getssidstats_multicastpacketssent.yaml": {"row": 235, "api": "MulticastPacketsSent", "driver": "DriverMulticastPacketsSent", "awk_field": "$18", "expected": "Pass"},
+        "D313_getssidstats_packetsreceived.yaml": {"row": 236, "api": "PacketsReceived", "driver": "DriverPacketsReceived", "awk_field": "$3", "expected": "Pass"},
+        "D314_getssidstats_packetssent.yaml": {"row": 237, "api": "PacketsSent", "driver": "DriverPacketsSent", "awk_field": "$11", "expected": "Pass"},
+        "D315_getssidstats_retranscount.yaml": {"row": 238, "api": "RetransCount", "expected": "Not Supported"},
+        "D316_getssidstats_unicastpacketsreceived.yaml": {"row": 239, "api": "UnicastPacketsReceived", "driver": "DriverUnicastPacketsReceived", "awk_field": "$21", "expected": "Pass"},
+        "D317_getssidstats_unicastpacketssent.yaml": {"row": 240, "api": "UnicastPacketsSent", "driver": "DriverUnicastPacketsSent", "awk_field": "$22", "expected": "Pass"},
+        "D318_getssidstats_unknownprotopacketsreceived.yaml": {"row": 241, "api": "UnknownProtoPacketsReceived", "expected": "Not Supported"},
+    }
+
+    for filename, meta in multiband_getssid_cases.items():
+        case_data = yaml.safe_load((cases_dir / filename).read_text(encoding="utf-8"))
+        commands = "\n".join(str(step.get("command", "")) for step in case_data["steps"])
+        assert "aliases" not in case_data
+        assert case_data["source"]["report"] == "0310-BGW720-300_LLAPI_Test_Report.xlsx"
+        assert case_data["source"]["row"] == meta["row"]
+        assert case_data["hlapi_command"] == 'ubus-cli "WiFi.SSID.{i}.getSSIDStats()"'
+        assert "5G -> 6G -> 2.4G sequentially" in case_data["test_environment"]
+        assert f"GetSSIDStats{meta['api']}5g=" in commands
+        assert f"GetSSIDStats{meta['api']}6g=" in commands
+        assert f"GetSSIDStats{meta['api']}24g=" in commands
+        assert f"WiFi.SSID.4.Stats.{meta['api']}?" in commands
+        assert f"WiFi.SSID.6.Stats.{meta['api']}?" in commands
+        assert f"WiFi.SSID.8.Stats.{meta['api']}?" in commands
+        assert case_data["results_reference"]["v4.0.3"]["5g"] == meta["expected"]
+        assert case_data["results_reference"]["v4.0.3"]["6g"] == meta["expected"]
+        assert case_data["results_reference"]["v4.0.3"]["2.4g"] == meta["expected"]
+        assert any(
+            criterion["field"] == f"method_5g.GetSSIDStats{meta['api']}5g"
+            and criterion["operator"] == "equals"
+            and criterion["reference"] == f"direct_5g.{meta['api']}"
+            for criterion in case_data["pass_criteria"]
+        )
+        if "driver" in meta:
+            assert f"{meta['driver']}5g=" in commands
+            assert f"{meta['driver']}6g=" in commands
+            assert f"{meta['driver']}24g=" in commands
+            assert meta["awk_field"] in commands
+            assert any(
+                criterion["field"] == f"method_5g.GetSSIDStats{meta['api']}5g"
+                and criterion["operator"] == "equals"
+                and criterion["reference"] == f"driver_5g.{meta['driver']}5g"
+                for criterion in case_data["pass_criteria"]
+            )
+        else:
+            assert any(
+                criterion["field"] == f"method_5g.GetSSIDStats{meta['api']}5g"
+                and criterion["operator"] == "equals"
+                and str(criterion.get("value")) == "0"
+                for criterion in case_data["pass_criteria"]
+            )
+
+    for case_num in range(498, 530):
+        filename = next(cases_dir.glob(f"D{case_num}_*.yaml"))
+        case_data = yaml.safe_load(filename.read_text(encoding="utf-8"))
+        commands = "\n".join(str(step.get("command", "")) for step in case_data["steps"])
+        ac = case_data["source"]["api"]
+        metric = case_data["source"]["object"].split("Stats.", 1)[1].rstrip(".")
+        assert "aliases" not in case_data
+        assert case_data["source"]["report"] == "0310-BGW720-300_LLAPI_Test_Report.xlsx"
+        assert case_data["source"]["row"] == case_num - 135
+        assert case_data["hlapi_command"] == f'ubus-cli "WiFi.SSID.{{i}}.Stats.{metric}.{ac}?"'
+        assert "\\n" not in case_data["test_procedure"]
+        assert "Not Supported" in case_data["test_procedure"]
+        assert "wme_counters" in case_data["verification_command"]
+        assert case_data["results_reference"]["v4.0.3"]["5g"] == "Not Supported"
+        assert case_data["results_reference"]["v4.0.3"]["6g"] == "Not Supported"
+        assert case_data["results_reference"]["v4.0.3"]["2.4g"] == "Not Supported"
+        assert f"WiFi.SSID.4.Stats.{metric}.{ac}?" in commands
+        assert f"WiFi.SSID.6.Stats.{metric}.{ac}?" in commands
+        assert f"WiFi.SSID.8.Stats.{metric}.{ac}?" in commands
+        assert any(
+            criterion["field"] == f"result_5g.{ac}5g"
+            and criterion["operator"] == "equals"
+            and str(criterion.get("value")) == "0"
+            for criterion in case_data["pass_criteria"]
+        )
+
+
 def test_run_required_command_retries_after_recovery_signal():
     plugin = _load_plugin()
     calls: list[str] = []
@@ -985,6 +1414,50 @@ def test_evaluate_normalizes_quote_only_mismatch(monkeypatch):
             }
         }
     }
+    assert plugin.evaluate(case, results) is True
+    plugin.teardown(case, topology=topology)
+
+
+def test_evaluate_supports_reference_field(monkeypatch):
+    plugin = _load_plugin()
+    topology = _FakeTopology()
+    recorder = _FactoryRecorder()
+    _install_fake_factory(monkeypatch, recorder)
+
+    case = {
+        "id": "wifi-llapi-runtime-reference-field",
+        "topology": {"devices": {"DUT": {"transport": "serial"}}},
+        "steps": [
+            {"id": "s1", "capture": "sta_status"},
+            {"id": "s2", "capture": "result"},
+        ],
+        "pass_criteria": [
+            {
+                "field": "result.MACAddress",
+                "operator": "equals",
+                "reference": "sta_status.STAMAC",
+            },
+        ],
+    }
+
+    assert plugin.setup_env(case, topology=topology) is True
+    results = {
+        "steps": {
+            "s1": {
+                "success": True,
+                "output": "STAMAC=2C:59:17:00:04:86",
+                "captured": {"STAMAC": "2C:59:17:00:04:86"},
+                "timing": 0.01,
+            },
+            "s2": {
+                "success": True,
+                "output": 'WiFi.AccessPoint.3.AssociatedDevice.1.MACAddress="2C:59:17:00:04:86"',
+                "captured": {"MACAddress": "2C:59:17:00:04:86"},
+                "timing": 0.01,
+            },
+        }
+    }
+
     assert plugin.evaluate(case, results) is True
     plugin.teardown(case, topology=topology)
 

@@ -1,18 +1,16 @@
-id: wifi-llapi-D329-errorsreceived-ssid-stats
-aliases:
-  - wifi-llapi-r251-errorsreceived-ssid-stats
-name: ErrorsReceived — WiFi.SSID.{i}.Stats.
+id: wifi-llapi-d329-errorsreceived
+name: "ErrorsReceived — WiFi.SSID.{i}.Stats."
 version: '1.0'
 source:
-  report: "0302-AT&T_LLAPI_Test_Report_20260107.xlsx"
+  report: 0310-BGW720-300_LLAPI_Test_Report.xlsx
   sheet: Wifi_LLAPI
-  row: 329
-  object: "WiFi.SSID.{i}.Stats."
-  api: "ErrorsReceived"
+  row: 251
+  object: WiFi.SSID.{i}.Stats.
+  api: ErrorsReceived
 platform:
   prplos: 4.0.3
   bdk: 6.3.1
-hlapi_command: ubus-cli WiFi.SSID.{i}.Stats.ErrorsReceived=0
+hlapi_command: 'ubus-cli "WiFi.SSID.{i}.Stats.ErrorsReceived?"'
 llapi_support: Support
 implemented_by: pWHM
 topology:
@@ -26,119 +24,229 @@ topology:
       transport: serial
       selector: COM1
       config:
-      - iface: 5g
-        mode: sta
-        ssid: '{{SSID_5G}}'
-        key: '{{KEY_5G}}'
+        - iface: 5g
+          mode: sta
+          ssid: TestPilot_BTM
+          key: testpilot6g
+        - iface: 6g
+          mode: sta
+          ssid: TestPilot_BTM
+          key: testpilot6g
+        - iface: 2.4g
+          mode: sta
+          ssid: TestPilot_24G
+          key: ''
   links:
-  - from: STA
-    to: DUT
-    band: 5g
+    - from: STA
+      to: DUT
+      band: 5g
+    - from: STA
+      to: DUT
+      band: 6g
+    - from: STA
+      to: DUT
+      band: 2.4g
 test_environment: |
   Topology:
-  - DUT: COM0 (B0, AP role)
-  - STA: COM1 (A0, STA role, STA-required cases only)
-  Transport:
-  - serialwrap attach COM0 / COM1
-  Band mapping:
-  - 5G: DUT wl0 / AP1 / SSID.4
-  - 6G: DUT wl1 / AP3 / SSID.6
-  - 2.4G: DUT wl2 / AP5 / SSID.8
-  Pre-check:
-  - cat /proc/socinfo | grep Revision | cut -d: -f2
-  - iw dev
-  - ubus-cli "WiFi.Radio.?" | sed -n "1,120p"
-
+  - DUT: COM0 (AP role)
+  - STA: COM1 (single active STA link only; validate 5G -> 6G -> 2.4G sequentially)
+  Mapping:
+  - 5G = wl0 / SSID.4 / STA MAC 2c:59:17:00:04:85
+  - 6G = wl1 / SSID.6 / STA MAC 2c:59:17:00:04:86
+  - 2.4G = wl2 / SSID.8 / STA MAC 2c:59:17:00:04:97
+  Rules:
+  - move COM1 br-lan off 192.168.1.0/24 before any ping attempt
+  - attempt STA-generated traffic before the final readback for each band
+  - on 2.4G, keep the traffic attempt even if ping still drops; judge by direct/getSSIDStats/driver consistency
 setup_steps: |
-  1) DUT 5G baseline:
-     - set Radio.1/SSID.4 for the 5G AP under test
-     - configure AP1 as open with MFP disabled
-     - enable AP1 before station association
-  2) STA 5G preparation:
-     - disable local AP1/AP2 on A0
-     - clear wl0 AP child interface and switch wl0 to managed mode
-     - connect wl0 to {{SSID_5G}}
-  3) Association evidence:
-     - A0: iw dev wl0 link
-     - B0: wl -i wl0 assoclist
-sta_env_setup: |
-  DUT 5G AP baseline:
+  DUT baseline:
     ubus-cli WiFi.Radio.1.Enable=1
-    ubus-cli WiFi.Radio.1.BeaconPeriod=100
-    ubus-cli WiFi.Radio.1.DTIMPeriod=3
-    ubus-cli WiFi.Radio.1.DriverConfig.FragmentationThreshold=-1
-    ubus-cli WiFi.Radio.1.DriverConfig.RtsThreshold=-1
-    ubus-cli WiFi.Radio.1.DriverConfig.TPCMode=Auto
-    ubus-cli WiFi.Radio.1.ExplicitBeamFormingEnabled=1
-    ubus-cli WiFi.Radio.1.ImplicitBeamFormingEnabled=1
-    ubus-cli WiFi.Radio.1.OfdmaEnable=1
-    ubus-cli WiFi.Radio.1.ObssCoexistenceEnable=0
-    ubus-cli WiFi.Radio.1.OperatingStandards=ax
-    ubus-cli WiFi.Radio.1.RxChainCtrl=-1
-    ubus-cli WiFi.Radio.1.TxChainCtrl=-1
-    ubus-cli WiFi.Radio.1.Vendor.Brcm.RegulatoryDomainRev=0
-    ubus-cli WiFi.Radio.1.Sensing.Enable=1
-    ubus-cli WiFi.Radio.1.IEEE80211ax.BssColorPartial=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.NonSRGOBSSPDMaxOffset=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.PSRDisallowed=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.SRGOBSSPDMaxOffset=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.SRGOBSSPDMinOffset=0
-    ubus-cli WiFi.Radio.1.LongRetryLimit=6
-    ubus-cli WiFi.Radio.1.MultiUserMIMOEnabled=1
-    ubus-cli WiFi.Radio.1.TargetWakeTimeEnable=1
-    ubus-cli WiFi.SSID.4.SSID={{SSID_5G}}
-    ubus-cli WiFi.AccessPoint.1.IEEE80211u.QoSMapSet=
-    ubus-cli WiFi.AccessPoint.2.IEEE80211u.QoSMapSet=
-    ubus-cli WiFi.AccessPoint.1.Security.ModeEnabled=None
-    ubus-cli WiFi.AccessPoint.1.Security.MFPConfig=Disabled
+    ubus-cli WiFi.SSID.4.SSID=TestPilot_BTM
+    ubus-cli WiFi.AccessPoint.1.Security.ModeEnabled=WPA3-Personal
+    ubus-cli WiFi.AccessPoint.1.Security.SAEPassphrase=testpilot6g
+    ubus-cli WiFi.AccessPoint.1.Security.MFPConfig=Required
     ubus-cli WiFi.AccessPoint.1.Enable=1
-  STA 5G preparation:
-    ubus-cli WiFi.AccessPoint.1.Enable=0
-    ubus-cli WiFi.AccessPoint.2.Enable=0
-    killall wpa_supplicant 2>/dev/null || true
-    iw dev wl0.1 del 2>/dev/null || true
+    ubus-cli WiFi.Radio.2.Enable=1
+    ubus-cli WiFi.SSID.6.SSID=TestPilot_BTM
+    ubus-cli WiFi.AccessPoint.3.Security.ModeEnabled=WPA3-Personal
+    ubus-cli WiFi.AccessPoint.3.Security.SAEPassphrase=testpilot6g
+    ubus-cli WiFi.AccessPoint.3.Security.MFPConfig=Required
+    ubus-cli WiFi.AccessPoint.3.Enable=1
+    ubus-cli WiFi.Radio.3.Enable=1
+    ubus-cli WiFi.SSID.8.SSID=TestPilot_24G
+    ubus-cli WiFi.AccessPoint.5.Security.ModeEnabled=None
+    ubus-cli WiFi.AccessPoint.5.Security.MFPConfig=Disabled
+    ubus-cli WiFi.AccessPoint.5.Enable=1
+  STA reset before each band:
+    ifconfig br-lan 192.168.88.1 netmask 255.255.255.0 up
+    wpa_cli terminate 2>/dev/null || true
     iw dev wl0 disconnect 2>/dev/null || true
+    iw dev wl1 disconnect 2>/dev/null || true
+    iw dev wl2 disconnect 2>/dev/null || true
+    ip addr flush dev wl0 2>/dev/null || true
+    ip addr flush dev wl1 2>/dev/null || true
+    ip addr flush dev wl2 2>/dev/null || true
+sta_env_setup: |
+  5G example:
     iw dev wl0 set type managed
     ifconfig wl0 up
-  STA 5G connect verify:
-    iw dev wl0 connect {{SSID_5G}}
+    wpa_supplicant -B -D nl80211 -i wl0 -c /tmp/wpa_wl0.conf -C /var/run/wpa_supplicant
+    wpa_cli -p /var/run/wpa_supplicant -i wl0 reconnect
+  6G example:
+    iw dev wl1 set type managed
+    ifconfig wl1 up
+    wpa_supplicant -B -D nl80211 -i wl1 -c /tmp/wpa_wl1.conf -C /var/run/wpa_supplicant
+    wpa_cli -p /var/run/wpa_supplicant -i wl1 reconnect
+  2.4G example:
+    iw dev wl2 set type managed
+    ifconfig wl2 up
+    iw dev wl2 connect TestPilot_24G
+  Traffic attempt:
+    ifconfig wlX 192.168.1.X netmask 255.255.255.0 up
+    ip route replace 192.168.1.0/24 dev wlX src 192.168.1.X
+    ip neigh flush dev wlX
+    ping -I wlX -c 5 -W 1 192.168.1.1
     sleep 2
-    iw dev wl0 link
-  DUT association evidence:
-    wl -i wl0 assoclist
+    ping -I wlX -c 5 -W 1 192.168.1.1
 test_procedure: |
-  1) Execute case command on DUT:
-     ubus-cli WiFi.SSID.{i}.Stats.ErrorsReceived=0
-  2) LLAPI readback on DUT:
-     ubus-cli "WiFi.SSID.*.Stats.ErrorsReceived?"
-  3) For stats/AssociatedDevice cases, generate traffic (ping/iperf) before re-read.
-  4) STA link validation:
-     iw dev wl0 link
-     iw dev wl1 link
-     wpa_cli -i wl1 status
-     iw dev wl2 link
-  5) Cross-check with verification_command (driver/hostapd/iw/proc evidence).
-
+  1) Validate this counter sequentially on 5G, then 6G, then 2.4G; keep only one associated STA link active.
+  2) For each band, capture assoclist, direct Stats, getSSIDStats(), and the matching driver view before the traffic attempt.
+  3) Attempt STA-generated ping traffic with a static IP on the active STA interface, wait 2 seconds, then reread the same counter.
+  4) Use the final reread for the manual judgment.
+  5) Record direct/getSSIDStats()/driver equality as repeatable evidence, but keep the verdict workbook-gated open because v4.0.3 is still To be tested.
 steps:
-- id: query
+- id: assoc_5g
   action: exec
   target: DUT
-  command: ubus-cli WiFi.SSID.{i}.Stats.ErrorsReceived=0
-  capture: result
+  command: wl -i wl0 assoclist | tr 'A-F' 'a-f' | sed -n 's/^assoclist \([^ ]*\).*$/AssocMac5g=\1/p'
+  capture: assoc_5g
+- id: direct_5g
+  action: exec
+  target: DUT
+  command: 'ubus-cli "WiFi.SSID.4.Stats.ErrorsReceived?"'
+  depends_on: assoc_5g
+  capture: direct_5g
+- id: getssid_5g
+  action: exec
+  target: DUT
+  command: ubus-cli "WiFi.SSID.4.getSSIDStats()" | sed -n 's/.*ErrorsReceived = \([0-9][0-9]*\).*/GetSSIDStatsErrorsReceived5g=\1/p'
+  depends_on: direct_5g
+  capture: getssid_5g
+- id: driver_5g
+  action: exec
+  target: DUT
+  command: awk '$1=="wl0:" {print "DriverErrorsReceived5g=" $4}' /proc/net/dev_extstats
+  depends_on: getssid_5g
+  capture: driver_5g
+- id: assoc_6g
+  action: exec
+  target: DUT
+  command: wl -i wl1 assoclist | tr 'A-F' 'a-f' | sed -n 's/^assoclist \([^ ]*\).*$/AssocMac6g=\1/p'
+  capture: assoc_6g
+- id: direct_6g
+  action: exec
+  target: DUT
+  command: 'ubus-cli "WiFi.SSID.6.Stats.ErrorsReceived?"'
+  depends_on: assoc_6g
+  capture: direct_6g
+- id: getssid_6g
+  action: exec
+  target: DUT
+  command: ubus-cli "WiFi.SSID.6.getSSIDStats()" | sed -n 's/.*ErrorsReceived = \([0-9][0-9]*\).*/GetSSIDStatsErrorsReceived6g=\1/p'
+  depends_on: direct_6g
+  capture: getssid_6g
+- id: driver_6g
+  action: exec
+  target: DUT
+  command: awk '$1=="wl1:" {print "DriverErrorsReceived6g=" $4}' /proc/net/dev_extstats
+  depends_on: getssid_6g
+  capture: driver_6g
+- id: assoc_24g
+  action: exec
+  target: DUT
+  command: wl -i wl2 assoclist | tr 'A-F' 'a-f' | sed -n 's/^assoclist \([^ ]*\).*$/AssocMac24g=\1/p'
+  capture: assoc_24g
+- id: direct_24g
+  action: exec
+  target: DUT
+  command: 'ubus-cli "WiFi.SSID.8.Stats.ErrorsReceived?"'
+  depends_on: assoc_24g
+  capture: direct_24g
+- id: getssid_24g
+  action: exec
+  target: DUT
+  command: ubus-cli "WiFi.SSID.8.getSSIDStats()" | sed -n 's/.*ErrorsReceived = \([0-9][0-9]*\).*/GetSSIDStatsErrorsReceived24g=\1/p'
+  depends_on: direct_24g
+  capture: getssid_24g
+- id: driver_24g
+  action: exec
+  target: DUT
+  command: awk '$1=="wl2:" {print "DriverErrorsReceived24g=" $4}' /proc/net/dev_extstats
+  depends_on: getssid_24g
+  capture: driver_24g
 pass_criteria:
-- field: result.ErrorsReceived
-  operator: contains
-  value: '0'
-  description: ErrorsReceived 應回傳包含 ErrorsReceived=0
-verification_command: cat /proc/net/dev | grep wl0
+- field: assoc_5g.AssocMac5g
+  operator: equals
+  value: 2c:59:17:00:04:85
+  description: 5g DUT assoclist must resolve the expected STA MAC 2c:59:17:00:04:85.
+- field: direct_5g.ErrorsReceived
+  operator: equals
+  reference: getssid_5g.GetSSIDStatsErrorsReceived5g
+  description: 5g direct Stats.ErrorsReceived must match getSSIDStats().ErrorsReceived.
+- field: direct_5g.ErrorsReceived
+  operator: equals
+  reference: driver_5g.DriverErrorsReceived5g
+  description: 5g direct Stats.ErrorsReceived must match /proc/net/dev_extstats field $4 on wl0.
+- field: assoc_6g.AssocMac6g
+  operator: equals
+  value: 2c:59:17:00:04:86
+  description: 6g DUT assoclist must resolve the expected STA MAC 2c:59:17:00:04:86.
+- field: direct_6g.ErrorsReceived
+  operator: equals
+  reference: getssid_6g.GetSSIDStatsErrorsReceived6g
+  description: 6g direct Stats.ErrorsReceived must match getSSIDStats().ErrorsReceived.
+- field: direct_6g.ErrorsReceived
+  operator: equals
+  reference: driver_6g.DriverErrorsReceived6g
+  description: 6g direct Stats.ErrorsReceived must match /proc/net/dev_extstats field $4 on wl1.
+- field: assoc_24g.AssocMac24g
+  operator: equals
+  value: 2c:59:17:00:04:97
+  description: 2.4g DUT assoclist must resolve the expected STA MAC 2c:59:17:00:04:97.
+- field: direct_24g.ErrorsReceived
+  operator: equals
+  reference: getssid_24g.GetSSIDStatsErrorsReceived24g
+  description: 2.4g direct Stats.ErrorsReceived must match getSSIDStats().ErrorsReceived.
+- field: direct_24g.ErrorsReceived
+  operator: equals
+  reference: driver_24g.DriverErrorsReceived24g
+  description: 2.4g direct Stats.ErrorsReceived must match /proc/net/dev_extstats field $4 on wl2.
+verification_command: |
+  # 5g
+  wl -i wl0 assoclist
+  ubus-cli "WiFi.SSID.4.Stats.ErrorsReceived?"
+  ubus-cli "WiFi.SSID.4.getSSIDStats()" | grep "ErrorsReceived"
+  awk '$1=="wl0:" {print "DriverErrorsReceived5g=" $4}' /proc/net/dev_extstats
+
+  # 6g
+  wl -i wl1 assoclist
+  ubus-cli "WiFi.SSID.6.Stats.ErrorsReceived?"
+  ubus-cli "WiFi.SSID.6.getSSIDStats()" | grep "ErrorsReceived"
+  awk '$1=="wl1:" {print "DriverErrorsReceived6g=" $4}' /proc/net/dev_extstats
+
+  # 2.4g
+  wl -i wl2 assoclist
+  ubus-cli "WiFi.SSID.8.Stats.ErrorsReceived?"
+  ubus-cli "WiFi.SSID.8.getSSIDStats()" | grep "ErrorsReceived"
+  awk '$1=="wl2:" {print "DriverErrorsReceived24g=" $4}' /proc/net/dev_extstats
 results_reference:
   v4.0.1:
     5g: To be tested
     6g: To be tested
     2.4g: To be tested
-    comment: ''
+    comment: 'ARC'
   v4.0.3:
     5g: To be tested
     6g: To be tested
     2.4g: To be tested
-    comment: ''
+    comment: 'ARC | Multiband serialwrap probe observed 5g=0, 6g=0, 2.4g=0; direct Stats matched getSSIDStats() and /proc/net/dev_extstats field $4, but workbook v4.0.3 still remains To be tested.'
