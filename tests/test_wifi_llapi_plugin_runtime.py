@@ -3266,6 +3266,18 @@ def test_d050_supportedhemcs_uses_supported_contracts():
         for criterion in d050["pass_criteria"]
     )
     assert any(
+        criterion["field"] == "sibling_support.DriverTxSupportedHeMCS"
+        and criterion["operator"] == "regex"
+        and criterion["value"] == r"^[0-9]+(,[0-9]+)*$"
+        for criterion in d050["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "driver_capability.DriverAssocMac"
+        and criterion["operator"] == "equals"
+        and criterion["reference"] == "assoc_entry.MACAddress"
+        for criterion in d050["pass_criteria"]
+    )
+    assert any(
         criterion["field"] == "driver_capability.DriverHeMcsLinePresent"
         and criterion["operator"] == "equals"
         and str(criterion["value"]) == "1"
@@ -3336,6 +3348,18 @@ def test_d050_supportedhemcs_evaluate_live_examples():
     }
     assert plugin.evaluate(d050, d050_missing_sibling_results) is False
 
+    d050_missing_tx_sibling_results = {
+        "steps": {
+            **d050_results["steps"],
+            "step4": {
+                "success": True,
+                "output": "SiblingAssocMac=2C:59:17:00:04:85\nDriverRxSupportedHeMCS=11,11,11,11",
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d050, d050_missing_tx_sibling_results) is False
+
     d050_missing_driver_line_results = {
         "steps": {
             **d050_results["steps"],
@@ -3347,6 +3371,18 @@ def test_d050_supportedhemcs_evaluate_live_examples():
         }
     }
     assert plugin.evaluate(d050, d050_missing_driver_line_results) is False
+
+    d050_wrong_driver_assoc_results = {
+        "steps": {
+            **d050_results["steps"],
+            "step5": {
+                "success": True,
+                "output": "DriverAssocMac=AA:AA:AA:AA:AA:AA\nDriverHeCapsPresent=1\nDriverMCSSetPresent=1\nDriverHeSetPresent=1\nDriverHeMcsLinePresent=1",
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d050, d050_wrong_driver_assoc_results) is False
 
     d050_wrong_sta_results = {
         "steps": {
