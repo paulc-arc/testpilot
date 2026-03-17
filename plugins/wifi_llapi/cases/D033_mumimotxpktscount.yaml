@@ -4,7 +4,7 @@ version: '1.1'
 source:
   report: 0310-BGW720-300_LLAPI_Test_Report.xlsx
   sheet: Wifi_LLAPI
-  row: 28
+  row: 33
   object: "WiFi.AccessPoint.{i}.AssociatedDevice.{i}."
   api: MUMimoTxPktsCount
   baseline: BCM v4.0.3

@@ -1781,15 +1781,16 @@ def test_pending_mu_stub_cases_use_supported_contracts():
     }.issubset(discoverable_ids)
 
     mu_cases = {
-        "D033_mumimotxpktscount.yaml": ("MUMimoTxPktsCount", "wifi-llapi-D033-mumimotxpktscount"),
-        "D034_mumimotxpktspercentage.yaml": ("MUMimoTxPktsPercentage", "wifi-llapi-D034-mumimotxpktspercentage"),
-        "D035_muuserpositionid.yaml": ("MUUserPositionId", "wifi-llapi-D035-muuserpositionid"),
+        "D033_mumimotxpktscount.yaml": ("MUMimoTxPktsCount", "wifi-llapi-D033-mumimotxpktscount", 33),
+        "D034_mumimotxpktspercentage.yaml": ("MUMimoTxPktsPercentage", "wifi-llapi-D034-mumimotxpktspercentage", 34),
+        "D035_muuserpositionid.yaml": ("MUUserPositionId", "wifi-llapi-D035-muuserpositionid", 35),
     }
-    for filename, (api_name, case_id) in mu_cases.items():
+    for filename, (api_name, case_id, source_row) in mu_cases.items():
         case_data = load_case(cases_dir / filename)
         commands = "\n".join(str(step.get("command", "")) for step in case_data["steps"])
         links = {link["band"] for link in case_data["topology"]["links"]}
         assert case_data["id"] == case_id
+        assert case_data["source"]["row"] == source_row
         assert links == {"5g", "2.4g"}
         assert "wl -i wl0 assoclist" in commands
         assert "wl -i wl2 assoclist" in commands
