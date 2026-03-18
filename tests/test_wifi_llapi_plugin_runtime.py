@@ -2563,6 +2563,164 @@ def test_d062_uplinkmcs_evaluate_accepts_zero_when_driver_matches():
     assert plugin.evaluate(case_data, mismatch_results) is False
 
 
+def test_d063_uplinkshortguard_uses_same_sta_gi_contract():
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    plugin = _load_plugin()
+    raw_case = yaml.safe_load((cases_dir / "D063_uplinkshortguard.yaml").read_text(encoding="utf-8"))
+    case_data = load_case(cases_dir / "D063_uplinkshortguard.yaml")
+    commands = "\n".join(str(step.get("command", "")) for step in case_data["steps"])
+    links = {link["band"] for link in case_data["topology"]["links"]}
+
+    assert "wifi-llapi-D063-uplinkshortguard" in {case["id"] for case in plugin.discover_cases()}
+    assert "aliases" not in raw_case
+    assert case_data["id"] == "wifi-llapi-D063-uplinkshortguard"
+    assert case_data["source"]["row"] == 63
+    assert case_data["source"]["baseline"] == "BCM v4.0.3"
+    assert case_data["bands"] == ["5g"]
+    assert links == {"5g"}
+    assert case_data["hlapi_command"] == 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.UplinkShortGuard?"'
+    assert len(case_data["steps"]) == 5
+    assert "MACAddress?" in commands
+    assert "ping -I wl0 -c 8 -W 1 192.168.1.1" in commands
+    assert "AssocMacAfterTrigger=" in commands
+    assert "DriverAssocMac=" in commands
+    assert "DriverUplinkShortGuardGI=" in commands
+    assert "DriverUplinkShortGuard=" in commands
+    assert 'case "$GI" in 0.4us|0.8us|1.6us) echo DriverUplinkShortGuard=1 ;; 3.2us) echo DriverUplinkShortGuard=0 ;; *) echo DriverUplinkShortGuard=UNKNOWN_GI:$GI ;; esac' in commands
+    assert any(
+        criterion["field"] == "result.AssocMacAfterTrigger"
+        and criterion["operator"] == "equals"
+        and criterion["reference"] == "assoc_entry.MACAddress"
+        for criterion in case_data["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "result.UplinkShortGuard"
+        and criterion["operator"] == "regex"
+        and criterion["value"] == "^[0-1]$"
+        for criterion in case_data["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "driver_counter.DriverUplinkShortGuardGI"
+        and criterion["operator"] == "regex"
+        and criterion["value"] == "^[0-9.]+us$"
+        for criterion in case_data["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "driver_counter.DriverUplinkShortGuard"
+        and criterion["operator"] == "regex"
+        and criterion["value"] == "^[0-1]$"
+        for criterion in case_data["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "result.UplinkShortGuard"
+        and criterion["operator"] == "equals"
+        and criterion["reference"] == "driver_counter.DriverUplinkShortGuard"
+        for criterion in case_data["pass_criteria"]
+    )
+    assert not any(
+        criterion["field"] == "result.UplinkShortGuard" and criterion["operator"] == "contains"
+        for criterion in case_data["pass_criteria"]
+    )
+    assert case_data["results_reference"]["v4.0.3"]["5g"] == "Pass"
+    assert case_data["results_reference"]["v4.0.3"]["6g"] == "N/A"
+    assert case_data["results_reference"]["v4.0.3"]["2.4g"] == "N/A"
+
+
+def test_d063_uplinkshortguard_evaluate_uses_driver_gi_mapping():
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    case_data = load_case(cases_dir / "D063_uplinkshortguard.yaml")
+
+    pass_results = {
+        "steps": {
+            "step1": {
+                "success": True,
+                "output": 'WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress="2C:59:17:00:04:85"',
+                "timing": 0.01,
+            },
+            "step2": {
+                "success": True,
+                "output": "192.168.1.1 dev wl0 src 192.168.1.3 uid 0",
+                "timing": 0.01,
+            },
+            "step3": {
+                "success": True,
+                "output": "8 packets transmitted, 8 received, 0% packet loss",
+                "timing": 0.01,
+            },
+            "step4": {
+                "success": True,
+                "output": "UplinkShortGuard=1\nAssocMacAfterTrigger=2C:59:17:00:04:85",
+                "timing": 0.01,
+            },
+            "step5": {
+                "success": True,
+                "output": "DriverAssocMac=2C:59:17:00:04:85\nDriverUplinkShortGuardGI=1.6us\nDriverUplinkShortGuard=1",
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(case_data, pass_results) is True
+
+    zero_results = {
+        "steps": {
+            **pass_results["steps"],
+            "step4": {
+                "success": True,
+                "output": "UplinkShortGuard=0\nAssocMacAfterTrigger=2C:59:17:00:04:85",
+                "timing": 0.01,
+            },
+            "step5": {
+                "success": True,
+                "output": "DriverAssocMac=2C:59:17:00:04:85\nDriverUplinkShortGuardGI=3.2us\nDriverUplinkShortGuard=0",
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(case_data, zero_results) is True
+
+    fail_results = {
+        "steps": {
+            **pass_results["steps"],
+            "step5": {
+                "success": True,
+                "output": "DriverAssocMac=2C:59:17:00:04:85\nDriverUplinkShortGuardGI=3.2us\nDriverUplinkShortGuard=0",
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(case_data, fail_results) is False
+
+    mismatch_results = {
+        "steps": {
+            **pass_results["steps"],
+            "step4": {
+                "success": True,
+                "output": "UplinkShortGuard=1\nAssocMacAfterTrigger=AA:AA:AA:AA:AA:AA",
+                "timing": 0.01,
+            },
+            "step5": {
+                "success": True,
+                "output": "DriverAssocMac=AA:AA:AA:AA:AA:AA\nDriverUplinkShortGuardGI=1.6us\nDriverUplinkShortGuard=1",
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(case_data, mismatch_results) is False
+
+    unmapped_gi_results = {
+        "steps": {
+            **pass_results["steps"],
+            "step5": {
+                "success": True,
+                "output": "DriverAssocMac=2C:59:17:00:04:85\nDriverUplinkShortGuardGI=6.4us\nDriverUplinkShortGuard=UNKNOWN_GI:6.4us",
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(case_data, unmapped_gi_results) is False
+
+
 def test_pending_d046_d051_d060_associateddevice_cases_use_supported_contracts():
     cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
     plugin = _load_plugin()
@@ -4882,6 +5040,7 @@ def test_extract_cli_fragments_ignores_prose_after_ubus_keyword():
         ("D058_txpacketcount.yaml", 2, "DriverTxPacketCount="),
         ("D061_uplinkbandwidth.yaml", 2, "DriverUplinkBandwidth="),
         ("D062_uplinkmcs.yaml", 3, "DriverUplinkMCS="),
+        ("D063_uplinkshortguard.yaml", 4, "DriverUplinkShortGuardGI="),
         ("D060_uniibandscapabilities.yaml", 2, "DriverUNIIBandsCapabilities="),
     ],
 )
