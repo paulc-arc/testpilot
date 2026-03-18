@@ -14,6 +14,7 @@ from testpilot.reporting.wifi_llapi_excel import (
     normalize_command_block,
     sanitize_report_output,
 )
+from testpilot.schema.case_schema import load_case
 
 
 def _create_source_xlsx(path: Path) -> None:
@@ -243,3 +244,15 @@ def test_collect_alignment_issues(tmp_path: Path):
     assert len(issues) == 1
     assert issues[0]["case_id"] == "wifi-llapi-mismatch"
     assert issues[0]["issue"] == "object_or_api_mismatch"
+
+
+def test_collect_alignment_issues_on_repo_template_case():
+    repo_root = Path(__file__).resolve().parents[1]
+    case = load_case(
+        repo_root / "plugins/wifi_llapi/cases/D061_uplinkbandwidth.yaml"
+    )
+    template = repo_root / "plugins/wifi_llapi/reports/templates/wifi_llapi_template.xlsx"
+
+    issues = collect_alignment_issues([case], template)
+
+    assert issues == []

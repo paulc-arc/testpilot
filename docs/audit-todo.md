@@ -94,8 +94,8 @@ If I open only this file in a future session, I should do the following in order
 
 ## Current repo handoff snapshot（2026-03-18）
 
-- Trusted/calibrated official cases: **119 / 415** (`D060/D061` 已有 committed checkpoint，但尚未重新結算到這份 handoff ledger)
-- Remaining official cases: **296**（沿用上一版已結算 ledger；待下一輪統一重算）
+- Trusted/calibrated official cases: **122 / 415**
+- Remaining official cases: **293**
 - Active blockers:
   - `D037 OperatingStandard`
   - `D054 Tx_RetransmissionsFailed`
@@ -106,15 +106,18 @@ If I open only this file in a future session, I should do the following in order
   - `D059 TxUnicastPacketCount` → workbook-aligned **Fail-shaped mismatch** (`49640dd`)
   - `D060 UNIIBandsCapabilities` → workbook-aligned `Pass` checkpoint (`ff9ada2`, shared batch commit with `D046/D051/D058`)
   - `D061 UplinkBandwidth` → workbook-aligned `Pass` checkpoint (`538a741`)
-  - `D185 TPCMode` → targeted source/live **Fail-shaped mismatch** checkpoint; main sweep counts stay at 119 / 296 until workbook-side verdict bookkeeping for this retroactive row is reconciled
+  - `D062 UplinkMCS` → workbook-aligned `Pass` checkpoint（current checkpoint；5G same-STA post-trigger snapshot + `wl sta_info rx nrate` `mcs` equality）
+  - `D185 TPCMode` → targeted source/live **Fail-shaped mismatch** checkpoint outside the 122 / 293 main-sweep counts
 - Latest validated commands:
-  - `uv run pytest -q tests/test_wifi_llapi_plugin_runtime.py` → `111 passed`
-  - `uv run pytest -q` → `163 passed`
+  - `timeout 30s env PYTHONUNBUFFERED=1 PYTHONPATH=src python - <<'PY' ... load_case(D062) + collect_alignment_issues ... PY` → `alignment_issues=[]`
+  - `uv run pytest -q tests/test_wifi_llapi_excel_template.py -k collect_alignment_issues` → `2 passed`
+  - `uv run pytest -q tests/test_wifi_llapi_plugin_runtime.py` → `115 passed`
+  - `uv run pytest -q` → `168 passed`
   - `serialwrap COM0 ubus-cli/hostapd_cli baseline readback` → 5G `testpilot5G` + `WPA2-Personal/00000000`, 6G `testpilot6G` + `WPA3-Personal/SAE/00000000`, 2.4G `testpilot2G` + `WPA2-Personal/00000000`
   - `serialwrap COM1 wl0 reconnect testpilot5G` → `iw dev wl0 link` = connected to `2c:59:17:00:19:95`, `wpa_cli status` = `wpa_state=COMPLETED` / `key_mgmt=WPA2-PSK`
   - `serialwrap COM0 wl0 assoclist + AssociatedDevice.1.MACAddress?` → same STA `2C:59:17:00:04:85`
 - Next ready repo handoff case:
-  - `D062 UplinkMCS`
+  - `D063 UplinkShortGuard`
 - Continuation guard rails:
   - only committed YAML / docs count as trusted handoff state
   - do not infer progress from any local unstaged experiment outside these committed checkpoints
@@ -133,8 +136,8 @@ Current verified live baseline findings from this session:
   - 2.4G = `wl2` / MAC `2c:59:17:00:04:97`
 - Current `D060-D079` batch triage:
   - `D060/D061` are already committed 0310/5G-only live-aligned cases and do not need to be re-done before the next handoff step
-  - `D062-D065` remain old `0302` setter-style drafts; offline survey indicates they should be rewritten as read-only getter cases, and the earlier 5G association blocker is now cleared
-  - `D062/D063` should use `wl sta_info ... rx nrate` style truth sources (`mcs`, `GI`)
+  - `D062` is now a committed 0310/5G-only live-aligned pass case; use the same-STA post-trigger snapshot + `wl sta_info ... rx nrate` `mcs` equality pattern as the prior art
+  - `D063` should continue the same `wl sta_info ... rx nrate` family, but parse the guard-interval token (`GI`) instead of `mcs`
   - `D064/D065` are more likely hostapd / assoc-IE derived fields than simple driver counters
   - `D066-D079` are still old `0302` setter transcripts with row drift against the current BCM summary and should be reworked case-by-case from live/source evidence
 - Critical lab rule:

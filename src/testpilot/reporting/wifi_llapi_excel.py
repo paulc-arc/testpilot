@@ -187,6 +187,40 @@ def _iter_case_rows(
     return rows
 
 
+def _iter_source_object_api_rows(
+    ws,
+    data_start_row: int,
+    empty_streak_stop: int,
+    max_scan_rows: int,
+) -> Iterable[tuple[int, str | None, str | None]]:
+    """Yield (row, object, api) sequentially for read-only worksheets.
+
+    Random ``ws.cell(row=...)`` access on read-only worksheets becomes very slow
+    when the workbook carries stale dimensions with a huge ``max_row``. Walking
+    the sheet once via ``iter_rows()`` keeps alignment checks bounded.
+    """
+    empty_streak = 0
+    max_row = min(ws.max_row, data_start_row + max_scan_rows)
+    for row_idx, values in enumerate(
+        ws.iter_rows(
+            min_row=data_start_row,
+            max_row=max_row,
+            min_col=1,
+            max_col=3,
+            values_only=True,
+        ),
+        start=data_start_row,
+    ):
+        obj, _, api = values
+        if api is None or str(api).strip() == "":
+            empty_streak += 1
+            if empty_streak >= empty_streak_stop:
+                break
+            continue
+        empty_streak = 0
+        yield row_idx, obj, api
+
+
 def _to_col_idx(col: str | int) -> int:
     if isinstance(col, int):
         return col
@@ -440,12 +474,14 @@ def read_source_rows(
     source = Path(source_xlsx)
     wb = load_workbook(source, read_only=True, data_only=False)
     ws = _get_sheet(wb, sheet_name)
-    rows = _iter_case_rows(ws, DATA_START_ROW, EMPTY_STREAK_STOP, MAX_SCAN_ROWS)
     out: dict[int, dict[str, str]] = {}
     current_object = ""
-    for row in rows:
-        obj = ws.cell(row=row, column=1).value
-        api = ws.cell(row=row, column=3).value
+    for row, obj, api in _iter_source_object_api_rows(
+        ws,
+        DATA_START_ROW,
+        EMPTY_STREAK_STOP,
+        MAX_SCAN_ROWS,
+    ):
         obj_norm = normalize_text(obj)
         if obj_norm:
             current_object = obj_norm

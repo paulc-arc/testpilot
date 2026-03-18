@@ -2445,6 +2445,124 @@ def test_pending_counter_pass_associateddevice_cases_evaluate_live_examples():
         assert plugin.evaluate(case_data, mismatch_results) is False
 
 
+def test_d062_uplinkmcs_uses_zero_valid_same_sta_contract():
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    plugin = _load_plugin()
+    raw_case = yaml.safe_load((cases_dir / "D062_uplinkmcs.yaml").read_text(encoding="utf-8"))
+    case_data = load_case(cases_dir / "D062_uplinkmcs.yaml")
+    commands = "\n".join(str(step.get("command", "")) for step in case_data["steps"])
+    links = {link["band"] for link in case_data["topology"]["links"]}
+
+    assert "wifi-llapi-D062-uplinkmcs" in {case["id"] for case in plugin.discover_cases()}
+    assert "aliases" not in raw_case
+    assert case_data["id"] == "wifi-llapi-D062-uplinkmcs"
+    assert case_data["source"]["row"] == 62
+    assert case_data["source"]["baseline"] == "BCM v4.0.3"
+    assert case_data["bands"] == ["5g"]
+    assert links == {"5g"}
+    assert case_data["hlapi_command"] == 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.UplinkMCS?"'
+    assert len(case_data["steps"]) == 4
+    assert "MACAddress?" in commands
+    assert "ping -I wl0 -c 8 -W 1 192.168.1.1" in commands
+    assert "AssocMacAfterTrigger=" in commands
+    assert "DriverAssocMac=" in commands
+    assert "DriverUplinkMCS=" in commands
+    assert "sed -n '/rx nrate/{n;s/.*mcs \\([0-9][0-9]*\\).*/DriverUplinkMCS=\\1/p;}'" in commands
+    assert any(
+        criterion["field"] == "result.AssocMacAfterTrigger"
+        and criterion["operator"] == "equals"
+        and criterion["reference"] == "assoc_entry.MACAddress"
+        for criterion in case_data["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "result.UplinkMCS"
+        and criterion["operator"] == "regex"
+        and criterion["value"] == "^[0-9]+$"
+        for criterion in case_data["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "result.DriverAssocMac"
+        and criterion["operator"] == "equals"
+        and criterion["reference"] == "result.AssocMacAfterTrigger"
+        for criterion in case_data["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "result.DriverUplinkMCS"
+        and criterion["operator"] == "regex"
+        and criterion["value"] == "^[0-9]+$"
+        for criterion in case_data["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "result.UplinkMCS"
+        and criterion["operator"] == "equals"
+        and criterion["reference"] == "result.DriverUplinkMCS"
+        for criterion in case_data["pass_criteria"]
+    )
+    assert not any(
+        criterion["field"] == "result.UplinkMCS" and criterion["operator"] == ">"
+        for criterion in case_data["pass_criteria"]
+    )
+    assert case_data["results_reference"]["v4.0.3"]["5g"] == "Pass"
+    assert case_data["results_reference"]["v4.0.3"]["6g"] == "N/A"
+    assert case_data["results_reference"]["v4.0.3"]["2.4g"] == "N/A"
+
+
+def test_d062_uplinkmcs_evaluate_accepts_zero_when_driver_matches():
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    case_data = load_case(cases_dir / "D062_uplinkmcs.yaml")
+
+    pass_results = {
+        "steps": {
+            "step1": {
+                "success": True,
+                "output": 'WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress="2C:59:17:00:04:85"',
+                "timing": 0.01,
+            },
+            "step2": {
+                "success": True,
+                "output": "192.168.1.1 dev wl0 src 192.168.1.3 uid 0",
+                "timing": 0.01,
+            },
+            "step3": {
+                "success": True,
+                "output": "8 packets transmitted, 8 received, 0% packet loss",
+                "timing": 0.01,
+            },
+            "step4": {
+                "success": True,
+                "output": "UplinkMCS=0\nAssocMacAfterTrigger=2C:59:17:00:04:85\nDriverAssocMac=2C:59:17:00:04:85\nDriverUplinkMCS=0",
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(case_data, pass_results) is True
+
+    fail_results = {
+        "steps": {
+            **pass_results["steps"],
+            "step4": {
+                "success": True,
+                "output": "UplinkMCS=0\nAssocMacAfterTrigger=2C:59:17:00:04:85\nDriverAssocMac=2C:59:17:00:04:85\nDriverUplinkMCS=1",
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(case_data, fail_results) is False
+
+    mismatch_results = {
+        "steps": {
+            **pass_results["steps"],
+            "step4": {
+                "success": True,
+                "output": "UplinkMCS=0\nAssocMacAfterTrigger=AA:AA:AA:AA:AA:AA\nDriverAssocMac=AA:AA:AA:AA:AA:AA\nDriverUplinkMCS=0",
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(case_data, mismatch_results) is False
+
+
 def test_pending_d046_d051_d060_associateddevice_cases_use_supported_contracts():
     cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
     plugin = _load_plugin()
@@ -4645,6 +4763,25 @@ def test_sta_env_setup_parser_preserves_single_line_wpa_supplicant_template(file
     assert "network={" not in commands
 
 
+def test_sta_env_setup_parser_preserves_single_line_wpa_supplicant_psk_template():
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    case_data = load_case(cases_dir / "D062_uplinkmcs.yaml")
+
+    parsed = plugin._iter_env_script_commands(case_data["sta_env_setup"])
+    commands = [command for _, command in parsed]
+
+    assert (
+        "printf 'ctrl_interface=/var/run/wpa_supplicant\\nupdate_config=1\\nnetwork={\\nssid=\"testpilot5G\"\\npsk=\"00000000\"\\nkey_mgmt=WPA-PSK\\nscan_ssid=1\\n}\\n' > /tmp/wpa_wl0.conf"
+        in commands
+    )
+    assert "rm -f /var/run/wpa_supplicant/wl0 2>/dev/null || true" in commands
+    assert "mkdir -p /var/run/wpa_supplicant" in commands
+    assert "wpa_supplicant -B -D nl80211 -i wl0 -c /tmp/wpa_wl0.conf -C /var/run/wpa_supplicant" in commands
+    assert "update_config=1" not in commands
+    assert "network={" not in commands
+
+
 def test_extract_cli_fragments_prefers_concrete_getter_from_set_get_prose():
     plugin = _load_plugin()
     text = (
@@ -4744,6 +4881,7 @@ def test_extract_cli_fragments_ignores_prose_after_ubus_keyword():
         ("D051_supportedmcs.yaml", 2, "DriverMCSSetPresent="),
         ("D058_txpacketcount.yaml", 2, "DriverTxPacketCount="),
         ("D061_uplinkbandwidth.yaml", 2, "DriverUplinkBandwidth="),
+        ("D062_uplinkmcs.yaml", 3, "DriverUplinkMCS="),
         ("D060_uniibandscapabilities.yaml", 2, "DriverUNIIBandsCapabilities="),
     ],
 )
