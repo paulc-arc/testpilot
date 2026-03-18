@@ -60,7 +60,7 @@
 | P4-01 | wifi-plugin full implementation | done | setup/verify/execute/evaluate 已完成 |
 | P4-02 | case-getRadioStats | done | legacy compatibility fixture 已保留，改為 underscore-prefixed explicit fixture，不進 discover_cases |
 | P4-03 | case-kickStation | done | legacy compatibility fixture 已保留，改為 underscore-prefixed explicit fixture，不進 discover_cases |
-| P4-04 | 417 case source 對齊治理 | done | 415 官方 discoverable D### 已對齊；2 legacy duplicate-row YAML 已轉為 explicit fixtures |
+| P4-04 | 417 case source 對齊治理 | done | 415 官方 discoverable D### 已對齊；2 legacy duplicate-row YAML 已轉為 explicit fixtures；目前 trusted/calibrated 119、remaining 296，最新單案 checkpoint 到 D059 |
 | P4-05 | Wifi_LLAPI Excel report pipeline | done | template + run report + merged-cell 相容 |
 
 ## Phase 5：CLI & Integration
@@ -69,7 +69,7 @@
 |---|---|---|---|
 | P5-01 | cli-full | done | `run/list` + `wifi-llapi build-template-report` |
 | P5-02 | orchestrator-full | in_progress | `wifi_llapi` 流程已整合；其他 plugin 仍 skeleton |
-| P5-03 | integration tests（mock transport） | done | 已補齊 realistic runtime 測試 |
+| P5-03 | integration tests（mock transport） | done | 已補齊 realistic runtime 測試；最新逐案校正後 `tests/test_wifi_llapi_plugin_runtime.py=111 passed`、full suite `163 passed` |
 | P5-04 | plugin agent-config schema/runtime | done | `agent_runtime.py` |
 | P5-05 | agent selection trace | done | per-case selection / fallback trace |
 | P5-06 | case-agent dispatcher（sequential） | done | `max_concurrency=1` |

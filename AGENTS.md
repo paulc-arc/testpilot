@@ -58,6 +58,43 @@ pytest
 3. `README.md`
 4. 本檔 `AGENTS.md`
 
+## Audit Report Format Policy
+
+1. `wifi_llapi` 的人工校正 audit report 必須使用 collapsible markdown sections。
+2. 一旦某批 case 被判定為「已 live 對齊」，report 中必須新增或更新 `Per-case 摘要表（zh-tw）` 區塊。
+3. `Per-case 摘要表（zh-tw）` 至少要包含：
+   - case id
+   - workbook row
+   - API 名稱
+   - verdict
+   - DUT log interval
+   - STA log interval
+4. 每個已對齊 case 都必須附上 markdown fenced code blocks，分別記錄：
+   - STA 指令
+   - DUT 指令
+   - 判定 pass 的 log 摘錄 / log 區間
+5. 不可只寫 prose summary 而省略指令與 log block；有標記 aligned 的 case，command/log evidence 是必填。
+6. 若同一批 case 共用 STA baseline，可重複列出，或在每個 case 內明確引用同一組 baseline 指令，但不可省略。
+7. 若已知 log 行號區間，沿用 `Lxxx-Lyyy` 表示法，避免後續批次漂移成不同風格。
+8. `wifi_llapi` aligned YAML 的 workbook row reference 只保留在 `source.row`；舊的 `wifi-llapi-rXXX-*` alias 視為 stale metadata，live 對齊時應移除，不再作為 row 來源。
+
+## Calibration Continuation Policy
+
+1. 目前 `wifi_llapi` workbook 校正工作必須嚴格採 **single-case mode**：一次只處理一個 official case。
+2. 不可把未解案例再拆成 batch 並行處理，也不可自行建立加速工具／腳本來跳過逐案 evidence 驗證。
+3. sub-agent 只可協助 offline survey、source tracing、code review；最終 live serialwrap 操作與 verdict 仍由主操作者手動收斂。
+4. repo-only handoff 必須落在已提交的文件，而不是 session-local SQL / plan scratchpad。最少要同步：
+   - `docs/audit-todo.md`
+   - `plugins/wifi_llapi/reports/audit-report-*.md` 的最新 checkpoint 區塊
+   - `README.md`
+   - `docs/plan.md`
+5. 每次完成單案校正或確認 blocker 後，repo handoff 文件至少要同步：
+   - 目前 calibrated / remaining counts
+   - active blockers
+   - 最新已提交 case 與 verdict 形狀
+   - 下一個 ready case
+   - 最新驗證指令與結果
+
 ## Plugin Agent Config Policy
 
 1. plugin 若需宣告 agent/model policy，使用 `plugins/<plugin>/agent-config.yaml`。
