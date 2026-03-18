@@ -4557,6 +4557,168 @@ def test_d064_vendoroui_evaluate_live_examples():
     assert plugin.evaluate(d064, d064_wrong_assoc_results) is False
 
 
+def test_d065_vhtcapabilities_uses_same_sta_failure_contract():
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    plugin = _load_plugin()
+    discoverable_ids = {case["id"] for case in plugin.discover_cases()}
+    assert "wifi-llapi-D065-vhtcapabilities-accesspoint-associateddevice" in discoverable_ids
+
+    d065_raw = yaml.safe_load(
+        (cases_dir / "D065_vhtcapabilities_accesspoint_associateddevice.yaml").read_text(
+            encoding="utf-8"
+        )
+    )
+    d065 = load_case(cases_dir / "D065_vhtcapabilities_accesspoint_associateddevice.yaml")
+    d065_commands = "\n".join(str(step.get("command", "")) for step in d065["steps"])
+    d065_links = {link["band"] for link in d065["topology"]["links"]}
+
+    assert "aliases" not in d065_raw
+    assert d065["id"] == "wifi-llapi-D065-vhtcapabilities-accesspoint-associateddevice"
+    assert d065["source"]["report"] == "0310-BGW720-300_LLAPI_Test_Report.xlsx"
+    assert d065["source"]["row"] == 65
+    assert d065["source"]["baseline"] == "BCM v4.0.3"
+    assert d065["llapi_support"] == "Support"
+    assert d065["bands"] == ["5g"]
+    assert d065_links == {"5g"}
+    assert d065["hlapi_command"] == 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.VhtCapabilities?"'
+    assert "cat /sys/class/net/wl0/address" in d065_commands
+    assert "tr 'A-F' 'a-f'" in d065_commands
+    assert "MACAddress?" in d065_commands
+    assert 'VhtCapabilities?"' in d065_commands
+    assert "AssocVhtCapabilities=" in d065_commands
+    assert "DriverVhtCapsLine=" in d065_commands
+    assert "DriverVhtCapabilities=" in d065_commands
+    assert any(
+        criterion["field"] == "assoc_entry.MACAddress"
+        and criterion["operator"] == "equals"
+        and criterion.get("reference") == "sta_identity.StaMac"
+        for criterion in d065["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "result.VhtCapabilities"
+        and criterion["operator"] == "empty"
+        for criterion in d065["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "result.VhtCapabilities"
+        and criterion["operator"] == "equals"
+        and criterion.get("reference") == "assoc_snapshot.AssocVhtCapabilities"
+        for criterion in d065["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "driver_capture.DriverVhtCapabilities"
+        and criterion["operator"] == "contains"
+        and criterion["value"] == "SGI80"
+        for criterion in d065["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "driver_capture.DriverVhtCapabilities"
+        and criterion["operator"] == "contains"
+        and criterion["value"] == "SGI160"
+        for criterion in d065["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "driver_capture.DriverVhtCapabilities"
+        and criterion["operator"] == "contains"
+        and criterion["value"] == "SU-BFE"
+        for criterion in d065["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "driver_capture.DriverVhtCapabilities"
+        and criterion["operator"] == "not_equals"
+        and criterion.get("reference") == "result.VhtCapabilities"
+        for criterion in d065["pass_criteria"]
+    )
+    assert d065["results_reference"]["v4.0.3"]["5g"] == "Fail"
+    assert d065["results_reference"]["v4.0.3"]["6g"] == "N/A"
+    assert d065["results_reference"]["v4.0.3"]["2.4g"] == "N/A"
+
+
+def test_d065_vhtcapabilities_evaluate_live_examples():
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d065 = load_case(cases_dir / "D065_vhtcapabilities_accesspoint_associateddevice.yaml")
+
+    d065_results = {
+        "steps": {
+            "step1": {
+                "success": True,
+                "output": "StaMac=2c:59:17:00:04:85",
+                "timing": 0.01,
+            },
+            "step2": {
+                "success": True,
+                "output": "MACAddress=2c:59:17:00:04:85",
+                "timing": 0.01,
+            },
+            "step3": {
+                "success": True,
+                "output": 'WiFi.AccessPoint.1.AssociatedDevice.1.VhtCapabilities=""',
+                "timing": 0.01,
+            },
+            "step4": {
+                "success": True,
+                "output": "AssocMAC=2c:59:17:00:04:85\nAssocVhtCapabilities=",
+                "timing": 0.01,
+            },
+            "step5": {
+                "success": True,
+                "output": "\n".join(
+                    [
+                        "DriverAssocMac=2c:59:17:00:04:85",
+                        "DriverVhtCapsLine=LDPC SGI80 SGI160 SU-BFR SU-BFE",
+                        "DriverVhtCapabilities=SGI80,SGI160,SU-BFR,SU-BFE",
+                    ]
+                ),
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d065, d065_results) is True
+
+    d065_wrong_llapi_results = {
+        "steps": {
+            **d065_results["steps"],
+            "step3": {
+                "success": True,
+                "output": 'WiFi.AccessPoint.1.AssociatedDevice.1.VhtCapabilities="SGI80,SGI160,SU-BFE"',
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d065, d065_wrong_llapi_results) is False
+
+    d065_missing_driver_results = {
+        "steps": {
+            **d065_results["steps"],
+            "step5": {
+                "success": True,
+                "output": "\n".join(
+                    [
+                        "DriverAssocMac=2c:59:17:00:04:85",
+                        "DriverVhtCapsLine=LDPC SGI80 SU-BFR SU-BFE",
+                        "DriverVhtCapabilities=SGI80,SU-BFR,SU-BFE",
+                    ]
+                ),
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d065, d065_missing_driver_results) is False
+
+    d065_wrong_assoc_results = {
+        "steps": {
+            **d065_results["steps"],
+            "step2": {
+                "success": True,
+                "output": "MACAddress=aa:aa:aa:aa:aa:aa",
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d065, d065_wrong_assoc_results) is False
+
+
 def test_run_required_command_retries_after_recovery_signal():
     plugin = _load_plugin()
     calls: list[str] = []
@@ -5182,6 +5344,11 @@ def test_extract_cli_fragments_ignores_prose_after_ubus_keyword():
         ("D062_uplinkmcs.yaml", 3, "DriverUplinkMCS="),
         ("D063_uplinkshortguard.yaml", 4, "DriverUplinkShortGuardGI="),
         ("D064_vendoroui.yaml", 4, "DriverVendorOUIList="),
+        (
+            "D065_vhtcapabilities_accesspoint_associateddevice.yaml",
+            4,
+            "DriverVhtCapabilities=",
+        ),
         ("D060_uniibandscapabilities.yaml", 2, "DriverUNIIBandsCapabilities="),
     ],
 )
@@ -5225,6 +5392,12 @@ def test_sanitize_cli_fragment_preserves_nested_quotes_for_associateddevice_driv
         assert verification_commands[0] == "cat /sys/class/net/wl0/address | tr 'A-F' 'a-f' | sed 's/^/StaMac=/'"
         assert verification_commands[1] == 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.VendorOUI?"'
         assert "AssocVendorOUI=" in verification_commands[2]
+        assert verification_commands[3] == command
+    elif filename == "D065_vhtcapabilities_accesspoint_associateddevice.yaml":
+        assert len(verification_commands) == 4
+        assert verification_commands[0] == "cat /sys/class/net/wl0/address | tr 'A-F' 'a-f' | sed 's/^/StaMac=/'"
+        assert verification_commands[1] == 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.VhtCapabilities?"'
+        assert "AssocVhtCapabilities=" in verification_commands[2]
         assert verification_commands[3] == command
     else:
         assert len(verification_commands) == 2
@@ -5567,6 +5740,111 @@ def test_d064_vendoroui_driver_capture_fragment_executes():
     assert proc.stdout.strip().splitlines() == [
         "DriverVendorOUICount=4",
         "DriverVendorOUIList=00:90:4C,00:10:18,00:50:F2,50:6F:9A",
+    ]
+
+
+def test_d065_vhtcapabilities_verification_fragments_preserve_snapshot_and_driver_checks():
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d065 = load_case(cases_dir / "D065_vhtcapabilities_accesspoint_associateddevice.yaml")
+
+    step1_command = d065["steps"][0]["command"]
+    step3_command = d065["steps"][2]["command"]
+    step4_command = d065["steps"][3]["command"]
+    step5_command = d065["steps"][4]["command"]
+    verification_commands = plugin._extract_cli_fragments(d065["verification_command"])
+
+    assert step3_command == 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.VhtCapabilities?"'
+    assert "AssocVhtCapabilities=" in step4_command
+    assert plugin._sanitize_cli_fragment(step5_command) == step5_command
+    assert plugin._extract_cli_fragments(step5_command) == [step5_command]
+    assert len(verification_commands) == 4
+    assert verification_commands[0] == step1_command
+    assert verification_commands[1] == step3_command
+    assert verification_commands[2] == step4_command
+    assert verification_commands[3] == step5_command
+
+
+def test_d065_vhtcapabilities_macaddress_fragment_normalizes_case():
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d065 = load_case(cases_dir / "D065_vhtcapabilities_accesspoint_associateddevice.yaml")
+    step2_command = d065["steps"][1]["command"]
+    pipeline = step2_command.split("|", 1)[1].strip()
+    sample_output = 'WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress="2C:59:17:00:04:85"'
+
+    proc = subprocess.run(
+        [
+            "sh",
+            "-lc",
+            f"cat <<'EOF' | {pipeline}\n{sample_output}\nEOF",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert proc.returncode == 0, proc.stderr
+    assert proc.stdout.strip() == "MACAddress=2c:59:17:00:04:85"
+
+
+def test_d065_vhtcapabilities_snapshot_fragment_executes_with_empty_value():
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d065 = load_case(cases_dir / "D065_vhtcapabilities_accesspoint_associateddevice.yaml")
+    step4_command = d065["steps"][3]["command"]
+    pipeline = step4_command.split("|", 1)[1].strip()
+    sample_output = "\n".join(
+        [
+            'WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress="2C:59:17:00:04:85"',
+            'WiFi.AccessPoint.1.AssociatedDevice.1.VhtCapabilities=""',
+        ]
+    )
+
+    proc = subprocess.run(
+        [
+            "sh",
+            "-lc",
+            f"cat <<'EOF' | {pipeline}\n{sample_output}\nEOF",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert proc.returncode == 0, proc.stderr
+    assert proc.stdout.strip().splitlines() == [
+        "AssocMAC=2c:59:17:00:04:85",
+        "AssocVhtCapabilities=",
+    ]
+
+
+def test_d065_vhtcapabilities_driver_capture_fragment_executes():
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d065 = load_case(cases_dir / "D065_vhtcapabilities_accesspoint_associateddevice.yaml")
+    step5_command = d065["steps"][4]["command"]
+    awk_fragment = "awk " + step5_command.rsplit("| awk ", 1)[1]
+    sample_output = "\n".join(
+        [
+            "\t HT caps 0x86f: LDPC 40MHz SGI20 SGI40",
+            "\t VHT caps 0x67: LDPC SGI80 SGI160 SU-BFR SU-BFE",
+            "\t HE caps 0xc6639: LDPC HE-HTC SU-BFR SU&MU-BFE",
+        ]
+    )
+
+    proc = subprocess.run(
+        [
+            "sh",
+            "-lc",
+            f"cat <<'EOF' | {awk_fragment}\n{sample_output}\nEOF",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert proc.returncode == 0, proc.stderr
+    assert proc.stdout.strip().splitlines() == [
+        "DriverVhtCapsLine=LDPC SGI80 SGI160 SU-BFR SU-BFE",
+        "DriverVhtCapabilities=SGI80,SGI160,SU-BFR,SU-BFE",
     ]
 
 
