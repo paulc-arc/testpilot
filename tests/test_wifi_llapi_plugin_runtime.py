@@ -5887,6 +5887,205 @@ def test_d072_enable_accesspoint_evaluate_live_examples():
     assert plugin.evaluate(d072, d072_wrong_5g_restore_results) is False
 
 
+def test_d073_ftoverdsenable_accesspoint_contract():
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+
+    d073_raw = yaml.safe_load((cases_dir / "D073_ftoverdsenable.yaml").read_text(encoding="utf-8"))
+    d073 = load_case(cases_dir / "D073_ftoverdsenable.yaml")
+    d073_commands = "\n".join(str(step.get("command", "")) for step in d073["steps"])
+
+    assert "aliases" not in d073_raw
+    assert d073["id"] == "wifi-llapi-D073-ftoverdsenable-accesspoint"
+    assert d073["source"]["report"] == "0310-BGW720-300_LLAPI_Test_Report.xlsx"
+    assert d073["source"]["row"] == 73
+    assert d073["source"]["baseline"] == "BCM v4.0.3"
+    assert d073["llapi_support"] == "Support"
+    assert d073["implemented_by"] == "pWHM"
+    assert d073["bands"] == ["5g", "6g", "2.4g"]
+    assert set(d073["topology"]["devices"]) == {"DUT"}
+    assert d073["topology"]["links"] == []
+    assert d073["hlapi_command"] == "ubus-cli WiFi.AccessPoint.1.IEEE80211r.FTOverDSEnable=1"
+    assert "ubus-cli WiFi.AccessPoint.1.Enable=1" in d073.get("sta_env_setup", "")
+    assert "ubus-cli WiFi.AccessPoint.3.IEEE80211r.Enabled=1" in d073.get("sta_env_setup", "")
+    assert "ubus-cli WiFi.AccessPoint.5.IEEE80211r.MobilityDomain=4660" in d073.get("sta_env_setup", "")
+    assert "MobilityDomainCfg6g=" in d073_commands
+    assert "FtOverDs24gTotalCount=" in d073_commands
+    assert any(
+        criterion["field"] == "cfg_set_ft_6g.FtOverDs6gOneCount"
+        and criterion["operator"] == "equals"
+        and criterion["value"] == "1"
+        for criterion in d073["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "state_cleanup_24g.MobilityDomain24g"
+        and criterion["operator"] == "equals"
+        and criterion["value"] == "0"
+        for criterion in d073["pass_criteria"]
+    )
+    assert d073["results_reference"]["v4.0.3"]["5g"] == "To be tested"
+    assert d073["results_reference"]["v4.0.3"]["6g"] == "To be tested"
+    assert d073["results_reference"]["v4.0.3"]["2.4g"] == "To be tested"
+
+
+def test_d073_ftoverdsenable_accesspoint_setup_env_uses_only_dut_transport(monkeypatch):
+    plugin = _load_plugin()
+    topology = _FakeTopology()
+    recorder = _FactoryRecorder()
+    _install_fake_factory(monkeypatch, recorder)
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d073 = load_case(cases_dir / "D073_ftoverdsenable.yaml")
+
+    assert plugin.setup_env(d073, topology=topology) is True
+    assert len(recorder.calls) == 1
+    assert recorder.calls[0][0] == "serial"
+    executed_commands = recorder.transports[0].executed_commands
+    assert executed_commands.count("ubus-cli WiFi.AccessPoint.1.Enable=1") == 1
+    assert executed_commands.count("ubus-cli WiFi.AccessPoint.3.Enable=1") == 1
+    assert executed_commands.count("ubus-cli WiFi.AccessPoint.5.Enable=1") == 1
+    assert executed_commands.count("ubus-cli WiFi.AccessPoint.1.IEEE80211r.Enabled=1") == 1
+    assert executed_commands.count("ubus-cli WiFi.AccessPoint.3.IEEE80211r.Enabled=1") == 1
+    assert executed_commands.count("ubus-cli WiFi.AccessPoint.5.IEEE80211r.Enabled=1") == 1
+    assert executed_commands.count("ubus-cli WiFi.AccessPoint.1.IEEE80211r.MobilityDomain=4660") == 1
+    assert executed_commands.count("ubus-cli WiFi.AccessPoint.3.IEEE80211r.MobilityDomain=4660") == 1
+    assert executed_commands.count("ubus-cli WiFi.AccessPoint.5.IEEE80211r.MobilityDomain=4660") == 1
+    assert executed_commands.count("wl -i wl0 bss") == 1
+    assert executed_commands.count("wl -i wl1 bss") == 1
+    assert executed_commands.count("wl -i wl2 bss") == 1
+    plugin.teardown(d073, topology)
+
+
+def test_d073_ftoverdsenable_accesspoint_evaluate_live_examples():
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d073 = load_case(cases_dir / "D073_ftoverdsenable.yaml")
+
+    def state_output(suffix: str, enabled: int, ft: int, mobility_domain: int) -> str:
+        return "\n".join(
+            [
+                f"Enabled{suffix}={enabled}",
+                f"FtOverDs{suffix}={ft}",
+                f"MobilityDomain{suffix}={mobility_domain}",
+            ]
+        )
+
+    def cfg_output(suffix: str, mobility_domain_hex: str, one_count: int, zero_count: int, total_count: int) -> str:
+        return "\n".join(
+            [
+                f"MobilityDomainCfg{suffix}={mobility_domain_hex}",
+                f"FtOverDs{suffix}OneCount={one_count}",
+                f"FtOverDs{suffix}ZeroCount={zero_count}",
+                f"FtOverDs{suffix}TotalCount={total_count}",
+            ]
+        )
+
+    def setter_output(ap_index: int, field: str, value: int) -> str:
+        return f"WiFi.AccessPoint.{ap_index}.IEEE80211r.\nWiFi.AccessPoint.{ap_index}.IEEE80211r.{field}={value}"
+
+    d073_steps: dict[str, dict[str, Any]] = {}
+    for suffix, ap_index, base in (("5g", 1, 1), ("6g", 3, 11), ("24g", 5, 21)):
+        d073_steps[f"step{base}_prereq_enabled_{suffix}"] = {
+            "success": True,
+            "output": setter_output(ap_index, "Enabled", 1),
+            "timing": 0.01,
+        }
+        d073_steps[f"step{base + 1}_prereq_mobilitydomain_{suffix}"] = {
+            "success": True,
+            "output": setter_output(ap_index, "MobilityDomain", 4660),
+            "timing": 0.01,
+        }
+        d073_steps[f"step{base + 2}_state_prereq_{suffix}"] = {
+            "success": True,
+            "output": state_output(suffix, 1, 0, 4660),
+            "timing": 0.01,
+        }
+        d073_steps[f"step{base + 3}_cfg_prereq_{suffix}"] = {
+            "success": True,
+            "output": cfg_output(suffix, "3412", 0, 1, 1),
+            "timing": 0.01,
+        }
+        d073_steps[f"step{base + 4}_set_ft_{suffix}"] = {
+            "success": True,
+            "output": setter_output(ap_index, "FTOverDSEnable", 1),
+            "timing": 0.01,
+        }
+        d073_steps[f"step{base + 5}_state_set_ft_{suffix}"] = {
+            "success": True,
+            "output": state_output(suffix, 1, 1, 4660),
+            "timing": 0.01,
+        }
+        d073_steps[f"step{base + 6}_cfg_set_ft_{suffix}"] = {
+            "success": True,
+            "output": cfg_output(suffix, "3412", 1, 0, 1),
+            "timing": 0.01,
+        }
+        d073_steps[f"step{base + 7}_restore_ft_{suffix}"] = {
+            "success": True,
+            "output": setter_output(ap_index, "FTOverDSEnable", 0),
+            "timing": 0.01,
+        }
+        d073_steps[f"step{base + 8}_state_restore_ft_{suffix}"] = {
+            "success": True,
+            "output": state_output(suffix, 1, 0, 4660),
+            "timing": 0.01,
+        }
+        d073_steps[f"step{base + 9}_cfg_restore_ft_{suffix}"] = {
+            "success": True,
+            "output": cfg_output(suffix, "3412", 0, 1, 1),
+            "timing": 0.01,
+        }
+
+    for suffix, ap_index, base in (("5g", 1, 31), ("6g", 3, 33), ("24g", 5, 35)):
+        d073_steps[f"step{base}_cleanup_{suffix}"] = {
+            "success": True,
+            "output": setter_output(ap_index, "MobilityDomain", 0) + f"\nWiFi.AccessPoint.{ap_index}.IEEE80211r.Enabled=0",
+            "timing": 0.01,
+        }
+        d073_steps[f"step{base + 1}_state_cleanup_{suffix}"] = {
+            "success": True,
+            "output": state_output(suffix, 0, 0, 0),
+            "timing": 0.01,
+        }
+
+    d073_results = {"steps": d073_steps}
+    assert plugin.evaluate(d073, d073_results) is True
+
+    d073_wrong_6g_cfg_results = {
+        "steps": {
+            **d073_steps,
+            "step17_cfg_set_ft_6g": {
+                "success": True,
+                "output": cfg_output("6g", "3412", 0, 1, 1),
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d073, d073_wrong_6g_cfg_results) is False
+
+    d073_wrong_24g_cleanup_results = {
+        "steps": {
+            **d073_steps,
+            "step36_state_cleanup_24g": {
+                "success": True,
+                "output": state_output("24g", 0, 0, 4660),
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d073, d073_wrong_24g_cleanup_results) is False
+
+    d073_wrong_5g_prereq_results = {
+        "steps": {
+            **d073_steps,
+            "step4_cfg_prereq_5g": {
+                "success": True,
+                "output": cfg_output("5g", "3412", 0, 0, 0),
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d073, d073_wrong_5g_prereq_results) is False
+
+
 def test_run_required_command_retries_after_recovery_signal():
     plugin = _load_plugin()
     calls: list[str] = []
@@ -7427,6 +7626,141 @@ def test_d072_enable_accesspoint_enable_config_fragment_executes_without_start_d
         "StartDisabled5gOneCount=0",
         "StartDisabled5gZeroCount=0",
         "StartDisabled5gTotalCount=0",
+    ]
+
+
+def test_d073_ftoverdsenable_accesspoint_verification_fragments_preserve_sequence():
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d073 = load_case(cases_dir / "D073_ftoverdsenable.yaml")
+
+    verification_commands = plugin._extract_cli_fragments(d073["verification_command"])
+    step_commands = [step["command"] for step in d073["steps"]]
+
+    def fragments(command: str, suffix: str = "") -> list[str]:
+        return [f"{part.strip()}{suffix}" for part in command.split(";") if part.strip()]
+
+    expected_commands = []
+    for start in (0, 10, 20):
+        expected_commands.extend(
+            [
+                step_commands[start],
+                step_commands[start + 1],
+            ]
+        )
+        expected_commands.extend(fragments(step_commands[start + 2]))
+        expected_commands.extend(fragments(step_commands[start + 3]))
+        expected_commands.extend(
+            [
+                step_commands[start + 4],
+            ]
+        )
+        expected_commands.extend(fragments(step_commands[start + 5], " | sed -n '1,20p'"))
+        expected_commands.extend(fragments(step_commands[start + 6], " | sed -n '1,20p'"))
+        expected_commands.append(step_commands[start + 7])
+        expected_commands.extend(fragments(step_commands[start + 8], " | sed -n '1,21p'"))
+        expected_commands.extend(fragments(step_commands[start + 9], " | sed -n '1,21p'"))
+    for start in (30, 32, 34):
+        expected_commands.extend(fragments(step_commands[start]))
+        expected_commands.extend(fragments(step_commands[start + 1], " | sed -n '1,22p'"))
+
+    assert verification_commands == expected_commands
+
+
+def test_d073_ftoverdsenable_accesspoint_state_snapshot_fragment_executes():
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d073 = load_case(cases_dir / "D073_ftoverdsenable.yaml")
+    step3_command = d073["steps"][2]["command"]
+    sample_output = "\n".join(
+        [
+            "WiFi.AccessPoint.1.IEEE80211r.Enabled=1",
+            "WiFi.AccessPoint.1.IEEE80211r.FTOverDSEnable=0",
+            "WiFi.AccessPoint.1.IEEE80211r.MobilityDomain=4660",
+        ]
+    )
+
+    with tempfile.NamedTemporaryFile("w", encoding="utf-8", delete=False) as handle:
+        handle.write(sample_output)
+        temp_path = handle.name
+
+    try:
+        adapted_command = (
+            step3_command.replace('ubus-cli "WiFi.AccessPoint.1.IEEE80211r.Enabled?"', f"cat {temp_path}")
+            .replace('ubus-cli "WiFi.AccessPoint.1.IEEE80211r.FTOverDSEnable?"', f"cat {temp_path}")
+            .replace('ubus-cli "WiFi.AccessPoint.1.IEEE80211r.MobilityDomain?"', f"cat {temp_path}")
+        )
+        proc = subprocess.run(
+            ["sh", "-lc", adapted_command],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+    finally:
+        Path(temp_path).unlink(missing_ok=True)
+
+    assert proc.returncode == 0, proc.stderr
+    assert proc.stdout.strip().splitlines() == [
+        "Enabled5g=1",
+        "FtOverDs5g=0",
+        "MobilityDomain5g=4660",
+    ]
+
+
+def test_d073_ftoverdsenable_accesspoint_config_snapshot_zero_fragment_executes():
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d073 = load_case(cases_dir / "D073_ftoverdsenable.yaml")
+    step4_command = d073["steps"][3]["command"]
+
+    with tempfile.NamedTemporaryFile("w", encoding="utf-8", delete=False) as handle:
+        handle.write("mobility_domain=3412\nft_over_ds=0\n")
+        temp_path = handle.name
+
+    try:
+        adapted_command = step4_command.replace("/tmp/wl0_hapd.conf", temp_path)
+        proc = subprocess.run(
+            ["sh", "-lc", adapted_command],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+    finally:
+        Path(temp_path).unlink(missing_ok=True)
+
+    assert proc.returncode == 0, proc.stderr
+    assert proc.stdout.strip().splitlines() == [
+        "MobilityDomainCfg5g=3412",
+        "FtOverDs5gOneCount=0",
+        "FtOverDs5gZeroCount=1",
+        "FtOverDs5gTotalCount=1",
+    ]
+
+
+def test_d073_ftoverdsenable_accesspoint_config_snapshot_one_fragment_executes():
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d073 = load_case(cases_dir / "D073_ftoverdsenable.yaml")
+    step7_command = d073["steps"][6]["command"]
+
+    with tempfile.NamedTemporaryFile("w", encoding="utf-8", delete=False) as handle:
+        handle.write("mobility_domain=3412\nft_over_ds=1\n")
+        temp_path = handle.name
+
+    try:
+        adapted_command = step7_command.replace("/tmp/wl0_hapd.conf", temp_path)
+        proc = subprocess.run(
+            ["sh", "-lc", adapted_command],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+    finally:
+        Path(temp_path).unlink(missing_ok=True)
+
+    assert proc.returncode == 0, proc.stderr
+    assert proc.stdout.strip().splitlines() == [
+        "MobilityDomainCfg5g=3412",
+        "FtOverDs5gOneCount=1",
+        "FtOverDs5gZeroCount=0",
+        "FtOverDs5gTotalCount=1",
     ]
 
 

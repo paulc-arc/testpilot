@@ -94,8 +94,8 @@ If I open only this file in a future session, I should do the following in order
 
 ## Current repo handoff snapshot（2026-03-19）
 
-- Trusted/calibrated official cases: **131 / 415**
-- Remaining official cases: **284**
+- Trusted/calibrated official cases: **132 / 415**
+- Remaining official cases: **283**
 - Active blockers:
   - `D037 OperatingStandard`
   - `D054 Tx_RetransmissionsFailed`
@@ -115,22 +115,23 @@ If I open only this file in a future session, I should do the following in order
   - `D068 DiscoveryMethodEnabled (FILS)` → workbook-aligned **Not Supported** checkpoint（AP-only multiband `FILS` writes are rejected as invalid, while `FILSDiscovery` is accepted and must be restored back to `Default`）
   - `D069 DiscoveryMethodEnabled (UPR)` → workbook-aligned mixed-band checkpoint（AP1/AP5 reject `UPR` as invalid and stay `Default`, while AP3 accepts `UPR` and reads back `UPR` before restore）
   - `D070 DiscoveryMethodEnabled (RNR)` → workbook-aligned mixed-band checkpoint（AP1/AP3/AP5 all accept/read back `RNR`, but only AP3 / wl1 hostapd `rnr=` flips from `0/0` to `1/0` before restore, so this is calibrated as 5G `Fail` / 6G `Pass` / 2.4G `Fail`）
-  - `D072 Enable` → workbook-aligned AP-only multiband `To be tested` checkpoint（current checkpoint；AP1/AP3/AP5 all cleanly toggled `Enable=1 -> 0 -> 1`, `Status` followed `Enabled -> Disabled -> Enabled`, driver `wl -i wlX bss` followed `up -> down -> up`, and hostapd `start_disabled` appeared only in the disabled phase）
-  - `D185 TPCMode` → targeted source/live **Fail-shaped mismatch** checkpoint outside the 131 / 284 main-sweep counts
+  - `D072 Enable` → workbook-aligned AP-only multiband `To be tested` checkpoint（AP1/AP3/AP5 all cleanly toggled `Enable=1 -> 0 -> 1`, `Status` followed `Enabled -> Disabled -> Enabled`, driver `wl -i wlX bss` followed `up -> down -> up`, and hostapd `start_disabled` appeared only in the disabled phase）
+  - `D073 FTOverDSEnable` → workbook-aligned AP-only multiband `To be tested` checkpoint（current checkpoint；AP1/AP3/AP5 all required `IEEE80211r.Enabled=1` + `MobilityDomain=4660`, getter FT state stayed `0` at baseline, flipped to `1` on the setter, returned to `0` on restore, and hostapd `ft_over_ds` followed the same `0 -> 1 -> 0` path while `mobility_domain` stayed `3412`）
+  - `D185 TPCMode` → targeted source/live **Fail-shaped mismatch** checkpoint outside the 132 / 283 main-sweep counts
 - Latest validated commands:
-  - `timeout 30s env PYTHONUNBUFFERED=1 PYTHONPATH=src python - <<'PY' ... load_case(D072) + collect_alignment_issues ... PY` → `alignment_issues=[]`
-  - `uv run pytest -q tests/test_wifi_llapi_plugin_runtime.py -k 'd072'` → `7 passed`
-  - `uv run pytest -q tests/test_wifi_llapi_plugin_runtime.py` → `164 passed`
-  - `uv run pytest -q` → `217 passed`
+  - `env PYTHONUNBUFFERED=1 PYTHONPATH=src python - "$SOURCE_XLSX" <<'PY' ... load_case(D073) + collect_alignment_issues ... PY` → `alignment_issues=[]`
+  - `uv run pytest -q tests/test_wifi_llapi_plugin_runtime.py -k 'd073'` → `7 passed`
+  - `uv run pytest -q tests/test_wifi_llapi_plugin_runtime.py` → `171 passed`
+  - `uv run pytest -q` → `224 passed`
   - `serialwrap COM0 ubus-cli/hostapd_cli baseline readback` → 5G `testpilot5G` + `WPA2-Personal/00000000`, 6G `testpilot6G` + `WPA3-Personal/SAE/00000000`, 2.4G `testpilot2G` + `WPA2-Personal/00000000`
-  - `serialwrap COM0 Enable probe` → AP1/AP3/AP5 all started at `Enable=1` / `Status=Enabled` with `wl -i wlX bss=up`; each band then toggled `Enable=0` / `Status=Disabled` / `bss=down` / `start_disabled=1`, and returned to `Enable=1` / `Status=Enabled` / `bss=up` with `start_disabled` cleared
+  - `serialwrap COM0 FTOverDSEnable probe` → AP1/AP3/AP5 all required `IEEE80211r.Enabled=1` + `MobilityDomain=4660`; northbound getters then showed `FTOverDSEnable=0`, hostapd stored `mobility_domain=3412` plus `ft_over_ds=0`, the setter flipped `FTOverDSEnable` / `ft_over_ds` to `1` on all bands, and restore returned them to `0`; final cleanup restored `Enabled=0` / `MobilityDomain=0`
 - Next ready repo handoff case:
-  - `D073 FTOverDSEnable`
+  - `D074 MobilityDomain`
 - Continuation guard rails:
   - only committed YAML / docs count as trusted handoff state
   - do not infer progress from any local unstaged experiment outside these committed checkpoints
   - reuse `D058 TxPacketCount` as the positive same-STA tx-packet prior art when judging `D059`/`D060` family cases
-  - `D073_ftoverdsenable.yaml` is still an old transcript-style case; re-read workbook row 73 plus current AP-only setter prior art before rewriting it
+  - `D074_mobilitydomain.yaml` is still an old transcript-style case; re-read workbook row 74 plus the new D073 11r prerequisite/config hex prior art before rewriting it
 
 Current verified live baseline findings from this session:
 
@@ -154,7 +155,8 @@ Current verified live baseline findings from this session:
   - `D069` is now a committed 0310/AP-only multiband mixed-band case; reuse its `Default -> 5G invalid / 6G UPR accepted / 2.4G invalid -> restore Default` pattern for remaining `DiscoveryMethodEnabled` enum families with split band behavior
   - `D070` is now a committed 0310/AP-only multiband mixed-band case; reuse its northbound `RNR` readback versus hostapd `rnr=` divergence pattern when a setter appears accepted on every band but only one band changes real config state
   - `D072` is now a committed 0310/AP-only multiband `To be tested` case; reuse its `Enable=1 -> 0 -> 1` plus `Status` / `wl bss` / `start_disabled` convergence pattern for the remaining AP enable-style setter families
-  - `D073-D079` are still old `0302` setter transcripts with row drift against the current BCM summary and should be reworked case-by-case from live/source evidence
+  - `D073` is now a committed 0310/AP-only multiband `To be tested` case; reuse its `IEEE80211r.Enabled=1` + `MobilityDomain=4660` prerequisite pattern plus `FTOverDSEnable` / hostapd `ft_over_ds` `0 -> 1 -> 0` convergence and decimal-vs-hex MobilityDomain cross-check for the remaining 11r AccessPoint setter families
+  - `D074-D079` are still old `0302` setter transcripts with row drift against the current BCM summary and should be reworked case-by-case from live/source evidence
 - Critical lab rule:
   - `COM1` is another `prplOS` / B0-class board, not a simple STA dongle
   - before using `ping 192.168.1.1` as DUT reachability evidence, move `COM1 br-lan` off `192.168.1.0/24` (for example `192.168.88.1/24`), otherwise the ping is a false-positive self-hit
