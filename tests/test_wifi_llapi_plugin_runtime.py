@@ -6263,6 +6263,175 @@ def test_d074_mobilitydomain_accesspoint_evaluate_live_examples():
     assert plugin.evaluate(d074, d074_wrong_5g_enabled_results) is False
 
 
+def test_d077_interworkingenable_accesspoint_contract():
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+
+    d077_raw = yaml.safe_load((cases_dir / "D077_interworkingenable.yaml").read_text(encoding="utf-8"))
+    d077 = load_case(cases_dir / "D077_interworkingenable.yaml")
+    d077_commands = "\n".join(str(step.get("command", "")) for step in d077["steps"])
+
+    assert "aliases" not in d077_raw
+    assert d077["id"] == "wifi-llapi-D077-interworkingenable-accesspoint"
+    assert d077["source"]["report"] == "0310-BGW720-300_LLAPI_Test_Report.xlsx"
+    assert d077["source"]["row"] == 77
+    assert d077["source"]["baseline"] == "BCM v4.0.3"
+    assert d077["llapi_support"] == "Support"
+    assert d077["implemented_by"] == "pWHM"
+    assert d077["bands"] == ["5g", "6g", "2.4g"]
+    assert set(d077["topology"]["devices"]) == {"DUT"}
+    assert d077["topology"]["links"] == []
+    assert d077["hlapi_command"] == "ubus-cli WiFi.AccessPoint.1.IEEE80211u.InterworkingEnable=1"
+    assert "ubus-cli WiFi.AccessPoint.1.Enable=1" in d077.get("sta_env_setup", "")
+    assert "ubus-cli WiFi.AccessPoint.3.Enable=1" in d077.get("sta_env_setup", "")
+    assert "ubus-cli WiFi.AccessPoint.5.Enable=1" in d077.get("sta_env_setup", "")
+    assert "wl -i wl2 bss" in d077.get("sta_env_setup", "")
+    assert "Interworking6gTotalCount=" in d077_commands
+    assert "Interworking24gZeroCount=" in d077_commands
+    assert any(
+        criterion["field"] == "cfg_set_interworking_6g.Interworking6gOneCount"
+        and criterion["operator"] == "equals"
+        and criterion["value"] == "1"
+        for criterion in d077["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "cfg_restore_interworking_24g.Interworking24gZeroCount"
+        and criterion["operator"] == "equals"
+        and criterion["value"] == "2"
+        for criterion in d077["pass_criteria"]
+    )
+    assert d077["results_reference"]["v4.0.3"]["5g"] == "To be tested"
+    assert d077["results_reference"]["v4.0.3"]["6g"] == "To be tested"
+    assert d077["results_reference"]["v4.0.3"]["2.4g"] == "To be tested"
+
+
+def test_d077_interworkingenable_accesspoint_setup_env_uses_only_dut_transport(monkeypatch):
+    plugin = _load_plugin()
+    topology = _FakeTopology()
+    recorder = _FactoryRecorder()
+    _install_fake_factory(monkeypatch, recorder)
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d077 = load_case(cases_dir / "D077_interworkingenable.yaml")
+
+    assert plugin.setup_env(d077, topology=topology) is True
+    assert len(recorder.calls) == 1
+    assert recorder.calls[0][0] == "serial"
+    executed_commands = recorder.transports[0].executed_commands
+    assert executed_commands.count("ubus-cli WiFi.AccessPoint.1.Enable=1") == 1
+    assert executed_commands.count("ubus-cli WiFi.AccessPoint.3.Enable=1") == 1
+    assert executed_commands.count("ubus-cli WiFi.AccessPoint.5.Enable=1") == 1
+    assert executed_commands.count("wl -i wl0 bss") == 1
+    assert executed_commands.count("wl -i wl1 bss") == 1
+    assert executed_commands.count("wl -i wl2 bss") == 1
+    assert all("IEEE80211u.InterworkingEnable=" not in command for command in executed_commands)
+    plugin.teardown(d077, topology)
+
+
+def test_d077_interworkingenable_accesspoint_evaluate_live_examples():
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d077 = load_case(cases_dir / "D077_interworkingenable.yaml")
+
+    def state_output(suffix: str, interworking: int) -> str:
+        return f"Interworking{suffix}={interworking}"
+
+    def cfg_output(suffix: str, one_count: int, zero_count: int, total_count: int) -> str:
+        return "\n".join(
+            [
+                f"Interworking{suffix}OneCount={one_count}",
+                f"Interworking{suffix}ZeroCount={zero_count}",
+                f"Interworking{suffix}TotalCount={total_count}",
+            ]
+        )
+
+    def setter_output(ap_index: int, value: int) -> str:
+        return (
+            f"WiFi.AccessPoint.{ap_index}.IEEE80211u.\n"
+            f"WiFi.AccessPoint.{ap_index}.IEEE80211u.InterworkingEnable={value}"
+        )
+
+    d077_steps: dict[str, dict[str, Any]] = {}
+    for suffix, ap_index, base in (("5g", 1, 1), ("6g", 3, 9), ("24g", 5, 17)):
+        d077_steps[f"step{base}_state_baseline_{suffix}"] = {
+            "success": True,
+            "output": state_output(suffix, 0),
+            "timing": 0.01,
+        }
+        d077_steps[f"step{base + 1}_cfg_baseline_{suffix}"] = {
+            "success": True,
+            "output": cfg_output(suffix, 0, 2, 2),
+            "timing": 0.01,
+        }
+        d077_steps[f"step{base + 2}_set_interworking_{suffix}"] = {
+            "success": True,
+            "output": setter_output(ap_index, 1),
+            "timing": 0.01,
+        }
+        d077_steps[f"step{base + 3}_state_set_interworking_{suffix}"] = {
+            "success": True,
+            "output": state_output(suffix, 1),
+            "timing": 0.01,
+        }
+        d077_steps[f"step{base + 4}_cfg_set_interworking_{suffix}"] = {
+            "success": True,
+            "output": cfg_output(suffix, 1, 1, 2),
+            "timing": 0.01,
+        }
+        d077_steps[f"step{base + 5}_restore_interworking_{suffix}"] = {
+            "success": True,
+            "output": setter_output(ap_index, 0),
+            "timing": 0.01,
+        }
+        d077_steps[f"step{base + 6}_state_restore_interworking_{suffix}"] = {
+            "success": True,
+            "output": state_output(suffix, 0),
+            "timing": 0.01,
+        }
+        d077_steps[f"step{base + 7}_cfg_restore_interworking_{suffix}"] = {
+            "success": True,
+            "output": cfg_output(suffix, 0, 2, 2),
+            "timing": 0.01,
+        }
+
+    d077_results = {"steps": d077_steps}
+    assert plugin.evaluate(d077, d077_results) is True
+
+    d077_wrong_6g_cfg_results = {
+        "steps": {
+            **d077_steps,
+            "step13_cfg_set_interworking_6g": {
+                "success": True,
+                "output": cfg_output("6g", 0, 2, 2),
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d077, d077_wrong_6g_cfg_results) is False
+
+    d077_wrong_24g_restore_results = {
+        "steps": {
+            **d077_steps,
+            "step23_state_restore_interworking_24g": {
+                "success": True,
+                "output": state_output("24g", 1),
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d077, d077_wrong_24g_restore_results) is False
+
+    d077_wrong_5g_baseline_results = {
+        "steps": {
+            **d077_steps,
+            "step2_cfg_baseline_5g": {
+                "success": True,
+                "output": cfg_output("5g", 0, 1, 1),
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d077, d077_wrong_5g_baseline_results) is False
+
+
 def test_run_required_command_retries_after_recovery_signal():
     plugin = _load_plugin()
     calls: list[str] = []
@@ -8064,6 +8233,115 @@ def test_d074_mobilitydomain_accesspoint_cleanup_state_fragment_executes():
     assert proc.stdout.strip().splitlines() == [
         "Enabled5g=0",
         "MobilityDomain5g=0",
+    ]
+
+
+def test_d077_interworkingenable_accesspoint_verification_fragments_preserve_sequence():
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d077 = load_case(cases_dir / "D077_interworkingenable.yaml")
+
+    verification_commands = plugin._extract_cli_fragments(d077["verification_command"])
+    step_commands = [step["command"] for step in d077["steps"]]
+
+    def fragments(command: str, suffix: str = "") -> list[str]:
+        return [f"{part.strip()}{suffix}" for part in command.split(";") if part.strip()]
+
+    expected_commands = []
+    for start in (0, 8, 16):
+        expected_commands.extend(fragments(step_commands[start]))
+        expected_commands.extend(fragments(step_commands[start + 1]))
+        expected_commands.append(step_commands[start + 2])
+        expected_commands.extend(fragments(step_commands[start + 3], " | sed -n '1,20p'"))
+        expected_commands.extend(fragments(step_commands[start + 4], " | sed -n '1,20p'"))
+        expected_commands.append(step_commands[start + 5])
+        expected_commands.extend(fragments(step_commands[start + 6], " | sed -n '1,21p'"))
+        expected_commands.extend(fragments(step_commands[start + 7], " | sed -n '1,21p'"))
+
+    assert verification_commands == expected_commands
+
+
+def test_d077_interworkingenable_accesspoint_state_snapshot_fragment_executes():
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d077 = load_case(cases_dir / "D077_interworkingenable.yaml")
+    step1_command = d077["steps"][0]["command"]
+    sample_output = "WiFi.AccessPoint.1.IEEE80211u.InterworkingEnable=0\n"
+
+    with tempfile.NamedTemporaryFile("w", encoding="utf-8", delete=False) as handle:
+        handle.write(sample_output)
+        temp_path = handle.name
+
+    try:
+        adapted_command = step1_command.replace(
+            'ubus-cli "WiFi.AccessPoint.1.IEEE80211u.InterworkingEnable?"',
+            f"cat {temp_path}",
+        )
+        proc = subprocess.run(
+            ["sh", "-lc", adapted_command],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+    finally:
+        Path(temp_path).unlink(missing_ok=True)
+
+    assert proc.returncode == 0, proc.stderr
+    assert proc.stdout.strip().splitlines() == ["Interworking5g=0"]
+
+
+def test_d077_interworkingenable_accesspoint_config_baseline_fragment_executes():
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d077 = load_case(cases_dir / "D077_interworkingenable.yaml")
+    step2_command = d077["steps"][1]["command"]
+
+    with tempfile.NamedTemporaryFile("w", encoding="utf-8", delete=False) as handle:
+        handle.write("interworking=0\ninterworking=0\n")
+        temp_path = handle.name
+
+    try:
+        adapted_command = step2_command.replace("/tmp/wl0_hapd.conf", temp_path)
+        proc = subprocess.run(
+            ["sh", "-lc", adapted_command],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+    finally:
+        Path(temp_path).unlink(missing_ok=True)
+
+    assert proc.returncode == 0, proc.stderr
+    assert proc.stdout.strip().splitlines() == [
+        "Interworking5gOneCount=0",
+        "Interworking5gZeroCount=2",
+        "Interworking5gTotalCount=2",
+    ]
+
+
+def test_d077_interworkingenable_accesspoint_config_set_fragment_executes():
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d077 = load_case(cases_dir / "D077_interworkingenable.yaml")
+    step5_command = d077["steps"][4]["command"]
+
+    with tempfile.NamedTemporaryFile("w", encoding="utf-8", delete=False) as handle:
+        handle.write("interworking=1\ninterworking=0\n")
+        temp_path = handle.name
+
+    try:
+        adapted_command = step5_command.replace("/tmp/wl0_hapd.conf", temp_path)
+        proc = subprocess.run(
+            ["sh", "-lc", adapted_command],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+    finally:
+        Path(temp_path).unlink(missing_ok=True)
+
+    assert proc.returncode == 0, proc.stderr
+    assert proc.stdout.strip().splitlines() == [
+        "Interworking5gOneCount=1",
+        "Interworking5gZeroCount=1",
+        "Interworking5gTotalCount=2",
     ]
 
 

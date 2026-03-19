@@ -94,8 +94,8 @@ If I open only this file in a future session, I should do the following in order
 
 ## Current repo handoff snapshot（2026-03-19）
 
-- Trusted/calibrated official cases: **133 / 415**
-- Remaining official cases: **282**
+- Trusted/calibrated official cases: **134 / 415**
+- Remaining official cases: **281**
 - Active blockers:
   - `D037 OperatingStandard`
   - `D054 Tx_RetransmissionsFailed`
@@ -117,22 +117,23 @@ If I open only this file in a future session, I should do the following in order
   - `D070 DiscoveryMethodEnabled (RNR)` → workbook-aligned mixed-band checkpoint（AP1/AP3/AP5 all accept/read back `RNR`, but only AP3 / wl1 hostapd `rnr=` flips from `0/0` to `1/0` before restore, so this is calibrated as 5G `Fail` / 6G `Pass` / 2.4G `Fail`）
   - `D072 Enable` → workbook-aligned AP-only multiband `To be tested` checkpoint（AP1/AP3/AP5 all cleanly toggled `Enable=1 -> 0 -> 1`, `Status` followed `Enabled -> Disabled -> Enabled`, driver `wl -i wlX bss` followed `up -> down -> up`, and hostapd `start_disabled` appeared only in the disabled phase）
   - `D073 FTOverDSEnable` → workbook-aligned AP-only multiband `To be tested` checkpoint（AP1/AP3/AP5 all required `IEEE80211r.Enabled=1` + `MobilityDomain=4660`, getter FT state stayed `0` at baseline, flipped to `1` on the setter, returned to `0` on restore, and hostapd `ft_over_ds` followed the same `0 -> 1 -> 0` path while `mobility_domain` stayed `3412`）
-  - `D074 MobilityDomain` → workbook-aligned AP-only multiband `To be tested` checkpoint（current checkpoint；AP1/AP3/AP5 all started from `IEEE80211r.Enabled=0` / `MobilityDomain=0`, the setter `MobilityDomain=27476` read back as decimal `27476`, and hostapd stored the same value as byte-swapped hex `546B` while `ft_over_ds` remained `0`）
-  - `D185 TPCMode` → targeted source/live **Fail-shaped mismatch** checkpoint outside the 133 / 282 main-sweep counts
+  - `D074 MobilityDomain` → workbook-aligned AP-only multiband `To be tested` checkpoint（AP1/AP3/AP5 all started from `IEEE80211r.Enabled=0` / `MobilityDomain=0`, the setter `MobilityDomain=27476` read back as decimal `27476`, and hostapd stored the same value as byte-swapped hex `546B` while `ft_over_ds` remained `0`）
+  - `D077 InterworkingEnable` → workbook-aligned AP-only multiband `To be tested` checkpoint（current checkpoint；AP1/AP3/AP5 all toggled `InterworkingEnable 0 -> 1 -> 0`, while each hostapd file kept two `interworking=` lines and converged `one/zero/total = 0/2/2 -> 1/1/2 -> 0/2/2`）
+  - `D185 TPCMode` → targeted source/live **Fail-shaped mismatch** checkpoint outside the 134 / 281 main-sweep counts
 - Latest validated commands:
-  - `env PYTHONUNBUFFERED=1 PYTHONPATH=src python - "$SOURCE_XLSX" <<'PY' ... load_case(D074) + collect_alignment_issues ... PY` → `alignment_issues=[]`
-  - `uv run pytest -q tests/test_wifi_llapi_plugin_runtime.py -k 'd074'` → `7 passed`
-  - `uv run pytest -q tests/test_wifi_llapi_plugin_runtime.py` → `178 passed`
-  - `uv run pytest -q` → `231 passed`
+  - `env PYTHONUNBUFFERED=1 PYTHONPATH=src python - "$SOURCE_XLSX" <<'PY' ... load_case(D077) + collect_alignment_issues ... PY` → `alignment_issues=[]`
+  - `uv run pytest -q tests/test_wifi_llapi_plugin_runtime.py -k 'd077'` → `7 passed`
+  - `uv run pytest -q tests/test_wifi_llapi_plugin_runtime.py` → `185 passed`
+  - `uv run pytest -q` → `238 passed`
   - `serialwrap COM0 ubus-cli/hostapd_cli baseline readback` → 5G `testpilot5G` + `WPA2-Personal/00000000`, 6G `testpilot6G` + `WPA3-Personal/SAE/00000000`, 2.4G `testpilot2G` + `WPA2-Personal/00000000`
-  - `serialwrap COM0 MobilityDomain probe` → AP1/AP3/AP5 all started from `IEEE80211r.Enabled=0` / `MobilityDomain=0`; after `IEEE80211r.Enabled=1`, the setter `MobilityDomain=27476` read back as decimal `27476`, hostapd stored `mobility_domain=546B`, and `ft_over_ds=0` remained a single line; final cleanup restored `Enabled=0` / `MobilityDomain=0`
+  - `serialwrap COM0 InterworkingEnable probe` → AP1/AP3/AP5 all started from `InterworkingEnable=0`; each setter write to `1` read back as `1`, while hostapd preserved two `interworking=` lines and flipped only the target BSS counts from `0/2/2` to `1/1/2`; restore returned all three bands to `0/2/2`
 - Next ready repo handoff case:
-  - `D077 InterworkingEnable`
+  - `D078 QoSMapSet`
 - Continuation guard rails:
   - only committed YAML / docs count as trusted handoff state
   - do not infer progress from any local unstaged experiment outside these committed checkpoints
   - reuse `D058 TxPacketCount` as the positive same-STA tx-packet prior art when judging `D059`/`D060` family cases
-  - `D077_interworkingenable.yaml` is still an old transcript-style case; re-read workbook row 77 plus the new D073/D074 11r AccessPoint setter prior art before rewriting it
+  - `D078_qosmapset.yaml` is still an old transcript-style case; re-read workbook row 78 plus the new D077 IEEE80211u interworking count-based prior art before rewriting it
 
 Current verified live baseline findings from this session:
 
@@ -158,7 +159,8 @@ Current verified live baseline findings from this session:
   - `D072` is now a committed 0310/AP-only multiband `To be tested` case; reuse its `Enable=1 -> 0 -> 1` plus `Status` / `wl bss` / `start_disabled` convergence pattern for the remaining AP enable-style setter families
   - `D073` is now a committed 0310/AP-only multiband `To be tested` case; reuse its `IEEE80211r.Enabled=1` + `MobilityDomain=4660` prerequisite pattern plus `FTOverDSEnable` / hostapd `ft_over_ds` `0 -> 1 -> 0` convergence and decimal-vs-hex MobilityDomain cross-check for the remaining 11r AccessPoint setter families
   - `D074` is now a committed 0310/AP-only multiband `To be tested` case; reuse its `IEEE80211r.Enabled=1` prerequisite plus `MobilityDomain=27476` decimal readback and hostapd byte-swapped hex `546B` cross-check for the remaining 11r AccessPoint setter families
-  - `D077-D079` are still old `0302` setter transcripts with row drift against the current BCM summary and should be reworked case-by-case from live/source evidence
+  - `D077` is now a committed 0310/AP-only multiband `To be tested` case; reuse its IEEE80211u `InterworkingEnable` getter `0 -> 1 -> 0` plus hostapd two-line `interworking` count convergence `0/2/2 -> 1/1/2 -> 0/2/2` for the remaining IEEE80211u AccessPoint setter families
+  - `D078-D079` are still old `0302` setter transcripts with row drift against the current BCM summary and should be reworked case-by-case from live/source evidence
 - Critical lab rule:
   - `COM1` is another `prplOS` / B0-class board, not a simple STA dongle
   - before using `ping 192.168.1.1` as DUT reachability evidence, move `COM1 br-lan` off `192.168.1.0/24` (for example `192.168.88.1/24`), otherwise the ping is a false-positive self-hit
