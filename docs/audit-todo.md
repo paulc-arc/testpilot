@@ -94,13 +94,13 @@ If I open only this file in a future session, I should do the following in order
 
 ## Current repo handoff snapshot（2026-03-19）
 
-- Trusted/calibrated official cases: **139 / 415**
-- Remaining official cases: **276**
+- Trusted/calibrated official cases: **140 / 415**
+- Remaining official cases: **275**
 - Active blockers:
   - `D037 OperatingStandard`
   - `D054 Tx_RetransmissionsFailed`
   - `D055 TxBytes`
-  - 執行順序：blockers 先保留在 blocker 清單，不插回目前從 `D080` 往後的 sequential queue；待其餘待校正案例收斂後再回頭處理
+  - 執行順序：blockers 先保留在 blocker 清單，不插回目前從 `D081` 往後的 sequential queue；待其餘待校正案例收斂後再回頭處理
 - Latest committed single-case checkpoints:
   - `D056 TxErrors` → workbook-aligned `To be tested` checkpoint (`9880918`)
   - `D057 TxMulticastPacketCount` → workbook-aligned `To be tested` checkpoint (`01fd2c3`), plus MAC normalization follow-up (`426de8a`)
@@ -121,25 +121,26 @@ If I open only this file in a future session, I should do the following in order
   - `D074 MobilityDomain` → workbook-aligned AP-only multiband `To be tested` checkpoint（AP1/AP3/AP5 all started from `IEEE80211r.Enabled=0` / `MobilityDomain=0`, the setter `MobilityDomain=27476` read back as decimal `27476`, and hostapd stored the same value as byte-swapped hex `546B` while `ft_over_ds` remained `0`）
   - `D077 InterworkingEnable` → workbook-aligned AP-only multiband `To be tested` checkpoint（AP1/AP3/AP5 all toggled `InterworkingEnable 0 -> 1 -> 0`, while each hostapd file kept two `interworking=` lines and converged `one/zero/total = 0/2/2 -> 1/1/2 -> 0/2/2`）
   - `D078 QoSMapSet` → workbook-aligned AP-only multiband `Not Supported` checkpoint（workbook row 70 / AP1/AP3/AP5 all started from `QoSMapSet=""` with no `qos_map_set=` line, but writing the requested DSCP map always collapsed both getter and hostapd to scalar `255` / `qos_map_set=255` before restore returned to `EMPTY / ABSENT`）
-  - `D079 MacFilterAddressList` → workbook-aligned AP-only multiband `Pass` checkpoint（current checkpoint；AP1/AP3/AP5 all started with an empty getter and empty `MACFiltering.Entry` tree, and after `MACFiltering.addEntry(mac=...)` / `delEntry(mac=...)` the bounded `sleep 2` readback showed the getter and entry tree converging together to the same band-specific MAC and then back to the empty baseline）
-  - `D185 TPCMode` → source/live **Fail-shaped mismatch** checkpoint，現已納入 `139 / 415` 完成數
-  - `D368 SRGBSSColorBitmap` → 0310 row 273 **Fail-shaped mismatch** checkpoint，現已納入 `139 / 415` 完成數（5G/6G/2.4G setters all accepted/read back `"1"`, but hostapd `he_spr_srg_bss_colors=` stayed absent on wl0/wl1/wl2）
-  - `D371 SRGPartialBSSIDBitmap` → 0310 row 276 mixed-band checkpoint，現已納入 `139 / 415` 完成數（5G/6G setters accepted/read back `"1"` while hostapd `he_spr_srg_partial_bssid=` stayed absent; 2.4G setter failed with `error=4` / `parameter not found`）
+  - `D079 MacFilterAddressList` → workbook-aligned AP-only multiband `Pass` checkpoint（AP1/AP3/AP5 all started with an empty getter and empty `MACFiltering.Entry` tree, and after `MACFiltering.addEntry(mac=...)` / `delEntry(mac=...)` the bounded `sleep 2` readback showed the getter and entry tree converging together to the same band-specific MAC and then back to the empty baseline）
+  - `D080 Entry` → workbook-aligned AP-only multiband `Pass` checkpoint（current checkpoint；AP1/AP3/AP5 的 `MACFiltering.Entry.?` 都從 `No data found` 基線出發，`addEntry(mac=...)` 後收斂出單一 `Entry.Alias` / `Entry.MACAddress` 節點，`delEntry(mac=...)` 後回到 `No data found`；ACL file side effect 依 mode split 而不同，保留給 `D081`）
+  - `D185 TPCMode` → source/live **Fail-shaped mismatch** checkpoint，現已納入 `140 / 415` 完成數
+  - `D368 SRGBSSColorBitmap` → 0310 row 273 **Fail-shaped mismatch** checkpoint，現已納入 `140 / 415` 完成數（5G/6G/2.4G setters all accepted/read back `"1"`, but hostapd `he_spr_srg_bss_colors=` stayed absent on wl0/wl1/wl2）
+  - `D371 SRGPartialBSSIDBitmap` → 0310 row 276 mixed-band checkpoint，現已納入 `140 / 415` 完成數（5G/6G setters accepted/read back `"1"` while hostapd `he_spr_srg_partial_bssid=` stayed absent; 2.4G setter failed with `error=4` / `parameter not found`）
 - Latest validated commands:
-  - `load_case(plugins/wifi_llapi/cases/D368_srgbsscolorbitmap.yaml)` / `load_case(plugins/wifi_llapi/cases/D371_srgpartialbssidbitmap.yaml)` → `steps=15 / 15`
-  - `uv run pytest -q tests/test_wifi_llapi_plugin_runtime.py -k 'd368 or d371'` → `6 passed`
-  - `uv run pytest -q tests/test_wifi_llapi_plugin_runtime.py` → `206 passed`
-  - `uv run pytest -q` → `259 passed`
+  - `load_case(plugins/wifi_llapi/cases/D080_entry.yaml)` → `steps=15`
+  - `uv run pytest -q tests/test_wifi_llapi_plugin_runtime.py -k 'd080'` → `3 passed`
+  - `uv run pytest -q tests/test_wifi_llapi_plugin_runtime.py` → `209 passed`
+  - `uv run pytest -q` → `262 passed`
   - `serialwrap COM0 ubus-cli/hostapd_cli baseline readback` → 5G `testpilot5G` + `WPA2-Personal/00000000`, 6G `testpilot6G` + `WPA3-Personal/SAE/00000000`, 2.4G `testpilot2G` + `WPA2-Personal/00000000`
-  - `serialwrap COM0 D368/D371 SRG bitmap probe` → `D368` on 5G/6G/2.4G all accepted/read back `"1"` while hostapd line count stayed `0`; `D371` on 5G/6G accepted/read back `"1"` with hostapd line count `0`, while 2.4G returned `error=4` / `parameter not found` and the getter stayed empty
+  - `serialwrap COM0 D080 Entry probe` → AP1/AP3/AP5 all showed `MACFiltering.Entry.?` = `No data found` at baseline, one `Entry.Alias/MACAddress` node after `addEntry(mac=...)`, and `No data found` again after `delEntry(mac=...)`; ACL file side effects were mode-dependent and therefore left to `D081`
 - Next ready repo handoff case:
-  - `D080 Entry`
+  - `D081 Mode`
 - Continuation guard rails:
   - only committed YAML / docs count as trusted handoff state
   - do not infer progress from any local unstaged experiment outside these committed checkpoints
   - reuse `D058 TxPacketCount` as the positive same-STA tx-packet prior art when judging `D059`/`D060` family cases
-  - `D080_entry.yaml` is still an old transcript-style case; re-read workbook row 72 plus the new D079 MACFilterAddressList AP-only pass prior art before rewriting it
-  - `D185` / `D368` / `D371` 已從待校正池移出並折入完成數，但不改變下一個 ready sequential case（仍為 `D080`）
+  - `D081_mode_accesspoint_macfiltering.yaml` is still an old transcript-style case; re-read workbook row 73 plus the new D080 Entry AP-only pass prior art before rewriting it
+  - `D185` / `D368` / `D371` 已從待校正池移出並折入完成數；最新 main-sweep checkpoint 則前進到 `D080`，下一個 ready sequential case 為 `D081`
 
 Current verified live baseline findings from this session:
 

@@ -7149,6 +7149,186 @@ def test_d079_macfilteraddresslist_accesspoint_evaluate_live_examples():
     assert plugin.evaluate(d079, d079_wrong_5g_baseline_results) is False
 
 
+def test_d080_entry_accesspoint_macfiltering_contract():
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+
+    d080_raw = yaml.safe_load((cases_dir / "D080_entry.yaml").read_text(encoding="utf-8"))
+    d080 = load_case(cases_dir / "D080_entry.yaml")
+    d080_commands = "\n".join(str(step.get("command", "")) for step in d080["steps"])
+
+    assert "aliases" not in d080_raw
+    assert d080["id"] == "wifi-llapi-D080-entry-accesspoint-macfiltering"
+    assert d080["source"]["report"] == "0310-BGW720-300_LLAPI_Test_Report.xlsx"
+    assert d080["source"]["row"] == 72
+    assert d080["source"]["baseline"] == "BCM v4.0.3"
+    assert d080["llapi_support"] == "Support"
+    assert d080["implemented_by"] == "pWHM"
+    assert d080["bands"] == ["5g", "6g", "2.4g"]
+    assert set(d080["topology"]["devices"]) == {"DUT"}
+    assert d080["topology"]["links"] == []
+    assert d080["hlapi_command"] == 'ubus-cli "WiFi.AccessPoint.1.MACFiltering.Entry.?"'
+    assert (
+        'ubus-cli "WiFi.AccessPoint.1.MACFiltering.delEntry(mac=62:2F:B8:66:BB:82)"'
+        in d080.get("sta_env_setup", "")
+    )
+    assert (
+        'ubus-cli "WiFi.AccessPoint.3.MACFiltering.delEntry(mac=FA:DD:AC:24:5A:B4)"'
+        in d080.get("sta_env_setup", "")
+    )
+    assert (
+        'ubus-cli "WiFi.AccessPoint.5.MACFiltering.delEntry(mac=FA:A0:DF:91:47:7C)"'
+        in d080.get("sta_env_setup", "")
+    )
+    assert "EntryAlias24g=" in d080_commands
+    assert any(
+        criterion["field"] == "entry_add_6g.EntryMac6g"
+        and criterion["operator"] == "equals"
+        and criterion["value"] == "FA:DD:AC:24:5A:B4"
+        for criterion in d080["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "entry_delete_24g.EntryAlias24g"
+        and criterion["operator"] == "equals"
+        and criterion["value"] == "EMPTY"
+        for criterion in d080["pass_criteria"]
+    )
+    assert d080["results_reference"]["v4.0.3"]["5g"] == "Pass"
+    assert d080["results_reference"]["v4.0.3"]["6g"] == "Pass"
+    assert d080["results_reference"]["v4.0.3"]["2.4g"] == "Pass"
+
+
+def test_d080_entry_accesspoint_macfiltering_setup_env_uses_only_dut_transport(monkeypatch):
+    plugin = _load_plugin()
+    topology = _FakeTopology()
+    recorder = _FactoryRecorder()
+    _install_fake_factory(monkeypatch, recorder)
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d080 = load_case(cases_dir / "D080_entry.yaml")
+
+    assert plugin.setup_env(d080, topology=topology) is True
+    assert len(recorder.calls) == 1
+    assert recorder.calls[0][0] == "serial"
+    executed_commands = recorder.transports[0].executed_commands
+    assert executed_commands.count("ubus-cli WiFi.AccessPoint.1.Enable=1") == 1
+    assert executed_commands.count("ubus-cli WiFi.AccessPoint.3.Enable=1") == 1
+    assert executed_commands.count("ubus-cli WiFi.AccessPoint.5.Enable=1") == 1
+    assert (
+        executed_commands.count(
+            'ubus-cli "WiFi.AccessPoint.1.MACFiltering.delEntry(mac=62:2F:B8:66:BB:82)" 2>/dev/null || true'
+        )
+        == 1
+    )
+    assert (
+        executed_commands.count(
+            'ubus-cli "WiFi.AccessPoint.3.MACFiltering.delEntry(mac=FA:DD:AC:24:5A:B4)" 2>/dev/null || true'
+        )
+        == 1
+    )
+    assert (
+        executed_commands.count(
+            'ubus-cli "WiFi.AccessPoint.5.MACFiltering.delEntry(mac=FA:A0:DF:91:47:7C)" 2>/dev/null || true'
+        )
+        == 1
+    )
+    assert executed_commands.count("wl -i wl0 bss") == 1
+    assert executed_commands.count("wl -i wl1 bss") == 1
+    assert executed_commands.count("wl -i wl2 bss") == 1
+    assert all("STA" not in command for command in executed_commands)
+    plugin.teardown(d080, topology)
+
+
+def test_d080_entry_accesspoint_macfiltering_evaluate_live_examples():
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d080 = load_case(cases_dir / "D080_entry.yaml")
+
+    def entry_output(suffix: str, count: int, alias: str, value: str) -> str:
+        return "\n".join(
+            [
+                f"EntryCount{suffix}={count}",
+                f"EntryAlias{suffix}={alias}",
+                f"EntryMac{suffix}={value}",
+            ]
+        )
+
+    def add_output(suffix: str, mac: str) -> str:
+        return f"RequestedMac{suffix}={mac}"
+
+    def delete_output(suffix: str, mac: str) -> str:
+        return f"DeletedMac{suffix}={mac}"
+
+    d080_steps: dict[str, dict[str, Any]] = {}
+    for suffix, band_key, mac, alias, base in (
+        ("5g", "5g", "62:2F:B8:66:BB:82", "cpe-Entry-5", 1),
+        ("6g", "6g", "FA:DD:AC:24:5A:B4", "cpe-Entry-4", 6),
+        ("24g", "24g", "FA:A0:DF:91:47:7C", "cpe-Entry-4", 11),
+    ):
+        d080_steps[f"step{base}_entry_baseline_{band_key}"] = {
+            "success": True,
+            "output": entry_output(suffix, 0, "EMPTY", "EMPTY"),
+            "timing": 0.01,
+        }
+        d080_steps[f"step{base + 1}_add_entry_{band_key}"] = {
+            "success": True,
+            "output": add_output(suffix, mac),
+            "timing": 0.01,
+        }
+        d080_steps[f"step{base + 2}_entry_add_{band_key}"] = {
+            "success": True,
+            "output": entry_output(suffix, 1, alias, mac),
+            "timing": 0.01,
+        }
+        d080_steps[f"step{base + 3}_delete_entry_{band_key}"] = {
+            "success": True,
+            "output": delete_output(suffix, mac),
+            "timing": 0.01,
+        }
+        d080_steps[f"step{base + 4}_entry_delete_{band_key}"] = {
+            "success": True,
+            "output": entry_output(suffix, 0, "EMPTY", "EMPTY"),
+            "timing": 0.01,
+        }
+
+    d080_results = {"steps": d080_steps}
+    assert plugin.evaluate(d080, d080_results) is True
+
+    d080_wrong_6g_add_results = {
+        "steps": {
+            **d080_steps,
+            "step8_entry_add_6g": {
+                "success": True,
+                "output": entry_output("6g", 0, "EMPTY", "EMPTY"),
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d080, d080_wrong_6g_add_results) is False
+
+    d080_wrong_24g_alias_results = {
+        "steps": {
+            **d080_steps,
+            "step13_entry_add_24g": {
+                "success": True,
+                "output": entry_output("24g", 1, "EMPTY", "FA:A0:DF:91:47:7C"),
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d080, d080_wrong_24g_alias_results) is False
+
+    d080_wrong_5g_delete_results = {
+        "steps": {
+            **d080_steps,
+            "step5_entry_delete_5g": {
+                "success": True,
+                "output": entry_output("5g", 1, "cpe-Entry-5", "62:2F:B8:66:BB:82"),
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d080, d080_wrong_5g_delete_results) is False
+
+
 def test_run_required_command_retries_after_recovery_signal():
     plugin = _load_plugin()
     calls: list[str] = []
