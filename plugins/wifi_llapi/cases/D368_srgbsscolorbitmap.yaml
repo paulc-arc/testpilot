@@ -1,148 +1,246 @@
 id: wifi-llapi-D368-srgbsscolorbitmap
-aliases:
-  - wifi-llapi-r273-srgbsscolorbitmap
-name: SRGBSSColorBitmap — WiFi.Radio.{i}.IEEE80211ax.
-version: '1.0'
+name: "SRGBSSColorBitmap — WiFi.Radio.{i}.IEEE80211ax."
+version: '1.1'
 source:
-  report: "0302-AT&T_LLAPI_Test_Report_20260107.xlsx"
+  report: 0310-BGW720-300_LLAPI_Test_Report.xlsx
   sheet: Wifi_LLAPI
-  row: 368
-  object: "WiFi.Radio.{i}.IEEE80211ax."
-  api: "SRGBSSColorBitmap"
+  row: 273
+  object: WiFi.Radio.{i}.IEEE80211ax.
+  api: SRGBSSColorBitmap
+  baseline: BCM v4.0.3
 platform:
   prplos: 4.0.3
   bdk: 6.3.1
-hlapi_command: ubus-cli WiFi.Radio.{i}.IEEE80211ax.SRGBSSColorBitmap=""
+hlapi_command: 'ubus-cli WiFi.Radio.1.IEEE80211ax.SRGBSSColorBitmap="1"'
 llapi_support: Support
 implemented_by: Vendor Module
+bands: ["5g", "6g", "2.4g"]
 topology:
   devices:
     DUT:
       role: ap
       transport: serial
       selector: COM0
-    STA:
-      role: sta
-      transport: serial
-      selector: COM1
-      config:
-      - iface: 5g
-        mode: sta
-        ssid: '{{SSID_5G}}'
-        key: '{{KEY_5G}}'
-  links:
-  - from: STA
-    to: DUT
-    band: 5g
+  links: []
 test_environment: |
   Topology:
-  - DUT: COM0 (B0, AP role)
-  - STA: COM1 (A0, STA role, STA-required cases only)
-  Transport:
-  - serialwrap attach COM0 / COM1
-  Band mapping:
-  - 5G: DUT wl0 / AP1 / SSID.4
-  - 6G: DUT wl1 / AP3 / SSID.6
-  - 2.4G: DUT wl2 / AP5 / SSID.8
-  Pre-check:
-  - cat /proc/socinfo | grep Revision | cut -d: -f2
-  - iw dev
-  - ubus-cli "WiFi.Radio.?" | sed -n "1,120p"
-
+  - DUT: COM0 (AP role; SRGBSSColorBitmap is validated as a Radio-only case with no STA transport)
+  Live band mapping:
+  - 5G: DUT wl0 / Radio.1 / SSID.4 / testpilot5G / WPA2-Personal / 00000000
+  - 6G: DUT wl1 / Radio.2 / SSID.6 / testpilot6G / WPA3-Personal / SAE / 00000000
+  - 2.4G: DUT wl2 / Radio.3 / SSID.8 / testpilot2G / WPA2-Personal / 00000000
+  Preconditions:
+  - keep Radio.1 / Radio.2 / Radio.3 on the documented non-open baseline
+  - the default getter on all three bands is `SRGBSSColorBitmap=""`
+  - 0319 serialwrap probe showed Radio.1 / Radio.2 / Radio.3 all accepted `SRGBSSColorBitmap="1"` and read it back as `"1"`, but `/tmp/wl[0-2]_hapd.conf` never gained any `he_spr_srg_bss_colors=` line
 setup_steps: |
-  1) DUT 5G baseline:
-     - set Radio.1/SSID.4 for the 5G AP under test
-     - configure AP1 as open with MFP disabled
-     - enable AP1 before station association
-  2) STA 5G preparation:
-     - disable local AP1/AP2 on A0
-     - clear wl0 AP child interface and switch wl0 to managed mode
-     - connect wl0 to {{SSID_5G}}
-  3) Association evidence:
-     - A0: iw dev wl0 link
-     - B0: wl -i wl0 assoclist
+  1) DUT baseline:
+     - keep wl0 / wl1 / wl2 BSS instances up on the default non-open baseline
+     - confirm `/tmp/wl0_hapd.conf`, `/tmp/wl1_hapd.conf`, and `/tmp/wl2_hapd.conf` exist before the bitmap probe
+  2) Setter / getter probe:
+     - read the default SRGBSSColorBitmap getter on Radio.1 / Radio.2 / Radio.3
+     - write `SRGBSSColorBitmap="1"` on each band and confirm northbound readback changes to `"1"`
+  3) hostapd cross-check:
+     - inspect `/tmp/wl[0-2]_hapd.conf` for `he_spr_srg_bss_colors=`
+     - every band should keep the line count at `0`, proving the accepted getter value never reaches Broadcom hostapd/runtime config
+  4) Cleanup:
+     - restore Radio.1 / Radio.2 / Radio.3 back to `SRGBSSColorBitmap=""`
 sta_env_setup: |
-  DUT 5G AP baseline:
-    ubus-cli WiFi.Radio.1.Enable=1
-    ubus-cli WiFi.Radio.1.BeaconPeriod=100
-    ubus-cli WiFi.Radio.1.DTIMPeriod=3
-    ubus-cli WiFi.Radio.1.DriverConfig.FragmentationThreshold=-1
-    ubus-cli WiFi.Radio.1.DriverConfig.RtsThreshold=-1
-    ubus-cli WiFi.Radio.1.DriverConfig.TPCMode=Auto
-    ubus-cli WiFi.Radio.1.ExplicitBeamFormingEnabled=1
-    ubus-cli WiFi.Radio.1.ImplicitBeamFormingEnabled=1
-    ubus-cli WiFi.Radio.1.OfdmaEnable=1
-    ubus-cli WiFi.Radio.1.ObssCoexistenceEnable=0
-    ubus-cli WiFi.Radio.1.OperatingStandards=ax
-    ubus-cli WiFi.Radio.1.RxChainCtrl=-1
-    ubus-cli WiFi.Radio.1.TxChainCtrl=-1
-    ubus-cli WiFi.Radio.1.Vendor.Brcm.RegulatoryDomainRev=0
-    ubus-cli WiFi.Radio.1.Sensing.Enable=1
-    ubus-cli WiFi.Radio.1.IEEE80211ax.BssColorPartial=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.NonSRGOBSSPDMaxOffset=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.PSRDisallowed=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.SRGOBSSPDMaxOffset=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.SRGOBSSPDMinOffset=0
-    ubus-cli WiFi.Radio.1.LongRetryLimit=6
-    ubus-cli WiFi.Radio.1.MultiUserMIMOEnabled=1
-    ubus-cli WiFi.Radio.1.TargetWakeTimeEnable=1
-    ubus-cli WiFi.SSID.4.SSID={{SSID_5G}}
-    ubus-cli WiFi.AccessPoint.1.IEEE80211u.QoSMapSet=
-    ubus-cli WiFi.AccessPoint.2.IEEE80211u.QoSMapSet=
-    ubus-cli WiFi.AccessPoint.1.Security.ModeEnabled=None
-    ubus-cli WiFi.AccessPoint.1.Security.MFPConfig=Disabled
-    ubus-cli WiFi.AccessPoint.1.Enable=1
-  STA 5G preparation:
-    ubus-cli WiFi.AccessPoint.1.Enable=0
-    ubus-cli WiFi.AccessPoint.2.Enable=0
-    killall wpa_supplicant 2>/dev/null || true
-    iw dev wl0.1 del 2>/dev/null || true
-    iw dev wl0 disconnect 2>/dev/null || true
-    iw dev wl0 set type managed
-    ifconfig wl0 up
-  STA 5G connect verify:
-    iw dev wl0 connect {{SSID_5G}}
-    sleep 2
-    iw dev wl0 link
-  DUT association evidence:
-    wl -i wl0 assoclist
+  DUT:
+    wl -i wl0 bss
+    wl -i wl1 bss
+    wl -i wl2 bss
 test_procedure: |
-  1) Execute case command on DUT:
-     ubus-cli WiFi.Radio.{i}.IEEE80211ax.SRGBSSColorBitmap=""
-  2) LLAPI readback on DUT:
-     ubus-cli "WiFi.Radio.*.IEEE80211ax.SRGBSSColorBitmap?"
-  3) Cross-check with verification_command (driver/hostapd/iw/proc evidence).
-
+  1) Read WiFi.Radio.1/2/3.IEEE80211ax.SRGBSSColorBitmap and confirm the default is empty.
+  2) Set `SRGBSSColorBitmap="1"` on Radio.1 / Radio.2 / Radio.3 and confirm each getter reads back `"1"`.
+  3) Cross-check `/tmp/wl0_hapd.conf`, `/tmp/wl1_hapd.conf`, and `/tmp/wl2_hapd.conf`: no band should expose `he_spr_srg_bss_colors=`.
+  4) Restore all three bands back to `SRGBSSColorBitmap=""`.
+  Verdict: Fail. The ODL setter is accepted and the getter stores `"1"` on every band, but Broadcom hostapd/runtime config never projects `he_spr_srg_bss_colors=`.
 steps:
-- id: query
+- id: step1_default_5g
   action: exec
   target: DUT
-  command: ubus-cli WiFi.Radio.{i}.IEEE80211ax.SRGBSSColorBitmap=""
-  capture: result
+  band: 5g
+  command: 'ubus-cli "WiFi.Radio.1.IEEE80211ax.SRGBSSColorBitmap?"'
+  capture: default_5g
+- id: step2_default_6g
+  action: exec
+  target: DUT
+  band: 6g
+  command: 'ubus-cli "WiFi.Radio.2.IEEE80211ax.SRGBSSColorBitmap?"'
+  depends_on: step1_default_5g
+  capture: default_6g
+- id: step3_default_24g
+  action: exec
+  target: DUT
+  band: 2.4g
+  command: 'ubus-cli "WiFi.Radio.3.IEEE80211ax.SRGBSSColorBitmap?"'
+  depends_on: step2_default_6g
+  capture: default_24g
+- id: step4_set_5g
+  action: exec
+  target: DUT
+  band: 5g
+  command: 'ubus-cli WiFi.Radio.1.IEEE80211ax.SRGBSSColorBitmap="1"'
+  depends_on: step3_default_24g
+  capture: set_5g
+- id: step5_set_6g
+  action: exec
+  target: DUT
+  band: 6g
+  command: 'ubus-cli WiFi.Radio.2.IEEE80211ax.SRGBSSColorBitmap="1"'
+  depends_on: step4_set_5g
+  capture: set_6g
+- id: step6_set_24g
+  action: exec
+  target: DUT
+  band: 2.4g
+  command: 'ubus-cli WiFi.Radio.3.IEEE80211ax.SRGBSSColorBitmap="1"'
+  depends_on: step5_set_6g
+  capture: set_24g
+- id: step7_after_5g
+  action: exec
+  target: DUT
+  band: 5g
+  command: 'ubus-cli "WiFi.Radio.1.IEEE80211ax.SRGBSSColorBitmap?"'
+  depends_on: step6_set_24g
+  capture: after_5g
+- id: step8_after_6g
+  action: exec
+  target: DUT
+  band: 6g
+  command: 'ubus-cli "WiFi.Radio.2.IEEE80211ax.SRGBSSColorBitmap?"'
+  depends_on: step7_after_5g
+  capture: after_6g
+- id: step9_after_24g
+  action: exec
+  target: DUT
+  band: 2.4g
+  command: 'ubus-cli "WiFi.Radio.3.IEEE80211ax.SRGBSSColorBitmap?"'
+  depends_on: step8_after_6g
+  capture: after_24g
+- id: step10_cfg_5g_after
+  action: exec
+  target: DUT
+  band: 5g
+  command: grep -c '^he_spr_srg_bss_colors=' /tmp/wl0_hapd.conf | sed 's/^/HostapdSrgBssColorLines=/'
+  depends_on: step9_after_24g
+  capture: cfg_5g_after
+- id: step11_cfg_6g_after
+  action: exec
+  target: DUT
+  band: 6g
+  command: grep -c '^he_spr_srg_bss_colors=' /tmp/wl1_hapd.conf | sed 's/^/HostapdSrgBssColorLines=/'
+  depends_on: step10_cfg_5g_after
+  capture: cfg_6g_after
+- id: step12_cfg_24g_after
+  action: exec
+  target: DUT
+  band: 2.4g
+  command: grep -c '^he_spr_srg_bss_colors=' /tmp/wl2_hapd.conf | sed 's/^/HostapdSrgBssColorLines=/'
+  depends_on: step11_cfg_6g_after
+  capture: cfg_24g_after
+- id: step13_restore_5g
+  action: exec
+  target: DUT
+  band: 5g
+  command: 'ubus-cli WiFi.Radio.1.IEEE80211ax.SRGBSSColorBitmap=""'
+  depends_on: step12_cfg_24g_after
+  capture: restore_5g
+- id: step14_restore_6g
+  action: exec
+  target: DUT
+  band: 6g
+  command: 'ubus-cli WiFi.Radio.2.IEEE80211ax.SRGBSSColorBitmap=""'
+  depends_on: step13_restore_5g
+  capture: restore_6g
+- id: step15_restore_24g
+  action: exec
+  target: DUT
+  band: 2.4g
+  command: 'ubus-cli WiFi.Radio.3.IEEE80211ax.SRGBSSColorBitmap=""'
+  depends_on: step14_restore_6g
+  capture: restore_24g
 pass_criteria:
-- field: result.SRGBSSColorBitmap
-  operator: contains
-  value: '""'
-  description: SRGBSSColorBitmap 應回傳包含 SRGBSSColorBitmap=""
-
+- field: default_5g.SRGBSSColorBitmap
+  operator: equals
+  value: ""
+  description: 5G Radio.1 should start with an empty SRGBSSColorBitmap getter.
+- field: default_6g.SRGBSSColorBitmap
+  operator: equals
+  value: ""
+  description: 6G Radio.2 should start with an empty SRGBSSColorBitmap getter.
+- field: default_24g.SRGBSSColorBitmap
+  operator: equals
+  value: ""
+  description: 2.4G Radio.3 should start with an empty SRGBSSColorBitmap getter.
+- field: set_5g.SRGBSSColorBitmap
+  operator: equals
+  value: "1"
+  description: 5G Radio.1 should acknowledge the accepted SRGBSSColorBitmap setter.
+- field: set_6g.SRGBSSColorBitmap
+  operator: equals
+  value: "1"
+  description: 6G Radio.2 should acknowledge the accepted SRGBSSColorBitmap setter.
+- field: set_24g.SRGBSSColorBitmap
+  operator: equals
+  value: "1"
+  description: 2.4G Radio.3 should acknowledge the accepted SRGBSSColorBitmap setter.
+- field: after_5g.SRGBSSColorBitmap
+  operator: equals
+  value: "1"
+  description: 5G Radio.1 getter should read back the written bitmap value.
+- field: after_6g.SRGBSSColorBitmap
+  operator: equals
+  value: "1"
+  description: 6G Radio.2 getter should read back the written bitmap value.
+- field: after_24g.SRGBSSColorBitmap
+  operator: equals
+  value: "1"
+  description: 2.4G Radio.3 getter should read back the written bitmap value.
+- field: cfg_5g_after.HostapdSrgBssColorLines
+  operator: equals
+  value: '0'
+  description: wl0 hostapd config should still expose no he_spr_srg_bss_colors line after the 5G setter write.
+- field: cfg_6g_after.HostapdSrgBssColorLines
+  operator: equals
+  value: '0'
+  description: wl1 hostapd config should still expose no he_spr_srg_bss_colors line after the 6G setter write.
+- field: cfg_24g_after.HostapdSrgBssColorLines
+  operator: equals
+  value: '0'
+  description: wl2 hostapd config should still expose no he_spr_srg_bss_colors line after the 2.4G setter write.
+- field: restore_5g.SRGBSSColorBitmap
+  operator: equals
+  value: ""
+  description: 5G Radio.1 should restore back to an empty SRGBSSColorBitmap value.
+- field: restore_6g.SRGBSSColorBitmap
+  operator: equals
+  value: ""
+  description: 6G Radio.2 should restore back to an empty SRGBSSColorBitmap value.
+- field: restore_24g.SRGBSSColorBitmap
+  operator: equals
+  value: ""
+  description: 2.4G Radio.3 should restore back to an empty SRGBSSColorBitmap value.
 verification_command: |
-  ubus-cli "WiFi.Radio.*.?" | sed -n "1,200p"
-  ubus-cli "WiFi.Radio.*.SRGBSSColorBitmap?" 2>/dev/null || true
-  wl -i wl0 status
-  wl -i wl1 status
-  wl -i wl2 status
-  wl -i wl0 channel 2>/dev/null || true
-  wl -i wl1 channel 2>/dev/null || true
-  wl -i wl2 channel 2>/dev/null || true
-
+  ubus-cli "WiFi.Radio.1.IEEE80211ax.SRGBSSColorBitmap?"
+  ubus-cli WiFi.Radio.1.IEEE80211ax.SRGBSSColorBitmap="1"
+  ubus-cli "WiFi.Radio.1.IEEE80211ax.SRGBSSColorBitmap?"
+  grep -c '^he_spr_srg_bss_colors=' /tmp/wl0_hapd.conf | sed 's/^/HostapdSrgBssColorLines=/'
+  ubus-cli WiFi.Radio.1.IEEE80211ax.SRGBSSColorBitmap=""
+  ubus-cli "WiFi.Radio.2.IEEE80211ax.SRGBSSColorBitmap?"
+  ubus-cli WiFi.Radio.2.IEEE80211ax.SRGBSSColorBitmap="1"
+  ubus-cli "WiFi.Radio.2.IEEE80211ax.SRGBSSColorBitmap?"
+  grep -c '^he_spr_srg_bss_colors=' /tmp/wl1_hapd.conf | sed 's/^/HostapdSrgBssColorLines=/'
+  ubus-cli WiFi.Radio.2.IEEE80211ax.SRGBSSColorBitmap=""
+  ubus-cli "WiFi.Radio.3.IEEE80211ax.SRGBSSColorBitmap?"
+  ubus-cli WiFi.Radio.3.IEEE80211ax.SRGBSSColorBitmap="1"
+  ubus-cli "WiFi.Radio.3.IEEE80211ax.SRGBSSColorBitmap?"
+  grep -c '^he_spr_srg_bss_colors=' /tmp/wl2_hapd.conf | sed 's/^/HostapdSrgBssColorLines=/'
+  ubus-cli WiFi.Radio.3.IEEE80211ax.SRGBSSColorBitmap=""
 results_reference:
-  v4.0.1:
-    5g: To be tested
-    6g: To be tested
-    2.4g: To be tested
-    comment: ''
   v4.0.3:
-    5g: To be tested
-    6g: To be tested
-    2.4g: To be tested
-    comment: ''
+    5g: Fail
+    6g: Fail
+    2.4g: Fail
+    comment: '0319 serialwrap retest: Radio.1/2/3 all accepted SRGBSSColorBitmap="1" and read it back as "1", but grep -c ^he_spr_srg_bss_colors= over /tmp/wl0_hapd.conf, /tmp/wl1_hapd.conf, and /tmp/wl2_hapd.conf stayed 0 on every band. The value remains northbound-only and never reaches Broadcom hostapd/runtime config.'

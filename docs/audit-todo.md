@@ -122,13 +122,15 @@ If I open only this file in a future session, I should do the following in order
   - `D078 QoSMapSet` → workbook-aligned AP-only multiband `Not Supported` checkpoint（workbook row 70 / AP1/AP3/AP5 all started from `QoSMapSet=""` with no `qos_map_set=` line, but writing the requested DSCP map always collapsed both getter and hostapd to scalar `255` / `qos_map_set=255` before restore returned to `EMPTY / ABSENT`）
   - `D079 MacFilterAddressList` → workbook-aligned AP-only multiband `Pass` checkpoint（current checkpoint；AP1/AP3/AP5 all started with an empty getter and empty `MACFiltering.Entry` tree, and after `MACFiltering.addEntry(mac=...)` / `delEntry(mac=...)` the bounded `sleep 2` readback showed the getter and entry tree converging together to the same band-specific MAC and then back to the empty baseline）
   - `D185 TPCMode` → targeted source/live **Fail-shaped mismatch** checkpoint outside the 136 / 279 main-sweep counts
+  - `D368 SRGBSSColorBitmap` → targeted 0310 row 273 **Fail-shaped mismatch** checkpoint outside the 136 / 279 main-sweep counts（5G/6G/2.4G setters all accepted/read back `"1"`, but hostapd `he_spr_srg_bss_colors=` stayed absent on wl0/wl1/wl2）
+  - `D371 SRGPartialBSSIDBitmap` → targeted 0310 row 276 mixed-band checkpoint outside the 136 / 279 main-sweep counts（5G/6G setters accepted/read back `"1"` while hostapd `he_spr_srg_partial_bssid=` stayed absent; 2.4G setter failed with `error=4` / `parameter not found`）
 - Latest validated commands:
-  - `load_case(plugins/wifi_llapi/cases/D079_macfilteraddresslist.yaml)` → `steps=24`
-  - `uv run pytest -q tests/test_wifi_llapi_plugin_runtime.py -k 'd079'` → `8 passed`
-  - `uv run pytest -q tests/test_wifi_llapi_plugin_runtime.py` → `200 passed`
-  - `uv run pytest -q` → `253 passed`
+  - `load_case(plugins/wifi_llapi/cases/D368_srgbsscolorbitmap.yaml)` / `load_case(plugins/wifi_llapi/cases/D371_srgpartialbssidbitmap.yaml)` → `steps=15 / 15`
+  - `uv run pytest -q tests/test_wifi_llapi_plugin_runtime.py -k 'd368 or d371'` → `6 passed`
+  - `uv run pytest -q tests/test_wifi_llapi_plugin_runtime.py` → `206 passed`
+  - `uv run pytest -q` → `259 passed`
   - `serialwrap COM0 ubus-cli/hostapd_cli baseline readback` → 5G `testpilot5G` + `WPA2-Personal/00000000`, 6G `testpilot6G` + `WPA3-Personal/SAE/00000000`, 2.4G `testpilot2G` + `WPA2-Personal/00000000`
-  - `serialwrap COM0 D079 MACFilterAddressList probe` → AP1/AP3/AP5 all started from `MACFilterAddressList=""` with no `MACFiltering.Entry.*.MACAddress`; after `MACFiltering.addEntry(mac=...)` / `delEntry(mac=...)`, the bounded `sleep 2` readback showed the getter and entry tree converging together to the same MAC and then back to the empty baseline
+  - `serialwrap COM0 D368/D371 SRG bitmap probe` → `D368` on 5G/6G/2.4G all accepted/read back `"1"` while hostapd line count stayed `0`; `D371` on 5G/6G accepted/read back `"1"` with hostapd line count `0`, while 2.4G returned `error=4` / `parameter not found` and the getter stayed empty
 - Next ready repo handoff case:
   - `D080 Entry`
 - Continuation guard rails:
@@ -136,6 +138,7 @@ If I open only this file in a future session, I should do the following in order
   - do not infer progress from any local unstaged experiment outside these committed checkpoints
   - reuse `D058 TxPacketCount` as the positive same-STA tx-packet prior art when judging `D059`/`D060` family cases
   - `D080_entry.yaml` is still an old transcript-style case; re-read workbook row 72 plus the new D079 MACFilterAddressList AP-only pass prior art before rewriting it
+  - `D368` / `D371` are targeted SRG bitmap detours outside the main sweep counts; do not let them change the next ready sequential case (`D080`)
 
 Current verified live baseline findings from this session:
 

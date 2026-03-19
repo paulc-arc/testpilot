@@ -5680,6 +5680,343 @@ def test_d070_discoverymethodenabled_accesspoint_rnr_evaluate_live_examples():
     assert plugin.evaluate(d070, d070_wrong_restore_results) is False
 
 
+def test_d368_srgbsscolorbitmap_radio_contract():
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+
+    d368_raw = yaml.safe_load((cases_dir / "D368_srgbsscolorbitmap.yaml").read_text(encoding="utf-8"))
+    d368 = load_case(cases_dir / "D368_srgbsscolorbitmap.yaml")
+    d368_commands = "\n".join(str(step.get("command", "")) for step in d368["steps"])
+
+    assert "aliases" not in d368_raw
+    assert d368["id"] == "wifi-llapi-D368-srgbsscolorbitmap"
+    assert d368["source"]["report"] == "0310-BGW720-300_LLAPI_Test_Report.xlsx"
+    assert d368["source"]["row"] == 273
+    assert d368["source"]["baseline"] == "BCM v4.0.3"
+    assert d368["llapi_support"] == "Support"
+    assert d368["bands"] == ["5g", "6g", "2.4g"]
+    assert set(d368["topology"]["devices"]) == {"DUT"}
+    assert d368["topology"]["links"] == []
+    assert d368["hlapi_command"] == 'ubus-cli WiFi.Radio.1.IEEE80211ax.SRGBSSColorBitmap="1"'
+    assert "wl -i wl0 bss" in d368.get("sta_env_setup", "")
+    assert "wl -i wl1 bss" in d368.get("sta_env_setup", "")
+    assert "wl -i wl2 bss" in d368.get("sta_env_setup", "")
+    assert 'WiFi.Radio.1.IEEE80211ax.SRGBSSColorBitmap?"' in d368_commands
+    assert 'WiFi.Radio.2.IEEE80211ax.SRGBSSColorBitmap="1"' in d368_commands
+    assert "HostapdSrgBssColorLines=" in d368_commands
+    assert any(
+        criterion["field"] == "after_6g.SRGBSSColorBitmap"
+        and criterion["operator"] == "equals"
+        and criterion["value"] == "1"
+        for criterion in d368["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "cfg_24g_after.HostapdSrgBssColorLines"
+        and criterion["operator"] == "equals"
+        and criterion["value"] == "0"
+        for criterion in d368["pass_criteria"]
+    )
+    assert d368["results_reference"]["v4.0.3"]["5g"] == "Fail"
+    assert d368["results_reference"]["v4.0.3"]["6g"] == "Fail"
+    assert d368["results_reference"]["v4.0.3"]["2.4g"] == "Fail"
+
+
+def test_d368_srgbsscolorbitmap_setup_env_uses_only_dut_transport(monkeypatch):
+    plugin = _load_plugin()
+    topology = _FakeTopology()
+    recorder = _FactoryRecorder()
+    _install_fake_factory(monkeypatch, recorder)
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d368 = load_case(cases_dir / "D368_srgbsscolorbitmap.yaml")
+
+    assert plugin.setup_env(d368, topology=topology) is True
+    assert len(recorder.calls) == 1
+    assert recorder.calls[0][0] == "serial"
+    assert recorder.transports[0].executed_commands.count("wl -i wl0 bss") == 1
+    assert recorder.transports[0].executed_commands.count("wl -i wl1 bss") == 1
+    assert recorder.transports[0].executed_commands.count("wl -i wl2 bss") == 1
+    plugin.teardown(d368, topology)
+
+
+def test_d368_srgbsscolorbitmap_evaluate_live_examples():
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d368 = load_case(cases_dir / "D368_srgbsscolorbitmap.yaml")
+
+    d368_results = {
+        "steps": {
+            "step1_default_5g": {
+                "success": True,
+                "output": 'WiFi.Radio.1.IEEE80211ax.SRGBSSColorBitmap=""',
+                "timing": 0.01,
+            },
+            "step2_default_6g": {
+                "success": True,
+                "output": 'WiFi.Radio.2.IEEE80211ax.SRGBSSColorBitmap=""',
+                "timing": 0.01,
+            },
+            "step3_default_24g": {
+                "success": True,
+                "output": 'WiFi.Radio.3.IEEE80211ax.SRGBSSColorBitmap=""',
+                "timing": 0.01,
+            },
+            "step4_set_5g": {
+                "success": True,
+                "output": 'WiFi.Radio.1.IEEE80211ax.\nWiFi.Radio.1.IEEE80211ax.SRGBSSColorBitmap="1"',
+                "timing": 0.01,
+            },
+            "step5_set_6g": {
+                "success": True,
+                "output": 'WiFi.Radio.2.IEEE80211ax.\nWiFi.Radio.2.IEEE80211ax.SRGBSSColorBitmap="1"',
+                "timing": 0.01,
+            },
+            "step6_set_24g": {
+                "success": True,
+                "output": 'WiFi.Radio.3.IEEE80211ax.\nWiFi.Radio.3.IEEE80211ax.SRGBSSColorBitmap="1"',
+                "timing": 0.01,
+            },
+            "step7_after_5g": {
+                "success": True,
+                "output": 'WiFi.Radio.1.IEEE80211ax.SRGBSSColorBitmap="1"',
+                "timing": 0.01,
+            },
+            "step8_after_6g": {
+                "success": True,
+                "output": 'WiFi.Radio.2.IEEE80211ax.SRGBSSColorBitmap="1"',
+                "timing": 0.01,
+            },
+            "step9_after_24g": {
+                "success": True,
+                "output": 'WiFi.Radio.3.IEEE80211ax.SRGBSSColorBitmap="1"',
+                "timing": 0.01,
+            },
+            "step10_cfg_5g_after": {
+                "success": True,
+                "output": "HostapdSrgBssColorLines=0",
+                "timing": 0.01,
+            },
+            "step11_cfg_6g_after": {
+                "success": True,
+                "output": "HostapdSrgBssColorLines=0",
+                "timing": 0.01,
+            },
+            "step12_cfg_24g_after": {
+                "success": True,
+                "output": "HostapdSrgBssColorLines=0",
+                "timing": 0.01,
+            },
+            "step13_restore_5g": {
+                "success": True,
+                "output": 'WiFi.Radio.1.IEEE80211ax.\nWiFi.Radio.1.IEEE80211ax.SRGBSSColorBitmap=""',
+                "timing": 0.01,
+            },
+            "step14_restore_6g": {
+                "success": True,
+                "output": 'WiFi.Radio.2.IEEE80211ax.\nWiFi.Radio.2.IEEE80211ax.SRGBSSColorBitmap=""',
+                "timing": 0.01,
+            },
+            "step15_restore_24g": {
+                "success": True,
+                "output": 'WiFi.Radio.3.IEEE80211ax.\nWiFi.Radio.3.IEEE80211ax.SRGBSSColorBitmap=""',
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d368, d368_results) is True
+
+    d368_wrong_cfg_results = {
+        "steps": {
+            **d368_results["steps"],
+            "step11_cfg_6g_after": {
+                "success": True,
+                "output": "HostapdSrgBssColorLines=1",
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d368, d368_wrong_cfg_results) is False
+
+    d368_wrong_24g_getter_results = {
+        "steps": {
+            **d368_results["steps"],
+            "step9_after_24g": {
+                "success": True,
+                "output": 'WiFi.Radio.3.IEEE80211ax.SRGBSSColorBitmap=""',
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d368, d368_wrong_24g_getter_results) is False
+
+
+def test_d371_srgpartialbssidbitmap_radio_contract():
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+
+    d371_raw = yaml.safe_load((cases_dir / "D371_srgpartialbssidbitmap.yaml").read_text(encoding="utf-8"))
+    d371 = load_case(cases_dir / "D371_srgpartialbssidbitmap.yaml")
+    d371_commands = "\n".join(str(step.get("command", "")) for step in d371["steps"])
+
+    assert "aliases" not in d371_raw
+    assert d371["id"] == "wifi-llapi-D371-srgpartialbssidbitmap"
+    assert d371["source"]["report"] == "0310-BGW720-300_LLAPI_Test_Report.xlsx"
+    assert d371["source"]["row"] == 276
+    assert d371["source"]["baseline"] == "BCM v4.0.3"
+    assert d371["llapi_support"] == "Support"
+    assert d371["bands"] == ["5g", "6g", "2.4g"]
+    assert set(d371["topology"]["devices"]) == {"DUT"}
+    assert d371["topology"]["links"] == []
+    assert d371["hlapi_command"] == 'ubus-cli WiFi.Radio.1.IEEE80211ax.SRGPartialBSSIDBitmap="1"'
+    assert "wl -i wl0 bss" in d371.get("sta_env_setup", "")
+    assert "wl -i wl1 bss" in d371.get("sta_env_setup", "")
+    assert "wl -i wl2 bss" in d371.get("sta_env_setup", "")
+    assert 'WiFi.Radio.1.IEEE80211ax.SRGPartialBSSIDBitmap?"' in d371_commands
+    assert "HostapdSrgPartialBssidLines=" in d371_commands
+    assert "error=" in d371_commands
+    assert "message=" in d371_commands
+    assert any(
+        criterion["field"] == "invalid_24g.error"
+        and criterion["operator"] == "equals"
+        and criterion["value"] == "4"
+        for criterion in d371["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "cfg_6g_after.HostapdSrgPartialBssidLines"
+        and criterion["operator"] == "equals"
+        and criterion["value"] == "0"
+        for criterion in d371["pass_criteria"]
+    )
+    assert d371["results_reference"]["v4.0.3"]["5g"] == "Fail"
+    assert d371["results_reference"]["v4.0.3"]["6g"] == "Fail"
+    assert d371["results_reference"]["v4.0.3"]["2.4g"] == "Not Supported"
+
+
+def test_d371_srgpartialbssidbitmap_setup_env_uses_only_dut_transport(monkeypatch):
+    plugin = _load_plugin()
+    topology = _FakeTopology()
+    recorder = _FactoryRecorder()
+    _install_fake_factory(monkeypatch, recorder)
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d371 = load_case(cases_dir / "D371_srgpartialbssidbitmap.yaml")
+
+    assert plugin.setup_env(d371, topology=topology) is True
+    assert len(recorder.calls) == 1
+    assert recorder.calls[0][0] == "serial"
+    assert recorder.transports[0].executed_commands.count("wl -i wl0 bss") == 1
+    assert recorder.transports[0].executed_commands.count("wl -i wl1 bss") == 1
+    assert recorder.transports[0].executed_commands.count("wl -i wl2 bss") == 1
+    plugin.teardown(d371, topology)
+
+
+def test_d371_srgpartialbssidbitmap_evaluate_live_examples():
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d371 = load_case(cases_dir / "D371_srgpartialbssidbitmap.yaml")
+
+    d371_results = {
+        "steps": {
+            "step1_default_5g": {
+                "success": True,
+                "output": 'WiFi.Radio.1.IEEE80211ax.SRGPartialBSSIDBitmap=""',
+                "timing": 0.01,
+            },
+            "step2_default_6g": {
+                "success": True,
+                "output": 'WiFi.Radio.2.IEEE80211ax.SRGPartialBSSIDBitmap=""',
+                "timing": 0.01,
+            },
+            "step3_default_24g": {
+                "success": True,
+                "output": 'WiFi.Radio.3.IEEE80211ax.SRGPartialBSSIDBitmap=""',
+                "timing": 0.01,
+            },
+            "step4_set_5g": {
+                "success": True,
+                "output": 'WiFi.Radio.1.IEEE80211ax.\nWiFi.Radio.1.IEEE80211ax.SRGPartialBSSIDBitmap="1"',
+                "timing": 0.01,
+            },
+            "step5_set_6g": {
+                "success": True,
+                "output": 'WiFi.Radio.2.IEEE80211ax.\nWiFi.Radio.2.IEEE80211ax.SRGPartialBSSIDBitmap="1"',
+                "timing": 0.01,
+            },
+            "step6_invalid_24g": {
+                "success": True,
+                "output": "ERROR: set WiFi.Radio.3.IEEE80211ax.SRGPartialBSSIDBitmap failed (4 - parameter not found)\nerror=4\nmessage=parameter not found",
+                "timing": 0.01,
+            },
+            "step7_after_5g": {
+                "success": True,
+                "output": 'WiFi.Radio.1.IEEE80211ax.SRGPartialBSSIDBitmap="1"',
+                "timing": 0.01,
+            },
+            "step8_after_6g": {
+                "success": True,
+                "output": 'WiFi.Radio.2.IEEE80211ax.SRGPartialBSSIDBitmap="1"',
+                "timing": 0.01,
+            },
+            "step9_after_24g": {
+                "success": True,
+                "output": 'WiFi.Radio.3.IEEE80211ax.SRGPartialBSSIDBitmap=""',
+                "timing": 0.01,
+            },
+            "step10_cfg_5g_after": {
+                "success": True,
+                "output": "HostapdSrgPartialBssidLines=0",
+                "timing": 0.01,
+            },
+            "step11_cfg_6g_after": {
+                "success": True,
+                "output": "HostapdSrgPartialBssidLines=0",
+                "timing": 0.01,
+            },
+            "step12_cfg_24g_after": {
+                "success": True,
+                "output": "HostapdSrgPartialBssidLines=0",
+                "timing": 0.01,
+            },
+            "step13_restore_5g": {
+                "success": True,
+                "output": 'WiFi.Radio.1.IEEE80211ax.\nWiFi.Radio.1.IEEE80211ax.SRGPartialBSSIDBitmap=""',
+                "timing": 0.01,
+            },
+            "step14_restore_6g": {
+                "success": True,
+                "output": 'WiFi.Radio.2.IEEE80211ax.\nWiFi.Radio.2.IEEE80211ax.SRGPartialBSSIDBitmap=""',
+                "timing": 0.01,
+            },
+            "step15_restore_24g": {
+                "success": True,
+                "output": 'WiFi.Radio.3.IEEE80211ax.\nWiFi.Radio.3.IEEE80211ax.SRGPartialBSSIDBitmap=""',
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d371, d371_results) is True
+
+    d371_wrong_error_results = {
+        "steps": {
+            **d371_results["steps"],
+            "step6_invalid_24g": {
+                "success": True,
+                "output": "ERROR: set WiFi.Radio.3.IEEE80211ax.SRGPartialBSSIDBitmap failed (0 - unexpected)\nerror=0\nmessage=unexpected",
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d371, d371_wrong_error_results) is False
+
+    d371_wrong_6g_cfg_results = {
+        "steps": {
+            **d371_results["steps"],
+            "step11_cfg_6g_after": {
+                "success": True,
+                "output": "HostapdSrgPartialBssidLines=1",
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d371, d371_wrong_6g_cfg_results) is False
+
+
 def test_d072_enable_accesspoint_contract():
     cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
 
