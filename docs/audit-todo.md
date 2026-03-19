@@ -94,12 +94,13 @@ If I open only this file in a future session, I should do the following in order
 
 ## Current repo handoff snapshot（2026-03-19）
 
-- Trusted/calibrated official cases: **136 / 415**
-- Remaining official cases: **279**
+- Trusted/calibrated official cases: **139 / 415**
+- Remaining official cases: **276**
 - Active blockers:
   - `D037 OperatingStandard`
   - `D054 Tx_RetransmissionsFailed`
   - `D055 TxBytes`
+  - 執行順序：blockers 先保留在 blocker 清單，不插回目前從 `D080` 往後的 sequential queue；待其餘待校正案例收斂後再回頭處理
 - Latest committed single-case checkpoints:
   - `D056 TxErrors` → workbook-aligned `To be tested` checkpoint (`9880918`)
   - `D057 TxMulticastPacketCount` → workbook-aligned `To be tested` checkpoint (`01fd2c3`), plus MAC normalization follow-up (`426de8a`)
@@ -121,9 +122,9 @@ If I open only this file in a future session, I should do the following in order
   - `D077 InterworkingEnable` → workbook-aligned AP-only multiband `To be tested` checkpoint（AP1/AP3/AP5 all toggled `InterworkingEnable 0 -> 1 -> 0`, while each hostapd file kept two `interworking=` lines and converged `one/zero/total = 0/2/2 -> 1/1/2 -> 0/2/2`）
   - `D078 QoSMapSet` → workbook-aligned AP-only multiband `Not Supported` checkpoint（workbook row 70 / AP1/AP3/AP5 all started from `QoSMapSet=""` with no `qos_map_set=` line, but writing the requested DSCP map always collapsed both getter and hostapd to scalar `255` / `qos_map_set=255` before restore returned to `EMPTY / ABSENT`）
   - `D079 MacFilterAddressList` → workbook-aligned AP-only multiband `Pass` checkpoint（current checkpoint；AP1/AP3/AP5 all started with an empty getter and empty `MACFiltering.Entry` tree, and after `MACFiltering.addEntry(mac=...)` / `delEntry(mac=...)` the bounded `sleep 2` readback showed the getter and entry tree converging together to the same band-specific MAC and then back to the empty baseline）
-  - `D185 TPCMode` → targeted source/live **Fail-shaped mismatch** checkpoint outside the 136 / 279 main-sweep counts
-  - `D368 SRGBSSColorBitmap` → targeted 0310 row 273 **Fail-shaped mismatch** checkpoint outside the 136 / 279 main-sweep counts（5G/6G/2.4G setters all accepted/read back `"1"`, but hostapd `he_spr_srg_bss_colors=` stayed absent on wl0/wl1/wl2）
-  - `D371 SRGPartialBSSIDBitmap` → targeted 0310 row 276 mixed-band checkpoint outside the 136 / 279 main-sweep counts（5G/6G setters accepted/read back `"1"` while hostapd `he_spr_srg_partial_bssid=` stayed absent; 2.4G setter failed with `error=4` / `parameter not found`）
+  - `D185 TPCMode` → source/live **Fail-shaped mismatch** checkpoint，現已納入 `139 / 415` 完成數
+  - `D368 SRGBSSColorBitmap` → 0310 row 273 **Fail-shaped mismatch** checkpoint，現已納入 `139 / 415` 完成數（5G/6G/2.4G setters all accepted/read back `"1"`, but hostapd `he_spr_srg_bss_colors=` stayed absent on wl0/wl1/wl2）
+  - `D371 SRGPartialBSSIDBitmap` → 0310 row 276 mixed-band checkpoint，現已納入 `139 / 415` 完成數（5G/6G setters accepted/read back `"1"` while hostapd `he_spr_srg_partial_bssid=` stayed absent; 2.4G setter failed with `error=4` / `parameter not found`）
 - Latest validated commands:
   - `load_case(plugins/wifi_llapi/cases/D368_srgbsscolorbitmap.yaml)` / `load_case(plugins/wifi_llapi/cases/D371_srgpartialbssidbitmap.yaml)` → `steps=15 / 15`
   - `uv run pytest -q tests/test_wifi_llapi_plugin_runtime.py -k 'd368 or d371'` → `6 passed`
@@ -138,7 +139,7 @@ If I open only this file in a future session, I should do the following in order
   - do not infer progress from any local unstaged experiment outside these committed checkpoints
   - reuse `D058 TxPacketCount` as the positive same-STA tx-packet prior art when judging `D059`/`D060` family cases
   - `D080_entry.yaml` is still an old transcript-style case; re-read workbook row 72 plus the new D079 MACFilterAddressList AP-only pass prior art before rewriting it
-  - `D368` / `D371` are targeted SRG bitmap detours outside the main sweep counts; do not let them change the next ready sequential case (`D080`)
+  - `D185` / `D368` / `D371` 已從待校正池移出並折入完成數，但不改變下一個 ready sequential case（仍為 `D080`）
 
 Current verified live baseline findings from this session:
 
