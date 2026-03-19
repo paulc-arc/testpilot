@@ -7329,6 +7329,179 @@ def test_d080_entry_accesspoint_macfiltering_evaluate_live_examples():
     assert plugin.evaluate(d080, d080_wrong_5g_delete_results) is False
 
 
+def test_d081_mode_accesspoint_macfiltering_contract():
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+
+    d081_raw = yaml.safe_load(
+        (cases_dir / "D081_mode_accesspoint_macfiltering.yaml").read_text(encoding="utf-8")
+    )
+    d081 = load_case(cases_dir / "D081_mode_accesspoint_macfiltering.yaml")
+    d081_commands = "\n".join(str(step.get("command", "")) for step in d081["steps"])
+
+    assert "aliases" not in d081_raw
+    assert d081["id"] == "wifi-llapi-D081-mode-accesspoint-macfiltering"
+    assert d081["source"]["report"] == "0310-BGW720-300_LLAPI_Test_Report.xlsx"
+    assert d081["source"]["row"] == 73
+    assert d081["source"]["baseline"] == "BCM v4.0.3"
+    assert d081["llapi_support"] == "Support"
+    assert d081["implemented_by"] == "pWHM"
+    assert d081["bands"] == ["5g", "6g", "2.4g"]
+    assert set(d081["topology"]["devices"]) == {"DUT"}
+    assert d081["topology"]["links"] == []
+    assert d081["hlapi_command"] == "ubus-cli WiFi.AccessPoint.1.MACFiltering.Mode=Off"
+    assert "killall wpa_supplicant" not in d081.get("sta_env_setup", "")
+    assert "SetOffStatus24g=" in d081_commands
+    assert any(
+        criterion["field"] == "set_off_5g.SetOffStatus5g"
+        and criterion["operator"] == "equals"
+        and criterion["value"] == "invalid_value"
+        for criterion in d081["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "mode_after_set_6g.AfterAclState6g"
+        and criterion["operator"] == "equals"
+        and criterion["value"] == "absent"
+        for criterion in d081["pass_criteria"]
+    )
+    assert d081["results_reference"]["v4.0.3"]["5g"] == "Fail"
+    assert d081["results_reference"]["v4.0.3"]["6g"] == "Fail"
+    assert d081["results_reference"]["v4.0.3"]["2.4g"] == "Fail"
+
+
+def test_d081_mode_accesspoint_macfiltering_setup_env_uses_only_dut_transport(monkeypatch):
+    plugin = _load_plugin()
+    topology = _FakeTopology()
+    recorder = _FactoryRecorder()
+    _install_fake_factory(monkeypatch, recorder)
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d081 = load_case(cases_dir / "D081_mode_accesspoint_macfiltering.yaml")
+
+    assert plugin.setup_env(d081, topology=topology) is True
+    assert len(recorder.calls) == 1
+    assert recorder.calls[0][0] == "serial"
+    executed_commands = recorder.transports[0].executed_commands
+    assert executed_commands.count("ubus-cli WiFi.AccessPoint.1.Enable=1") == 1
+    assert executed_commands.count("ubus-cli WiFi.AccessPoint.3.Enable=1") == 1
+    assert executed_commands.count("ubus-cli WiFi.AccessPoint.5.Enable=1") == 1
+    assert executed_commands.count("wl -i wl0 bss") == 1
+    assert executed_commands.count("wl -i wl1 bss") == 1
+    assert executed_commands.count("wl -i wl2 bss") == 1
+    assert all("STA" not in command for command in executed_commands)
+    plugin.teardown(d081, topology)
+
+
+def test_d081_mode_accesspoint_macfiltering_evaluate_live_examples():
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d081 = load_case(cases_dir / "D081_mode_accesspoint_macfiltering.yaml")
+
+    def mode_output(prefix: str, mode: str, macaddr_acl: str, acl_state: str, phase: str) -> str:
+        return "\n".join(
+            [
+                f"{phase}Mode{prefix}={mode}",
+                f"{phase}MacaddrAcl{prefix}={macaddr_acl}",
+                f"{phase}AclState{prefix}={acl_state}",
+            ]
+        )
+
+    def set_output(prefix: str, status: str) -> str:
+        if status == "invalid_value":
+            return "\n".join(
+                [
+                    "ERROR: set WiFi.AccessPoint.X.MACFiltering.Mode failed (10 - invalid value)",
+                    f"SetOffStatus{prefix}=invalid_value",
+                ]
+            )
+        return f'SetOffStatus{prefix}=accepted'
+
+    d081_results = {
+        "steps": {
+            "step1_mode_baseline_5g": {
+                "success": True,
+                "output": mode_output("5g", "BlackList", "0", "deny", "Baseline"),
+                "timing": 0.01,
+            },
+            "step2_set_off_5g": {
+                "success": True,
+                "output": set_output("5g", "invalid_value"),
+                "timing": 0.01,
+            },
+            "step3_mode_after_set_5g": {
+                "success": True,
+                "output": mode_output("5g", "BlackList", "0", "deny", "After"),
+                "timing": 0.01,
+            },
+            "step4_mode_baseline_6g": {
+                "success": True,
+                "output": mode_output("6g", "Off", "ABSENT", "absent", "Baseline"),
+                "timing": 0.01,
+            },
+            "step5_set_off_6g": {
+                "success": True,
+                "output": set_output("6g", "invalid_value"),
+                "timing": 0.01,
+            },
+            "step6_mode_after_set_6g": {
+                "success": True,
+                "output": mode_output("6g", "Off", "ABSENT", "absent", "After"),
+                "timing": 0.01,
+            },
+            "step7_mode_baseline_24g": {
+                "success": True,
+                "output": mode_output("24g", "Off", "ABSENT", "absent", "Baseline"),
+                "timing": 0.01,
+            },
+            "step8_set_off_24g": {
+                "success": True,
+                "output": set_output("24g", "invalid_value"),
+                "timing": 0.01,
+            },
+            "step9_mode_after_set_24g": {
+                "success": True,
+                "output": mode_output("24g", "Off", "ABSENT", "absent", "After"),
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d081, d081_results) is True
+
+    d081_wrong_5g_after_results = {
+        "steps": {
+            **d081_results["steps"],
+            "step3_mode_after_set_5g": {
+                "success": True,
+                "output": mode_output("5g", "Off", "ABSENT", "absent", "After"),
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d081, d081_wrong_5g_after_results) is False
+
+    d081_wrong_6g_setter_results = {
+        "steps": {
+            **d081_results["steps"],
+            "step5_set_off_6g": {
+                "success": True,
+                "output": set_output("6g", "accepted"),
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d081, d081_wrong_6g_setter_results) is False
+
+    d081_wrong_24g_acl_results = {
+        "steps": {
+            **d081_results["steps"],
+            "step9_mode_after_set_24g": {
+                "success": True,
+                "output": mode_output("24g", "Off", "0", "deny", "After"),
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d081, d081_wrong_24g_acl_results) is False
+
+
 def test_run_required_command_retries_after_recovery_signal():
     plugin = _load_plugin()
     calls: list[str] = []

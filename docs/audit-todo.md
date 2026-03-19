@@ -94,13 +94,13 @@ If I open only this file in a future session, I should do the following in order
 
 ## Current repo handoff snapshot（2026-03-19）
 
-- Trusted/calibrated official cases: **140 / 415**
-- Remaining official cases: **275**
+- Trusted/calibrated official cases: **141 / 415**
+- Remaining official cases: **274**
 - Active blockers:
   - `D037 OperatingStandard`
   - `D054 Tx_RetransmissionsFailed`
   - `D055 TxBytes`
-  - 執行順序：blockers 先保留在 blocker 清單，不插回目前從 `D081` 往後的 sequential queue；待其餘待校正案例收斂後再回頭處理
+  - 執行順序：blockers 先保留在 blocker 清單，不插回目前從 `D082` 往後的 sequential queue；待其餘待校正案例收斂後再回頭處理
 - Latest committed single-case checkpoints:
   - `D056 TxErrors` → workbook-aligned `To be tested` checkpoint (`9880918`)
   - `D057 TxMulticastPacketCount` → workbook-aligned `To be tested` checkpoint (`01fd2c3`), plus MAC normalization follow-up (`426de8a`)
@@ -122,25 +122,26 @@ If I open only this file in a future session, I should do the following in order
   - `D077 InterworkingEnable` → workbook-aligned AP-only multiband `To be tested` checkpoint（AP1/AP3/AP5 all toggled `InterworkingEnable 0 -> 1 -> 0`, while each hostapd file kept two `interworking=` lines and converged `one/zero/total = 0/2/2 -> 1/1/2 -> 0/2/2`）
   - `D078 QoSMapSet` → workbook-aligned AP-only multiband `Not Supported` checkpoint（workbook row 70 / AP1/AP3/AP5 all started from `QoSMapSet=""` with no `qos_map_set=` line, but writing the requested DSCP map always collapsed both getter and hostapd to scalar `255` / `qos_map_set=255` before restore returned to `EMPTY / ABSENT`）
   - `D079 MacFilterAddressList` → workbook-aligned AP-only multiband `Pass` checkpoint（AP1/AP3/AP5 all started with an empty getter and empty `MACFiltering.Entry` tree, and after `MACFiltering.addEntry(mac=...)` / `delEntry(mac=...)` the bounded `sleep 2` readback showed the getter and entry tree converging together to the same band-specific MAC and then back to the empty baseline）
-  - `D080 Entry` → workbook-aligned AP-only multiband `Pass` checkpoint（current checkpoint；AP1/AP3/AP5 的 `MACFiltering.Entry.?` 都從 `No data found` 基線出發，`addEntry(mac=...)` 後收斂出單一 `Entry.Alias` / `Entry.MACAddress` 節點，`delEntry(mac=...)` 後回到 `No data found`；ACL file side effect 依 mode split 而不同，保留給 `D081`）
-  - `D185 TPCMode` → source/live **Fail-shaped mismatch** checkpoint，現已納入 `140 / 415` 完成數
-  - `D368 SRGBSSColorBitmap` → 0310 row 273 **Fail-shaped mismatch** checkpoint，現已納入 `140 / 415` 完成數（5G/6G/2.4G setters all accepted/read back `"1"`, but hostapd `he_spr_srg_bss_colors=` stayed absent on wl0/wl1/wl2）
-  - `D371 SRGPartialBSSIDBitmap` → 0310 row 276 mixed-band checkpoint，現已納入 `140 / 415` 完成數（5G/6G setters accepted/read back `"1"` while hostapd `he_spr_srg_partial_bssid=` stayed absent; 2.4G setter failed with `error=4` / `parameter not found`）
+  - `D080 Entry` → workbook-aligned AP-only multiband `Pass` checkpoint（AP1/AP3/AP5 的 `MACFiltering.Entry.?` 都從 `No data found` 基線出發，`addEntry(mac=...)` 後收斂出單一 `Entry.Alias` / `Entry.MACAddress` 節點，`delEntry(mac=...)` 後回到 `No data found`；ACL file side effect 依 mode split 而不同，因此留給 D081 處理）
+  - `D081 Mode` → workbook-aligned AP-only multiband `Fail` checkpoint（current checkpoint；AP1 baseline 是 `BlackList` + `deny_mac_file=/tmp/hostap_wl0.acl`，AP3/AP5 baseline 都已是 `Off` 且 hostapd 無 ACL line，但 `ubus-cli WiFi.AccessPoint.{1|3|5}.MACFiltering.Mode=Off` 在三個 band 都仍回 `ERROR: ... invalid value`，並留下不變的 getter / hostapd ACL 狀態）
+  - `D185 TPCMode` → source/live **Fail-shaped mismatch** checkpoint，現已納入 `141 / 415` 完成數
+  - `D368 SRGBSSColorBitmap` → 0310 row 273 **Fail-shaped mismatch** checkpoint，現已納入 `141 / 415` 完成數（5G/6G/2.4G setters all accepted/read back `"1"`, but hostapd `he_spr_srg_bss_colors=` stayed absent on wl0/wl1/wl2）
+  - `D371 SRGPartialBSSIDBitmap` → 0310 row 276 mixed-band checkpoint，現已納入 `141 / 415` 完成數（5G/6G setters accepted/read back `"1"` while hostapd `he_spr_srg_partial_bssid=` stayed absent; 2.4G setter failed with `error=4` / `parameter not found`）
 - Latest validated commands:
-  - `load_case(plugins/wifi_llapi/cases/D080_entry.yaml)` → `steps=15`
-  - `uv run pytest -q tests/test_wifi_llapi_plugin_runtime.py -k 'd080'` → `3 passed`
-  - `uv run pytest -q tests/test_wifi_llapi_plugin_runtime.py` → `209 passed`
-  - `uv run pytest -q` → `262 passed`
+  - `load_case(plugins/wifi_llapi/cases/D081_mode_accesspoint_macfiltering.yaml)` → `steps=9`
+  - `uv run pytest -q tests/test_wifi_llapi_plugin_runtime.py -k 'd081'` → `3 passed`
+  - `uv run pytest -q tests/test_wifi_llapi_plugin_runtime.py` → `212 passed`
+  - `uv run pytest -q` → `265 passed`
   - `serialwrap COM0 ubus-cli/hostapd_cli baseline readback` → 5G `testpilot5G` + `WPA2-Personal/00000000`, 6G `testpilot6G` + `WPA3-Personal/SAE/00000000`, 2.4G `testpilot2G` + `WPA2-Personal/00000000`
-  - `serialwrap COM0 D080 Entry probe` → AP1/AP3/AP5 all showed `MACFiltering.Entry.?` = `No data found` at baseline, one `Entry.Alias/MACAddress` node after `addEntry(mac=...)`, and `No data found` again after `delEntry(mac=...)`; ACL file side effects were mode-dependent and therefore left to `D081`
+  - `serialwrap COM0 D081 Mode probe` → AP1 baseline = `BlackList` + `macaddr_acl=0` + `deny_mac_file=/tmp/hostap_wl0.acl`, AP3/AP5 baseline = `Off` with no ACL lines, and `ubus-cli WiFi.AccessPoint.{1|3|5}.MACFiltering.Mode=Off` still returned `ERROR: ... invalid value` on all three bands while leaving the getter / hostapd ACL state unchanged
 - Next ready repo handoff case:
-  - `D081 Mode`
+  - `D082 MaxAssociatedDevices`
 - Continuation guard rails:
   - only committed YAML / docs count as trusted handoff state
   - do not infer progress from any local unstaged experiment outside these committed checkpoints
   - reuse `D058 TxPacketCount` as the positive same-STA tx-packet prior art when judging `D059`/`D060` family cases
-  - `D081_mode_accesspoint_macfiltering.yaml` is still an old transcript-style case; re-read workbook row 73 plus the new D080 Entry AP-only pass prior art before rewriting it
-  - `D185` / `D368` / `D371` 已從待校正池移出並折入完成數；最新 main-sweep checkpoint 則前進到 `D080`，下一個 ready sequential case 為 `D081`
+  - `D082_maxassociateddevices.yaml` is still an old transcript-style case; re-read workbook row 74 plus the new D081 Mode failure-shaped setter prior art before rewriting it
+  - `D185` / `D368` / `D371` 已從待校正池移出並折入完成數；最新 main-sweep checkpoint 則前進到 `D081`，下一個 ready sequential case 為 `D082`
 
 Current verified live baseline findings from this session:
 
