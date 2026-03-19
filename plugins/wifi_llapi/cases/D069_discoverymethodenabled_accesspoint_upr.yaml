@@ -195,13 +195,11 @@ verification_command: |
   ubus-cli WiFi.AccessPoint.1.DiscoveryMethodEnabled=UPR
   ubus-cli WiFi.AccessPoint.3.DiscoveryMethodEnabled=UPR
   ubus-cli WiFi.AccessPoint.5.DiscoveryMethodEnabled=UPR
-  ubus-cli "WiFi.AccessPoint.1.DiscoveryMethodEnabled?"
-  ubus-cli "WiFi.AccessPoint.3.DiscoveryMethodEnabled?"
-  ubus-cli "WiFi.AccessPoint.5.DiscoveryMethodEnabled?"
+  ubus-cli "WiFi.AccessPoint.*.DiscoveryMethodEnabled?"
   ubus-cli WiFi.AccessPoint.1.DiscoveryMethodEnabled=Default
   ubus-cli WiFi.AccessPoint.3.DiscoveryMethodEnabled=Default
   ubus-cli WiFi.AccessPoint.5.DiscoveryMethodEnabled=Default
-  ubus-cli "WiFi.AccessPoint.*.DiscoveryMethodEnabled?"
+  ubus-cli "WiFi.AccessPoint.*.DiscoveryMethodEnabled?" | sed -n '1,20p'
 results_reference:
   v4.0.3:
     5g: Not Supported

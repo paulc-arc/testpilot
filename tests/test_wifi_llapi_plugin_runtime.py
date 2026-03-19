@@ -6843,14 +6843,15 @@ def test_d069_discoverymethodenabled_accesspoint_upr_verification_fragments_pres
         d069["steps"][3]["command"],
         d069["steps"][4]["command"],
         d069["steps"][5]["command"],
+        'ubus-cli "WiFi.AccessPoint.*.DiscoveryMethodEnabled?"',
         d069["steps"][9]["command"],
         d069["steps"][10]["command"],
         d069["steps"][11]["command"],
     ]
 
-    assert len(verification_commands) == 10
+    assert len(verification_commands) == 11
     assert verification_commands[:-1] == expected_commands
-    assert verification_commands[-1] == 'ubus-cli "WiFi.AccessPoint.*.DiscoveryMethodEnabled?"'
+    assert verification_commands[-1] == 'ubus-cli "WiFi.AccessPoint.*.DiscoveryMethodEnabled?" | sed -n \'1,20p\''
 
 
 @pytest.mark.parametrize(
