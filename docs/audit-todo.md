@@ -120,8 +120,8 @@ If I open only this file in a future session, I should do the following in order
 
 ## Current repo handoff snapshot（2026-03-20）
 
-- Trusted/calibrated official cases: **150 / 415**
-- Remaining official cases: **265**
+- Trusted/calibrated official cases: **151 / 415**
+- Remaining official cases: **264**
 - Active blockers:
   - `D037 OperatingStandard`
   - `D054 Tx_RetransmissionsFailed`
@@ -169,7 +169,10 @@ If I open only this file in a future session, I should do the following in order
   - `uv run pytest -q` → `292 passed`
   - `serialwrap COM0 D090 ModesSupported probe` → AP1/AP5 return full mode list; AP3 returns restricted `None,WPA3-Personal,OWE`; setter on all bands returns `error=15 (read-only)`
 - Next ready repo handoff case:
-  - `D091 PreSharedKey`
+  - `D091 PreSharedKey` → workbook-aligned AP-only multiband `Pass(5G)/Not Supported(6G)/Pass(2.4G)` checkpoint（PreSharedKey 64-char hex setter/readback accepted on 5G/2.4G; 6G setter accepted but WPA3-only semantics → Not Supported; hostapd wpa_psk= only appears via KeyPassPhrase route）
+  - `load_case(plugins/wifi_llapi/cases/D091_presharedkey_accesspoint_security.yaml)` → `steps=12`
+  - `serialwrap COM0 D091 PreSharedKey probe` → AP1/AP5 setter+readback pass; AP3 setter accepted but 6G WPA3-only; hostapd wpa_psk never appears via PreSharedKey API alone
+  - `D092 RekeyingInterval`
 - Continuation guard rails:
   - only committed YAML / docs count as trusted handoff state
   - do not infer progress from any local unstaged experiment outside these committed checkpoints

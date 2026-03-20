@@ -8916,44 +8916,80 @@ def test_d090_modessupported_setup_env_uses_only_dut_transport(monkeypatch):
     plugin.teardown(d090, topology)
 
 
-def test_d090_modessupported_evaluate_live_examples():
+def test_d091_presharedkey_accesspoint_security_contract():
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d091 = load_case(cases_dir / "D091_presharedkey_accesspoint_security.yaml")
+    assert d091["id"] == "wifi-llapi-D091-presharedkey-accesspoint-security"
+    assert d091["source"]["row"] == 83
+    assert d091["source"]["api"] == "PreSharedKey"
+    assert d091["bands"] == ["5g", "6g", "2.4g"]
+    assert len(d091["steps"]) == 12
+    assert len(d091["pass_criteria"]) == 9
+    assert all(s.get("target") == "DUT" for s in d091["steps"])
+    assert "STA" not in d091["topology"]["devices"]
+    ref = d091["results_reference"]["v4.0.3"]
+    assert ref["5g"] == "Pass"
+    assert ref["6g"] == "Not Supported"
+    assert ref["2.4g"] == "Pass"
+
+
+def test_d091_presharedkey_accesspoint_security_setup_env_uses_only_dut_transport(monkeypatch):
+    plugin = _load_plugin()
+    topology = _FakeTopology()
+    recorder = _FactoryRecorder()
+    _install_fake_factory(monkeypatch, recorder)
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d091 = load_case(cases_dir / "D091_presharedkey_accesspoint_security.yaml")
+
+    assert plugin.setup_env(d091, topology=topology) is True
+    assert len(recorder.calls) == 1
+    assert recorder.calls[0][0] == "serial"
+    executed_commands = recorder.transports[0].executed_commands
+    assert all("STA" not in command for command in executed_commands)
+    plugin.teardown(d091, topology)
+
+
+def test_d091_presharedkey_accesspoint_security_evaluate_live_examples():
     plugin = _load_plugin()
     cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
-    d090 = load_case(cases_dir / "D090_modessupported.yaml")
+    d091 = load_case(cases_dir / "D091_presharedkey_accesspoint_security.yaml")
 
-    modes_5g = "None,WEP-64,WEP-128,WEP-128iv,WPA-Personal,WPA2-Personal,WPA-WPA2-Personal,WPA3-Personal,WPA2-WPA3-Personal,WPA-Enterprise,WPA2-Enterprise,WPA-WPA2-Enterprise,OWE"
-    modes_6g = "None,WPA3-Personal,OWE"
-    modes_24g = modes_5g
-
-    d090_results = {
+    psk = "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2"
+    d091_results = {
         "steps": {
-            "step1": {"success": True, "output": f"ModesSupported={modes_5g}", "timing": 0.01},
-            "step2": {"success": True, "output": "error=15\nmessage=is read only", "timing": 0.01},
-            "step3": {"success": True, "output": f"ModesSupported={modes_6g}", "timing": 0.01},
-            "step4": {"success": True, "output": "error=15\nmessage=is read only", "timing": 0.01},
-            "step5": {"success": True, "output": f"ModesSupported={modes_24g}", "timing": 0.01},
-            "step6": {"success": True, "output": "error=15\nmessage=is read only", "timing": 0.01},
+            "step1_baseline_5g": {"success": True, "output": "BaselinePreSharedKey5g=\nBaselineWpaPsk5g=", "timing": 0.01},
+            "step2_set_5g": {"success": True, "output": f"PreSharedKey={psk}", "timing": 0.01},
+            "step3_readback_5g": {"success": True, "output": f"GetterPreSharedKey5g={psk}", "timing": 0.01},
+            "step4_restore_5g": {"success": True, "output": "RestoredPreSharedKey5g=", "timing": 0.01},
+            "step5_baseline_6g": {"success": True, "output": "BaselinePreSharedKey6g=", "timing": 0.01},
+            "step6_set_6g": {"success": True, "output": f"PreSharedKey={psk}", "timing": 0.01},
+            "step7_readback_6g": {"success": True, "output": f"GetterPreSharedKey6g={psk}", "timing": 0.01},
+            "step8_restore_6g": {"success": True, "output": "RestoredPreSharedKey6g=", "timing": 0.01},
+            "step9_baseline_24g": {"success": True, "output": "BaselinePreSharedKey24g=\nBaselineWpaPsk24g=", "timing": 0.01},
+            "step10_set_24g": {"success": True, "output": f"PreSharedKey={psk}", "timing": 0.01},
+            "step11_readback_24g": {"success": True, "output": f"GetterPreSharedKey24g={psk}", "timing": 0.01},
+            "step12_restore_24g": {"success": True, "output": "RestoredPreSharedKey24g=", "timing": 0.01},
         }
     }
-    assert plugin.evaluate(d090, d090_results) is True
+    assert plugin.evaluate(d091, d091_results) is True
 
-    # 6G should NOT contain WPA2-Personal
-    d090_bad_6g = {
+    # Wrong readback on 5G (still empty after setter)
+    d091_bad_5g = {
         "steps": {
-            **d090_results["steps"],
-            "step3": {"success": True, "output": f"ModesSupported={modes_5g}", "timing": 0.01},
+            **d091_results["steps"],
+            "step3_readback_5g": {"success": True, "output": "GetterPreSharedKey5g=", "timing": 0.01},
         }
     }
-    assert plugin.evaluate(d090, d090_bad_6g) is False
+    assert plugin.evaluate(d091, d091_bad_5g) is False
 
-    # Setter should return error 15
-    d090_no_error = {
+    # Restore didn't clear on 2.4G
+    d091_bad_restore = {
         "steps": {
-            **d090_results["steps"],
-            "step2": {"success": True, "output": "ModesSupported=WPA3-Personal", "timing": 0.01},
+            **d091_results["steps"],
+            "step12_restore_24g": {"success": True, "output": f"RestoredPreSharedKey24g={psk}", "timing": 0.01},
         }
     }
-    assert plugin.evaluate(d090, d090_no_error) is False
+    assert plugin.evaluate(d091, d091_bad_restore) is False
 
 
 def test_run_required_command_retries_after_recovery_signal():
