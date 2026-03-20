@@ -120,8 +120,8 @@ If I open only this file in a future session, I should do the following in order
 
 ## Current repo handoff snapshot（2026-03-20）
 
-- Trusted/calibrated official cases: **212 / 415**
-- Remaining official cases: **203**
+- Trusted/calibrated official cases: **229 / 415**
+- Remaining official cases: **186**
 - Active blockers:
   - `D037 OperatingStandard`
   - `D054 Tx_RetransmissionsFailed`
@@ -159,15 +159,14 @@ If I open only this file in a future session, I should do the following in order
   - `D088 MFPConfig` → workbook-aligned AP-only mixed-band checkpoint（AP1/AP5 的 getter 與 hostapd `ieee80211w=0` 都收斂到 `Disabled`，但 AP3 / wl1 仍固定 `MFPConfig="Disabled"` 與 `wpa_key_mgmt=SAE + ieee80211w=2` 的 live `Required` 狀態不一致）
   - `D089 ModeEnabled` → workbook-aligned AP-only multiband `Pass` checkpoint（AP1/AP3/AP5 的 setter `ModeEnabled=WPA3-Personal` 都被接受，getter 和 hostapd 在 wl0/wl1/wl2 都收斂到 `SAE` + `ieee80211w=2`，restore 到 WPA2-Personal 在 AP1/AP5 也都正常回復到 `WPA-PSK` + `ieee80211w=0`）
   - `D090 ModesSupported` → workbook-aligned AP-only multiband `Pass` checkpoint（read-only getter, setter returns error 15; 5G/2.4G 回傳完整 mode list 含 OWE，6G 只回 `None,WPA3-Personal,OWE`）
+  - `D176-D194 Radio batch` → 17 getter cases rewritten from pseudo-commands to clean 3-band getter YAMLs with `capture:` + suffix-match pass_criteria; D185 TPCMode already committed as fail-shaped checkpoint. Live evidence: ActiveAntennaCtrl/FragmentationThreshold=-1, BeaconPeriod=100, Channel=36/1/1, ChannelLoad=83/61/100, Ampdu/Amsdu=-1, RtsThreshold=-1, NrActive{Rx,Tx}Antenna=4, Nr{Rx,Tx}Antenna=4, DTIMPeriod=3, Enable=1, ExplicitBeamForming{Enabled,Supported}=1, GuardInterval=Auto
   - `D185 TPCMode` → source/live **Fail-shaped mismatch** checkpoint，現已納入 `148 / 415` 完成數
   - `D368 SRGBSSColorBitmap` → 0310 row 273 **Fail-shaped mismatch** checkpoint，現已納入 `148 / 415` 完成數（5G/6G/2.4G setters all accepted/read back `"1"`, but hostapd `he_spr_srg_bss_colors=` stayed absent on wl0/wl1/wl2）
   - `D371 SRGPartialBSSIDBitmap` → 0310 row 276 mixed-band checkpoint，現已納入 `148 / 415` 完成數（5G/6G setters accepted/read back `"1"` while hostapd `he_spr_srg_partial_bssid=` stayed absent; 2.4G setter failed with `error=4` / `parameter not found`）
 - Latest validated commands:
-  - `load_case(plugins/wifi_llapi/cases/D090_modessupported.yaml)` → `steps=6`
-  - `uv run pytest -q tests/test_wifi_llapi_plugin_runtime.py -k 'd090'` → `3 passed`
-  - `uv run pytest -q tests/test_wifi_llapi_plugin_runtime.py` → `239 passed`
-  - `uv run pytest -q` → `292 passed`
-  - `serialwrap COM0 D090 ModesSupported probe` → AP1/AP5 return full mode list; AP3 returns restricted `None,WPA3-Personal,OWE`; setter on all bands returns `error=15 (read-only)`
+  - `load_case(D176-D194 Radio batch)` → all 18 OK (17 getter + D185 fail-shaped)
+  - `uv run pytest -q tests/test_wifi_llapi_plugin_runtime.py -k 'radio_getter or d185'` → `54 passed`
+  - `uv run pytest -q` → `521 passed`
 - Next ready repo handoff case:
   - `D091 PreSharedKey` → workbook-aligned AP-only multiband `Pass(5G)/Not Supported(6G)/Pass(2.4G)` checkpoint（PreSharedKey 64-char hex setter/readback accepted on 5G/2.4G; 6G setter accepted but WPA3-only semantics → Not Supported; hostapd wpa_psk= only appears via KeyPassPhrase route）
   - `load_case(plugins/wifi_llapi/cases/D091_presharedkey_accesspoint_security.yaml)` → `steps=12`

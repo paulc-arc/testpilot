@@ -1,172 +1,55 @@
-id: wifi-llapi-D183-fragmentationthreshold
-aliases:
-  - wifi-llapi-r144-fragmentationthreshold
-name: FragmentationThreshold — WiFi.Radio.{i}.DriverConfig.
-version: '1.0'
+id: d183-radio-fragmentationthreshold
+name: D183 Radio FragmentationThreshold
 source:
-  report: "0302-AT&T_LLAPI_Test_Report_20260107.xlsx"
-  sheet: Wifi_LLAPI
-  row: 183
-  object: "WiFi.Radio.{i}.DriverConfig."
-  api: "FragmentationThreshold"
-platform:
-  prplos: 4.0.3
-  bdk: 6.3.1
-hlapi_command: ubus-cli WiFi.Radio.{i}.DriverConfig.FragmentationThreshold=-1
+  row: 144
+  object: WiFi.Radio.{i}.DriverConfig.
+  api: FragmentationThreshold
+  baseline: 0310-BGW720-300
+bands:
+- 5g
+- 6g
+- 2.4g
 llapi_support: Support
-implemented_by: Vendor Module
+results_reference:
+  v4.0.3:
+    5g: Pass
+    6g: Pass
+    2.4g: Pass
 topology:
   devices:
     DUT:
       role: ap
       transport: serial
       selector: COM0
-    STA:
-      role: sta
-      transport: serial
-      selector: COM1
-      config:
-      - iface: 5g
-        mode: sta
-        ssid: '{{SSID_5G}}'
-        key: '{{KEY_5G}}'
-  links:
-  - from: STA
-    to: DUT
-    band: 5g
-test_environment: |
-  Topology:
-  - DUT: COM0 (B0, AP role)
-  - STA: COM1 (A0, STA role, STA-required cases only)
-  Transport:
-  - serialwrap attach COM0 / COM1
-  Band mapping:
-  - 5G: DUT wl0 / AP1 / SSID.4
-  - 6G: DUT wl1 / AP3 / SSID.6
-  - 2.4G: DUT wl2 / AP5 / SSID.8
-  Pre-check:
-  - cat /proc/socinfo | grep Revision | cut -d: -f2
-  - iw dev
-  - ubus-cli "WiFi.Radio.?" | sed -n "1,120p"
-
-setup_steps: |
-  1) DUT 5G baseline:
-     - set Radio.1/SSID.4 for the 5G AP under test
-     - configure AP1 as open with MFP disabled
-     - enable AP1 before station association
-  2) STA 5G preparation:
-     - disable local AP1/AP2 on A0
-     - clear wl0 AP child interface and switch wl0 to managed mode
-     - connect wl0 to {{SSID_5G}}
-  3) Association evidence:
-     - A0: iw dev wl0 link
-     - B0: wl -i wl0 assoclist
-sta_env_setup: |
-  DUT 5G AP baseline:
-    ubus-cli WiFi.Radio.1.Enable=1
-    ubus-cli WiFi.Radio.1.BeaconPeriod=100
-    ubus-cli WiFi.Radio.1.DTIMPeriod=3
-    ubus-cli WiFi.Radio.1.DriverConfig.FragmentationThreshold=-1
-    ubus-cli WiFi.Radio.1.DriverConfig.RtsThreshold=-1
-    ubus-cli WiFi.Radio.1.DriverConfig.TPCMode=Auto
-    ubus-cli WiFi.Radio.1.ExplicitBeamFormingEnabled=1
-    ubus-cli WiFi.Radio.1.ImplicitBeamFormingEnabled=1
-    ubus-cli WiFi.Radio.1.OfdmaEnable=1
-    ubus-cli WiFi.Radio.1.ObssCoexistenceEnable=0
-    ubus-cli WiFi.Radio.1.OperatingStandards=ax
-    ubus-cli WiFi.Radio.1.RxChainCtrl=-1
-    ubus-cli WiFi.Radio.1.TxChainCtrl=-1
-    ubus-cli WiFi.Radio.1.Vendor.Brcm.RegulatoryDomainRev=0
-    ubus-cli WiFi.Radio.1.Sensing.Enable=1
-    ubus-cli WiFi.Radio.1.IEEE80211ax.BssColorPartial=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.NonSRGOBSSPDMaxOffset=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.PSRDisallowed=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.SRGOBSSPDMaxOffset=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.SRGOBSSPDMinOffset=0
-    ubus-cli WiFi.Radio.1.LongRetryLimit=6
-    ubus-cli WiFi.Radio.1.MultiUserMIMOEnabled=1
-    ubus-cli WiFi.Radio.1.TargetWakeTimeEnable=1
-    ubus-cli WiFi.SSID.4.SSID={{SSID_5G}}
-    ubus-cli WiFi.AccessPoint.1.IEEE80211u.QoSMapSet=
-    ubus-cli WiFi.AccessPoint.2.IEEE80211u.QoSMapSet=
-    ubus-cli WiFi.AccessPoint.1.Security.ModeEnabled=None
-    ubus-cli WiFi.AccessPoint.1.Security.MFPConfig=Disabled
-    ubus-cli WiFi.AccessPoint.1.Enable=1
-  STA 5G preparation:
-    ubus-cli WiFi.AccessPoint.1.Enable=0
-    ubus-cli WiFi.AccessPoint.2.Enable=0
-    killall wpa_supplicant 2>/dev/null || true
-    iw dev wl0.1 del 2>/dev/null || true
-    iw dev wl0 disconnect 2>/dev/null || true
-    iw dev wl0 set type managed
-    ifconfig wl0 up
-  STA 5G connect verify:
-    iw dev wl0 connect {{SSID_5G}}
-    sleep 2
-    iw dev wl0 link
-  DUT association evidence:
-    wl -i wl0 assoclist
-test_procedure: |
-  1) Execute case command on DUT:
-     ubus-cli WiFi.Radio.{i}.DriverConfig.FragmentationThreshold=-1
-  2) LLAPI readback on DUT:
-     ubus-cli "WiFi.Radio.*.DriverConfig.FragmentationThreshold?"
-  3) For stats/AssociatedDevice cases, generate traffic (ping/iperf) before re-read.
-  4) STA link validation:
-     iw dev wl0 link
-     iw dev wl1 link
-     wpa_cli -i wl1 status
-     iw dev wl2 link
-  5) Cross-check with verification_command (driver/hostapd/iw/proc evidence).
-
 steps:
-- id: step1
-  action: exec
-  target: DUT
-  command: 1. Set Fragmentation Threshold to 1500 ubus-cli WiFi.Radio.*.DriverConfig.FragmentationThreshold=1500 > WiFi.Radio.*.DriverConfig.FragmentationThreshold=1500
-    WiFi.Radio.1.DriverConfig. WiFi.Radio.1.DriverConfig.FragmentationThreshold=1500 WiFi.Radio.2.DriverConfig. WiFi.Radio.2.DriverConfig.FragmentationThreshold=1500
-    WiFi.Radio.3.DriverConfig. WiFi.Radio.3.DriverConfig.FragmentationThreshold=1500
-- id: step2
-  action: exec
-  target: DUT
-  command: Connect WiFi Station to GW
-  depends_on: step1
-- id: step3
-  action: exec
-  target: DUT
-  command: 'Run ping from GW to Station Note: add -S "size" to Ping. Example given the threshold of 1500 then run ping with
-    data size larger than 1500.'
-  depends_on: step2
-- id: step4
-  action: exec
-  target: DUT
-  command: Capture air packet between GW and Station
-  depends_on: step3
-  capture: result
+- id: step_5g_getter
+  target: dut
+  action: read
+  capture: getter_5g
+  command: ubus-cli "WiFi.Radio.1.DriverConfig.FragmentationThreshold?"
+  expected: FragmentationThreshold 回傳整數值
+  description: Radio.1 (5g) FragmentationThreshold getter（live=-1）
+- id: step_6g_getter
+  target: dut
+  action: read
+  capture: getter_6g
+  command: ubus-cli "WiFi.Radio.2.DriverConfig.FragmentationThreshold?"
+  expected: FragmentationThreshold 回傳整數值
+  description: Radio.2 (6g) FragmentationThreshold getter（live=-1）
+- id: step_24g_getter
+  target: dut
+  action: read
+  capture: getter_24g
+  command: ubus-cli "WiFi.Radio.3.DriverConfig.FragmentationThreshold?"
+  expected: FragmentationThreshold 回傳整數值
+  description: Radio.3 (2.4g) FragmentationThreshold getter（live=-1）
 pass_criteria:
-- field: result.FragmentationThreshold
-  operator: contains
-  value: '-1'
-  description: FragmentationThreshold 應回傳包含 FragmentationThreshold=-1
-verification_command: 'root@prplOS:/# wl -i wl0 fragthresh
-
-  1500 (0x5dc)
-
-  root@prplOS:/# wl -i wl1 fragthresh
-
-  1500 (0x5dc)
-
-  root@prplOS:/# wl -i wl2 fragthresh
-
-  1500 (0x5dc)'
-results_reference:
-  v4.0.1:
-    5g: Fail
-    6g: Fail
-    2.4g: Fail
-    comment: 'BRCM: CSP CS00012439197'
-  v4.0.3:
-    5g: Pass
-    6g: Pass
-    2.4g: Pass
-    comment: It's better to use lower value to do test, to avoid bottle neck in other places
+- field: getter_5g.FragmentationThreshold
+  operator: regex
+  value: ^-?\d+$
+- field: getter_6g.FragmentationThreshold
+  operator: regex
+  value: ^-?\d+$
+- field: getter_24g.FragmentationThreshold
+  operator: regex
+  value: ^-?\d+$

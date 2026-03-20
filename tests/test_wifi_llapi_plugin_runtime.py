@@ -14060,3 +14060,148 @@ def test_run_sta_band_connect_sequence_limits_to_selected_band(monkeypatch):
     assert "iw dev wl1 disconnect 2>/dev/null || true" not in command_values
     assert "iw dev wl2 disconnect 2>/dev/null || true" not in command_values
     assert connect_calls == [("sta_5g", "iw dev wl0 connect B0_5G_AP", "iw dev wl0 link")]
+
+
+# ---------------------------------------------------------------------------
+# D176–D194  WiFi.Radio.{i}  batch — 3-band read-only getters + D185 fail
+# ---------------------------------------------------------------------------
+
+# Parametrized table: (yaml_file, row, live_5g, live_6g, live_24g, llapi_path_template)
+# llapi_path_template uses {r} for radio number (1=5g, 2=6g, 3=2.4g)
+_RADIO_GETTER_CASES = [
+    ("D176_activeantennactrl.yaml", 138, "-1", "-1", "-1", "WiFi.Radio.{r}.ActiveAntennaCtrl"),
+    ("D178_beaconperiod.yaml", 139, "100", "100", "100", "WiFi.Radio.{r}.BeaconPeriod"),
+    ("D179_channel_radio_37.yaml", 179, "36", "1", "1", "WiFi.Radio.{r}.Channel"),
+    ("D180_channelload.yaml", 141, "83", "61", "100", "WiFi.Radio.{r}.ChannelLoad"),
+    ("D181_ampdu.yaml", 142, "-1", "-1", "-1", "WiFi.Radio.{r}.DriverConfig.Ampdu"),
+    ("D182_amsdu.yaml", 143, "-1", "-1", "-1", "WiFi.Radio.{r}.DriverConfig.Amsdu"),
+    ("D183_fragmentationthreshold.yaml", 144, "-1", "-1", "-1", "WiFi.Radio.{r}.DriverConfig.FragmentationThreshold"),
+    ("D184_rtsthreshold.yaml", 145, "-1", "-1", "-1", "WiFi.Radio.{r}.DriverConfig.RtsThreshold"),
+    ("D186_nractiverxantenna.yaml", 147, "4", "4", "4", "WiFi.Radio.{r}.DriverStatus.NrActiveRxAntenna"),
+    ("D187_nractivetxantenna.yaml", 148, "4", "4", "4", "WiFi.Radio.{r}.DriverStatus.NrActiveTxAntenna"),
+    ("D188_nrrxantenna.yaml", 149, "4", "4", "4", "WiFi.Radio.{r}.NrRxAntenna"),
+    ("D189_nrtxantenna.yaml", 150, "4", "4", "4", "WiFi.Radio.{r}.NrTxAntenna"),
+    ("D190_dtimperiod.yaml", 151, "3", "3", "3", "WiFi.Radio.{r}.DTIMPeriod"),
+    ("D191_enable_radio.yaml", 152, "1", "1", "1", "WiFi.Radio.{r}.Enable"),
+    ("D192_explicitbeamformingenabled.yaml", 153, "1", "1", "1", "WiFi.Radio.{r}.ExplicitBeamFormingEnabled"),
+    ("D193_explicitbeamformingsupported.yaml", 154, "1", "1", "1", "WiFi.Radio.{r}.ExplicitBeamFormingSupported"),
+    ("D194_guardinterval.yaml", 155, "Auto", "Auto", "Auto", "WiFi.Radio.{r}.GuardInterval"),
+]
+
+_RADIO_IDS = [t[0].split(".")[0] for t in _RADIO_GETTER_CASES]
+
+
+@pytest.mark.parametrize(
+    "yaml_file,row,live_5g,live_6g,live_24g,path_tpl",
+    _RADIO_GETTER_CASES,
+    ids=_RADIO_IDS,
+)
+def test_radio_getter_contract(yaml_file, row, live_5g, live_6g, live_24g, path_tpl):
+    """Radio getter YAML loads with correct metadata."""
+    cases_dir = Path(__file__).resolve().parent.parent / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / yaml_file)
+    assert case["source"]["row"] == row
+    assert case["llapi_support"] == "Support"
+    assert len(case["steps"]) == 3
+    assert len(case["pass_criteria"]) == 3
+    assert case["bands"] == ["5g", "6g", "2.4g"]
+
+
+@pytest.mark.parametrize(
+    "yaml_file,row,live_5g,live_6g,live_24g,path_tpl",
+    _RADIO_GETTER_CASES,
+    ids=_RADIO_IDS,
+)
+def test_radio_getter_setup_env(yaml_file, row, live_5g, live_6g, live_24g, path_tpl, monkeypatch):
+    """Radio getter is DUT-only; setup_env succeeds without STA."""
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / yaml_file)
+    topo = _FakeTopology()
+    recorder = _FactoryRecorder()
+    _install_fake_factory(monkeypatch, recorder)
+    assert plugin.setup_env(case, topology=topo) is True
+    plugin.teardown(case, topo)
+
+
+@pytest.mark.parametrize(
+    "yaml_file,row,live_5g,live_6g,live_24g,path_tpl",
+    _RADIO_GETTER_CASES,
+    ids=_RADIO_IDS,
+)
+def test_radio_getter_evaluate(yaml_file, row, live_5g, live_6g, live_24g, path_tpl):
+    """Radio getter evaluate passes with live-shaped synthetic output."""
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parent.parent / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / yaml_file)
+    api = path_tpl.rsplit(".", 1)[-1]
+    needs_quote = not live_5g.lstrip("-").isdigit()
+    def _fmt(radio_num, val):
+        path = path_tpl.replace("{r}", str(radio_num))
+        if needs_quote:
+            return f'{path}="{val}"'
+        return f"{path}={val}"
+    results = {
+        "steps": {
+            "step_5g_getter": {"success": True, "output": _fmt(1, live_5g), "timing": 0.01},
+            "step_6g_getter": {"success": True, "output": _fmt(2, live_6g), "timing": 0.01},
+            "step_24g_getter": {"success": True, "output": _fmt(3, live_24g), "timing": 0.01},
+        }
+    }
+    assert plugin.evaluate(case, results) is True
+
+
+# --- D185 TPCMode (fail-shaped 5G-only setter mismatch) ---
+
+def test_d185_tpcmode_contract():
+    """D185 TPCMode YAML loads as fail-shaped 5G-only case."""
+    cases_dir = Path(__file__).resolve().parent.parent / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / "D185_tpcmode.yaml")
+    assert case["source"]["row"] == 146
+    assert case["llapi_support"] == "Support"
+    assert len(case["steps"]) == 12
+    assert len(case["pass_criteria"]) == 8
+    assert case["bands"] == ["5g"]
+    ref = case["results_reference"]["v4.0.3"]
+    assert ref["5g"] == "Fail"
+
+
+def test_d185_tpcmode_setup_env(monkeypatch):
+    """D185 is DUT-only; setup_env succeeds."""
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / "D185_tpcmode.yaml")
+    topo = _FakeTopology()
+    recorder = _FactoryRecorder()
+    _install_fake_factory(monkeypatch, recorder)
+    assert plugin.setup_env(case, topology=topo) is True
+    plugin.teardown(case, topo)
+
+
+def test_d185_tpcmode_evaluate():
+    """D185 evaluate passes when pass_criteria are met (mismatch is in results_reference)."""
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parent.parent / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / "D185_tpcmode.yaml")
+    # Each step's output must match the pass_criteria field paths (capture-based).
+    _step_outputs = {
+        "step1": "TPCMode=Auto",                                # before_result
+        "step2": "OffAttemptLine1=error\nOffAttemptLine2=invalid value",  # off_attempt
+        "step3": "TPCMode=Auto",                                # after_off
+        "step4": "ok",                                          # set_ap
+        "step5": "TPCMode=Ap",                                  # after_ap
+        "step6": "DriverTPCMode=0",                             # driver_after_ap
+        "step7": "ok",                                          # set_sta
+        "step8": "TPCMode=Sta",                                 # after_sta
+        "step9": "ok",                                          # set_apsta
+        "step10": "TPCMode=ApSta",                              # after_apsta
+        "step11": "ok",                                         # restore_auto
+        "step12": "TPCMode=Auto",                               # after_restore
+    }
+    results = {
+        "steps": {
+            sid: {"success": True, "output": out, "timing": 0.01}
+            for sid, out in _step_outputs.items()
+        }
+    }
+    assert plugin.evaluate(case, results) is True
