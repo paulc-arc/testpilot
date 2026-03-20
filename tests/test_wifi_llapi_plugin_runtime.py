@@ -7860,6 +7860,192 @@ def test_d083_mboenable_evaluate_live_examples():
     assert plugin.evaluate(d083, d083_wrong_24g_restore) is False
 
 
+def test_d084_multiaptype_contract():
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+
+    d084_raw = yaml.safe_load((cases_dir / "D084_multiaptype.yaml").read_text(encoding="utf-8"))
+    d084 = load_case(cases_dir / "D084_multiaptype.yaml")
+    d084_commands = "\n".join(str(step.get("command", "")) for step in d084["steps"])
+
+    assert "aliases" not in d084_raw
+    assert d084["id"] == "wifi-llapi-D084-multiaptype"
+    assert d084["source"]["report"] == "0310-BGW720-300_LLAPI_Test_Report.xlsx"
+    assert d084["source"]["row"] == 76
+    assert d084["source"]["baseline"] == "BCM v4.0.3"
+    assert d084["llapi_support"] == "Support"
+    assert d084["implemented_by"] == "Vendor Module"
+    assert d084["bands"] == ["5g", "6g", "2.4g"]
+    assert set(d084["topology"]["devices"]) == {"DUT"}
+    assert d084["topology"]["links"] == []
+    assert d084["hlapi_command"] == "ubus-cli WiFi.AccessPoint.1.MultiAPType=BackhaulBSS"
+    assert "killall wpa_supplicant" not in d084.get("sta_env_setup", "")
+    assert "AfterSetDriverMap24g=" in d084_commands
+    assert "MultiAPType=\"FronthaulBSS,BackhaulBSS\"" in d084_commands
+    assert any(
+        criterion["field"] == "multiap_after_set_5g.AfterSetHostapdBothCount5g"
+        and criterion["operator"] == "equals"
+        and criterion["value"] == "1"
+        for criterion in d084["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "multiap_after_restore_24g.AfterRestoreDriverMap24g"
+        and criterion["operator"] == "equals"
+        and criterion["value"] == "0x3: Fronthaul-BSS Backhaul-BSS"
+        for criterion in d084["pass_criteria"]
+    )
+    assert d084["results_reference"]["v4.0.3"]["5g"] == "Fail"
+    assert d084["results_reference"]["v4.0.3"]["6g"] == "Fail"
+    assert d084["results_reference"]["v4.0.3"]["2.4g"] == "Fail"
+
+
+def test_d084_multiaptype_setup_env_uses_only_dut_transport(monkeypatch):
+    plugin = _load_plugin()
+    topology = _FakeTopology()
+    recorder = _FactoryRecorder()
+    _install_fake_factory(monkeypatch, recorder)
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d084 = load_case(cases_dir / "D084_multiaptype.yaml")
+
+    assert plugin.setup_env(d084, topology=topology) is True
+    assert len(recorder.calls) == 1
+    assert recorder.calls[0][0] == "serial"
+    executed_commands = recorder.transports[0].executed_commands
+    assert executed_commands.count("ubus-cli WiFi.AccessPoint.1.Enable=1") == 1
+    assert executed_commands.count("ubus-cli WiFi.AccessPoint.3.Enable=1") == 1
+    assert executed_commands.count("ubus-cli WiFi.AccessPoint.5.Enable=1") == 1
+    assert executed_commands.count("wl -i wl0 bss") == 1
+    assert executed_commands.count("wl -i wl1 bss") == 1
+    assert executed_commands.count("wl -i wl2 bss") == 1
+    assert all("STA" not in command for command in executed_commands)
+    plugin.teardown(d084, topology)
+
+
+def test_d084_multiaptype_evaluate_live_examples():
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d084 = load_case(cases_dir / "D084_multiaptype.yaml")
+
+    def baseline_output(prefix: str) -> str:
+        return "\n".join(
+            [
+                f"BaselineGetterMultiAp{prefix}=FronthaulBSS,BackhaulBSS",
+                f"BaselineHostapdBackhaulCount{prefix}=0",
+                f"BaselineHostapdBothCount{prefix}=2",
+                f"BaselineHostapdTotalCount{prefix}=2",
+                f"BaselineDriverMap{prefix}=0x3: Fronthaul-BSS Backhaul-BSS",
+            ]
+        )
+
+    def set_output(prefix: str) -> str:
+        return f"RequestedMultiApType{prefix}=BackhaulBSS"
+
+    def restore_output(prefix: str) -> str:
+        return f"RestoreMultiApType{prefix}=FronthaulBSS,BackhaulBSS"
+
+    def after_set_output(prefix: str, getter: str, backhaul_count: str, both_count: str, total: str, driver: str) -> str:
+        return "\n".join(
+            [
+                f"AfterSetGetterMultiAp{prefix}={getter}",
+                f"AfterSetHostapdBackhaulCount{prefix}={backhaul_count}",
+                f"AfterSetHostapdBothCount{prefix}={both_count}",
+                f"AfterSetHostapdTotalCount{prefix}={total}",
+                f"AfterSetDriverMap{prefix}={driver}",
+            ]
+        )
+
+    def after_restore_output(prefix: str, getter: str, backhaul_count: str, both_count: str, total: str, driver: str) -> str:
+        return "\n".join(
+            [
+                f"AfterRestoreGetterMultiAp{prefix}={getter}",
+                f"AfterRestoreHostapdBackhaulCount{prefix}={backhaul_count}",
+                f"AfterRestoreHostapdBothCount{prefix}={both_count}",
+                f"AfterRestoreHostapdTotalCount{prefix}={total}",
+                f"AfterRestoreDriverMap{prefix}={driver}",
+            ]
+        )
+
+    d084_results = {
+        "steps": {
+            "step1_multiap_baseline_5g": {"success": True, "output": baseline_output("5g"), "timing": 0.01},
+            "step2_multiap_set_backhaul_5g": {"success": True, "output": set_output("5g"), "timing": 0.01},
+            "step3_multiap_after_set_5g": {
+                "success": True,
+                "output": after_set_output("5g", "BackhaulBSS", "1", "1", "2", "0x2: Backhaul-BSS"),
+                "timing": 0.01,
+            },
+            "step4_multiap_restore_5g": {"success": True, "output": restore_output("5g"), "timing": 0.01},
+            "step5_multiap_after_restore_5g": {
+                "success": True,
+                "output": after_restore_output("5g", "FronthaulBSS,BackhaulBSS", "0", "2", "2", "0x3: Fronthaul-BSS Backhaul-BSS"),
+                "timing": 0.01,
+            },
+            "step6_multiap_baseline_6g": {"success": True, "output": baseline_output("6g"), "timing": 0.01},
+            "step7_multiap_set_backhaul_6g": {"success": True, "output": set_output("6g"), "timing": 0.01},
+            "step8_multiap_after_set_6g": {
+                "success": True,
+                "output": after_set_output("6g", "BackhaulBSS", "1", "1", "2", "0x2: Backhaul-BSS"),
+                "timing": 0.01,
+            },
+            "step9_multiap_restore_6g": {"success": True, "output": restore_output("6g"), "timing": 0.01},
+            "step10_multiap_after_restore_6g": {
+                "success": True,
+                "output": after_restore_output("6g", "FronthaulBSS,BackhaulBSS", "0", "2", "2", "0x3: Fronthaul-BSS Backhaul-BSS"),
+                "timing": 0.01,
+            },
+            "step11_multiap_baseline_24g": {"success": True, "output": baseline_output("24g"), "timing": 0.01},
+            "step12_multiap_set_backhaul_24g": {"success": True, "output": set_output("24g"), "timing": 0.01},
+            "step13_multiap_after_set_24g": {
+                "success": True,
+                "output": after_set_output("24g", "BackhaulBSS", "1", "1", "2", "0x2: Backhaul-BSS"),
+                "timing": 0.01,
+            },
+            "step14_multiap_restore_24g": {"success": True, "output": restore_output("24g"), "timing": 0.01},
+            "step15_multiap_after_restore_24g": {
+                "success": True,
+                "output": after_restore_output("24g", "FronthaulBSS,BackhaulBSS", "0", "2", "2", "0x3: Fronthaul-BSS Backhaul-BSS"),
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d084, d084_results) is True
+
+    d084_wrong_6g_hostapd_fully_converged = {
+        "steps": {
+            **d084_results["steps"],
+            "step8_multiap_after_set_6g": {
+                "success": True,
+                "output": after_set_output("6g", "BackhaulBSS", "2", "0", "2", "0x2: Backhaul-BSS"),
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d084, d084_wrong_6g_hostapd_fully_converged) is False
+
+    d084_wrong_5g_driver = {
+        "steps": {
+            **d084_results["steps"],
+            "step3_multiap_after_set_5g": {
+                "success": True,
+                "output": after_set_output("5g", "BackhaulBSS", "1", "1", "2", "0x3: Fronthaul-BSS Backhaul-BSS"),
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d084, d084_wrong_5g_driver) is False
+
+    d084_wrong_24g_restore = {
+        "steps": {
+            **d084_results["steps"],
+            "step15_multiap_after_restore_24g": {
+                "success": True,
+                "output": after_restore_output("24g", "BackhaulBSS", "0", "2", "2", "0x3: Fronthaul-BSS Backhaul-BSS"),
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d084, d084_wrong_24g_restore) is False
+
+
 def test_run_required_command_retries_after_recovery_signal():
     plugin = _load_plugin()
     calls: list[str] = []
