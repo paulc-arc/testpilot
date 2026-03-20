@@ -1,6 +1,6 @@
 # TestPilot Master Plan
 
-> 更新日期：2026-03-19
+> 更新日期：2026-03-20
 > 基線版本：v0.0.3-draft  
 > 規劃版本：v0.1.0（第三次重構基線）
 
@@ -18,7 +18,7 @@ TestPilot 的主目標是：
 
 ---
 
-## 2. 現況快照（2026-03-19）
+## 2. 現況快照（2026-03-20）
 
 ### 2.1 已落地能力
 
@@ -32,6 +32,7 @@ TestPilot 的主目標是：
 8. repo-only 校正 handoff 已同步到 `docs/audit-todo.md` 與 `plugins/wifi_llapi/reports/audit-report-260313-185447.md`；目前 handoff 已補記 `D060 UNIIBandsCapabilities`、`D061 UplinkBandwidth`、`D062 UplinkMCS`、`D063 UplinkShortGuard`、`D064 VendorOUI`、`D065 VhtCapabilities`、`D066 APBridgeDisable`、`D067 BridgeInterface`、`D068 DiscoveryMethodEnabled (FILS)`、`D069 DiscoveryMethodEnabled (UPR)`、`D070 DiscoveryMethodEnabled (RNR)`、`D072 Enable`、`D073 FTOverDSEnable`、`D074 MobilityDomain`、`D077 InterworkingEnable`、`D078 QoSMapSet`、`D079 MacFilterAddressList`、`D080 Entry`、`D081 Mode`、`D082 MaxAssociatedDevices`、`D083 MBOEnable`、`D084 MultiAPType`、`D085 Neighbour`、`D086 EncryptionMode`、`D087 KeyPassPhrase`、`D088 MFPConfig` 的 committed checkpoint，並已將 `D185 TPCMode`、`D368 SRGBSSColorBitmap`、`D371 SRGPartialBSSIDBitmap` 這三筆 official checkpoint 納入完成數，從待校正池移出。
 9. reboot 後的 default lab baseline 已重建並落成文件：5G `testpilot5G` / 2.4G `testpilot2G` 使用 `WPA2-Personal + 00000000`，6G `testpilot6G` 固定使用 `WPA3-Personal + key_mgmt=SAE + 00000000`；`D088 MFPConfig` 已在這組 baseline 下完成 AP-only mixed-band checkpoint（workbook row 80；AP1/AP5 的 getter 與 hostapd `ieee80211w=0` 都收斂到 `Disabled`，但 AP3 / wl1 仍固定 `MFPConfig="Disabled"` 與 `wpa_key_mgmt=SAE + ieee80211w=2` 的 live `Required` 狀態不一致），主 sequence 的下一個 ready single-case 入口為 `D089 ModeEnabled`。
 10. 第三次重構的 Copilot SDK 深度研究已完成，並已複製到 `docs/copilot-sdk-hooks-skills-session-resume-persistenc.md`。
+11. 校正工作守則已補強為「不中斷持續作業」：commit、簡短狀態回覆與 targeted tests pass 都不是停點；只要沒有 blocker 或使用者要求暫停，就必須在同一輪把下一個 ready case 直接推進到 `in_progress`。
 
 ### 2.2 尚未落地
 

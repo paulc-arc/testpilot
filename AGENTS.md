@@ -94,6 +94,10 @@ pytest
    - 最新已提交 case 與 verdict 形狀
    - 下一個 ready case
    - 最新驗證指令與結果
+6. **commit / brief status update / targeted tests pass 都不是停點**；只要沒有明確 blocker、lab 失真、或使用者要求暫停，就必須在同一輪直接推進到下一個 ready single case。
+7. 每個 single-case loop 的預設完成定義固定為：offline survey → live 三個 band 驗證/切換 → YAML 重寫 → runtime targeted tests → runtime file / full suite → docs sync → precise stage/commit → 立刻把下一個 ready case 標成 `in_progress`。
+8. 若因 context 壓縮、tool/runtime crash、或 session 中斷而被迫停下，必須先把「最新已提交 case、目前 counts、next ready case、active blocker、最新驗證結果」落回 repo handoff 文件，再視為可接受中斷。
+9. 對使用者的進度回覆應以「不中斷主流程」為原則：除非需要請求決策或回報 blocker，說明完當前 checkpoint 後就要繼續執行下一筆，不得把單次回答本身當成停工理由。
 
 ## Default Lab Baseline Policy
 
