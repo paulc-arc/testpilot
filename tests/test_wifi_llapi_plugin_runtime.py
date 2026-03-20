@@ -9323,6 +9323,60 @@ def test_d096_status_accesspoint_evaluate_live_examples():
     assert plugin.evaluate(d096, d096_bad) is False
 
 
+def test_d097_uapsdcapability_contract():
+    """D097 YAML loads, discovers, and has correct metadata."""
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d097 = load_case(cases_dir / "D097_uapsdcapability.yaml")
+    assert d097["source"]["row"] == 97
+    assert d097["source"]["api"] == "UAPSDCapability"
+    assert len(d097["steps"]) == 3
+    assert len(d097["pass_criteria"]) == 3
+    assert d097["bands"] == ["5g", "6g", "2.4g"]
+    ref = d097["results_reference"]["v4.0.3"]
+    assert ref["5g"] == "Pass"
+    assert ref["6g"] == "Pass"
+    assert ref["2.4g"] == "Pass"
+
+
+def test_d097_uapsdcapability_setup_env(monkeypatch):
+    """D097 is DUT-only; setup_env should only request COM0."""
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d097 = load_case(cases_dir / "D097_uapsdcapability.yaml")
+    topo = _FakeTopology()
+    recorder = _FactoryRecorder()
+    _install_fake_factory(monkeypatch, recorder)
+    assert plugin.setup_env(d097, topology=topo) is True
+    assert len(recorder.calls) == 1
+    assert recorder.calls[0][0] == "serial"
+    plugin.teardown(d097, topo)
+
+
+def test_d097_uapsdcapability_evaluate_live_examples():
+    """D097 all-pass criteria met with live-shaped synthetic output."""
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d097 = load_case(cases_dir / "D097_uapsdcapability.yaml")
+
+    d097_results = {
+        "steps": {
+            "step1_uapsd_5g": {"success": True, "output": "UAPSDCapability5g=1\nHapdUapsd5g=0\nDriverWmeApsd5g=0", "timing": 0.01},
+            "step2_uapsd_6g": {"success": True, "output": "UAPSDCapability6g=1\nHapdUapsd6g=0\nDriverWmeApsd6g=0", "timing": 0.01},
+            "step3_uapsd_24g": {"success": True, "output": "UAPSDCapability24g=1\nHapdUapsd24g=0\nDriverWmeApsd24g=0", "timing": 0.01},
+        }
+    }
+    assert plugin.evaluate(d097, d097_results) is True
+
+    # Negative: if capability is 0, should fail
+    d097_bad = {
+        "steps": {
+            **d097_results["steps"],
+            "step1_uapsd_5g": {"success": True, "output": "UAPSDCapability5g=0\nHapdUapsd5g=0\nDriverWmeApsd5g=0", "timing": 0.01},
+        }
+    }
+    assert plugin.evaluate(d097, d097_bad) is False
+
+
 def test_run_required_command_retries_after_recovery_signal():
     plugin = _load_plugin()
     calls: list[str] = []

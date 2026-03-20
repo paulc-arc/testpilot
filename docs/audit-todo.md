@@ -187,13 +187,14 @@ If I open only this file in a future session, I should do the following in order
   - `D096 Status` → workbook-aligned AP-only multiband `Pass` checkpoint（read-only getter, Status="Enabled" + driver bss=up on all 3 bands）
   - `load_case(plugins/wifi_llapi/cases/D096_status_accesspoint.yaml)` → `steps=3, pass_criteria=6`
   - `serialwrap COM0 D096 Status probe` → AP1/AP3/AP5 Status="Enabled" + wl bss=up
-  - `D097 UAPSDCapability`
+  - `D097 UAPSDCapability` → workbook-aligned AP-only multiband `Pass` checkpoint（read-only capability getter, UAPSDCapability=1 on all 3 bands, setter returns error 15 read-only; hostapd uapsd_advertisement_enabled=0 / driver wme_apsd=0 = not active but capability present）
+  - `load_case(plugins/wifi_llapi/cases/D097_uapsdcapability.yaml)` → `steps=3, pass_criteria=3`
+  - `serialwrap COM0 D097 UAPSDCapability probe` → AP1/AP3/AP5 UAPSDCapability=1 + hostapd wmm/uapsd + driver wme_apsd cross-check
 - Continuation guard rails:
   - only committed YAML / docs count as trusted handoff state
   - do not infer progress from any local unstaged experiment outside these committed checkpoints
   - reuse `D058 TxPacketCount` as the positive same-STA tx-packet prior art when judging `D059`/`D060` family cases
-  - `D097_uapsdcapability.yaml` is the next stale YAML; D096 read-only getter pattern is the immediate prior art
-  - `D185` / `D368` / `D371` 已從待校正池移出並折入完成數；最新 main-sweep checkpoint 則前進到 `D096`，下一個 ready sequential case 為 `D097`
+  - `D185` / `D368` / `D371` 已從待校正池移出並折入完成數；最新 main-sweep checkpoint 則前進到 `D097`，下一個 ready sequential case 為 `D098`
 
 Current verified live baseline findings from this session:
 
