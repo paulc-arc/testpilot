@@ -9140,6 +9140,72 @@ def test_d093_sha256enable_evaluate_live_examples():
     assert plugin.evaluate(d093, d093_bad) is False
 
 
+# ---------------------------------------------------------------------------
+# D094 WEPKey — Fail-shaped mismatch (setter accepted, no WEP in hostapd)
+# ---------------------------------------------------------------------------
+
+def test_d094_wepkey_contract():
+    """D094 YAML loads with 12 steps, 9 pass_criteria, row=94, all-band Fail."""
+    from testpilot.schema.case_schema import load_case
+    c = load_case("plugins/wifi_llapi/cases/D094_wepkey_accesspoint_security.yaml")
+    assert len(c["steps"]) == 12
+    assert len(c["pass_criteria"]) == 9
+    assert c["source"]["row"] == 94
+    ref = c["results_reference"]["v4.0.3"]
+    assert ref["5g"] == "Fail"
+    assert ref["6g"] == "Fail"
+    assert ref["2.4g"] == "Fail"
+
+
+def test_d094_wepkey_setup_env_uses_only_dut_transport(monkeypatch):
+    """D094 is DUT-only (no STA); setup_env should only request COM0."""
+    plugin = _load_plugin()
+    topology = _FakeTopology()
+    recorder = _FactoryRecorder()
+    _install_fake_factory(monkeypatch, recorder)
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d094 = load_case(cases_dir / "D094_wepkey_accesspoint_security.yaml")
+
+    assert plugin.setup_env(d094, topology=topology) is True
+    assert len(recorder.calls) == 1
+    assert recorder.calls[0][0] == "serial"
+    plugin.teardown(d094, topology)
+
+
+def test_d094_wepkey_evaluate_live_examples():
+    """D094 all-pass criteria met with live-shaped synthetic output."""
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d094 = load_case(cases_dir / "D094_wepkey_accesspoint_security.yaml")
+
+    d094_results = {
+        "steps": {
+            "step1_baseline_5g": {"success": True, "output": "BaselineWEPKey5g=123456789ABCD\nHostapdWep5g=0", "timing": 0.01},
+            "step2_set_5g": {"success": True, "output": "", "timing": 0.01},
+            "step3_readback_5g": {"success": True, "output": "GetterWEPKey5g=AABBCCDDEEFF0\nHostapdWepAfter5g=0", "timing": 0.01},
+            "step4_restore_5g": {"success": True, "output": "RestoredWEPKey5g=123456789ABCD", "timing": 0.01},
+            "step5_baseline_6g": {"success": True, "output": "BaselineWEPKey6g=123456789ABCD\nHostapdWep6g=0", "timing": 0.01},
+            "step6_set_6g": {"success": True, "output": "", "timing": 0.01},
+            "step7_readback_6g": {"success": True, "output": "GetterWEPKey6g=AABBCCDDEEFF0\nHostapdWepAfter6g=0", "timing": 0.01},
+            "step8_restore_6g": {"success": True, "output": "RestoredWEPKey6g=123456789ABCD", "timing": 0.01},
+            "step9_baseline_24g": {"success": True, "output": "BaselineWEPKey24g=123456789ABCD\nHostapdWep24g=0", "timing": 0.01},
+            "step10_set_24g": {"success": True, "output": "", "timing": 0.01},
+            "step11_readback_24g": {"success": True, "output": "GetterWEPKey24g=AABBCCDDEEFF0\nHostapdWepAfter24g=0", "timing": 0.01},
+            "step12_restore_24g": {"success": True, "output": "RestoredWEPKey24g=123456789ABCD", "timing": 0.01},
+        }
+    }
+    assert plugin.evaluate(d094, d094_results) is True
+
+    # Negative: if readback stays baseline on 5G, evaluation should fail
+    d094_bad = {
+        "steps": {
+            **d094_results["steps"],
+            "step3_readback_5g": {"success": True, "output": "GetterWEPKey5g=123456789ABCD\nHostapdWepAfter5g=0", "timing": 0.01},
+        }
+    }
+    assert plugin.evaluate(d094, d094_bad) is False
+
+
 def test_run_required_command_retries_after_recovery_signal():
     plugin = _load_plugin()
     calls: list[str] = []

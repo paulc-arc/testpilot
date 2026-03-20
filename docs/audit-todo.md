@@ -120,8 +120,8 @@ If I open only this file in a future session, I should do the following in order
 
 ## Current repo handoff snapshot（2026-03-20）
 
-- Trusted/calibrated official cases: **153 / 415**
-- Remaining official cases: **262**
+- Trusted/calibrated official cases: **154 / 415**
+- Remaining official cases: **261**
 - Active blockers:
   - `D037 OperatingStandard`
   - `D054 Tx_RetransmissionsFailed`
@@ -178,7 +178,10 @@ If I open only this file in a future session, I should do the following in order
   - `D093 SHA256Enable` → workbook-aligned AP-only multiband `Fail` checkpoint（setter accepted + getter reads back 1 on all 3 bands, but hostapd wpa_key_mgmt stays WPA-PSK/SAE without gaining SHA256 suffix）
   - `load_case(plugins/wifi_llapi/cases/D093_sha256enable.yaml)` → `steps=12`
   - `serialwrap COM0 D093 SHA256Enable probe` → AP1/AP3/AP5 setter+readback pass; hostapd wpa_key_mgmt unchanged on all bands
-  - `D094 WEPKey`
+  - `D094 WEPKey` → workbook-aligned AP-only multiband `Fail` checkpoint（setter accepted + getter reads back AABBCCDDEEFF0 on all 3 bands, but hostapd has NO wep lines under WPA2/WPA3 ModeEnabled）
+  - `load_case(plugins/wifi_llapi/cases/D094_wepkey_accesspoint_security.yaml)` → `steps=12`
+  - `serialwrap COM0 D094 WEPKey probe` → AP1/AP3/AP5 setter+readback pass; hostapd has zero WEP lines
+  - `D095 SSIDAdvertisementEnabled`
 - Continuation guard rails:
   - only committed YAML / docs count as trusted handoff state
   - do not infer progress from any local unstaged experiment outside these committed checkpoints
