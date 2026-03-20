@@ -120,8 +120,8 @@ If I open only this file in a future session, I should do the following in order
 
 ## Current repo handoff snapshot（2026-03-20）
 
-- Trusted/calibrated official cases: **155 / 415**
-- Remaining official cases: **260**
+- Trusted/calibrated official cases: **156 / 415**
+- Remaining official cases: **259**
 - Active blockers:
   - `D037 OperatingStandard`
   - `D054 Tx_RetransmissionsFailed`
@@ -184,13 +184,16 @@ If I open only this file in a future session, I should do the following in order
   - `D095 SSIDAdvertisementEnabled` → workbook-aligned AP-only multiband `Pass` checkpoint（setter=0 causes hostapd ignore_broadcast_ssid to flip 0→2 on all 3 bands; restore=1 brings it back to 0）
   - `load_case(plugins/wifi_llapi/cases/D095_ssidadvertisementenabled.yaml)` → `steps=12, pass_criteria=15`
   - `serialwrap COM0 D095 SSIDAdvertisementEnabled probe` → AP1/AP3/AP5 setter+readback+hostapd full round-trip pass
-  - `D096 Status`
+  - `D096 Status` → workbook-aligned AP-only multiband `Pass` checkpoint（read-only getter, Status="Enabled" + driver bss=up on all 3 bands）
+  - `load_case(plugins/wifi_llapi/cases/D096_status_accesspoint.yaml)` → `steps=3, pass_criteria=6`
+  - `serialwrap COM0 D096 Status probe` → AP1/AP3/AP5 Status="Enabled" + wl bss=up
+  - `D097 UAPSDCapability`
 - Continuation guard rails:
   - only committed YAML / docs count as trusted handoff state
   - do not infer progress from any local unstaged experiment outside these committed checkpoints
   - reuse `D058 TxPacketCount` as the positive same-STA tx-packet prior art when judging `D059`/`D060` family cases
-  - `D096_status.yaml` is the next stale YAML; reuse D095 的 AP-only multiband getter pattern
-  - `D185` / `D368` / `D371` 已從待校正池移出並折入完成數；最新 main-sweep checkpoint 則前進到 `D095`，下一個 ready sequential case 為 `D096`
+  - `D097_uapsdcapability.yaml` is the next stale YAML; D096 read-only getter pattern is the immediate prior art
+  - `D185` / `D368` / `D371` 已從待校正池移出並折入完成數；最新 main-sweep checkpoint 則前進到 `D096`，下一個 ready sequential case 為 `D097`
 
 Current verified live baseline findings from this session:
 

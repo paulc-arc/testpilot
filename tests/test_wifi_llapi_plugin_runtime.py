@@ -9269,6 +9269,60 @@ def test_d095_ssidadvertisementenabled_evaluate_live_examples():
     assert plugin.evaluate(d095, d095_bad) is False
 
 
+def test_d096_status_accesspoint_contract():
+    """D096 YAML loads, discovers, and has correct metadata."""
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d096 = load_case(cases_dir / "D096_status_accesspoint.yaml")
+    assert d096["source"]["row"] == 96
+    assert d096["source"]["api"] == "Status"
+    assert len(d096["steps"]) == 3
+    assert len(d096["pass_criteria"]) == 6
+    assert d096["bands"] == ["5g", "6g", "2.4g"]
+    ref = d096["results_reference"]["v4.0.3"]
+    assert ref["5g"] == "Pass"
+    assert ref["6g"] == "Pass"
+    assert ref["2.4g"] == "Pass"
+
+
+def test_d096_status_accesspoint_setup_env(monkeypatch):
+    """D096 is DUT-only; setup_env should only request COM0."""
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d096 = load_case(cases_dir / "D096_status_accesspoint.yaml")
+    topo = _FakeTopology()
+    recorder = _FactoryRecorder()
+    _install_fake_factory(monkeypatch, recorder)
+    assert plugin.setup_env(d096, topology=topo) is True
+    assert len(recorder.calls) == 1
+    assert recorder.calls[0][0] == "serial"
+    plugin.teardown(d096, topo)
+
+
+def test_d096_status_accesspoint_evaluate_live_examples():
+    """D096 all-pass criteria met with live-shaped synthetic output."""
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d096 = load_case(cases_dir / "D096_status_accesspoint.yaml")
+
+    d096_results = {
+        "steps": {
+            "step1_status_5g": {"success": True, "output": "Status5g=Enabled\nDriverBss5g=up", "timing": 0.01},
+            "step2_status_6g": {"success": True, "output": "Status6g=Enabled\nDriverBss6g=up", "timing": 0.01},
+            "step3_status_24g": {"success": True, "output": "Status24g=Enabled\nDriverBss24g=up", "timing": 0.01},
+        }
+    }
+    assert plugin.evaluate(d096, d096_results) is True
+
+    # Negative: if Status is Disabled, should fail
+    d096_bad = {
+        "steps": {
+            **d096_results["steps"],
+            "step1_status_5g": {"success": True, "output": "Status5g=Disabled\nDriverBss5g=down", "timing": 0.01},
+        }
+    }
+    assert plugin.evaluate(d096, d096_bad) is False
+
+
 def test_run_required_command_retries_after_recovery_signal():
     plugin = _load_plugin()
     calls: list[str] = []
