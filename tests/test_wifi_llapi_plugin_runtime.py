@@ -9524,6 +9524,74 @@ def test_d099_vendorie_evaluate_live_examples():
     assert plugin.evaluate(d099, d099_results) is True
 
 
+# ── D100 WDSEnable (Pass, all 3 bands setter round-trip) ────────────
+
+
+def test_d100_wdsenable_contract():
+    """D100 YAML loads, discovers, and has correct metadata."""
+    cases_dir = Path(__file__).resolve().parent.parent / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / "D100_wdsenable.yaml")
+    assert case["source"]["row"] == 100
+    assert case["llapi_support"] == "Support"
+    assert len(case["steps"]) == 3
+    assert len(case["pass_criteria"]) == 18
+    assert case["bands"] == ["5g", "6g", "2.4g"]
+    assert case["results_reference"]["v4.0.3"]["5g"] == "Pass"
+
+
+def test_d100_wdsenable_setup_env(monkeypatch):
+    """D100 is DUT-only; setup_env should only request COM0."""
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    d100 = load_case(cases_dir / "D100_wdsenable.yaml")
+    topo = _FakeTopology()
+    recorder = _FactoryRecorder()
+    _install_fake_factory(monkeypatch, recorder)
+    assert plugin.setup_env(d100, topology=topo) is True
+    assert len(recorder.calls) == 1
+    assert recorder.calls[0][0] == "serial"
+    plugin.teardown(d100, topo)
+
+
+def test_d100_wdsenable_evaluate():
+    """D100 all-pass criteria met with live-shaped synthetic output."""
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parent.parent / "plugins" / "wifi_llapi" / "cases"
+    d100 = load_case(cases_dir / "D100_wdsenable.yaml")
+    d100_results = {
+        "steps": {
+            "step_5g_setter_roundtrip": {
+                "success": True,
+                "output": (
+                    "Baseline5g=0\nDriverBaseline5g=0\n"
+                    "AfterSet5g=1\nDriverAfterSet5g=1\n"
+                    "AfterRestore5g=0\nDriverAfterRestore5g=0"
+                ),
+                "timing": 0.01,
+            },
+            "step_6g_setter_roundtrip": {
+                "success": True,
+                "output": (
+                    "Baseline6g=0\nDriverBaseline6g=0\n"
+                    "AfterSet6g=1\nDriverAfterSet6g=1\n"
+                    "AfterRestore6g=0\nDriverAfterRestore6g=0"
+                ),
+                "timing": 0.01,
+            },
+            "step_24g_setter_roundtrip": {
+                "success": True,
+                "output": (
+                    "Baseline24g=0\nDriverBaseline24g=0\n"
+                    "AfterSet24g=1\nDriverAfterSet24g=1\n"
+                    "AfterRestore24g=0\nDriverAfterRestore24g=0"
+                ),
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d100, d100_results) is True
+
+
 def test_run_required_command_retries_after_recovery_signal():
     plugin = _load_plugin()
     calls: list[str] = []

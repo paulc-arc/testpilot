@@ -1,181 +1,223 @@
 id: wifi-llapi-D100-wdsenable
-aliases:
-  - wifi-llapi-r090-wdsenable
 name: WDSEnable — WiFi.AccessPoint.{i}.
 version: '1.0'
 source:
-  report: "0302-AT&T_LLAPI_Test_Report_20260107.xlsx"
+  report: 0310-BGW720-300_LLAPI_Test_Report.xlsx
   sheet: Wifi_LLAPI
   row: 100
-  object: "WiFi.AccessPoint.{i}."
-  api: "WDSEnable"
+  object: WiFi.AccessPoint.{i}.
+  api: WDSEnable
+  baseline: 0310-BGW720-300
 platform:
   prplos: 4.0.3
   bdk: 6.3.1
-hlapi_command: ubus-cli WiFi.AccessPoint.{i}.WDSEnable=0
+hlapi_command: ubus-cli "WiFi.AccessPoint.{i}.WDSEnable?"
 llapi_support: Support
 implemented_by: Vendor Module
+bands:
+- 5g
+- 6g
+- 2.4g
 topology:
   devices:
     DUT:
       role: ap
       transport: serial
       selector: COM0
-    STA:
-      role: sta
-      transport: serial
-      selector: COM1
-      config:
-      - iface: 5g
-        mode: sta
-        ssid: '{{SSID_5G}}'
-        key: '{{KEY_5G}}'
-  links:
-  - from: STA
-    to: DUT
-    band: 5g
-test_environment: |
-  Topology:
+  links: []
+test_environment: 'Topology:
+
   - DUT: COM0 (B0, AP role)
-  - STA: COM1 (A0, STA role, STA-required cases only)
+
   Transport:
-  - serialwrap attach COM0 / COM1
-  Band mapping:
-  - 5G: DUT wl0 / AP1 / SSID.4
-  - 6G: DUT wl1 / AP3 / SSID.6
-  - 2.4G: DUT wl2 / AP5 / SSID.8
-  Pre-check:
-  - cat /proc/socinfo | grep Revision | cut -d: -f2
-  - iw dev
-  - ubus-cli "WiFi.Radio.?" | sed -n "1,120p"
 
-setup_steps: |
-  1) DUT 5G baseline:
-     - set Radio.1/SSID.4 for the 5G AP under test
-     - configure AP1 as open with MFP disabled
-     - enable AP1 before station association
-  2) STA 5G preparation:
-     - disable local AP1/AP2 on A0
-     - clear wl0 AP child interface and switch wl0 to managed mode
-     - connect wl0 to {{SSID_5G}}
-  3) Association evidence:
-     - A0: iw dev wl0 link
-     - B0: wl -i wl0 assoclist
-sta_env_setup: |
-  DUT 5G AP baseline:
-    ubus-cli WiFi.Radio.1.Enable=1
-    ubus-cli WiFi.Radio.1.BeaconPeriod=100
-    ubus-cli WiFi.Radio.1.DTIMPeriod=3
-    ubus-cli WiFi.Radio.1.DriverConfig.FragmentationThreshold=-1
-    ubus-cli WiFi.Radio.1.DriverConfig.RtsThreshold=-1
-    ubus-cli WiFi.Radio.1.DriverConfig.TPCMode=Auto
-    ubus-cli WiFi.Radio.1.ExplicitBeamFormingEnabled=1
-    ubus-cli WiFi.Radio.1.ImplicitBeamFormingEnabled=1
-    ubus-cli WiFi.Radio.1.OfdmaEnable=1
-    ubus-cli WiFi.Radio.1.ObssCoexistenceEnable=0
-    ubus-cli WiFi.Radio.1.OperatingStandards=ax
-    ubus-cli WiFi.Radio.1.RxChainCtrl=-1
-    ubus-cli WiFi.Radio.1.TxChainCtrl=-1
-    ubus-cli WiFi.Radio.1.Vendor.Brcm.RegulatoryDomainRev=0
-    ubus-cli WiFi.Radio.1.Sensing.Enable=1
-    ubus-cli WiFi.Radio.1.IEEE80211ax.BssColorPartial=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.NonSRGOBSSPDMaxOffset=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.PSRDisallowed=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.SRGOBSSPDMaxOffset=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.SRGOBSSPDMinOffset=0
-    ubus-cli WiFi.Radio.1.LongRetryLimit=6
-    ubus-cli WiFi.Radio.1.MultiUserMIMOEnabled=1
-    ubus-cli WiFi.Radio.1.TargetWakeTimeEnable=1
-    ubus-cli WiFi.SSID.4.SSID={{SSID_5G}}
-    ubus-cli WiFi.AccessPoint.1.IEEE80211u.QoSMapSet=
-    ubus-cli WiFi.AccessPoint.2.IEEE80211u.QoSMapSet=
-    ubus-cli WiFi.AccessPoint.1.Security.ModeEnabled=None
-    ubus-cli WiFi.AccessPoint.1.Security.MFPConfig=Disabled
-    ubus-cli WiFi.AccessPoint.1.Enable=1
-  STA 5G preparation:
-    ubus-cli WiFi.AccessPoint.1.Enable=0
-    ubus-cli WiFi.AccessPoint.2.Enable=0
-    killall wpa_supplicant 2>/dev/null || true
-    iw dev wl0.1 del 2>/dev/null || true
-    iw dev wl0 disconnect 2>/dev/null || true
-    iw dev wl0 set type managed
-    ifconfig wl0 up
-  STA 5G connect verify:
-    iw dev wl0 connect {{SSID_5G}}
-    sleep 2
-    iw dev wl0 link
-  DUT association evidence:
-    wl -i wl0 assoclist
-test_procedure: |
-  1) Execute case command on DUT:
-     ubus-cli WiFi.AccessPoint.{i}.WDSEnable=0
-  2) LLAPI readback on DUT:
-     ubus-cli "WiFi.AccessPoint.*.WDSEnable?"
-  3) For stats/AssociatedDevice cases, generate traffic (ping/iperf) before re-read.
-  4) STA link validation:
-     iw dev wl0 link
-     iw dev wl1 link
-     wpa_cli -i wl1 status
-     iw dev wl2 link
-  5) Cross-check with verification_command (driver/hostapd/iw/proc evidence).
+  - DUT via serialwrap COM0
 
+  Baseline:
+
+  - 5G  = AP1 / wl0 / testpilot5G / WPA2-Personal
+
+  - 6G  = AP3 / wl1 / testpilot6G / WPA3-Personal / SAE
+
+  - 2.4G = AP5 / wl2 / testpilot2G / WPA2-Personal
+
+  Notes:
+
+  - WDSEnable setter triggers BSS restart (10-15s) with WDS driver noise
+
+  - Setter round-trip: baseline=0/dwds=0, set=1/dwds=1, restore=0/dwds=0
+
+  - All 3 bands converge: getter + driver dwds fully align
+
+  '
 steps:
-- id: step1
+- id: step_5g_setter_roundtrip
   action: exec
   target: DUT
-  command: 1. Enable WDS ubus-cli WiFi.AccessPoint.*.WDSEnable=1 > WiFi.AccessPoint.*.WDSEnable=1 WiFi.AccessPoint.1.WDSEnable=1
-    WiFi.AccessPoint.3.WDSEnable=1 WiFi.AccessPoint.5.WDSEnable=1 ubus-cli WiFi.AccessPoint.? | grep .WDSEnable WiFi.AccessPoint.1.WDSEnable=1
-    WiFi.AccessPoint.3.WDSEnable=1 WiFi.AccessPoint.5.WDSEnable=1
-- id: step2
+  command: 'echo "Baseline5g=$(ubus-cli ''WiFi.AccessPoint.1.WDSEnable?'' 2>/dev/null | grep -o ''WDSEnable=[0-9]*'' | cut
+    -d= -f2)"
+
+    echo "DriverBaseline5g=$(wl -i wl0 dwds 2>/dev/null)"
+
+    ubus-cli WiFi.AccessPoint.1.WDSEnable=1
+
+    sleep 15
+
+    echo "AfterSet5g=$(ubus-cli ''WiFi.AccessPoint.1.WDSEnable?'' 2>/dev/null | grep -o ''WDSEnable=[0-9]*'' | cut -d= -f2)"
+
+    echo "DriverAfterSet5g=$(wl -i wl0 dwds 2>/dev/null)"
+
+    ubus-cli WiFi.AccessPoint.1.WDSEnable=0
+
+    sleep 15
+
+    echo "AfterRestore5g=$(ubus-cli ''WiFi.AccessPoint.1.WDSEnable?'' 2>/dev/null | grep -o ''WDSEnable=[0-9]*'' | cut -d=
+    -f2)"
+
+    echo "DriverAfterRestore5g=$(wl -i wl0 dwds 2>/dev/null)"
+
+    '
+  capture: wds_5g
+- id: step_6g_setter_roundtrip
   action: exec
   target: DUT
-  command: Connect WiFi Station to GW
-  depends_on: step1
-- id: step3
+  command: 'echo "Baseline6g=$(ubus-cli ''WiFi.AccessPoint.3.WDSEnable?'' 2>/dev/null | grep -o ''WDSEnable=[0-9]*'' | cut
+    -d= -f2)"
+
+    echo "DriverBaseline6g=$(wl -i wl1 dwds 2>/dev/null)"
+
+    ubus-cli WiFi.AccessPoint.3.WDSEnable=1
+
+    sleep 15
+
+    echo "AfterSet6g=$(ubus-cli ''WiFi.AccessPoint.3.WDSEnable?'' 2>/dev/null | grep -o ''WDSEnable=[0-9]*'' | cut -d= -f2)"
+
+    echo "DriverAfterSet6g=$(wl -i wl1 dwds 2>/dev/null)"
+
+    ubus-cli WiFi.AccessPoint.3.WDSEnable=0
+
+    sleep 15
+
+    echo "AfterRestore6g=$(ubus-cli ''WiFi.AccessPoint.3.WDSEnable?'' 2>/dev/null | grep -o ''WDSEnable=[0-9]*'' | cut -d=
+    -f2)"
+
+    echo "DriverAfterRestore6g=$(wl -i wl1 dwds 2>/dev/null)"
+
+    '
+  capture: wds_6g
+  depends_on: step_5g_setter_roundtrip
+- id: step_24g_setter_roundtrip
   action: exec
   target: DUT
-  command: Station try to send traffic or access internet --> As Per RD "the behavior seems the same as BRCM DWDS, sta could
-    connect, but cannot tranmit data." --> verified and found the behavior is the same as BRCM DWDS mentioned by RD
-  depends_on: step2
-  capture: result
+  command: 'echo "Baseline24g=$(ubus-cli ''WiFi.AccessPoint.5.WDSEnable?'' 2>/dev/null | grep -o ''WDSEnable=[0-9]*'' | cut
+    -d= -f2)"
+
+    echo "DriverBaseline24g=$(wl -i wl2 dwds 2>/dev/null)"
+
+    ubus-cli WiFi.AccessPoint.5.WDSEnable=1
+
+    sleep 15
+
+    echo "AfterSet24g=$(ubus-cli ''WiFi.AccessPoint.5.WDSEnable?'' 2>/dev/null | grep -o ''WDSEnable=[0-9]*'' | cut -d= -f2)"
+
+    echo "DriverAfterSet24g=$(wl -i wl2 dwds 2>/dev/null)"
+
+    ubus-cli WiFi.AccessPoint.5.WDSEnable=0
+
+    sleep 15
+
+    echo "AfterRestore24g=$(ubus-cli ''WiFi.AccessPoint.5.WDSEnable?'' 2>/dev/null | grep -o ''WDSEnable=[0-9]*'' | cut -d=
+    -f2)"
+
+    echo "DriverAfterRestore24g=$(wl -i wl2 dwds 2>/dev/null)"
+
+    '
+  capture: wds_24g
+  depends_on: step_6g_setter_roundtrip
 pass_criteria:
-- field: result.WDSEnable
-  operator: contains
+- field: wds_5g.Baseline5g
+  operator: equals
   value: '0'
-  description: WDSEnable 應回傳包含 WDSEnable=0
-verification_command: 'wl -i wl0 dwds
+  description: 5G baseline WDSEnable=0
+- field: wds_5g.DriverBaseline5g
+  operator: equals
+  value: '0'
+  description: 5G baseline driver dwds=0
+- field: wds_5g.AfterSet5g
+  operator: equals
+  value: '1'
+  description: 5G setter round-trip WDSEnable=1
+- field: wds_5g.DriverAfterSet5g
+  operator: equals
+  value: '1'
+  description: 5G driver dwds=1 after set
+- field: wds_5g.AfterRestore5g
+  operator: equals
+  value: '0'
+  description: 5G restore WDSEnable=0
+- field: wds_5g.DriverAfterRestore5g
+  operator: equals
+  value: '0'
+  description: 5G driver dwds=0 after restore
+- field: wds_6g.Baseline6g
+  operator: equals
+  value: '0'
+  description: 6G baseline WDSEnable=0
+- field: wds_6g.DriverBaseline6g
+  operator: equals
+  value: '0'
+  description: 6G baseline driver dwds=0
+- field: wds_6g.AfterSet6g
+  operator: equals
+  value: '1'
+  description: 6G setter round-trip WDSEnable=1
+- field: wds_6g.DriverAfterSet6g
+  operator: equals
+  value: '1'
+  description: 6G driver dwds=1 after set
+- field: wds_6g.AfterRestore6g
+  operator: equals
+  value: '0'
+  description: 6G restore WDSEnable=0
+- field: wds_6g.DriverAfterRestore6g
+  operator: equals
+  value: '0'
+  description: 6G driver dwds=0 after restore
+- field: wds_24g.Baseline24g
+  operator: equals
+  value: '0'
+  description: 2.4G baseline WDSEnable=0
+- field: wds_24g.DriverBaseline24g
+  operator: equals
+  value: '0'
+  description: 2.4G baseline driver dwds=0
+- field: wds_24g.AfterSet24g
+  operator: equals
+  value: '1'
+  description: 2.4G setter round-trip WDSEnable=1
+- field: wds_24g.DriverAfterSet24g
+  operator: equals
+  value: '1'
+  description: 2.4G driver dwds=1 after set
+- field: wds_24g.AfterRestore24g
+  operator: equals
+  value: '0'
+  description: 2.4G restore WDSEnable=0
+- field: wds_24g.DriverAfterRestore24g
+  operator: equals
+  value: '0'
+  description: 2.4G driver dwds=0 after restore
+verification_command: 'wl -i wl0 dwds   # 5G driver WDS flag
 
+  wl -i wl1 dwds   # 6G driver WDS flag
 
-  root@prplOS:/# wl -i wl0 dwds
+  wl -i wl2 dwds   # 2.4G driver WDS flag
 
-  1
-
-  root@prplOS:/# wl -i wl1 dwds
-
-  1
-
-  root@prplOS:/# wl -i wl2 dwds
-
-  1'
+  '
 results_reference:
-  v4.0.1:
-    5g: Pass
-    6g: Pass
-    2.4g: Pass
-    comment: 'ARC: BRCM DWDS behavior is not match pure WDS
-
-      ---
-
-
-      It support WDS? I try to set Access Point to WDS mode and the regular WiFi station can still connect
-
-
-      A radio set to pure WDS mode is intended to link only with another WDS peer (another AP), not with regular Wi-Fi clients.
-
-
-      A normal Wi-Fi client (STA) does not understand the 4-address frames used in WDS.'
   v4.0.3:
     5g: Pass
     6g: Pass
     2.4g: Pass
-    comment: ''
+    comment: 'All 3 bands: setter WDSEnable=1 accepted, getter reads 1, driver dwds=1; restore WDSEnable=0 returns to baseline
+      0/dwds=0. BSS restart noise (wds0.x.1, dhd_flow_rings) is expected during toggle.'
