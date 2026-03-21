@@ -14198,6 +14198,16 @@ _METHOD_STATS_CASES = [
     ("D267_getradiostats_bytesreceived.yaml", 267, "getRadioStats", "BytesReceived", "185053", "0", "0"),
     ("D268_getradiostats_bytessent.yaml", 268, "getRadioStats", "BytesSent", "573376410", "383599818", "383764788"),
     ("D269_getradiostats_discardpacketsreceived.yaml", 269, "getRadioStats", "DiscardPacketsReceived", "784", "175", "183"),
+    # --- Batch 3: D270-D278 remaining getRadioStats fields ---
+    ("D270_getradiostats_discardpacketssent.yaml", 270, "getRadioStats", "DiscardPacketsSent", "0", "0", "0"),
+    ("D271_getradiostats_errorsreceive.yaml", 271, "getRadioStats", "ErrorsReceived", "20", "8", "13"),
+    ("D272_getradiostats_errorssent.yaml", 272, "getRadioStats", "ErrorsSent", "0", "0", "0"),
+    ("D273_getradiostats_multicastpacketsreceived.yaml", 273, "getRadioStats", "MulticastPacketsReceived", "4", "0", "0"),
+    ("D274_getradiostats_multicastpacketssent.yaml", 274, "getRadioStats", "MulticastPacketsSent", "628763", "824904", "567311"),
+    ("D275_getradiostats_packetsreceived.yaml", 275, "getRadioStats", "PacketsReceived", "264", "0", "0"),
+    ("D276_getradiostats_packetssent.yaml", 276, "getRadioStats", "PacketsSent", "1040842", "824935", "825369"),
+    ("D277_getradiostats_unicastpacketsreceived.yaml", 277, "getRadioStats", "UnicastPacketsReceived", "1673", "0", "0"),
+    ("D278_getradiostats_unicastpacketssent.yaml", 278, "getRadioStats", "UnicastPacketsSent", "1040842", "824935", "825369"),
 ]
 
 _METHOD_IDS = [t[0].split(".")[0] for t in _METHOD_STATS_CASES]
@@ -14290,7 +14300,79 @@ def test_d264_void_evaluate():
         }
     assert plugin.evaluate(case, results) is True
 
-def test_d185_tpcmode_contract():
+
+# --- Batch 3: getScanResults field cases (D279-D292) ---
+
+_SCAN_RESULTS_CASES = [
+    # (yaml_file, row, field)
+    ("D279_getscanresults_bandwidth.yaml", 279, "Bandwidth"),
+    ("D280_getscanresults_bssid.yaml", 280, "BSSID"),
+    ("D281_getscanresults_channel.yaml", 281, "Channel"),
+    ("D282_getscanresults_encryptionmode.yaml", 282, "EncryptionMode"),
+    ("D283_getscanresults_noise.yaml", 283, "Noise"),
+    ("D284_getscanresults_operatingstandards.yaml", 284, "OperatingStandards"),
+    ("D285_getscanresults_rssi.yaml", 285, "RSSI"),
+    ("D286_getscanresults_securitymodeenabled.yaml", 286, "SecurityModeEnabled"),
+    ("D287_getscanresults_signalnoiseratio.yaml", 287, "SignalNoiseRatio"),
+    ("D288_getscanresults_signalstrength.yaml", 288, "SignalStrength"),
+    ("D289_getscanresults_ssid.yaml", 289, "SSID"),
+    ("D290_getscanresults_wpsconfigmethodssupported.yaml", 290, "WPSConfigMethodsSupported"),
+    ("D291_getscanresults_radio.yaml", 291, "Radio"),
+    ("D292_getscanresults_centrechannel.yaml", 292, "CentreChannel"),
+]
+
+_SCAN_IDS = [t[0].split(".")[0] for t in _SCAN_RESULTS_CASES]
+
+
+@pytest.mark.parametrize("yaml_file,row,field", _SCAN_RESULTS_CASES, ids=_SCAN_IDS)
+def test_scan_results_contract(yaml_file, row, field):
+    """getScanResults YAML loads with correct 3-band structure."""
+    cases_dir = Path(__file__).resolve().parent.parent / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / yaml_file)
+    assert case["source"]["row"] == row
+    assert case["llapi_support"] == "Support"
+    assert len(case["steps"]) == 3
+    assert len(case["pass_criteria"]) == 3
+    assert case["bands"] == ["5g", "6g", "2.4g"]
+
+
+@pytest.mark.parametrize("yaml_file,row,field", _SCAN_RESULTS_CASES, ids=_SCAN_IDS)
+def test_scan_results_setup_env(yaml_file, row, field, monkeypatch):
+    """getScanResults is DUT-only; setup_env succeeds without STA."""
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / yaml_file)
+    topo = _FakeTopology()
+    recorder = _FactoryRecorder()
+    _install_fake_factory(monkeypatch, recorder)
+    assert plugin.setup_env(case, topology=topo) is True
+    plugin.teardown(case, topo)
+
+
+@pytest.mark.parametrize("yaml_file,row,field", _SCAN_RESULTS_CASES, ids=_SCAN_IDS)
+def test_scan_results_evaluate(yaml_file, row, field):
+    """getScanResults evaluate passes with live-shaped scan array output."""
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parent.parent / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / yaml_file)
+    val = "-42" if field in ("Noise", "RSSI", "SignalStrength") else "TestVal"
+    if field == "WPSConfigMethodsSupported":
+        val = ""
+    results = {"steps": {}}
+    for r, band in [("1", "5g"), ("2", "6g"), ("3", "24g")]:
+        output = (
+            f"WiFi.Radio.{r}.getScanResults() returned\n"
+            f"[\n    [\n        {{\n"
+            f"            {field} = {val},\n"
+            f"        }}\n    ]\n]"
+        )
+        results["steps"][f"step_{band}_scan"] = {
+            "success": True, "output": output, "timing": 0.01,
+        }
+    assert plugin.evaluate(case, results) is True
+
+
+
     """D185 TPCMode YAML loads as fail-shaped 5G-only case."""
     cases_dir = Path(__file__).resolve().parent.parent / "plugins" / "wifi_llapi" / "cases"
     case = load_case(cases_dir / "D185_tpcmode.yaml")
