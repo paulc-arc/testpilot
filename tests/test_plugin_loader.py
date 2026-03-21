@@ -32,7 +32,7 @@ def test_discover_cases():
     assert len(cases) >= 2
     ids = [c["id"] for c in cases]
     assert "wifi-llapi-D011-associationtime" in ids
-    assert "wifi-llapi-D265-getradiostats-broadcastpacketsreceived" in ids
+    assert "d265-getradiostats-broadcastpacketsreceived" in ids
     assert "wifi-llapi-legacy-fixture-kickstation" not in ids
     assert "wifi-llapi-legacy-fixture-getradiostats" not in ids
 

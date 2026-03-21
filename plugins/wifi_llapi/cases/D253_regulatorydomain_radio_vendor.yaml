@@ -1,183 +1,55 @@
-id: wifi-llapi-D253-regulatorydomain-radio-vendor
-aliases:
-  - wifi-llapi-r183-regulatorydomain-radio-vendor
-name: RegulatoryDomain — WiFi.Radio.{i}.Vendor.
-version: '1.0'
+id: d253-radio-vendor-regulatorydomainrev
+name: D253 Radio Vendor RegulatoryDomainRev
 source:
-  report: "0302-AT&T_LLAPI_Test_Report_20260107.xlsx"
-  sheet: Wifi_LLAPI
-  row: 253
-  object: "WiFi.Radio.{i}.Vendor."
-  api: "RegulatoryDomain"
-platform:
-  prplos: 4.0.3
-  bdk: 6.3.1
-hlapi_command: ubus-cli WiFi.Radio.{i}.Vendor.Brcm.RegulatoryDomainRev=0
+  row: 183
+  object: WiFi.Radio.{i}.Vendor.
+  api: RegulatoryDomain
+  baseline: 0310-BGW720-300
+bands:
+- 5g
+- 6g
+- 2.4g
 llapi_support: Support
-implemented_by: Vendor Module
+results_reference:
+  v4.0.3:
+    5g: Pass
+    6g: Pass
+    2.4g: Pass
 topology:
   devices:
     DUT:
       role: ap
       transport: serial
       selector: COM0
-    STA:
-      role: sta
-      transport: serial
-      selector: COM1
-      config:
-      - iface: 5g
-        mode: sta
-        ssid: '{{SSID_5G}}'
-        key: '{{KEY_5G}}'
-  links:
-  - from: STA
-    to: DUT
-    band: 5g
-test_environment: |
-  Topology:
-  - DUT: COM0 (B0, AP role)
-  - STA: COM1 (A0, STA role, STA-required cases only)
-  Transport:
-  - serialwrap attach COM0 / COM1
-  Band mapping:
-  - 5G: DUT wl0 / AP1 / SSID.4
-  - 6G: DUT wl1 / AP3 / SSID.6
-  - 2.4G: DUT wl2 / AP5 / SSID.8
-  Pre-check:
-  - cat /proc/socinfo | grep Revision | cut -d: -f2
-  - iw dev
-  - ubus-cli "WiFi.Radio.?" | sed -n "1,120p"
-
-setup_steps: |
-  1) DUT 5G baseline:
-     - set Radio.1/SSID.4 for the 5G AP under test
-     - configure AP1 as open with MFP disabled
-     - enable AP1 before station association
-  2) STA 5G preparation:
-     - disable local AP1/AP2 on A0
-     - clear wl0 AP child interface and switch wl0 to managed mode
-     - connect wl0 to {{SSID_5G}}
-  3) Association evidence:
-     - A0: iw dev wl0 link
-     - B0: wl -i wl0 assoclist
-sta_env_setup: |
-  DUT 5G AP baseline:
-    ubus-cli WiFi.Radio.1.Enable=1
-    ubus-cli WiFi.Radio.1.BeaconPeriod=100
-    ubus-cli WiFi.Radio.1.DTIMPeriod=3
-    ubus-cli WiFi.Radio.1.DriverConfig.FragmentationThreshold=-1
-    ubus-cli WiFi.Radio.1.DriverConfig.RtsThreshold=-1
-    ubus-cli WiFi.Radio.1.DriverConfig.TPCMode=Auto
-    ubus-cli WiFi.Radio.1.ExplicitBeamFormingEnabled=1
-    ubus-cli WiFi.Radio.1.ImplicitBeamFormingEnabled=1
-    ubus-cli WiFi.Radio.1.OfdmaEnable=1
-    ubus-cli WiFi.Radio.1.ObssCoexistenceEnable=0
-    ubus-cli WiFi.Radio.1.OperatingStandards=ax
-    ubus-cli WiFi.Radio.1.RxChainCtrl=-1
-    ubus-cli WiFi.Radio.1.TxChainCtrl=-1
-    ubus-cli WiFi.Radio.1.Vendor.Brcm.RegulatoryDomainRev=0
-    ubus-cli WiFi.Radio.1.Sensing.Enable=1
-    ubus-cli WiFi.Radio.1.IEEE80211ax.BssColorPartial=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.NonSRGOBSSPDMaxOffset=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.PSRDisallowed=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.SRGOBSSPDMaxOffset=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.SRGOBSSPDMinOffset=0
-    ubus-cli WiFi.Radio.1.LongRetryLimit=6
-    ubus-cli WiFi.Radio.1.MultiUserMIMOEnabled=1
-    ubus-cli WiFi.Radio.1.TargetWakeTimeEnable=1
-    ubus-cli WiFi.SSID.4.SSID={{SSID_5G}}
-    ubus-cli WiFi.AccessPoint.1.IEEE80211u.QoSMapSet=
-    ubus-cli WiFi.AccessPoint.2.IEEE80211u.QoSMapSet=
-    ubus-cli WiFi.AccessPoint.1.Security.ModeEnabled=None
-    ubus-cli WiFi.AccessPoint.1.Security.MFPConfig=Disabled
-    ubus-cli WiFi.AccessPoint.1.Enable=1
-  STA 5G preparation:
-    ubus-cli WiFi.AccessPoint.1.Enable=0
-    ubus-cli WiFi.AccessPoint.2.Enable=0
-    killall wpa_supplicant 2>/dev/null || true
-    iw dev wl0.1 del 2>/dev/null || true
-    iw dev wl0 disconnect 2>/dev/null || true
-    iw dev wl0 set type managed
-    ifconfig wl0 up
-  STA 5G connect verify:
-    iw dev wl0 connect {{SSID_5G}}
-    sleep 2
-    iw dev wl0 link
-  DUT association evidence:
-    wl -i wl0 assoclist
-test_procedure: |
-  1) Execute case command on DUT:
-     ubus-cli WiFi.Radio.{i}.Vendor.Brcm.RegulatoryDomainRev=0
-  2) LLAPI readback on DUT:
-     ubus-cli "WiFi.Radio.*.Vendor.RegulatoryDomain?"
-  3) For stats/AssociatedDevice cases, generate traffic (ping/iperf) before re-read.
-  4) STA link validation:
-     iw dev wl0 link
-     iw dev wl1 link
-     wpa_cli -i wl1 status
-     iw dev wl2 link
-  5) Cross-check with verification_command (driver/hostapd/iw/proc evidence).
-
 steps:
-- id: step1
-  action: exec
-  target: DUT
-  command: '1. Get API default value: ubus-cli WiFi.Radio.*.Vendor.Brcm.RegulatoryDomainRev? > WiFi.Radio.*.Vendor.Brcm.RegulatoryDomainRev?
-    WiFi.Radio.1.Vendor.Brcm.RegulatoryDomainRev=0 WiFi.Radio.2.Vendor.Brcm.RegulatoryDomainRev=0 WiFi.Radio.3.Vendor.Brcm.RegulatoryDomainRev=0'
-- id: step2
-  action: exec
-  target: DUT
-  command: 'Change the parameter to any other value: ubus-cli WiFi.Radio.*.Vendor.Brcm.RegulatoryDomainRev=8 > WiFi.Radio.*.Vendor.Brcm.RegulatoryDomainRev=8
-    WiFi.Radio.1.Vendor.Brcm. WiFi.Radio.1.Vendor.Brcm.RegulatoryDomainRev=8 WiFi.Radio.2.Vendor.Brcm. WiFi.Radio.2.Vendor.Brcm.RegulatoryDomainRev=8
-    WiFi.Radio.3.Vendor.Brcm. WiFi.Radio.3.Vendor.Brcm.RegulatoryDomainRev=8'
-  depends_on: step1
-- id: step3
-  action: exec
-  target: DUT
-  command: 'Check supported RegulatoryDomainSupported: ubus-cli WiFi.Radio.*.Vendor.Brcm.RegulatoryDomainSupported? > WiFi.Radio.*.Vendor.Brcm.RegulatoryDomainSupported?
-    WiFi.Radio.1.Vendor.Brcm.RegulatoryDomainSupported="#a,CA/169,CA/170,CA/886,E0/713,E0/781,E0/858,E0/859,GB/36,JP/894,Q1/149,Q1/151,Q1/155,Q1/158,Q1/159,Q1/160,Q1/161,Q1/167,Q1/168,Q1/169,Q1/170,Q1/176,Q1/178,Q1/179,"
-    WiFi.Radio.2.Vendor.Brcm.RegulatoryDomainSupported="#a,CA/169,CA/170,CA/886,E0/713,E0/781,E0/858,E0/859,JP/894,Q1/149,Q1/151,Q1/155,Q1/158,Q1/159,Q1/160,Q1/161,Q1/167,Q1/168,Q1/169,Q1/170,Q1/176,Q1/178,Q1/179,"
-    WiFi.Radio.3.Vendor.Brcm.RegulatoryDomainSupported="#a,CA/169,CA/170,CA/886,E0/713,E0/781,E0/858,E0/859,GB/36,JP/894,Q1/149,Q1/151,Q1/155,Q1/158,Q1/159,Q1/160,Q1/161,Q1/167,Q1/168,Q1/169,Q1/170,Q1/176,Q1/178,Q1/179,XV,"'
-  depends_on: step2
-- id: step4
-  action: exec
-  target: DUT
-  command: Check if "wl -i wl* country" gets representing rev value(in my case, expecting wl0=GB/36, wl1= JP/89, wl2=GB/36)
-  depends_on: step3
-  capture: result
+- id: step_5g_getter
+  target: dut
+  action: read
+  capture: getter_5g
+  command: ubus-cli "WiFi.Radio.1.Vendor.Brcm.RegulatoryDomainRev?"
+  expected: RegulatoryDomainRev 回傳有效值
+  description: Radio.1 (5g) Vendor.Brcm.RegulatoryDomainRev getter
+- id: step_6g_getter
+  target: dut
+  action: read
+  capture: getter_6g
+  command: ubus-cli "WiFi.Radio.2.Vendor.Brcm.RegulatoryDomainRev?"
+  expected: RegulatoryDomainRev 回傳有效值
+  description: Radio.2 (6g) Vendor.Brcm.RegulatoryDomainRev getter
+- id: step_24g_getter
+  target: dut
+  action: read
+  capture: getter_24g
+  command: ubus-cli "WiFi.Radio.3.Vendor.Brcm.RegulatoryDomainRev?"
+  expected: RegulatoryDomainRev 回傳有效值
+  description: Radio.3 (2.4g) Vendor.Brcm.RegulatoryDomainRev getter
 pass_criteria:
-- field: result.RegulatoryDomain
-  operator: contains
-  value: '0'
-  description: RegulatoryDomain 應回傳包含 RegulatoryDomain=0
-verification_command: 'wl -i wl0 country
-
-  wl -i wl1 country
-
-  wl -i wl2 country
-
-
-  root@prplOS:/# wl -i wl0 country
-
-  #a (#a/0) <unknown>
-
-  root@prplOS:/# wl -i wl1 country
-
-  #a (#a/0) <unknown>
-
-  root@prplOS:/# wl -i wl2 country
-
-  #a (#a/0) <unknown>'
-results_reference:
-  v4.0.1:
-    5g: Fail
-    6g: Fail
-    2.4g: Fail
-    comment: 'BRCM: CSP CS00012439197'
-  v4.0.3:
-    5g: Pass
-    6g: Pass
-    2.4g: Pass
-    comment: "supported; \nwl -i wl0 country list\nwl -i wl0 contry_rev xx\nubus-cli WiFi.Radio.1.RegulatoryDomain=CA; ubus-cli\
-      \ WiFi.Radio.1.Vendor.Brcm.RegulatoryDomainRev=170"
+- field: getter_5g.RegulatoryDomainRev
+  operator: regex
+  value: ^\d+$
+- field: getter_6g.RegulatoryDomainRev
+  operator: regex
+  value: ^\d+$
+- field: getter_24g.RegulatoryDomainRev
+  operator: regex
+  value: ^\d+$

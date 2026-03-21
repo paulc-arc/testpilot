@@ -712,6 +712,9 @@ class Plugin(PluginBase):
                 continue
             key, value = match.groups()
             normalized = value.strip().strip("'\"")
+            # Strip trailing ubus object/array delimiters left by
+            # method-call outputs like getRadioAirStats() / getRadioStats().
+            normalized = re.sub(r"[,}\]]+$", "", normalized).strip()
             if normalized or value.strip() in {"", '""', "''"}:
                 captured[key] = normalized
 
@@ -1707,6 +1710,13 @@ class Plugin(PluginBase):
             reference = str(criterion.get("reference", "")).strip()
 
             actual = self._resolve_field(context, field) if field else None
+            # Unwrap step context: when field resolves to a step_context dict
+            # with a single captured value, use that value directly so regex /
+            # equals criteria match the extracted data rather than the whole dict.
+            if isinstance(actual, dict) and "captured" in actual and "output" in actual:
+                captured = actual.get("captured")
+                if isinstance(captured, dict) and len(captured) == 1:
+                    actual = next(iter(captured.values()))
             if actual is None:
                 log.warning("[%s] evaluate: field not found (%s), fallback aggregate output", self.name, field)
                 actual = self._field_fallback_output(aggregate_output, field)

@@ -14107,6 +14107,15 @@ _RADIO_GETTER_CASES = [
     ("D214_possiblechannels.yaml", 173, "36,40,44,48", "1,5,9,13", "1,2,3,4", "WiFi.Radio.{r}.PossibleChannels"),
     ("D215_regulatorydomain_radio.yaml", 174, "#a", "#a", "#a", "WiFi.Radio.{r}.RegulatoryDomain"),
     ("D216_rifsenabled.yaml", 175, "Default", "Default", "Default", "WiFi.Radio.{r}.RIFSEnabled"),
+    # --- Batch 2: D217, D247-D253 Radio getters ---
+    ("D217_rxchainctrl.yaml", 176, "-1", "-1", "-1", "WiFi.Radio.{r}.RxChainCtrl"),
+    ("D247_supportedfrequencybands.yaml", 177, "5GHz", "6GHz", "2.4GHz", "WiFi.Radio.{r}.SupportedFrequencyBands"),
+    ("D248_supportedstandards.yaml", 178, "a,n,an,ac,ax,be", "ax,be", "b,g,n,bg,gn,bgn,ax,be", "WiFi.Radio.{r}.SupportedStandards"),
+    ("D249_targetwaketimeenable.yaml", 179, "1", "1", "1", "WiFi.Radio.{r}.TargetWakeTimeEnable"),
+    ("D250_transmitpower.yaml", 180, "-1", "-1", "-1", "WiFi.Radio.{r}.TransmitPower"),
+    ("D251_transmitpowersupported.yaml", 181, "1,2,3,100,-1", "1,2,3,100,-1", "1,2,3,100,-1", "WiFi.Radio.{r}.TransmitPowerSupported"),
+    ("D252_txchainctrl.yaml", 182, "-1", "-1", "-1", "WiFi.Radio.{r}.TxChainCtrl"),
+    ("D253_regulatorydomain_radio_vendor.yaml", 183, "0", "0", "0", "WiFi.Radio.{r}.Vendor.Brcm.RegulatoryDomainRev"),
 ]
 
 _RADIO_IDS = [t[0].split(".")[0] for t in _RADIO_GETTER_CASES]
@@ -14172,7 +14181,114 @@ def test_radio_getter_evaluate(yaml_file, row, live_5g, live_6g, live_24g, path_
     assert plugin.evaluate(case, results) is True
 
 
-# --- D185 TPCMode (fail-shaped 5G-only setter mismatch) ---
+# --- Batch 2: Method-call stats cases (D258-D269) ---
+
+_METHOD_STATS_CASES = [
+    # (yaml_file, row, method, field, live_5g, live_6g, live_24g)
+    # getRadioAirStats field cases — workbook Fail
+    ("D258_getradioairstats_freetime.yaml", 258, "getRadioAirStats", "FreeTime", "0", "10", "3851"),
+    ("D259_getradioairstats_load.yaml", 259, "getRadioAirStats", "Load", "100", "61", "100"),
+    ("D260_getradioairstats_noise.yaml", 260, "getRadioAirStats", "Noise", "-100", "-97", "-79"),
+    ("D261_getradioairstats_rxtime.yaml", 261, "getRadioAirStats", "RxTime", "0", "0", "0"),
+    ("D262_getradioairstats_totaltime.yaml", 262, "getRadioAirStats", "TotalTime", "3", "26", "17"),
+    ("D263_getradioairstats_txtime.yaml", 263, "getRadioAirStats", "TxTime", "0", "0", "3851"),
+    # getRadioStats field cases — workbook Pass
+    ("D265_getradiostats_broadcastpacketsreceived.yaml", 265, "getRadioStats", "BroadcastPacketsReceived", "0", "0", "0"),
+    ("D266_getradiostats_broadcastpacketssent.yaml", 266, "getRadioStats", "BroadcastPacketsSent", "0", "0", "0"),
+    ("D267_getradiostats_bytesreceived.yaml", 267, "getRadioStats", "BytesReceived", "185053", "0", "0"),
+    ("D268_getradiostats_bytessent.yaml", 268, "getRadioStats", "BytesSent", "573376410", "383599818", "383764788"),
+    ("D269_getradiostats_discardpacketsreceived.yaml", 269, "getRadioStats", "DiscardPacketsReceived", "784", "175", "183"),
+]
+
+_METHOD_IDS = [t[0].split(".")[0] for t in _METHOD_STATS_CASES]
+
+
+@pytest.mark.parametrize(
+    "yaml_file,row,method,field,live_5g,live_6g,live_24g",
+    _METHOD_STATS_CASES,
+    ids=_METHOD_IDS,
+)
+def test_method_stats_contract(yaml_file, row, method, field, live_5g, live_6g, live_24g):
+    """Method-call stats YAML loads with correct 3-band structure."""
+    cases_dir = Path(__file__).resolve().parent.parent / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / yaml_file)
+    assert case["source"]["row"] == row
+    assert case["llapi_support"] == "Support"
+    assert len(case["steps"]) == 3
+    assert len(case["pass_criteria"]) == 3
+    assert case["bands"] == ["5g", "6g", "2.4g"]
+
+
+@pytest.mark.parametrize(
+    "yaml_file,row,method,field,live_5g,live_6g,live_24g",
+    _METHOD_STATS_CASES,
+    ids=_METHOD_IDS,
+)
+def test_method_stats_setup_env(yaml_file, row, method, field, live_5g, live_6g, live_24g, monkeypatch):
+    """Method-call stats is DUT-only; setup_env succeeds without STA."""
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / yaml_file)
+    topo = _FakeTopology()
+    recorder = _FactoryRecorder()
+    _install_fake_factory(monkeypatch, recorder)
+    assert plugin.setup_env(case, topology=topo) is True
+    plugin.teardown(case, topo)
+
+
+@pytest.mark.parametrize(
+    "yaml_file,row,method,field,live_5g,live_6g,live_24g",
+    _METHOD_STATS_CASES,
+    ids=_METHOD_IDS,
+)
+def test_method_stats_evaluate(yaml_file, row, method, field, live_5g, live_6g, live_24g):
+    """Method-call stats evaluate passes with live-shaped ubus array output."""
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parent.parent / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / yaml_file)
+    results = {"steps": {}}
+    for r, band, val in [("1", "5g", live_5g), ("2", "6g", live_6g), ("3", "24g", live_24g)]:
+        output = (
+            f"WiFi.Radio.{r}.{method}() [\n"
+            f"    {{\n"
+            f"        {field} = {val},\n"
+            f"    }}\n"
+            f"]"
+        )
+        results["steps"][f"step_{band}_stats"] = {
+            "success": True, "output": output, "timing": 0.01,
+        }
+    assert plugin.evaluate(case, results) is True
+
+
+# --- D264 getRadioAirStats():void ---
+
+def test_d264_void_contract():
+    """D264 getRadioAirStats Void YAML loads with correct 3-band structure."""
+    cases_dir = Path(__file__).resolve().parent.parent / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / "D264_getradioairstats_void.yaml")
+    assert case["source"]["row"] == 264
+    assert len(case["steps"]) == 3
+    assert len(case["pass_criteria"]) == 3
+    for pc in case["pass_criteria"]:
+        assert pc["operator"] == "not_contains"
+
+
+def test_d264_void_evaluate():
+    """D264 void evaluate passes when output has no error."""
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parent.parent / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / "D264_getradioairstats_void.yaml")
+    results = {"steps": {}}
+    for r, band in [("1", "5g"), ("2", "6g"), ("3", "24g")]:
+        output = (
+            f"WiFi.Radio.{r}.getRadioAirStats() returned\n"
+            f"[\n    {{\n        FreeTime = 0,\n    }}\n]"
+        )
+        results["steps"][f"step_{band}_stats"] = {
+            "success": True, "output": output, "timing": 0.01,
+        }
+    assert plugin.evaluate(case, results) is True
 
 def test_d185_tpcmode_contract():
     """D185 TPCMode YAML loads as fail-shaped 5G-only case."""
