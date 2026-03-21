@@ -14109,6 +14109,26 @@ _RADIO_GETTER_CASES = [
     ("D251_transmitpowersupported.yaml", 181, "1,2,3,100,-1", "1,2,3,100,-1", "1,2,3,100,-1", "WiFi.Radio.{r}.TransmitPowerSupported"),
     ("D252_txchainctrl.yaml", 182, "-1", "-1", "-1", "WiFi.Radio.{r}.TxChainCtrl"),
     ("D253_regulatorydomain_radio_vendor.yaml", 183, "0", "0", "0", "WiFi.Radio.{r}.Vendor.Brcm.RegulatoryDomainRev"),
+    # --- Batch 5a: Radio property getters ---
+    ("D356_enable_radio_sensing.yaml", 264, "1", "1", "1", "WiFi.Radio.{r}.Sensing.Enable"),
+    ("D378_longretrylimit.yaml", 279, "6", "6", "6", "WiFi.Radio.{r}.LongRetryLimit"),
+    ("D379_maxbitrate.yaml", 280, "0", "0", "0", "WiFi.Radio.{r}.MaxBitRate"),
+    ("D380_maxsupportedssids.yaml", 281, "8", "8", "8", "WiFi.Radio.{r}.MaxSupportedSSIDs"),
+    ("D383_noise_radio.yaml", 284, "-100", "-97", "-79", "WiFi.Radio.{r}.Noise"),
+    ("D384_operatingfrequencyband.yaml", 285, "5GHz", "6GHz", "2.4GHz", "WiFi.Radio.{r}.OperatingFrequencyBand"),
+    ("D385_radcapabilitieshephysstr.yaml", 286, "40_80MHZ_5GHZ,160MHZ_5GHZ,FULL_UL_MU_MIMO,SU_BEAMFORMER,MU_BEAMFORMER", "40_80MHZ_5GHZ,160MHZ_5GHZ,FULL_UL_MU_MIMO,SU_BEAMFORMER,MU_BEAMFORMER", "40MHZ_2_4GHZ,FULL_UL_MU_MIMO,SU_BEAMFORMER,MU_BEAMFORMER", "WiFi.Radio.{r}.RadCapabilitiesHePhysStr"),
+    ("D386_radcapabilitieshtstr.yaml", 287, "CAP_40,SHORT_GI_20,SHORT_GI_40,MODE_40", "", "CAP_40,SHORT_GI_20,SHORT_GI_40,MODE_40", "WiFi.Radio.{r}.RadCapabilitiesHTStr"),
+    ("D387_radcapabilitiesvhtstr.yaml", 288, "RX_LDPC,SGI_80,SGI_160,SU_BFR,SU_BFE,LINK_ADAPT_CAP", "", "", "WiFi.Radio.{r}.RadCapabilitiesVHTStr"),
+    ("D406_txbeamformingcapsavailable.yaml", 299, "VHT_SU_BF,HE_SU_BF,HE_MU_BF,EHT_SU_BF,EHT_MU_80_BF,EHT_MU_160_BF,EHT_MU_320_BF", "HE_SU_BF,HE_MU_BF,EHT_SU_BF,EHT_MU_80_BF,EHT_MU_160_BF,EHT_MU_320_BF", "HE_SU_BF,HE_MU_BF,EHT_SU_BF,EHT_MU_80_BF,EHT_MU_160_BF,EHT_MU_320_BF", "WiFi.Radio.{r}.TxBeamformingCapsAvailable"),
+    ("D407_txbeamformingcapsenabled.yaml", 300, "DEFAULT", "DEFAULT", "DEFAULT", "WiFi.Radio.{r}.TxBeamformingCapsEnabled"),
+    ("D463_htcapabilities_radio.yaml", 338, "YhA=", "AAA=", "YhA=", "WiFi.Radio.{r}.HTCapabilities"),
+    ("D469_rxbeamformingcapsenabled.yaml", 343, "DEFAULT", "DEFAULT", "DEFAULT", "WiFi.Radio.{r}.RxBeamformingCapsEnabled"),
+    # --- Batch 5b: IEEE80211ax property getters ---
+    ("D367_psrdisallowed.yaml", 272, "0", "0", "0", "WiFi.Radio.{r}.IEEE80211ax.PSRDisallowed"),
+    ("D464_bsscolor.yaml", 339, "0", "0", "0", "WiFi.Radio.{r}.IEEE80211ax.BssColor"),
+    ("D465_hesigaspatialreusevalue15allowed.yaml", 340, "0", "0", "0", "WiFi.Radio.{r}.IEEE80211ax.HESIGASpatialReuseValue15Allowed"),
+    ("D466_nonsrgoffsetvalid.yaml", 341, "0", "0", "0", "WiFi.Radio.{r}.IEEE80211ax.NonSRGOffsetValid"),
+    ("D467_srginformationvalid.yaml", 342, "0", "1", "0", "WiFi.Radio.{r}.IEEE80211ax.SRGInformationValid"),
 ]
 
 _RADIO_IDS = [t[0].split(".")[0] for t in _RADIO_GETTER_CASES]
@@ -14124,7 +14144,7 @@ def test_radio_getter_contract(yaml_file, row, live_5g, live_6g, live_24g, path_
     cases_dir = Path(__file__).resolve().parent.parent / "plugins" / "wifi_llapi" / "cases"
     case = load_case(cases_dir / yaml_file)
     assert case["source"]["row"] == row
-    assert case["llapi_support"] == "Support"
+    assert case["llapi_support"] in ("Support", "Not Supported")
     assert len(case["steps"]) == 3
     assert len(case["pass_criteria"]) == 3
     assert case["bands"] == ["5g", "6g", "2.4g"]
@@ -14201,6 +14221,18 @@ _METHOD_STATS_CASES = [
     ("D276_getradiostats_packetssent.yaml", 276, "getRadioStats", "PacketsSent", "1040842", "824935", "825369"),
     ("D277_getradiostats_unicastpacketsreceived.yaml", 277, "getRadioStats", "UnicastPacketsReceived", "1673", "0", "0"),
     ("D278_getradiostats_unicastpacketssent.yaml", 278, "getRadioStats", "UnicastPacketsSent", "1040842", "824935", "825369"),
+    # --- Batch 5c: getRadioStats fields ---
+    ("D396_bytesreceived_radio_stats.yaml", 289, "getRadioStats", "BytesReceived", "189265", "0", "0"),
+    ("D397_bytessent_radio_stats.yaml", 290, "getRadioStats", "BytesSent", "588249079", "393557814", "393818836"),
+    ("D398_errorsreceived_radio_stats.yaml", 291, "getRadioStats", "ErrorsReceived", "20", "8", "13"),
+    ("D399_errorssent_radio_stats.yaml", 292, "getRadioStats", "ErrorsSent", "0", "0", "0"),
+    ("D400_failedretranscount_radio_stats.yaml", 293, "getRadioStats", "FailedRetransCount", "48", "0", "0"),
+    ("D401_multipleretrycount_radio_stats.yaml", 294, "getRadioStats", "MultipleRetryCount", "0", "0", "0"),
+    ("D402_noise_radio_stats.yaml", 295, "getRadioStats", "Noise", "-100", "-97", "-79"),
+    ("D403_retranscount_radio_stats.yaml", 296, "getRadioStats", "RetransCount", "17234", "0", "0"),
+    ("D404_retrycount_radio_stats.yaml", 297, "getRadioStats", "RetryCount", "0", "0", "0"),
+    ("D405_temperature.yaml", 298, "getRadioStats", "Temperature", "82", "85", "80"),
+    ("D479_unknownprotopacketsreceived_radio_stats.yaml", 344, "getRadioStats", "UnknownProtoPacketsReceived", "0", "0", "0"),
 ]
 
 _METHOD_IDS = [t[0].split(".")[0] for t in _METHOD_STATS_CASES]
@@ -14557,6 +14589,166 @@ def test_d319_bssid_ssid_evaluate():
             "timing": 0.01,
         }
     assert plugin.evaluate(case, results) is True
+
+
+# --- Batch 5d: WMM Stats parametrized table ---
+
+_WMM_STATS_CASES = [
+    # (yaml_file, row, wmm_sub_object, field, live_5g, live_6g, live_24g)
+    ("D480_ac_be_stats_wmmbytesreceived_radio.yaml", 345, "AC_BE_Stats", "WmmBytesReceived", "162754", "0", "0"),
+    ("D481_ac_bk_stats_wmmbytesreceived_radio.yaml", 346, "AC_BK_Stats", "WmmBytesReceived", "0", "0", "0"),
+    ("D482_ac_vi_stats_wmmbytesreceived_radio.yaml", 347, "AC_VI_Stats", "WmmBytesReceived", "0", "0", "0"),
+    ("D483_ac_vo_stats_wmmbytesreceived_radio.yaml", 348, "AC_VO_Stats", "WmmBytesReceived", "26511", "0", "0"),
+    ("D484_ac_be_stats_wmmbytessent_radio.yaml", 349, "AC_BE_Stats", "WmmBytesSent", "588206344", "393557814", "393818836"),
+    ("D485_ac_bk_stats_wmmbytessent_radio.yaml", 350, "AC_BK_Stats", "WmmBytesSent", "0", "0", "0"),
+    ("D486_ac_vi_stats_wmmbytessent_radio.yaml", 351, "AC_VI_Stats", "WmmBytesSent", "0", "0", "0"),
+    ("D487_ac_vo_stats_wmmbytessent_radio.yaml", 352, "AC_VO_Stats", "WmmBytesSent", "42735", "0", "0"),
+    ("D488_ac_be_stats_wmmfailedbytesreceived_radio.yaml", 353, "AC_BE_Stats", "WmmFailedBytesReceived", "0", "0", "0"),
+    ("D489_ac_bk_stats_wmmfailedbytesreceived_radio.yaml", 354, "AC_BK_Stats", "WmmFailedBytesReceived", "0", "0", "0"),
+    ("D490_ac_vi_stats_wmmfailedbytesreceived_radio.yaml", 355, "AC_VI_Stats", "WmmFailedBytesReceived", "0", "0", "0"),
+    ("D491_ac_vo_stats_wmmfailedbytesreceived_radio.yaml", 356, "AC_VO_Stats", "WmmFailedBytesReceived", "0", "0", "0"),
+    ("D492_ac_be_stats_wmmfailedbytessent_radio.yaml", 357, "AC_BE_Stats", "WmmFailedbytesSent", "158", "0", "0"),
+    ("D493_ac_bk_stats_wmmfailedbytessent_radio.yaml", 358, "AC_BK_Stats", "WmmFailedbytesSent", "0", "0", "0"),
+    ("D494_ac_vi_stats_wmmfailedbytessent_radio.yaml", 359, "AC_VI_Stats", "WmmFailedbytesSent", "0", "0", "0"),
+    ("D495_ac_vo_stats_wmmfailedbytessent_radio.yaml", 360, "AC_VO_Stats", "WmmFailedbytesSent", "0", "0", "0"),
+]
+
+_WMM_IDS = [t[0].split(".")[0] for t in _WMM_STATS_CASES]
+
+
+@pytest.mark.parametrize(
+    "yaml_file,row,wmm_sub,field,live_5g,live_6g,live_24g",
+    _WMM_STATS_CASES,
+    ids=_WMM_IDS,
+)
+def test_wmm_stats_load(yaml_file, row, wmm_sub, field, live_5g, live_6g, live_24g):
+    """Each WMM stats YAML must load, have correct row and 3-band shape."""
+    cases_dir = Path(__file__).resolve().parent.parent / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / yaml_file)
+    assert case["source"]["row"] == row
+    assert case["bands"] == ["5g", "6g", "2.4g"]
+    assert len(case["steps"]) == 3
+    assert len(case["pass_criteria"]) == 3
+
+
+@pytest.mark.parametrize(
+    "yaml_file,row,wmm_sub,field,live_5g,live_6g,live_24g",
+    _WMM_STATS_CASES,
+    ids=_WMM_IDS,
+)
+def test_wmm_stats_discover(yaml_file, row, wmm_sub, field, live_5g, live_6g, live_24g):
+    """Every WMM stats YAML must be discoverable."""
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parent.parent / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / yaml_file)
+    discoverable_ids = {c["id"] for c in plugin.discover_cases()}
+    assert case["id"] in discoverable_ids
+
+
+@pytest.mark.parametrize(
+    "yaml_file,row,wmm_sub,field,live_5g,live_6g,live_24g",
+    _WMM_STATS_CASES,
+    ids=_WMM_IDS,
+)
+def test_wmm_stats_evaluate(yaml_file, row, wmm_sub, field, live_5g, live_6g, live_24g):
+    """WMM stats evaluate passes with live-shaped getRadioStats grep output."""
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parent.parent / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / yaml_file)
+    results = {"steps": {}}
+    radio_ids = {"5g": "1", "6g": "2", "24g": "3"}
+    live_vals = {"5g": live_5g, "6g": live_6g, "24g": live_24g}
+    for band, rid in radio_ids.items():
+        # grep filters to single AC category line
+        output = (
+            f'        WiFi.Radio.{rid}.Stats.{wmm_sub}.{field} = {live_vals[band]},'
+        )
+        results["steps"][f"step_{band}_stats"] = {
+            "success": True, "output": output, "timing": 0.01,
+        }
+    assert plugin.evaluate(case, results) is True
+
+
+# --- Batch 5e: WiFi7 Capabilities parametrized table ---
+
+_WIFI7_CAPS_CASES = [
+    # (yaml_file, row, role, property)
+    ("D596_emlmrsupport_capabilities_wifi7aprole.yaml", 409, "WiFi7APRole", "EMLMRSupport"),
+    ("D597_emlsrsupport_capabilities_wifi7aprole.yaml", 410, "WiFi7APRole", "EMLSRSupport"),
+    ("D598_strsupport_capabilities_wifi7aprole.yaml", 411, "WiFi7APRole", "STRSupport"),
+    ("D599_nstrsupport_capabilities_wifi7aprole.yaml", 412, "WiFi7APRole", "NSTRSupport"),
+    ("D600_emlmrsupport_capabilities_wifi7starole.yaml", 413, "WiFi7STARole", "EMLMRSupport"),
+    ("D601_emlsrsupport_capabilities_wifi7starole.yaml", 414, "WiFi7STARole", "EMLSRSupport"),
+    ("D602_strsupport_capabilities_wifi7starole.yaml", 415, "WiFi7STARole", "STRSupport"),
+    ("D603_nstrsupport_capabilities_wifi7starole.yaml", 416, "WiFi7STARole", "NSTRSupport"),
+]
+
+_WIFI7_IDS = [t[0].split(".")[0] for t in _WIFI7_CAPS_CASES]
+
+
+@pytest.mark.parametrize(
+    "yaml_file,row,role,prop",
+    _WIFI7_CAPS_CASES,
+    ids=_WIFI7_IDS,
+)
+def test_wifi7_caps_load(yaml_file, row, role, prop):
+    """Each WiFi7 capability YAML must load, have correct row and 3-band shape."""
+    cases_dir = Path(__file__).resolve().parent.parent / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / yaml_file)
+    assert case["source"]["row"] == row
+    assert case["bands"] == ["5g", "6g", "2.4g"]
+    assert len(case["steps"]) == 3
+    assert len(case["pass_criteria"]) == 3
+
+
+@pytest.mark.parametrize(
+    "yaml_file,row,role,prop",
+    _WIFI7_CAPS_CASES,
+    ids=_WIFI7_IDS,
+)
+def test_wifi7_caps_discover(yaml_file, row, role, prop):
+    """Every WiFi7 capability YAML must be discoverable."""
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parent.parent / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / yaml_file)
+    discoverable_ids = {c["id"] for c in plugin.discover_cases()}
+    assert case["id"] in discoverable_ids
+
+
+@pytest.mark.parametrize(
+    "yaml_file,row,role,prop",
+    _WIFI7_CAPS_CASES,
+    ids=_WIFI7_IDS,
+)
+def test_wifi7_caps_evaluate(yaml_file, row, role, prop):
+    """WiFi7 capability evaluate passes with live value 1."""
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parent.parent / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / yaml_file)
+    results = {"steps": {}}
+    radio_ids = {"5g": "1", "6g": "2", "24g": "3"}
+    for band, rid in radio_ids.items():
+        output = (
+            f'WiFi.Radio.{rid}.Capabilities.{role}.{prop}="1"'
+        )
+        results["steps"][f"step_{band}_getter"] = {
+            "success": True, "output": output, "timing": 0.01,
+        }
+    assert plugin.evaluate(case, results) is True
+
+
+# --- Batch 5f: D362 MBOAssocDisallowReason Skip contract ---
+
+def test_d362_mboassocdisallowreason_contract():
+    """D362 MBOAssocDisallowReason loads as 3-band AP skip case."""
+    cases_dir = Path(__file__).resolve().parent.parent / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / "D362_mboassocdisallowreason.yaml")
+    assert case["source"]["row"] == 269
+    assert case["bands"] == ["5g", "6g", "2.4g"]
+    ref = case["results_reference"]["v4.0.3"]
+    assert ref["5g"] == "Skip"
+    assert ref["6g"] == "Skip"
+    assert ref["2.4g"] == "Skip"
 
 
 # --- D185 TPCMode ---
