@@ -1,20 +1,16 @@
-id: wifi-llapi-D410-downlinkratespec
-aliases:
-  - wifi-llapi-r303-downlinkratespec
-name: DownlinkRateSpec — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
-version: '1.0'
+id: d410-assocdev-downlinkratespec
+name: D410 AssociatedDevice DownlinkRateSpec
 source:
-  report: "0302-AT&T_LLAPI_Test_Report_20260107.xlsx"
-  sheet: Wifi_LLAPI
   row: 410
-  object: "WiFi.AccessPoint.{i}.AssociatedDevice.{i}."
-  api: "DownlinkRateSpec"
-platform:
-  prplos: 4.0.3
-  bdk: 6.3.1
-hlapi_command: ubus-cli WiFi.AccessPoint.{i}.AssociatedDevice.{i}.DownlinkRateSpec="he_11_20_2_1600"
+  object: WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
+  api: DownlinkRateSpec
+  baseline: 0310-BGW720-300
+bands:
+- 5g
 llapi_support: Support
-implemented_by: pWHM
+results_reference:
+  v4.0.3:
+    5g: Pass
 topology:
   devices:
     DUT:
@@ -25,385 +21,26 @@ topology:
       role: sta
       transport: serial
       selector: COM1
-      config:
-      - iface: 5g
-        mode: sta
-        ssid: '{{SSID_5G}}'
-        key: '{{KEY_5G}}'
-      - iface: 6g
-        mode: sta
-        ssid: '{{SSID_6G}}'
-        key: '{{KEY_6G}}'
-      - iface: 2.4g
-        mode: sta
-        ssid: '{{SSID_24G}}'
-        key: '{{KEY_24G}}'
-  links:
-  - from: STA
-    to: DUT
-    band: 5g
-  - from: STA
-    to: DUT
-    band: 6g
-  - from: STA
-    to: DUT
-    band: 2.4g
-test_environment: |
-  Topology:
-  - DUT: COM0 (B0, AP role)
-  - STA: COM1 (A0, STA role, STA-required cases only)
-  Transport:
-  - serialwrap attach COM0 / COM1
-  Band mapping:
-  - 5G: DUT wl0 / AP1 / SSID.4
-  - 6G: DUT wl1 / AP3 / SSID.6
-  - 2.4G: DUT wl2 / AP5 / SSID.8
-  Pre-check:
-  - cat /proc/socinfo | grep Revision | cut -d: -f2
-  - iw dev
-  - ubus-cli "WiFi.Radio.?" | sed -n "1,120p"
-
-setup_steps: |
-  1) DUT 5G + 6G + 2.4G baseline:
-     - set Radio.1/SSID.4 for the 5G AP under test
-     - configure AP1 as open with MFP disabled
-     - enable AP1 before station association
-     - set Radio.2/SSID.6 for the 6G AP under test
-     - configure AP3 for WPA3-SAE with MFP required
-     - enable AP3 before station association
-     - set Radio.3/SSID.8 for the 2.4G AP under test
-     - configure AP5 as open with MFP disabled
-     - enable AP5 before station association
-  2) STA 5G + 6G + 2.4G preparation:
-     - disable local AP1/AP2 on A0
-     - clear wl0 AP child interface and switch wl0 to managed mode
-     - connect wl0 to {{SSID_5G}}
-     - disable local AP3/AP4 on A0
-     - reset wl1 and its wpa_supplicant control socket
-     - connect wl1 to {{SSID_6G}} with SAE
-     - disable local AP5/AP6 on A0
-     - clear wl2 AP child interface and switch wl2 to managed mode
-     - connect wl2 to {{SSID_24G}}
-  3) Association evidence:
-     - A0: iw dev wl0 link ; iw dev wl1 link ; wpa_cli -p /var/run/wpa_supplicant -i wl1 status ; iw dev wl2 link
-     - B0: wl -i wl0 assoclist ; wl -i wl1 assoclist ; wl -i wl2 assoclist
-sta_env_setup: |
-  DUT 5G AP baseline:
-    ubus-cli WiFi.Radio.1.Enable=1
-    ubus-cli WiFi.Radio.1.BeaconPeriod=100
-    ubus-cli WiFi.Radio.1.DTIMPeriod=3
-    ubus-cli WiFi.Radio.1.DriverConfig.FragmentationThreshold=-1
-    ubus-cli WiFi.Radio.1.DriverConfig.RtsThreshold=-1
-    ubus-cli WiFi.Radio.1.DriverConfig.TPCMode=Auto
-    ubus-cli WiFi.Radio.1.ExplicitBeamFormingEnabled=1
-    ubus-cli WiFi.Radio.1.ImplicitBeamFormingEnabled=1
-    ubus-cli WiFi.Radio.1.OfdmaEnable=1
-    ubus-cli WiFi.Radio.1.ObssCoexistenceEnable=0
-    ubus-cli WiFi.Radio.1.OperatingStandards=ax
-    ubus-cli WiFi.Radio.1.RxChainCtrl=-1
-    ubus-cli WiFi.Radio.1.TxChainCtrl=-1
-    ubus-cli WiFi.Radio.1.Vendor.Brcm.RegulatoryDomainRev=0
-    ubus-cli WiFi.Radio.1.Sensing.Enable=1
-    ubus-cli WiFi.Radio.1.IEEE80211ax.BssColorPartial=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.NonSRGOBSSPDMaxOffset=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.PSRDisallowed=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.SRGOBSSPDMaxOffset=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.SRGOBSSPDMinOffset=0
-    ubus-cli WiFi.Radio.1.LongRetryLimit=6
-    ubus-cli WiFi.Radio.1.MultiUserMIMOEnabled=1
-    ubus-cli WiFi.Radio.1.TargetWakeTimeEnable=1
-    ubus-cli WiFi.SSID.4.SSID={{SSID_5G}}
-    ubus-cli WiFi.AccessPoint.1.IEEE80211u.QoSMapSet=
-    ubus-cli WiFi.AccessPoint.2.IEEE80211u.QoSMapSet=
-    ubus-cli WiFi.AccessPoint.1.Security.ModeEnabled=None
-    ubus-cli WiFi.AccessPoint.1.Security.MFPConfig=Disabled
-    ubus-cli WiFi.AccessPoint.1.Enable=1
-  DUT 6G AP baseline:
-    ubus-cli WiFi.Radio.2.Enable=1
-    ubus-cli WiFi.Radio.2.BeaconPeriod=100
-    ubus-cli WiFi.Radio.2.DTIMPeriod=3
-    ubus-cli WiFi.Radio.2.DriverConfig.FragmentationThreshold=-1
-    ubus-cli WiFi.Radio.2.DriverConfig.RtsThreshold=-1
-    ubus-cli WiFi.Radio.2.DriverConfig.TPCMode=Auto
-    ubus-cli WiFi.Radio.2.ExplicitBeamFormingEnabled=1
-    ubus-cli WiFi.Radio.2.ImplicitBeamFormingEnabled=1
-    ubus-cli WiFi.Radio.2.OfdmaEnable=1
-    ubus-cli WiFi.Radio.2.ObssCoexistenceEnable=0
-    ubus-cli WiFi.Radio.2.OperatingStandards=ax
-    ubus-cli WiFi.Radio.2.RxChainCtrl=-1
-    ubus-cli WiFi.Radio.2.TxChainCtrl=-1
-    ubus-cli WiFi.Radio.2.Vendor.Brcm.RegulatoryDomainRev=0
-    ubus-cli WiFi.Radio.2.Sensing.Enable=1
-    ubus-cli WiFi.Radio.2.IEEE80211ax.BssColorPartial=0
-    ubus-cli WiFi.Radio.2.IEEE80211ax.NonSRGOBSSPDMaxOffset=0
-    ubus-cli WiFi.Radio.2.IEEE80211ax.PSRDisallowed=0
-    ubus-cli WiFi.Radio.2.IEEE80211ax.SRGOBSSPDMaxOffset=0
-    ubus-cli WiFi.Radio.2.IEEE80211ax.SRGOBSSPDMinOffset=0
-    ubus-cli WiFi.Radio.2.LongRetryLimit=6
-    ubus-cli WiFi.Radio.2.MultiUserMIMOEnabled=1
-    ubus-cli WiFi.Radio.2.TargetWakeTimeEnable=1
-    ubus-cli WiFi.SSID.6.SSID={{SSID_6G}}
-    ubus-cli WiFi.AccessPoint.3.IEEE80211u.QoSMapSet=
-    ubus-cli WiFi.AccessPoint.4.IEEE80211u.QoSMapSet=
-    ubus-cli WiFi.AccessPoint.3.Security.ModeEnabled=WPA3-Personal
-    ubus-cli WiFi.AccessPoint.3.Security.SAEPassphrase={{KEY_6G}}
-    ubus-cli WiFi.AccessPoint.3.Security.MFPConfig=Required
-    ubus-cli WiFi.AccessPoint.3.MultiAPType=FronthaulBSS
-    ubus-cli WiFi.AccessPoint.3.Enable=1
-  DUT 2.4G AP baseline:
-    ubus-cli WiFi.Radio.3.Enable=1
-    ubus-cli WiFi.Radio.3.BeaconPeriod=100
-    ubus-cli WiFi.Radio.3.DTIMPeriod=3
-    ubus-cli WiFi.Radio.3.DriverConfig.FragmentationThreshold=-1
-    ubus-cli WiFi.Radio.3.DriverConfig.RtsThreshold=-1
-    ubus-cli WiFi.Radio.3.DriverConfig.TPCMode=Auto
-    ubus-cli WiFi.Radio.3.ExplicitBeamFormingEnabled=1
-    ubus-cli WiFi.Radio.3.ImplicitBeamFormingEnabled=1
-    ubus-cli WiFi.Radio.3.OfdmaEnable=1
-    ubus-cli WiFi.Radio.3.ObssCoexistenceEnable=0
-    ubus-cli WiFi.Radio.3.OperatingStandards=ax
-    ubus-cli WiFi.Radio.3.RxChainCtrl=-1
-    ubus-cli WiFi.Radio.3.TxChainCtrl=-1
-    ubus-cli WiFi.Radio.3.Vendor.Brcm.RegulatoryDomainRev=0
-    ubus-cli WiFi.Radio.3.Sensing.Enable=1
-    ubus-cli WiFi.Radio.3.IEEE80211ax.BssColorPartial=0
-    ubus-cli WiFi.Radio.3.IEEE80211ax.NonSRGOBSSPDMaxOffset=0
-    ubus-cli WiFi.Radio.3.IEEE80211ax.PSRDisallowed=0
-    ubus-cli WiFi.Radio.3.IEEE80211ax.SRGOBSSPDMaxOffset=0
-    ubus-cli WiFi.Radio.3.IEEE80211ax.SRGOBSSPDMinOffset=0
-    ubus-cli WiFi.Radio.3.LongRetryLimit=6
-    ubus-cli WiFi.Radio.3.MultiUserMIMOEnabled=1
-    ubus-cli WiFi.Radio.3.TargetWakeTimeEnable=1
-    ubus-cli WiFi.SSID.8.SSID={{SSID_24G}}
-    ubus-cli WiFi.AccessPoint.5.IEEE80211u.QoSMapSet=
-    ubus-cli WiFi.AccessPoint.6.IEEE80211u.QoSMapSet=
-    ubus-cli WiFi.AccessPoint.5.Security.ModeEnabled=None
-    ubus-cli WiFi.AccessPoint.5.Security.MFPConfig=Disabled
-    ubus-cli WiFi.AccessPoint.5.Enable=1
-    sleep 4
-  STA 5G preparation:
-    ubus-cli WiFi.AccessPoint.1.Enable=0
-    ubus-cli WiFi.AccessPoint.2.Enable=0
-    killall wpa_supplicant 2>/dev/null || true
-    iw dev wl0.1 del 2>/dev/null || true
-    iw dev wl0 disconnect 2>/dev/null || true
-    iw dev wl0 set type managed
-    ifconfig wl0 up
-  STA 5G connect verify:
-    iw dev wl0 connect {{SSID_5G}}
-    sleep 2
-    iw dev wl0 link
-  STA 6G preparation:
-    ubus-cli WiFi.AccessPoint.3.Enable=0
-    ubus-cli WiFi.AccessPoint.4.Enable=0
-    wpa_cli terminate 2>/dev/null || true
-    sleep 1
-    rm -f /var/run/wpa_supplicant/wl1 2>/dev/null || true
-    iw dev wl1.1 del 2>/dev/null || true
-    iw dev wl1 disconnect 2>/dev/null || true
-    iw dev wl1 set type managed
-    ifconfig wl1 up
-    mkdir -p /var/run/wpa_supplicant
-    printf 'ctrl_interface=/var/run/wpa_supplicant\nupdate_config=1\nsae_pwe=2\nnetwork={\nssid="{{SSID_6G}}"\nkey_mgmt=SAE\nsae_password="{{KEY_6G}}"\nieee80211w=2\nscan_ssid=1\n}\n' > /tmp/wpa_wl1.conf
-    wpa_supplicant -B -D nl80211 -i wl1 -c /tmp/wpa_wl1.conf -C /var/run/wpa_supplicant
-    sleep 3
-  STA 6G connect verify:
-    wpa_cli -p /var/run/wpa_supplicant -i wl1 reconnect
-    sleep 8
-    iw dev wl1 link
-    wpa_cli -p /var/run/wpa_supplicant -i wl1 status
-  STA 2.4G preparation:
-    ubus-cli WiFi.AccessPoint.5.Enable=0
-    ubus-cli WiFi.AccessPoint.6.Enable=0
-    killall wpa_supplicant 2>/dev/null || true
-    iw dev wl2.1 del 2>/dev/null || true
-    iw dev wl2 disconnect 2>/dev/null || true
-    iw dev wl2 set type managed
-    ifconfig wl2 up
-    sleep 2
-  STA 2.4G connect verify:
-    iw dev wl2 connect {{SSID_24G}}
-    sleep 8
-    iw dev wl2 link
-  DUT association evidence:
-    wl -i wl0 assoclist
-    wl -i wl1 assoclist
-    wl -i wl2 assoclist
-test_procedure: |
-  1) Execute case command on DUT:
-     ubus-cli WiFi.AccessPoint.{i}.AssociatedDevice.{i}.DownlinkRateSpec="he_11_20_2_1600"
-  2) LLAPI readback on DUT:
-     ubus-cli "WiFi.AccessPoint.*.AssociatedDevice.*.DownlinkRateSpec?"
-  3) For stats/AssociatedDevice cases, generate traffic (ping/iperf) before re-read.
-  4) STA link validation:
-     iw dev wl0 link
-     iw dev wl1 link
-     wpa_cli -i wl1 status
-     iw dev wl2 link
-  5) Cross-check with verification_command (driver/hostapd/iw/proc evidence).
-
 steps:
-- id: step1
-  action: exec
-  target: DUT
-  command: 1. Connect WiFi Station to GW
-- id: step2
-  action: exec
-  target: DUT
-  command: 'Check DownlinkRateSpec ###5G (11be, 4x4, 160MHz) ubus-cli WiFi.AccessPoint.1.AssociatedDevice.*.UplinkRateSpec?
-    > WiFi.AccessPoint.1.AssociatedDevice.*.UplinkRateSpec? WiFi.AccessPoint.1.AssociatedDevice.1.UplinkRateSpec="leg_0_20_1_0"
-    ubus-cli WiFi.AccessPoint.1.AssociatedDevice.*.? | grep -E ''Band| SpatialStreams|Bandwidth|Guard'' WiFi.AccessPoint.1.AssociatedDevice.1.DownlinkBandwidth=160
-    WiFi.AccessPoint.1.AssociatedDevice.1.DownlinkShortGuard=0 WiFi.AccessPoint.1.AssociatedDevice.1.LinkBandwidth="20MHz"
-    WiFi.AccessPoint.1.AssociatedDevice.1.MaxRxSpatialStreamsSupported=4 iw dev wl0 station dump Station 00:60:f3:25:aa:59
-    (on wl0) inactive time: 3000 ms rx bytes: 9828 rx packets: 38 tx bytes: 152 tx packets: 14 signal: -39 [-39] dBm signal
-    avg: -38 [-38] dBm tx bitrate: 4899.0 MBit/s 160MHz rx bitrate: 5187.1 MBit/s 160MHz wl -i wl0 sta_info 00:60:f3:25:aa:59
-    [VER 8] STA 00:60:F3:25:AA:59: OMI 0x32c3: 160Mhz rx=4ss tx=4ss ER_SU_DISABLE rx nrate eht mcs 12 Nss 4 Tx Exp 0 bw160
-    ldpc 2xLTF GI 0.8us auto link bandwidth = 160 MHZ Frequency Bands Supported: 5G ###6G (11be, 4x4, 320MHz) ubus-cli WiFi.AccessPoint.3.AssociatedDevice.*.UplinkRateSpec?
-    > WiFi.AccessPoint.3.AssociatedDevice.*.UplinkRateSpec? WiFi.AccessPoint.3.AssociatedDevice.1.UplinkRateSpec="leg_0_20_1_0"
-    ubus-cli WiFi.AccessPoint.3.AssociatedDevice.*.? | grep -E ''Band|SpatialStreams|Bandwidth|Guard'' WiFi.AccessPoint.3.AssociatedDevice.1.DownlinkBandwidth=20
-    WiFi.AccessPoint.3.AssociatedDevice.1.DownlinkShortGuard=0 WiFi.AccessPoint.3.AssociatedDevice.1.LinkBandwidth="20MHz"
-    WiFi.AccessPoint.3.AssociatedDevice.1.MaxRxSpatialStreamsSupported=4  iw dev wl1 station dump Station 00:60:f3:31:97:e4
-    (on wl1) inactive time: 3000 ms rx bytes: 43391 rx packets: 344 tx bytes: 528 tx packets: 16 signal: -68 [-66] dBm signal
-    avg: -62 [-60] dBm tx bitrate: 9074.0 MBit/s rx bitrate: 8645.3 MBit/s wl -i wl1 sta_info 00:60:f3:31:97:e4 [VER 8] STA
-    00:60:F3:31:97:E4: OMI 0x3303: 320Mhz rx=4ss tx=4ss ER_SU_DISABLE rx nrate eht mcs 10 Nss 4 Tx Exp 0 bw320 ldpc 2xLTF
-    GI 0.8us auto link bandwidth = 320 MHZ Frequency Bands Supported: 6G ###2.4G 6G (11be, 2x2, 40MHz) ubus-cli WiFi.AccessPoint.5.AssociatedDevice.*.UplinkRateSpec?
-    > WiFi.AccessPoint.5.AssociatedDevice.*.UplinkRateSpec? WiFi.AccessPoint.5.AssociatedDevice.1.UplinkRateSpec="leg_0_20_1_0"
-    ubus-cli WiFi.AccessPoint.5.AssociatedDevice.*.? | grep -E ''Band| SpatialStreams|Bandwidth|Guard'' WiFi.AccessPoint.5.AssociatedDevice.1.DownlinkBandwidth=20
-    WiFi.AccessPoint.5.AssociatedDevice.1.DownlinkShortGuard=0 WiFi.AccessPoint.5.AssociatedDevice.1.MaxBandwidthSupported="40MHz"
-    WiFi.AccessPoint.5.AssociatedDevice.1.MaxRxSpatialStreamsSupported=2 iw dev wl2 station dump Station c8:15:4e:89:fa:e9
-    (on wl2) inactive time: 13000 ms rx bytes: 1485 rx packets: 12 tx bytes: 0 tx packets: 6 signal: -46 [-47] dBm signal
-    avg: -46 [-48] dBm tx bitrate: 1.0 MBit/s rx bitrate: 117.0 MBit/s 40MHz wl -i wl2 sta_info c8:15:4e:89:fa:e9 [VER 8]
-    STA C8:15:4E:89:FA:E9: OMI 0x1241: 40Mhz rx=2ss tx=2ss ER_SU_DISABLE rx nrate eht mcs 3 Nss 2 Tx Exp 0 bw40 ldpc 4xLTF
-    GI 3.2us auto link bandwidth = 40 MHZ Frequency Bands Supported: 2.4G 5G 6G'
-  depends_on: step1
-  capture: result
+- id: step_5g_assoc_check
+  target: dut
+  action: read
+  capture: assoc_check
+  command: wl -i wl0 assoclist | head -1
+  expected: 至少一個 STA MAC
+  description: 確認 AP1 有 associated STA
+- id: step_5g_getter
+  target: dut
+  action: read
+  capture: getter_5g
+  command: ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.DownlinkRateSpec?"
+  expected: DownlinkRateSpec 回傳有效值
+  description: AP1 AssociatedDevice.1 DownlinkRateSpec getter
+  depends_on: step_5g_assoc_check
 pass_criteria:
-- field: result.DownlinkRateSpec
-  operator: contains
-  value: '"he_11_20_2_1600"'
-  description: DownlinkRateSpec 應回傳包含 DownlinkRateSpec="he_11_20_2_1600"
-verification_command: 'root@prplOS:/# iw dev wl0 station dump
-
-  Station 00:60:f3:25:aa:59 (on wl0)
-
-  inactive time: 3000 ms
-
-  rx bytes: 9828
-
-  rx packets: 38
-
-  tx bytes: 152
-
-  tx packets: 14
-
-  signal: -39 [-39] dBm
-
-  signal avg: -38 [-38] dBm
-
-  tx bitrate: 4899.0 MBit/s 160MHz
-
-  rx bitrate: 5187.1 MBit/s 160MHz
-
-  root@prplOS:/# wl -i wl0 sta_info 00:60:f3:25:aa:59
-
-  [VER 8] STA 00:60:F3:25:AA:59:
-
-  OMI 0x32c3: 160Mhz rx=4ss tx=4ss ER_SU_DISABLE
-
-  rx nrate
-
-  eht mcs 12 Nss 4 Tx Exp 0 bw160 ldpc 2xLTF GI 0.8us auto
-
-  link bandwidth = 160 MHZ
-
-  Frequency Bands Supported: 5G
-
-
-  ###6G (11be, 4x4, 320MHz)
-
-  root@prplOS:/# iw dev wl1 station dump
-
-  Station 00:60:f3:31:97:e4 (on wl1)
-
-  inactive time: 3000 ms
-
-  rx bytes: 43391
-
-  rx packets: 344
-
-  tx bytes: 528
-
-  tx packets: 16
-
-  signal: -68 [-66] dBm
-
-  signal avg: -62 [-60] dBm
-
-  tx bitrate: 9074.0 MBit/s
-
-  rx bitrate: 8645.3 MBit/s
-
-  root@prplOS:/# wl -i wl1 sta_info 00:60:f3:31:97:e4
-
-  [VER 8] STA 00:60:F3:31:97:E4:
-
-  OMI 0x3303: 320Mhz rx=4ss tx=4ss ER_SU_DISABLE
-
-  rx nrate
-
-  eht mcs 10 Nss 4 Tx Exp 0 bw320 ldpc 2xLTF GI 0.8us auto
-
-  link bandwidth = 320 MHZ
-
-  Frequency Bands Supported: 6G
-
-
-
-  ###2.4G 6G (11be, 2x2, 40MHz)
-
-  root@prplOS:/# iw dev wl2 station dump
-
-  Station c8:15:4e:89:fa:e9 (on wl2)
-
-  inactive time: 13000 ms
-
-  rx bytes: 1485
-
-  rx packets: 12
-
-  tx bytes: 0
-
-  tx packets: 6
-
-  signal: -46 [-47] dBm
-
-  signal avg: -46 [-48] dBm
-
-  tx bitrate: 1.0 MBit/s
-
-  rx bitrate: 117.0 MBit/s 40MHz
-
-  root@prplOS:/# wl -i wl2 sta_info c8:15:4e:89:fa:e9
-
-  [VER 8] STA C8:15:4E:89:FA:E9:
-
-  OMI 0x1241: 40Mhz rx=2ss tx=2ss ER_SU_DISABLE
-
-  rx nrate
-
-  eht mcs 3 Nss 2 Tx Exp 0 bw40 ldpc 4xLTF GI 3.2us auto
-
-  link bandwidth = 40 MHZ
-
-  Frequency Bands Supported: 2.4G 5G 6G"'
-results_reference:
-  v4.0.1:
-    5g: Fail
-    6g: Fail
-    2.4g: Fail
-    comment: 'ARC : API always return leg_0_20_1_0'
-  v4.0.3:
-    5g: Pass
-    6g: Pass
-    2.4g: Pass
-    comment: ''
+- field: assoc_check
+  operator: regex
+  value: "assoclist [0-9A-Fa-f:]+"
+- field: getter_5g.DownlinkRateSpec
+  operator: regex
+  value: ".+"

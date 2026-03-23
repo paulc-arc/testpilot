@@ -1,190 +1,29 @@
-id: wifi-llapi-D578-macaddress-associateddevice-affiliatedsta
-aliases:
-  - wifi-llapi-r401-macaddress-associateddevice-affiliatedsta
-name: MACAddress — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.AffiliatedSTA.​{i}.
-version: '1.0'
+id: d578-skip-affiliatedsta-macaddress
+name: D578 AffiliatedSTA MACAddress Skip
 source:
-  report: "0302-AT&T_LLAPI_Test_Report_20260107.xlsx"
-  sheet: Wifi_LLAPI
   row: 578
-  object: "WiFi.AccessPoint.{i}.AssociatedDevice.{i}.AffiliatedSTA.{i}."
-  api: "MACAddress"
-platform:
-  prplos: 4.0.3
-  bdk: 6.3.1
-hlapi_command: ubus-cli WiFi.AccessPoint.{i}.​AssociatedDevice.{i}.AffiliatedSTA.​{i}.MACAddress
-llapi_support: Support
-implemented_by: pWHM
+  object: WiFi.AccessPoint.{i}.AssociatedDevice.{i}.AffiliatedSTA.
+  api: MACAddress
+  baseline: 0310-BGW720-300
+bands:
+- 5g
+llapi_support: Skip
+results_reference:
+  v4.0.3:
+    5g: Skip
 topology:
   devices:
     DUT:
       role: ap
       transport: serial
       selector: COM0
-    STA:
-      role: sta
-      transport: serial
-      selector: COM1
-      config:
-      - iface: 5g
-        mode: sta
-        ssid: '{{SSID_5G}}'
-        key: '{{KEY_5G}}'
-  links:
-  - from: STA
-    to: DUT
-    band: 5g
-test_environment: |
-  Topology:
-  - DUT: COM0 (B0, AP role)
-  - STA: COM1 (A0, STA role, STA-required cases only)
-  Transport:
-  - serialwrap attach COM0 / COM1
-  Band mapping:
-  - 5G: DUT wl0 / AP1 / SSID.4
-  - 6G: DUT wl1 / AP3 / SSID.6
-  - 2.4G: DUT wl2 / AP5 / SSID.8
-  Pre-check:
-  - cat /proc/socinfo | grep Revision | cut -d: -f2
-  - iw dev
-  - ubus-cli "WiFi.Radio.?" | sed -n "1,120p"
-
-setup_steps: |
-  1) DUT 5G baseline:
-     - set Radio.1/SSID.4 for the 5G AP under test
-     - configure AP1 as open with MFP disabled
-     - enable AP1 before station association
-  2) STA 5G preparation:
-     - disable local AP1/AP2 on A0
-     - clear wl0 AP child interface and switch wl0 to managed mode
-     - connect wl0 to {{SSID_5G}}
-  3) Association evidence:
-     - A0: iw dev wl0 link
-     - B0: wl -i wl0 assoclist
-sta_env_setup: |
-  DUT 5G AP baseline:
-    ubus-cli WiFi.Radio.1.Enable=1
-    ubus-cli WiFi.Radio.1.BeaconPeriod=100
-    ubus-cli WiFi.Radio.1.DTIMPeriod=3
-    ubus-cli WiFi.Radio.1.DriverConfig.FragmentationThreshold=-1
-    ubus-cli WiFi.Radio.1.DriverConfig.RtsThreshold=-1
-    ubus-cli WiFi.Radio.1.DriverConfig.TPCMode=Auto
-    ubus-cli WiFi.Radio.1.ExplicitBeamFormingEnabled=1
-    ubus-cli WiFi.Radio.1.ImplicitBeamFormingEnabled=1
-    ubus-cli WiFi.Radio.1.OfdmaEnable=1
-    ubus-cli WiFi.Radio.1.ObssCoexistenceEnable=0
-    ubus-cli WiFi.Radio.1.OperatingStandards=ax
-    ubus-cli WiFi.Radio.1.RxChainCtrl=-1
-    ubus-cli WiFi.Radio.1.TxChainCtrl=-1
-    ubus-cli WiFi.Radio.1.Vendor.Brcm.RegulatoryDomainRev=0
-    ubus-cli WiFi.Radio.1.Sensing.Enable=1
-    ubus-cli WiFi.Radio.1.IEEE80211ax.BssColorPartial=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.NonSRGOBSSPDMaxOffset=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.PSRDisallowed=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.SRGOBSSPDMaxOffset=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.SRGOBSSPDMinOffset=0
-    ubus-cli WiFi.Radio.1.LongRetryLimit=6
-    ubus-cli WiFi.Radio.1.MultiUserMIMOEnabled=1
-    ubus-cli WiFi.Radio.1.TargetWakeTimeEnable=1
-    ubus-cli WiFi.SSID.4.SSID={{SSID_5G}}
-    ubus-cli WiFi.AccessPoint.1.IEEE80211u.QoSMapSet=
-    ubus-cli WiFi.AccessPoint.2.IEEE80211u.QoSMapSet=
-    ubus-cli WiFi.AccessPoint.1.Security.ModeEnabled=None
-    ubus-cli WiFi.AccessPoint.1.Security.MFPConfig=Disabled
-    ubus-cli WiFi.AccessPoint.1.Enable=1
-  STA 5G preparation:
-    ubus-cli WiFi.AccessPoint.1.Enable=0
-    ubus-cli WiFi.AccessPoint.2.Enable=0
-    killall wpa_supplicant 2>/dev/null || true
-    iw dev wl0.1 del 2>/dev/null || true
-    iw dev wl0 disconnect 2>/dev/null || true
-    iw dev wl0 set type managed
-    ifconfig wl0 up
-  STA 5G connect verify:
-    iw dev wl0 connect {{SSID_5G}}
-    sleep 2
-    iw dev wl0 link
-  DUT association evidence:
-    wl -i wl0 assoclist
-test_procedure: |
-  1) Execute case command on DUT:
-     ubus-cli WiFi.AccessPoint.{i}.​AssociatedDevice.{i}.AffiliatedSTA.​{i}.MACAddress
-  2) LLAPI readback on DUT:
-     ubus-cli "WiFi.AccessPoint.*.AssociatedDevice.*.AffiliatedSTA.*.MACAddress?"
-  3) For stats/AssociatedDevice cases, generate traffic (ping/iperf) before re-read.
-  4) STA link validation:
-     iw dev wl0 link
-     iw dev wl1 link
-     wpa_cli -i wl1 status
-     iw dev wl2 link
-  5) Cross-check with verification_command (driver/hostapd/iw/proc evidence).
-
 steps:
-- id: step1
-  action: exec
-  target: DUT
-  command: 1. Connect WiFi7 Station to GW
-- id: step2
-  action: exec
-  target: DUT
-  command: Check AffiliatedDevice MACAddress ubus-cli WiFi.AccessPoint.*.? | grep -E 'Affiliated|Active|MACAdd ress' WiFi.AccessPoint.1.ActiveAssociatedDeviceNumberOfEntries=1
-    WiFi.AccessPoint.1.ActiveVideoAssociatedDeviceNumberOfEntries=0 WiFi.AccessPoint.1.MACAddressControlEnabled=0 WiFi.AccessPoint.1.AssociatedDevice.1.Active=1
-    WiFi.AccessPoint.1.AssociatedDevice.1.ActiveNumberOfAffiliatedSta=1 WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress="E6:D7:D3:EA:CF:15"
-    WiFi.AccessPoint.1.AssociatedDevice.1.AffiliatedSta.1. WiFi.AccessPoint.1.AssociatedDevice.1.AffiliatedSta.1.APName="DEFAULT_WL0_1"
-    WiFi.AccessPoint.1.AssociatedDevice.1.AffiliatedSta.1.Active=1 WiFi.AccessPoint.1.AssociatedDevice.1.AffiliatedSta.1.BSSID="64:75:DA:4E:51:75"
-    WiFi.AccessPoint.1.AssociatedDevice.1.AffiliatedSta.1.BytesReceived=0 WiFi.AccessPoint.1.AssociatedDevice.1.AffiliatedSta.1.BytesSent=0
-    WiFi.AccessPoint.1.AssociatedDevice.1.AffiliatedSta.1.DownlinkRateSpec="unk_0_0_0_0" WiFi.AccessPoint.1.AssociatedDevice.1.AffiliatedSta.1.ErrorsSent=0
-    WiFi.AccessPoint.1.AssociatedDevice.1.AffiliatedSta.1.FrequencyBand="5GHz" WiFi.AccessPoint.1.AssociatedDevice.1.AffiliatedSta.1.LastDataDownlinkRate=2401911
-    WiFi.AccessPoint.1.AssociatedDevice.1.AffiliatedSta.1.LastDataUplinkRate=2401911 WiFi.AccessPoint.1.AssociatedDevice.1.AffiliatedSta.1.LinkID=4294967295
-    WiFi.AccessPoint.1.AssociatedDevice.1.AffiliatedSta.1.MACAddress="E6:D7:D3:EA:CF:15" WiFi.AccessPoint.1.AssociatedDevice.1.AffiliatedSta.1.PacketsReceived=0
-    WiFi.AccessPoint.1.AssociatedDevice.1.AffiliatedSta.1.PacketsSent=0 WiFi.AccessPoint.1.AssociatedDevice.1.AffiliatedSta.1.SignalStrength=0
-    WiFi.AccessPoint.1.AssociatedDevice.1.AffiliatedSta.1.UplinkRateSpec="unk_0_0_0_0" WiFi.AccessPoint.2.ActiveAssociatedDeviceNumberOfEntries=0
-    WiFi.AccessPoint.2.ActiveVideoAssociatedDeviceNumberOfEntries=0 WiFi.AccessPoint.2.MACAddressControlEnabled=0 WiFi.AccessPoint.3.ActiveAssociatedDeviceNumberOfEntries=1
-    WiFi.AccessPoint.3.ActiveVideoAssociatedDeviceNumberOfEntries=0 WiFi.AccessPoint.3.MACAddressControlEnabled=0 WiFi.AccessPoint.3.AssociatedDevice.1.Active=1
-    WiFi.AccessPoint.3.AssociatedDevice.1.ActiveNumberOfAffiliatedSta=1 WiFi.AccessPoint.3.AssociatedDevice.1.MACAddress="38:06:E6:92:B0:4A"
-    WiFi.AccessPoint.3.AssociatedDevice.1.AffiliatedSta.1. WiFi.AccessPoint.3.AssociatedDevice.1.AffiliatedSta.1.APName="DEFAULT_WL1_1"
-    WiFi.AccessPoint.3.AssociatedDevice.1.AffiliatedSta.1.Active=1 WiFi.AccessPoint.3.AssociatedDevice.1.AffiliatedSta.1.BSSID="64:75:DA:4E:51:76"
-    WiFi.AccessPoint.3.AssociatedDevice.1.AffiliatedSta.1.BytesReceived=0 WiFi.AccessPoint.3.AssociatedDevice.1.AffiliatedSta.1.BytesSent=0
-    WiFi.AccessPoint.3.AssociatedDevice.1.AffiliatedSta.1.DownlinkRateSpec="unk_0_0_0_0" WiFi.AccessPoint.3.AssociatedDevice.1.AffiliatedSta.1.ErrorsSent=0
-    WiFi.AccessPoint.3.AssociatedDevice.1.AffiliatedSta.1.FrequencyBand="6GHz" WiFi.AccessPoint.3.AssociatedDevice.1.AffiliatedSta.1.LastDataDownlinkRate=4803897
-    WiFi.AccessPoint.3.AssociatedDevice.1.AffiliatedSta.1.LastDataUplinkRate=4803897 WiFi.AccessPoint.3.AssociatedDevice.1.AffiliatedSta.1.LinkID=4294967295
-    WiFi.AccessPoint.3.AssociatedDevice.1.AffiliatedSta.1.MACAddress="38:06:E6:92:B0:4A" WiFi.AccessPoint.3.AssociatedDevice.1.AffiliatedSta.1.PacketsReceived=0
-    WiFi.AccessPoint.3.AssociatedDevice.1.AffiliatedSta.1.PacketsSent=0 WiFi.AccessPoint.3.AssociatedDevice.1.AffiliatedSta.1.SignalStrength=0
-    WiFi.AccessPoint.3.AssociatedDevice.1.AffiliatedSta.1.UplinkRateSpec="unk_0_0_0_0" WiFi.AccessPoint.4.ActiveAssociatedDeviceNumberOfEntries=0
-    WiFi.AccessPoint.4.ActiveVideoAssociatedDeviceNumberOfEntries=0 WiFi.AccessPoint.4.MACAddressControlEnabled=0 WiFi.AccessPoint.5.ActiveAssociatedDeviceNumberOfEntries=1
-    WiFi.AccessPoint.5.ActiveVideoAssociatedDeviceNumberOfEntries=0 WiFi.AccessPoint.5.MACAddressControlEnabled=0 WiFi.AccessPoint.5.AssociatedDevice.1.Active=1
-    WiFi.AccessPoint.5.AssociatedDevice.1.ActiveNumberOfAffiliatedSta=0 WiFi.AccessPoint.5.AssociatedDevice.1.MACAddress="7E:04:60:D8:FC:6E"
-  depends_on: step1
-  capture: result
+- id: step_5g_skip
+  target: dut
+  action: skip
+  command: "echo skip"
+  description: "AffiliatedSTA object not found — needs MLO (Multi-Link Operation) STA connection"
 pass_criteria:
-- field: result
-  operator: not_empty
-  value: ''
-  description: MACAddress 應回傳非空結果
-verification_command: 'iw dev wl0 station dump
-
-
-  root@prplOS:/# iw dev wl0 station dump | grep Station
-
-  Station e6:d7:d3:ea:cf:15 (on wl0)
-
-  root@prplOS:/# iw dev wl1 station dump | grep Station
-
-  Station 38:06:e6:92:b0:4a (on wl1)
-
-  root@prplOS:/# iw dev wl2 station dump | grep Station
-
-  Station 7e:04:60:d8:fc:6e (on wl2)
-
-  root@prplOS:/#'
-results_reference:
-  v4.0.1:
-    5g: Pass
-    6g: Pass
-    2.4g: Fail
-    comment: 'ARC : Affiliated station not shown in 2.4G'
-  v4.0.3:
-    5g: pass
-    6g: pass
-    2.4g: pass
-    comment: ''
+- field: skip
+  operator: skip
+  value: "AffiliatedSTA object not found — needs MLO (Multi-Link Operation) STA connection"

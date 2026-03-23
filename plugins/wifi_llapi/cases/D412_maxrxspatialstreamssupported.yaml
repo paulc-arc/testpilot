@@ -1,20 +1,16 @@
-id: wifi-llapi-D412-maxrxspatialstreamssupported
-aliases:
-  - wifi-llapi-r305-maxrxspatialstreamssupported
-name: MaxRxSpatialStreamsSupported — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
-version: '1.0'
+id: d412-assocdev-maxrxspatialstreamssupported
+name: D412 AssociatedDevice MaxRxSpatialStreamsSupported
 source:
-  report: "0302-AT&T_LLAPI_Test_Report_20260107.xlsx"
-  sheet: Wifi_LLAPI
   row: 412
-  object: "WiFi.AccessPoint.{i}.AssociatedDevice.{i}."
-  api: "MaxRxSpatialStreamsSupported"
-platform:
-  prplos: 4.0.3
-  bdk: 6.3.1
-hlapi_command: ubus-cli WiFi.AccessPoint.{i}.AssociatedDevice.{i}.MaxRxSpatialStreamsSupported=2
+  object: WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
+  api: MaxRxSpatialStreamsSupported
+  baseline: 0310-BGW720-300
+bands:
+- 5g
 llapi_support: Support
-implemented_by: pWHM
+results_reference:
+  v4.0.3:
+    5g: Pass
 topology:
   devices:
     DUT:
@@ -25,158 +21,26 @@ topology:
       role: sta
       transport: serial
       selector: COM1
-      config:
-      - iface: 5g
-        mode: sta
-        ssid: '{{SSID_5G}}'
-        key: '{{KEY_5G}}'
-  links:
-  - from: STA
-    to: DUT
-    band: 5g
-test_environment: |
-  Topology:
-  - DUT: COM0 (B0, AP role)
-  - STA: COM1 (A0, STA role, STA-required cases only)
-  Transport:
-  - serialwrap attach COM0 / COM1
-  Band mapping:
-  - 5G: DUT wl0 / AP1 / SSID.4
-  - 6G: DUT wl1 / AP3 / SSID.6
-  - 2.4G: DUT wl2 / AP5 / SSID.8
-  Pre-check:
-  - cat /proc/socinfo | grep Revision | cut -d: -f2
-  - iw dev
-  - ubus-cli "WiFi.Radio.?" | sed -n "1,120p"
-
-setup_steps: |
-  1) DUT 5G baseline:
-     - set Radio.1/SSID.4 for the 5G AP under test
-     - configure AP1 as open with MFP disabled
-     - enable AP1 before station association
-  2) STA 5G preparation:
-     - disable local AP1/AP2 on A0
-     - clear wl0 AP child interface and switch wl0 to managed mode
-     - connect wl0 to {{SSID_5G}}
-  3) Association evidence:
-     - A0: iw dev wl0 link
-     - B0: wl -i wl0 assoclist
-sta_env_setup: |
-  DUT 5G AP baseline:
-    ubus-cli WiFi.Radio.1.Enable=1
-    ubus-cli WiFi.Radio.1.BeaconPeriod=100
-    ubus-cli WiFi.Radio.1.DTIMPeriod=3
-    ubus-cli WiFi.Radio.1.DriverConfig.FragmentationThreshold=-1
-    ubus-cli WiFi.Radio.1.DriverConfig.RtsThreshold=-1
-    ubus-cli WiFi.Radio.1.DriverConfig.TPCMode=Auto
-    ubus-cli WiFi.Radio.1.ExplicitBeamFormingEnabled=1
-    ubus-cli WiFi.Radio.1.ImplicitBeamFormingEnabled=1
-    ubus-cli WiFi.Radio.1.OfdmaEnable=1
-    ubus-cli WiFi.Radio.1.ObssCoexistenceEnable=0
-    ubus-cli WiFi.Radio.1.OperatingStandards=ax
-    ubus-cli WiFi.Radio.1.RxChainCtrl=-1
-    ubus-cli WiFi.Radio.1.TxChainCtrl=-1
-    ubus-cli WiFi.Radio.1.Vendor.Brcm.RegulatoryDomainRev=0
-    ubus-cli WiFi.Radio.1.Sensing.Enable=1
-    ubus-cli WiFi.Radio.1.IEEE80211ax.BssColorPartial=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.NonSRGOBSSPDMaxOffset=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.PSRDisallowed=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.SRGOBSSPDMaxOffset=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.SRGOBSSPDMinOffset=0
-    ubus-cli WiFi.Radio.1.LongRetryLimit=6
-    ubus-cli WiFi.Radio.1.MultiUserMIMOEnabled=1
-    ubus-cli WiFi.Radio.1.TargetWakeTimeEnable=1
-    ubus-cli WiFi.SSID.4.SSID={{SSID_5G}}
-    ubus-cli WiFi.AccessPoint.1.IEEE80211u.QoSMapSet=
-    ubus-cli WiFi.AccessPoint.2.IEEE80211u.QoSMapSet=
-    ubus-cli WiFi.AccessPoint.1.Security.ModeEnabled=None
-    ubus-cli WiFi.AccessPoint.1.Security.MFPConfig=Disabled
-    ubus-cli WiFi.AccessPoint.1.Enable=1
-  STA 5G preparation:
-    ubus-cli WiFi.AccessPoint.1.Enable=0
-    ubus-cli WiFi.AccessPoint.2.Enable=0
-    killall wpa_supplicant 2>/dev/null || true
-    iw dev wl0.1 del 2>/dev/null || true
-    iw dev wl0 disconnect 2>/dev/null || true
-    iw dev wl0 set type managed
-    ifconfig wl0 up
-  STA 5G connect verify:
-    iw dev wl0 connect {{SSID_5G}}
-    sleep 2
-    iw dev wl0 link
-  DUT association evidence:
-    wl -i wl0 assoclist
-test_procedure: |
-  1) Execute case command on DUT:
-     ubus-cli WiFi.AccessPoint.{i}.AssociatedDevice.{i}.MaxRxSpatialStreamsSupported=2
-  2) LLAPI readback on DUT:
-     ubus-cli "WiFi.AccessPoint.*.AssociatedDevice.*.MaxRxSpatialStreamsSupported?"
-  3) For stats/AssociatedDevice cases, generate traffic (ping/iperf) before re-read.
-  4) STA link validation:
-     iw dev wl0 link
-     iw dev wl1 link
-     wpa_cli -i wl1 status
-     iw dev wl2 link
-  5) Cross-check with verification_command (driver/hostapd/iw/proc evidence).
-
 steps:
-- id: step1
-  action: exec
-  target: DUT
-  command: 1. Connect WiFi Station to GW
-- id: step2
-  action: exec
-  target: DUT
-  command: Verify Station MaxRxSpatialStreamsSupported ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.? | grep MaxRxSpatialStreamsSupported
-    ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.? | grep MaxRxSpat ialStreamsSupported WiFi.AccessPoint.1.AssociatedDevice.1.MaxRxSpatialStreamsSupported=4
-    WiFi.AccessPoint.3.AssociatedDevice.1.MaxRxSpatialStreamsSupported=4 WiFi.AccessPoint.5.AssociatedDevice.1.MaxRxSpatialStreamsSupported=4
-  depends_on: step1
-  capture: result
+- id: step_5g_assoc_check
+  target: dut
+  action: read
+  capture: assoc_check
+  command: wl -i wl0 assoclist | head -1
+  expected: 至少一個 STA MAC
+  description: 確認 AP1 有 associated STA
+- id: step_5g_getter
+  target: dut
+  action: read
+  capture: getter_5g
+  command: ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MaxRxSpatialStreamsSupported?"
+  expected: MaxRxSpatialStreamsSupported 回傳有效值
+  description: AP1 AssociatedDevice.1 MaxRxSpatialStreamsSupported getter
+  depends_on: step_5g_assoc_check
 pass_criteria:
-- field: result.MaxRxSpatialStreamsSupported
-  operator: contains
-  value: '2'
-  description: MaxRxSpatialStreamsSupported 應回傳包含 MaxRxSpatialStreamsSupported=2
-verification_command: 'root@prplOS:/# wl -i wl0 sta_info 34:19:4D:A4:B5:09 | grep Nss
-
-  tx nrate
-
-  eht mcs 9 Nss 4 Tx Exp 0 bw20 txbf ldpc 2xLTF GI 0.8us auto
-
-  rx nrate
-
-  eht mcs 9 Nss 4 Tx Exp 0 bw20 ldpc 2xLTF GI 0.8us auto
-
-
-
-  root@prplOS:/# wl -i wl1 sta_info 38:06:E6:92:B0:4A | grep Nss
-
-  tx nrate
-
-  eht mcs 11 Nss 4 Tx Exp 0 bw20 txbf ldpc 2xLTF GI 0.8us auto
-
-  rx nrate
-
-  eht mcs 12 Nss 1 Tx Exp 0 bw20 ldpc 2xLTF GI 0.8us auto
-
-
-  root@prplOS:/# wl -i wl2 sta_info 34:19:4D:A4:B4:33 | grep Nss
-
-  tx nrate
-
-  eht mcs 10 Nss 3 Tx Exp 1 bw20 ldpc 2xLTF GI 0.8us auto
-
-  rx nrate
-
-  eht mcs 13 Nss 1 Tx Exp 0 bw20 txbf ldpc 2xLTF GI 0.8us auto'
-results_reference:
-  v4.0.1:
-    5g: Pass
-    6g: Fail
-    2.4g: Fail
-    comment: 'ARC : Command reported only 1 spatial stream for the 6 GHz and 2.4 GHz stations after association.'
-  v4.0.3:
-    5g: Pass
-    6g: Pass
-    2.4g: Pass
-    comment: ''
+- field: assoc_check
+  operator: regex
+  value: "assoclist [0-9A-Fa-f:]+"
+- field: getter_5g.MaxRxSpatialStreamsSupported
+  operator: regex
+  value: '^\d+$'

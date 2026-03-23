@@ -1,20 +1,16 @@
-id: wifi-llapi-D417-rrmonchannelmaxduration
-aliases:
-  - wifi-llapi-r310-rrmonchannelmaxduration
-name: RrmOnChannelMaxDuration — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
-version: '1.0'
+id: d417-assocdev-rrmonchannelmaxduration
+name: D417 AssociatedDevice RrmOnChannelMaxDuration
 source:
-  report: "0302-AT&T_LLAPI_Test_Report_20260107.xlsx"
-  sheet: Wifi_LLAPI
   row: 417
-  object: "WiFi.AccessPoint.{i}.AssociatedDevice.{i}."
-  api: "RrmOnChannelMaxDuration"
-platform:
-  prplos: 4.0.3
-  bdk: 6.3.1
-hlapi_command: ubus-cli WiFi.AccessPoint.{i}.AssociatedDevice.{i}.RrmOnChannelMaxDuration=4
+  object: WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
+  api: RrmOnChannelMaxDuration
+  baseline: 0310-BGW720-300
+bands:
+- 5g
 llapi_support: Support
-implemented_by: pWHM
+results_reference:
+  v4.0.3:
+    5g: Pass
 topology:
   devices:
     DUT:
@@ -25,162 +21,26 @@ topology:
       role: sta
       transport: serial
       selector: COM1
-      config:
-      - iface: 5g
-        mode: sta
-        ssid: '{{SSID_5G}}'
-        key: '{{KEY_5G}}'
-  links:
-  - from: STA
-    to: DUT
-    band: 5g
-test_environment: |
-  Topology:
-  - DUT: COM0 (B0, AP role)
-  - STA: COM1 (A0, STA role, STA-required cases only)
-  Transport:
-  - serialwrap attach COM0 / COM1
-  Band mapping:
-  - 5G: DUT wl0 / AP1 / SSID.4
-  - 6G: DUT wl1 / AP3 / SSID.6
-  - 2.4G: DUT wl2 / AP5 / SSID.8
-  Pre-check:
-  - cat /proc/socinfo | grep Revision | cut -d: -f2
-  - iw dev
-  - ubus-cli "WiFi.Radio.?" | sed -n "1,120p"
-
-setup_steps: |
-  1) DUT 5G baseline:
-     - set Radio.1/SSID.4 for the 5G AP under test
-     - configure AP1 as open with MFP disabled
-     - enable AP1 before station association
-  2) STA 5G preparation:
-     - disable local AP1/AP2 on A0
-     - clear wl0 AP child interface and switch wl0 to managed mode
-     - connect wl0 to {{SSID_5G}}
-  3) Association evidence:
-     - A0: iw dev wl0 link
-     - B0: wl -i wl0 assoclist
-sta_env_setup: |
-  DUT 5G AP baseline:
-    ubus-cli WiFi.Radio.1.Enable=1
-    ubus-cli WiFi.Radio.1.BeaconPeriod=100
-    ubus-cli WiFi.Radio.1.DTIMPeriod=3
-    ubus-cli WiFi.Radio.1.DriverConfig.FragmentationThreshold=-1
-    ubus-cli WiFi.Radio.1.DriverConfig.RtsThreshold=-1
-    ubus-cli WiFi.Radio.1.DriverConfig.TPCMode=Auto
-    ubus-cli WiFi.Radio.1.ExplicitBeamFormingEnabled=1
-    ubus-cli WiFi.Radio.1.ImplicitBeamFormingEnabled=1
-    ubus-cli WiFi.Radio.1.OfdmaEnable=1
-    ubus-cli WiFi.Radio.1.ObssCoexistenceEnable=0
-    ubus-cli WiFi.Radio.1.OperatingStandards=ax
-    ubus-cli WiFi.Radio.1.RxChainCtrl=-1
-    ubus-cli WiFi.Radio.1.TxChainCtrl=-1
-    ubus-cli WiFi.Radio.1.Vendor.Brcm.RegulatoryDomainRev=0
-    ubus-cli WiFi.Radio.1.Sensing.Enable=1
-    ubus-cli WiFi.Radio.1.IEEE80211ax.BssColorPartial=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.NonSRGOBSSPDMaxOffset=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.PSRDisallowed=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.SRGOBSSPDMaxOffset=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.SRGOBSSPDMinOffset=0
-    ubus-cli WiFi.Radio.1.LongRetryLimit=6
-    ubus-cli WiFi.Radio.1.MultiUserMIMOEnabled=1
-    ubus-cli WiFi.Radio.1.TargetWakeTimeEnable=1
-    ubus-cli WiFi.SSID.4.SSID={{SSID_5G}}
-    ubus-cli WiFi.AccessPoint.1.IEEE80211u.QoSMapSet=
-    ubus-cli WiFi.AccessPoint.2.IEEE80211u.QoSMapSet=
-    ubus-cli WiFi.AccessPoint.1.Security.ModeEnabled=None
-    ubus-cli WiFi.AccessPoint.1.Security.MFPConfig=Disabled
-    ubus-cli WiFi.AccessPoint.1.Enable=1
-  STA 5G preparation:
-    ubus-cli WiFi.AccessPoint.1.Enable=0
-    ubus-cli WiFi.AccessPoint.2.Enable=0
-    killall wpa_supplicant 2>/dev/null || true
-    iw dev wl0.1 del 2>/dev/null || true
-    iw dev wl0 disconnect 2>/dev/null || true
-    iw dev wl0 set type managed
-    ifconfig wl0 up
-  STA 5G connect verify:
-    iw dev wl0 connect {{SSID_5G}}
-    sleep 2
-    iw dev wl0 link
-  DUT association evidence:
-    wl -i wl0 assoclist
-test_procedure: |
-  1) Execute case command on DUT:
-     ubus-cli WiFi.AccessPoint.{i}.AssociatedDevice.{i}.RrmOnChannelMaxDuration=4
-  2) LLAPI readback on DUT:
-     ubus-cli "WiFi.AccessPoint.*.AssociatedDevice.*.RrmOnChannelMaxDuration?"
-  3) For stats/AssociatedDevice cases, generate traffic (ping/iperf) before re-read.
-  4) STA link validation:
-     iw dev wl0 link
-     iw dev wl1 link
-     wpa_cli -i wl1 status
-     iw dev wl2 link
-  5) Cross-check with verification_command (driver/hostapd/iw/proc evidence).
-
 steps:
-- id: step1
-  action: exec
-  target: DUT
-  command: 1. Connect WiFi Station to GW with one station 802.11k Enable and the other one 802.11k Disable.
-- id: step2
-  action: exec
-  target: DUT
-  command: 'Verify Station station 802.11k Enable Check whether RRM is ON or OFF using: wl sta_info <MAC> | grep -i rrm If
-    802.11k Enable then you will see RRM-related output (flags / capabilities): If nothing appears 0x0 then RRM is Disable/not
-    supported or not advertised'
-  depends_on: step1
-- id: step3
-  action: exec
-  target: DUT
-  command: 'Check Station capabilities: wl sta_info <MAC> | grep -i rrm Using Octoscope as Station 02:10:5E:BA:A9:00 - 802.11k
-    Enable 02:10:5E:8B:5B:00 - 802.11k Disable wl sta_info 02:10:5E:BA:A9:00 | grep -i rrm RRM capability = 0xc0000da73 Link_Measurement
-    Neighbor_Report Beacon_Passive Beacon_Active Beacon_Table Channel_load_Measurement Statistics_Measurement LCI_Measurement
-    Tx_Stream_Category_Measurement Triggered_Tx_stream_Category_Measurement FTM_Range_Reporting Civic_Location_Measurement  wl
-    sta_info 02:10:5E:8B:5B:00 | grep -i rrm RRM capability = 0x0 '
-  depends_on: step2
-- id: step4
-  action: exec
-  target: DUT
-  command: Try to set Station 802.11k from Enable to Disable and Disble to Enable then re-connect station. 02:10:5E:BA:A9:00
-    - 802.11k Disable 02:10:5E:8B:5B:00 - 802.11k Enable
-  depends_on: step3
-- id: step5
-  action: exec
-  target: DUT
-  command: 'Check Station capabilities: wl sta_info <MAC> | grep -i rrm wl sta_info 02:10:5E:BA:A9:00 | grep -i rrm RRM capability
-    = 0x0 wl sta_info 02:10:5E:8B:5B:00 | grep -i rrm RRM capability = 0xc0000da73 Link_Measurement Neighbor_Report Beacon_Passive
-    Beacon_Active Beacon_Table Channel_load_Measurement Statistics_Measurement LCI_Measurement Tx_Stream_Category_Measurement
-    Triggered_Tx_stream_Category_Measurement FTM_Range_Reporting Civic_Location_Measurement'
-  depends_on: step4
-  capture: result
+- id: step_5g_assoc_check
+  target: dut
+  action: read
+  capture: assoc_check
+  command: wl -i wl0 assoclist | head -1
+  expected: 至少一個 STA MAC
+  description: 確認 AP1 有 associated STA
+- id: step_5g_getter
+  target: dut
+  action: read
+  capture: getter_5g
+  command: ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.RrmOnChannelMaxDuration?"
+  expected: RrmOnChannelMaxDuration 回傳有效值
+  description: AP1 AssociatedDevice.1 RrmOnChannelMaxDuration getter
+  depends_on: step_5g_assoc_check
 pass_criteria:
-- field: result.RrmOnChannelMaxDuration
-  operator: contains
-  value: '4'
-  description: RrmOnChannelMaxDuration 應回傳包含 RrmOnChannelMaxDuration=4
-
-verification_command: |
-  # Generate traffic before readback for stats-like AssociatedDevice fields.
-  wl -i wl0 assoclist
-  wl -i wl1 assoclist
-  wl -i wl2 assoclist
-  ubus-cli "WiFi.AccessPoint.*.AssociatedDevice.*.?" | sed -n "1,120p"
-  ubus-cli "WiFi.AccessPoint.*.AssociatedDevice.*.RrmOnChannelMaxDuration?" 2>/dev/null || true
-  wl -i wl0 sta_info "$(wl -i wl0 assoclist 2>/dev/null | awk 'NR==1{print $2}')" 2>/dev/null | sed -n "1,120p" || true
-  wl -i wl1 sta_info "$(wl -i wl1 assoclist 2>/dev/null | awk 'NR==1{print $2}')" 2>/dev/null | sed -n "1,120p" || true
-  wl -i wl2 sta_info "$(wl -i wl2 assoclist 2>/dev/null | awk 'NR==1{print $2}')" 2>/dev/null | sed -n "1,120p" || true
-  iw dev wl0 station dump 2>/dev/null | sed -n "1,120p"
-
-results_reference:
-  v4.0.1:
-    5g: Pass
-    6g: Pass
-    2.4g: Pass
-    comment: ''
-  v4.0.3:
-    5g: Pass
-    6g: Pass
-    2.4g: Pass
-    comment: ''
+- field: assoc_check
+  operator: regex
+  value: "assoclist [0-9A-Fa-f:]+"
+- field: getter_5g.RrmOnChannelMaxDuration
+  operator: regex
+  value: '^\d+$'

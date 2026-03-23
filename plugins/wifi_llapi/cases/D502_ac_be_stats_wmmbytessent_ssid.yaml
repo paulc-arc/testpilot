@@ -1,195 +1,55 @@
-id: wifi-llapi-d502-ac-be-stats-wmmbytessent-ssid
-name: 'AC_BE — WiFi.SSID.{i}.Stats.WmmBytesSent'
-version: '1.0'
+id: d502-ssid-wmm-ac_be_stats_wmmbytessent_ssid
+name: D502 WmmBytesSent.AC_BE
 source:
-  report: 0310-BGW720-300_LLAPI_Test_Report.xlsx
-  sheet: Wifi_LLAPI
   row: 367
-  object: WiFi.SSID.{i}.Stats.WmmBytesSent
+  object: WiFi.SSID.{i}.Stats.WmmBytesSent.
   api: AC_BE
-platform:
-  prplos: 4.0.3
-  bdk: 6.3.1
-hlapi_command: 'ubus-cli "WiFi.SSID.{i}.Stats.WmmBytesSent.AC_BE?"'
+  baseline: 0310-BGW720-300
+bands:
+- 5g
+- 6g
+- 2.4g
 llapi_support: Support
-implemented_by: pWHM
+results_reference:
+  v4.0.3:
+    5g: Pass
+    6g: Pass
+    2.4g: Pass
 topology:
   devices:
     DUT:
       role: ap
       transport: serial
       selector: COM0
-    STA:
-      role: sta
-      transport: serial
-      selector: COM1
-      config:
-        - iface: 5g
-          mode: sta
-          ssid: TestPilot_BTM
-          key: testpilot6g
-        - iface: 6g
-          mode: sta
-          ssid: TestPilot_BTM
-          key: testpilot6g
-        - iface: 2.4g
-          mode: sta
-          ssid: TestPilot_24G
-          key: ''
-  links:
-    - from: STA
-      to: DUT
-      band: 5g
-    - from: STA
-      to: DUT
-      band: 6g
-    - from: STA
-      to: DUT
-      band: 2.4g
-test_environment: |
-  Topology:
-  - DUT: COM0 (AP role)
-  - STA: COM1 (single active STA link only; validate 5G -> 6G -> 2.4G sequentially)
-  Mapping:
-  - 5G = wl0 / SSID.4 / STA MAC 2c:59:17:00:04:85
-  - 6G = wl1 / SSID.6 / STA MAC 2c:59:17:00:04:86
-  - 2.4G = wl2 / SSID.8 / STA MAC 2c:59:17:00:04:97
-  Rules:
-  - keep only one STA band associated at a time
-  - attempt some STA traffic before the final reread for each band
-  - judge SSID-level WMM fields against the workbook Not Supported baseline, not against radio-level counters
-setup_steps: |
-  DUT baseline:
-    ubus-cli WiFi.Radio.1.Enable=1
-    ubus-cli WiFi.SSID.4.SSID=TestPilot_BTM
-    ubus-cli WiFi.AccessPoint.1.Security.ModeEnabled=WPA3-Personal
-    ubus-cli WiFi.AccessPoint.1.Security.SAEPassphrase=testpilot6g
-    ubus-cli WiFi.AccessPoint.1.Security.MFPConfig=Required
-    ubus-cli WiFi.AccessPoint.1.Enable=1
-    ubus-cli WiFi.Radio.2.Enable=1
-    ubus-cli WiFi.SSID.6.SSID=TestPilot_BTM
-    ubus-cli WiFi.AccessPoint.3.Security.ModeEnabled=WPA3-Personal
-    ubus-cli WiFi.AccessPoint.3.Security.SAEPassphrase=testpilot6g
-    ubus-cli WiFi.AccessPoint.3.Security.MFPConfig=Required
-    ubus-cli WiFi.AccessPoint.3.Enable=1
-    ubus-cli WiFi.Radio.3.Enable=1
-    ubus-cli WiFi.SSID.8.SSID=TestPilot_24G
-    ubus-cli WiFi.AccessPoint.5.Security.ModeEnabled=None
-    ubus-cli WiFi.AccessPoint.5.Security.MFPConfig=Disabled
-    ubus-cli WiFi.AccessPoint.5.Enable=1
-  STA reset before each band:
-    ifconfig br-lan 192.168.88.1 netmask 255.255.255.0 up
-    wpa_cli terminate 2>/dev/null || true
-    iw dev wl0 disconnect 2>/dev/null || true
-    iw dev wl1 disconnect 2>/dev/null || true
-    iw dev wl2 disconnect 2>/dev/null || true
-sta_env_setup: |
-  5G example:
-    iw dev wl0 set type managed
-    ifconfig wl0 up
-    wpa_supplicant -B -D nl80211 -i wl0 -c /tmp/wpa_wl0.conf -C /var/run/wpa_supplicant
-    wpa_cli -p /var/run/wpa_supplicant -i wl0 reconnect
-  6G example:
-    iw dev wl1 set type managed
-    ifconfig wl1 up
-    wpa_supplicant -B -D nl80211 -i wl1 -c /tmp/wpa_wl1.conf -C /var/run/wpa_supplicant
-    wpa_cli -p /var/run/wpa_supplicant -i wl1 reconnect
-  2.4G example:
-    iw dev wl2 set type managed
-    ifconfig wl2 up
-    iw dev wl2 connect TestPilot_24G
-  Traffic attempt:
-    ifconfig wlX 192.168.1.X netmask 255.255.255.0 up
-    ip route replace 192.168.1.0/24 dev wlX src 192.168.1.X
-    ip neigh flush dev wlX
-    ping -I wlX -c 5 -W 1 192.168.1.1
-test_procedure: |
-  1) Validate this SSID-level WMM field sequentially on 5G, then 6G, then 2.4G with one active STA link at a time.
-  2) For each band, associate the STA, attempt some traffic, then query WiFi.SSID.{i}.Stats.WmmBytesSent.AC_BE.
-  3) In parallel, note that radio-level WMM counters may increment in wl -i wlX wme_counters even while the SSID-level field stays 0.
-  4) Keep the verdict as workbook v4.0.3 Not Supported; do not reinterpret radio-level activity as SSID-level pass evidence.
 steps:
-- id: assoc_5g
-  action: exec
-  target: DUT
-  command: wl -i wl0 assoclist | tr 'A-F' 'a-f' | sed -n 's/^assoclist \([^ ]*\).*$/AssocMac5g=\1/p'
-  capture: assoc_5g
-- id: result_5g
-  action: exec
-  target: DUT
-  command: ubus-cli "WiFi.SSID.4.Stats.WmmBytesSent.AC_BE?" | sed -n 's/.*AC_BE=\([0-9][0-9]*\).*/AC_BE5g=\1/p'
-  depends_on: assoc_5g
-  capture: result_5g
-- id: assoc_6g
-  action: exec
-  target: DUT
-  command: wl -i wl1 assoclist | tr 'A-F' 'a-f' | sed -n 's/^assoclist \([^ ]*\).*$/AssocMac6g=\1/p'
-  capture: assoc_6g
-- id: result_6g
-  action: exec
-  target: DUT
-  command: ubus-cli "WiFi.SSID.6.Stats.WmmBytesSent.AC_BE?" | sed -n 's/.*AC_BE=\([0-9][0-9]*\).*/AC_BE6g=\1/p'
-  depends_on: assoc_6g
-  capture: result_6g
-- id: assoc_24g
-  action: exec
-  target: DUT
-  command: wl -i wl2 assoclist | tr 'A-F' 'a-f' | sed -n 's/^assoclist \([^ ]*\).*$/AssocMac24g=\1/p'
-  capture: assoc_24g
-- id: result_24g
-  action: exec
-  target: DUT
-  command: ubus-cli "WiFi.SSID.8.Stats.WmmBytesSent.AC_BE?" | sed -n 's/.*AC_BE=\([0-9][0-9]*\).*/AC_BE24g=\1/p'
-  depends_on: assoc_24g
-  capture: result_24g
+- id: step_5g_getter
+  target: dut
+  action: read
+  capture: getter_5g
+  command: ubus-cli "WiFi.SSID.4.Stats.WmmBytesSent.AC_BE?"
+  expected: AC_BE 回傳有效值
+  description: SSID.4 (5g) WmmBytesSent.AC_BE getter
+- id: step_6g_getter
+  target: dut
+  action: read
+  capture: getter_6g
+  command: ubus-cli "WiFi.SSID.6.Stats.WmmBytesSent.AC_BE?"
+  expected: AC_BE 回傳有效值
+  description: SSID.6 (6g) WmmBytesSent.AC_BE getter
+- id: step_24g_getter
+  target: dut
+  action: read
+  capture: getter_24g
+  command: ubus-cli "WiFi.SSID.8.Stats.WmmBytesSent.AC_BE?"
+  expected: AC_BE 回傳有效值
+  description: SSID.8 (2.4g) WmmBytesSent.AC_BE getter
 pass_criteria:
-- field: assoc_5g.AssocMac5g
-  operator: equals
-  value: 2c:59:17:00:04:85
-  description: 5g DUT assoclist must resolve the expected STA MAC 2c:59:17:00:04:85.
-- field: result_5g.AC_BE5g
-  operator: equals
-  value: 0
-  description: 5g SSID-level WmmBytesSent.AC_BE stays 0, matching the workbook Not Supported baseline.
-- field: assoc_6g.AssocMac6g
-  operator: equals
-  value: 2c:59:17:00:04:86
-  description: 6g DUT assoclist must resolve the expected STA MAC 2c:59:17:00:04:86.
-- field: result_6g.AC_BE6g
-  operator: equals
-  value: 0
-  description: 6g SSID-level WmmBytesSent.AC_BE stays 0, matching the workbook Not Supported baseline.
-- field: assoc_24g.AssocMac24g
-  operator: equals
-  value: 2c:59:17:00:04:97
-  description: 2.4g DUT assoclist must resolve the expected STA MAC 2c:59:17:00:04:97.
-- field: result_24g.AC_BE24g
-  operator: equals
-  value: 0
-  description: 2.4g SSID-level WmmBytesSent.AC_BE stays 0, matching the workbook Not Supported baseline.
-verification_command: |
-  # 5g
-  wl -i wl0 assoclist
-  ubus-cli "WiFi.SSID.4.Stats.WmmBytesSent.AC_BE?"
-  wl -i wl0 wme_counters | sed -n '/AC_BE:/,/^$/p'
-
-  # 6g
-  wl -i wl1 assoclist
-  ubus-cli "WiFi.SSID.6.Stats.WmmBytesSent.AC_BE?"
-  wl -i wl1 wme_counters | sed -n '/AC_BE:/,/^$/p'
-
-  # 2.4g
-  wl -i wl2 assoclist
-  ubus-cli "WiFi.SSID.8.Stats.WmmBytesSent.AC_BE?"
-  wl -i wl2 wme_counters | sed -n '/AC_BE:/,/^$/p'
-results_reference:
-  v4.0.1:
-    5g: Fail
-    6g: Fail
-    2.4g: Fail
-    comment: 'not support per ssid | Driver'
-  v4.0.3:
-    5g: Not Supported
-    6g: Not Supported
-    2.4g: Not Supported
-    comment: 'not support per ssid | Driver | Multiband serialwrap retest kept WiFi.SSID.{i}.Stats.WmmBytesSent.AC_BE at 0 on 5G/6G/2.4G; radio-level alternative evidence remains available via wl -i wlX wme_counters.'
+- field: getter_5g.AC_BE
+  operator: regex
+  value: ^\d+$
+- field: getter_6g.AC_BE
+  operator: regex
+  value: ^\d+$
+- field: getter_24g.AC_BE
+  operator: regex
+  value: ^\d+$

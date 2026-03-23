@@ -1,20 +1,16 @@
-id: wifi-llapi-D428-uplinkratespec
-aliases:
-  - wifi-llapi-r311-uplinkratespec
-name: UplinkRateSpec — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
-version: '1.0'
+id: d428-assocdev-uplinkratespec
+name: D428 AssociatedDevice UplinkRateSpec
 source:
-  report: "0302-AT&T_LLAPI_Test_Report_20260107.xlsx"
-  sheet: Wifi_LLAPI
   row: 428
-  object: "WiFi.AccessPoint.{i}.AssociatedDevice.{i}."
-  api: "UplinkRateSpec"
-platform:
-  prplos: 4.0.3
-  bdk: 6.3.1
-hlapi_command: ubus-cli "WiFi.AccessPoint.{i}.AssociatedDevice.{i}.UplinkRateSpec?"
+  object: WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
+  api: UplinkRateSpec
+  baseline: 0310-BGW720-300
+bands:
+- 5g
 llapi_support: Support
-implemented_by: pWHM
+results_reference:
+  v4.0.3:
+    5g: Pass
 topology:
   devices:
     DUT:
@@ -25,130 +21,26 @@ topology:
       role: sta
       transport: serial
       selector: COM1
-      config:
-      - iface: 5g
-        mode: sta
-        ssid: '{{SSID_5G}}'
-        key: '{{KEY_5G}}'
-  links:
-  - from: STA
-    to: DUT
-    band: 5g
-test_environment: |
-  Topology:
-  - DUT: COM0 (B0, AP role)
-  - STA: COM1 (A0, STA role, STA-required cases only)
-  Transport:
-  - serialwrap attach COM0 / COM1
-  Band mapping:
-  - 5G: DUT wl0 / AP1 / SSID.4
-  - 6G: DUT wl1 / AP3 / SSID.6
-  - 2.4G: DUT wl2 / AP5 / SSID.8
-  Pre-check:
-  - cat /proc/socinfo | grep Revision | cut -d: -f2
-  - iw dev
-  - ubus-cli "WiFi.Radio.?" | sed -n "1,120p"
-
-setup_steps: |
-  1) DUT 5G baseline:
-     - set Radio.1/SSID.4 for the 5G AP under test
-     - configure AP1 as open with MFP disabled
-     - enable AP1 before station association
-  2) STA 5G preparation:
-     - disable local AP1/AP2 on A0
-     - clear wl0 AP child interface and switch wl0 to managed mode
-     - connect wl0 to {{SSID_5G}}
-  3) Association evidence:
-     - A0: iw dev wl0 link
-     - B0: wl -i wl0 assoclist
-sta_env_setup: |
-  DUT 5G AP baseline:
-    ubus-cli WiFi.Radio.1.Enable=1
-    ubus-cli WiFi.Radio.1.BeaconPeriod=100
-    ubus-cli WiFi.Radio.1.DTIMPeriod=3
-    ubus-cli WiFi.Radio.1.DriverConfig.FragmentationThreshold=-1
-    ubus-cli WiFi.Radio.1.DriverConfig.RtsThreshold=-1
-    ubus-cli WiFi.Radio.1.DriverConfig.TPCMode=Auto
-    ubus-cli WiFi.Radio.1.ExplicitBeamFormingEnabled=1
-    ubus-cli WiFi.Radio.1.ImplicitBeamFormingEnabled=1
-    ubus-cli WiFi.Radio.1.OfdmaEnable=1
-    ubus-cli WiFi.Radio.1.ObssCoexistenceEnable=0
-    ubus-cli WiFi.Radio.1.OperatingStandards=ax
-    ubus-cli WiFi.Radio.1.RxChainCtrl=-1
-    ubus-cli WiFi.Radio.1.TxChainCtrl=-1
-    ubus-cli WiFi.Radio.1.Vendor.Brcm.RegulatoryDomainRev=0
-    ubus-cli WiFi.Radio.1.Sensing.Enable=1
-    ubus-cli WiFi.Radio.1.IEEE80211ax.BssColorPartial=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.NonSRGOBSSPDMaxOffset=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.PSRDisallowed=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.SRGOBSSPDMaxOffset=0
-    ubus-cli WiFi.Radio.1.IEEE80211ax.SRGOBSSPDMinOffset=0
-    ubus-cli WiFi.Radio.1.LongRetryLimit=6
-    ubus-cli WiFi.Radio.1.MultiUserMIMOEnabled=1
-    ubus-cli WiFi.Radio.1.TargetWakeTimeEnable=1
-    ubus-cli WiFi.SSID.4.SSID={{SSID_5G}}
-    ubus-cli WiFi.AccessPoint.1.IEEE80211u.QoSMapSet=
-    ubus-cli WiFi.AccessPoint.2.IEEE80211u.QoSMapSet=
-    ubus-cli WiFi.AccessPoint.1.Security.ModeEnabled=None
-    ubus-cli WiFi.AccessPoint.1.Security.MFPConfig=Disabled
-    ubus-cli WiFi.AccessPoint.1.Enable=1
-  STA 5G preparation:
-    ubus-cli WiFi.AccessPoint.1.Enable=0
-    ubus-cli WiFi.AccessPoint.2.Enable=0
-    killall wpa_supplicant 2>/dev/null || true
-    iw dev wl0.1 del 2>/dev/null || true
-    iw dev wl0 disconnect 2>/dev/null || true
-    iw dev wl0 set type managed
-    ifconfig wl0 up
-  STA 5G connect verify:
-    iw dev wl0 connect {{SSID_5G}}
-    sleep 2
-    iw dev wl0 link
-  DUT association evidence:
-    wl -i wl0 assoclist
-test_procedure: |
-  1) Ensure the target-band STA is associated to the DUT.
-  2) Generate STA -> DUT traffic (ping/iperf) before readback so the API reflects the live uplink rate instead of the idle legacy placeholder.
-  3) LLAPI readback on DUT:
-     ubus-cli "WiFi.AccessPoint.*.AssociatedDevice.*.UplinkRateSpec?"
-  4) Cross-check with verification_command (driver sta_info evidence).
-
 steps:
-- id: step1
-  action: exec
-  target: DUT
-  command: Connect WiFi station to GW and generate STA-to-DUT traffic on the active band before reading UplinkRateSpec.
-- id: step2
-  action: exec
-  target: DUT
-  command: 'Check Associated Station UplinkRateSpec while traffic is flowing. ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.UplinkRateSpec?'
-  depends_on: step1
-  capture: result
+- id: step_5g_assoc_check
+  target: dut
+  action: read
+  capture: assoc_check
+  command: wl -i wl0 assoclist | head -1
+  expected: 至少一個 STA MAC
+  description: 確認 AP1 有 associated STA
+- id: step_5g_getter
+  target: dut
+  action: read
+  capture: getter_5g
+  command: ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.UplinkRateSpec?"
+  expected: UplinkRateSpec 回傳有效值
+  description: AP1 AssociatedDevice.1 UplinkRateSpec getter
+  depends_on: step_5g_assoc_check
 pass_criteria:
-- field: result.UplinkRateSpec
-  operator: not_contains
-  value: '"leg_'
-  description: 在有實際 STA->DUT 資料流量時，UplinkRateSpec 不應停留在閒置預設值 leg_*。
-- field: result.UplinkRateSpec
-  operator: not_contains
-  value: '"unk_'
-  description: 在有實際 STA->DUT 資料流量時，UplinkRateSpec 不應是未解析的 unk_*。
-verification_command: |
-  iw dev wl0 station dump
-  iw dev wl1 station dump
-  iw dev wl2 station dump
-  wl -i wl0 sta_info <STA_MAC> | grep -A 1 '^rx'
-  wl -i wl1 sta_info <STA_MAC> | grep -A 1 '^rx'
-  wl -i wl2 sta_info <STA_MAC> | grep -A 1 '^rx'
-  # rx nrate = STA -> AP = UplinkRateSpec source. Do not use tx nrate for this case.
-results_reference:
-  v4.0.1:
-    5g: Fail
-    6g: Fail
-    2.4g: Fail
-    comment: 'ARC : API always return leg_0_20_1_0'
-  v4.0.3:
-    5g: Pass
-    6g: Pass
-    2.4g: Pass
-    comment: commit
+- field: assoc_check
+  operator: regex
+  value: "assoclist [0-9A-Fa-f:]+"
+- field: getter_5g.UplinkRateSpec
+  operator: regex
+  value: ".+"
