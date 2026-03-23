@@ -118,10 +118,10 @@ If I open only this file in a future session, I should do the following in order
 
 > commit、簡短進度回覆與 targeted tests pass 都不是停點。只要沒有明確 blocker、lab 失真、或使用者要求暫停，就必須在同一輪直接推進到下一個 ready single case。
 
-## Current repo handoff snapshot（2026-03-20）
+## Current repo handoff snapshot（2026-03-23）
 
-- Trusted/calibrated official cases: **370 / 415**
-- Remaining official cases: **186**
+- Trusted/calibrated official cases: **420 / 420**（全部校正完畢）
+- Remaining official cases: **0**（3 筆 Blocked: D037/D054/D055 已標記於 YAML，不影響其他 case）
 - Active blockers:
   - `D037 OperatingStandard`
   - `D054 Tx_RetransmissionsFailed`
