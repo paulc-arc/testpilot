@@ -18,9 +18,19 @@ from pathlib import Path
 from typing import Any
 
 try:
-    from testpilot.core.copilot_session import build_case_session_plan
+    from testpilot.core.copilot_session import (
+        CopilotSDKUnavailableError,
+        CopilotSessionManager,
+        CopilotSessionRequest,
+        build_case_session_plan,
+        build_session_id,
+    )
 except Exception:  # pragma: no cover - optional during incremental rollout
     build_case_session_plan = None
+    CopilotSDKUnavailableError = None  # type: ignore[assignment,misc]
+    CopilotSessionManager = None  # type: ignore[assignment,misc]
+    CopilotSessionRequest = None  # type: ignore[assignment,misc]
+    build_session_id = None  # type: ignore[assignment]
 
 from testpilot.core.case_utils import (
     band_results as _band_results,
@@ -34,7 +44,7 @@ from testpilot.core.case_utils import (
     safe_int as _safe_int,
     sanitize_case_id as _sanitize_case_id,
 )
-from testpilot.core.execution_engine import ExecutionEngine
+from testpilot.core.execution_engine import ExecutionEngine, RetryResult
 from testpilot.core.plugin_loader import PluginLoader
 from testpilot.core.runner_selector import (
     DEFAULT_WIFI_LLAPI_EXECUTION_POLICY,
@@ -85,6 +95,54 @@ class Orchestrator:
         self.loader = PluginLoader(self.plugins_dir)
         self.runner_selector = RunnerSelector(self.plugins_dir)
         self.execution_engine = ExecutionEngine(self.config)
+        self.session_manager: CopilotSessionManager | None = self._try_init_session_manager()
+
+    # -- SDK session management ------------------------------------------------
+
+    @staticmethod
+    def _try_init_session_manager() -> CopilotSessionManager | None:
+        """Try to create a CopilotSessionManager; return None if SDK unavailable."""
+        if CopilotSessionManager is None:
+            return None
+        try:
+            mgr = CopilotSessionManager()
+            mgr._load_sdk()  # probe availability
+            return mgr
+        except Exception:
+            log.debug("Copilot SDK unavailable — session foundation disabled")
+            return None
+
+    def _create_case_session(
+        self,
+        session_plan: dict[str, Any],
+    ) -> dict[str, Any] | None:
+        """Attempt to create an SDK session from a session plan; return handle info or None."""
+        if self.session_manager is None or CopilotSessionRequest is None:
+            return None
+        try:
+            request = CopilotSessionRequest(
+                session_id=str(session_plan.get("session_id", "")),
+                model=str(session_plan.get("model", "")),
+                reasoning_effort=str(session_plan.get("reasoning_effort", "high")),
+            )
+            handle = self.session_manager.create_session(request)
+            return {
+                "session_id": handle.session_id,
+                "workspace_path": handle.workspace_path,
+                "status": "created",
+            }
+        except Exception as exc:
+            log.warning("SDK session creation failed: %s", exc)
+            return {"status": "failed", "error": str(exc)}
+
+    def _cleanup_case_session(self, session_id: str | None) -> None:
+        """Best-effort cleanup of a case-level SDK session."""
+        if not session_id or self.session_manager is None:
+            return
+        try:
+            self.session_manager.delete_session(session_id)
+        except Exception:
+            log.debug("SDK session cleanup failed for %s", session_id)
 
     # -- discovery -------------------------------------------------------------
 
@@ -368,73 +426,40 @@ class Orchestrator:
                 if session_plan is not None:
                     selection_trace["session_plan"] = session_plan
 
-            max_attempts = _safe_int(
-                execution_policy.get("retry", {}).get("max_attempts"), 1
-            )
-            failure_policy = str(execution_policy.get("failure_policy", "retry_then_fail_and_continue"))
+            # Wire SDK session if a plan was created
+            active_session_id: str | None = None
+            session_plan_dict = selection_trace.get("session_plan")
+            if session_plan_dict and isinstance(session_plan_dict, dict):
+                session_handle = self._create_case_session(session_plan_dict)
+                if session_handle:
+                    selection_trace["session_handle"] = session_handle
+                    if session_handle.get("status") == "created":
+                        active_session_id = session_handle.get("session_id")
 
-            attempts_trace: list[dict[str, Any]] = []
-            commands: list[str] = []
-            outputs: list[str] = []
-            verdict = False
-            comment = ""
-
-            for attempt_index in range(1, max_attempts + 1):
-                attempt_timeout = ExecutionEngine.attempt_timeout_seconds(
-                    steps_count=steps_count,
-                    attempt_index=attempt_index,
-                    execution_policy=execution_policy,
-                )
-                attempt_result = self.execution_engine.execute_case_once(
+            try:
+                retry_result = self.execution_engine.execute_with_retry(
                     plugin=plugin,
                     case=case,
-                    attempt_index=attempt_index,
-                    attempt_timeout_seconds=attempt_timeout,
                     runner=selected_runner,
+                    execution_policy=execution_policy,
                 )
-                commands = [str(x) for x in attempt_result.get("commands", [])]
-                outputs = [str(x) for x in attempt_result.get("outputs", [])]
-                verdict = bool(attempt_result.get("verdict", False))
-                comment = str(attempt_result.get("comment", ""))
-                attempt_result_5g, attempt_result_6g, attempt_result_24g = _case_band_results(
-                    case, verdict
-                )
-                attempt_status = _overall_case_status(
-                    attempt_result_5g, attempt_result_6g, attempt_result_24g
-                )
-
-                attempts_trace.append(
-                    {
-                        "attempt": attempt_index,
-                        "timeout_seconds": attempt_timeout,
-                        "runner": RunnerSelector.runner_summary(selected_runner),
-                        "status": attempt_status,
-                        "evaluation_verdict": "Pass" if verdict else "Fail",
-                        "comment": comment,
-                        "commands": commands,
-                        "outputs": outputs,
-                    }
-                )
-
-                if verdict:
-                    break
-                should_retry = (
-                    failure_policy == "retry_then_fail_and_continue" and attempt_index < max_attempts
-                )
-                if not should_retry:
-                    break
-
-            attempts_used = len(attempts_trace)
-            if verdict and attempts_used > 1 and not comment:
-                comment = f"pass after retry ({attempts_used}/{max_attempts})"
-            if not verdict and attempts_used > 1:
-                if comment:
-                    comment = f"{comment} (failed after {attempts_used}/{max_attempts} attempts)"
-                else:
-                    comment = f"failed after {attempts_used}/{max_attempts} attempts"
+            finally:
+                self._cleanup_case_session(active_session_id)
+            verdict = retry_result.verdict
+            comment = retry_result.comment
+            commands = retry_result.commands
+            outputs = retry_result.outputs
+            attempts_trace = retry_result.attempts
 
             result_5g, result_6g, result_24g = _case_band_results(case, verdict)
             status = _overall_case_status(result_5g, result_6g, result_24g)
+
+            # Enrich attempt entries with band-level status for trace
+            for att in attempts_trace:
+                att_verdict = att.get("verdict", False)
+                a5, a6, a24 = _case_band_results(case, att_verdict)
+                att["status"] = _overall_case_status(a5, a6, a24)
+
             case_trace_path = (
                 agent_trace_dir / f"{_sanitize_case_id(case_id)}.json"
             )
@@ -451,7 +476,7 @@ class Orchestrator:
                     "final": {
                         "status": status,
                         "evaluation_verdict": "Pass" if verdict else "Fail",
-                        "attempts_used": attempts_used,
+                        "attempts_used": retry_result.attempts_used,
                         "comment": comment,
                     },
                 },

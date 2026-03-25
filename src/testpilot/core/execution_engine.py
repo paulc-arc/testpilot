@@ -4,13 +4,27 @@ from __future__ import annotations
 
 import json
 import logging
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from testpilot.core.case_utils import safe_float
+from testpilot.core.case_utils import safe_float, safe_int
 from testpilot.core.runner_selector import RunnerSelector
 
 log = logging.getLogger(__name__)
+
+
+@dataclass(slots=True)
+class RetryResult:
+    """Structured result of a case execution with full retry history."""
+
+    verdict: bool
+    comment: str
+    commands: list[str]
+    outputs: list[str]
+    attempts: list[dict[str, Any]]
+    attempts_used: int
+    max_attempts: int
 
 
 class ExecutionEngine:
@@ -111,6 +125,90 @@ class ExecutionEngine:
             "commands": commands,
             "outputs": outputs,
         }
+
+    def execute_with_retry(
+        self,
+        plugin: Any,
+        case: dict[str, Any],
+        *,
+        runner: dict[str, Any],
+        execution_policy: dict[str, Any],
+    ) -> RetryResult:
+        """Execute a case with retry logic and return full attempt history."""
+        retry_cfg = execution_policy.get("retry", {})
+        if not isinstance(retry_cfg, dict):
+            retry_cfg = {}
+        max_attempts = max(1, safe_int(retry_cfg.get("max_attempts"), 1))
+        failure_policy = str(
+            execution_policy.get("failure_policy", "retry_then_fail_and_continue")
+        )
+
+        raw_steps = case.get("steps", [])
+        steps_count = len(raw_steps) if isinstance(raw_steps, list) else 0
+
+        attempts: list[dict[str, Any]] = []
+        final_verdict = False
+        final_commands: list[str] = []
+        final_outputs: list[str] = []
+        final_comment = ""
+
+        for attempt_index in range(1, max_attempts + 1):
+            timeout = self.attempt_timeout_seconds(
+                steps_count=steps_count,
+                attempt_index=attempt_index,
+                execution_policy=execution_policy,
+            )
+            result = self.execute_case_once(
+                plugin=plugin,
+                case=case,
+                attempt_index=attempt_index,
+                attempt_timeout_seconds=timeout,
+                runner=runner,
+            )
+
+            final_verdict = bool(result.get("verdict", False))
+            final_commands = [str(x) for x in result.get("commands", [])]
+            final_outputs = [str(x) for x in result.get("outputs", [])]
+            final_comment = str(result.get("comment", ""))
+
+            attempts.append({
+                "attempt": attempt_index,
+                "timeout_seconds": timeout,
+                "runner": RunnerSelector.runner_summary(runner),
+                "verdict": final_verdict,
+                "evaluation_verdict": "Pass" if final_verdict else "Fail",
+                "comment": final_comment,
+                "commands": final_commands,
+                "outputs": final_outputs,
+            })
+
+            if final_verdict:
+                break
+            should_retry = (
+                failure_policy == "retry_then_fail_and_continue"
+                and attempt_index < max_attempts
+            )
+            if not should_retry:
+                break
+
+        attempts_used = len(attempts)
+        if final_verdict and attempts_used > 1 and not final_comment:
+            final_comment = f"pass after retry ({attempts_used}/{max_attempts})"
+        if not final_verdict and attempts_used > 1:
+            if final_comment:
+                final_comment = f"{final_comment} (failed after {attempts_used}/{max_attempts} attempts)"
+            else:
+                final_comment = f"failed after {attempts_used}/{max_attempts} attempts"
+
+        return RetryResult(
+            verdict=final_verdict,
+            comment=final_comment,
+            commands=final_commands,
+            outputs=final_outputs,
+            attempts=attempts,
+            attempts_used=attempts_used,
+            max_attempts=max_attempts,
+        )
 
     @staticmethod
     def write_case_trace(path: Path, payload: dict[str, Any]) -> None:
