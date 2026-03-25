@@ -73,6 +73,23 @@ class PluginBase(ABC):
     def teardown(self, case: dict[str, Any], topology: Any) -> None:
         """清理測試環境。"""
 
+    # -- optional overridable reporter -----------------------------------------
+
+    def create_reporter(self) -> Any:
+        """Return a reporter instance for this plugin.
+
+        Defaults to None (use orchestrator default). Override to provide
+        a plugin-specific reporter implementing the IReporter protocol.
+        """
+        return None
+
+    def report_formats(self) -> list[str]:
+        """Return the output formats this plugin supports.
+
+        Defaults to ['xlsx']. Plugins may override to add 'md', 'json', etc.
+        """
+        return ["xlsx"]
+
     # -- optional overridable pipeline -----------------------------------------
 
     def run_pipeline(

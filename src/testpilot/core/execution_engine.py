@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from testpilot.core.case_utils import safe_float, safe_int
+from testpilot.core.hook_policy import HookContext, HookDispatcher, HookResult
 from testpilot.core.runner_selector import RunnerSelector
 
 log = logging.getLogger(__name__)
@@ -30,8 +31,13 @@ class RetryResult:
 class ExecutionEngine:
     """Execute a single case through plugin hooks with retry and timeout escalation."""
 
-    def __init__(self, config: Any) -> None:
+    def __init__(
+        self,
+        config: Any,
+        hook_dispatcher: HookDispatcher | None = None,
+    ) -> None:
         self.config = config
+        self.hooks = hook_dispatcher or HookDispatcher()
 
     @staticmethod
     def attempt_timeout_seconds(
@@ -52,6 +58,23 @@ class ExecutionEngine:
             retry_multiplier ** max(0, attempt_index - 1)
         )
         return min(max_seconds, raw_timeout)
+
+    def _hook_ctx(
+        self,
+        hook_name: str,
+        case: dict[str, Any],
+        runner: dict[str, Any],
+        attempt_index: int = 1,
+        step_id: str | None = None,
+    ) -> HookContext:
+        return HookContext(
+            hook_name=hook_name,
+            case_id=str(case.get("id", "?")),
+            plugin_name=str(case.get("_plugin", "")),
+            attempt_index=attempt_index,
+            step_id=step_id,
+            runner=dict(runner),
+        )
 
     def execute_case_once(
         self,
@@ -97,13 +120,34 @@ class ExecutionEngine:
                     step_payload["_attempt_index"] = attempt_index
                     step_payload["_attempt_timeout_seconds"] = attempt_timeout_seconds
 
+                    # pre_step hook
+                    pre = self.hooks.dispatch(
+                        self._hook_ctx("pre_step", runtime_case, runner, attempt_index, step_id),
+                        {"step": step_payload},
+                    )
+                    if not pre.proceed:
+                        comment = f"pre_step hook halted: {pre.advice}"
+                        break
+
                     result = plugin.execute_step(runtime_case, step_payload, topology=self.config)
                     step_results[step_id] = result
                     out = str(result.get("output", "")).strip()
                     if out:
                         outputs.append(out)
+
+                    # post_step hook
+                    self.hooks.dispatch(
+                        self._hook_ctx("post_step", runtime_case, runner, attempt_index, step_id),
+                        {"step": step_payload, "result": result},
+                    )
+
                     if not bool(result.get("success", False)):
                         comment = f"step failed: {step_id}"
+                        # on_failure hook
+                        self.hooks.dispatch(
+                            self._hook_ctx("on_failure", runtime_case, runner, attempt_index, step_id),
+                            {"step": step_payload, "result": result, "comment": comment},
+                        )
                         break
 
                 if not comment:
@@ -152,7 +196,20 @@ class ExecutionEngine:
         final_outputs: list[str] = []
         final_comment = ""
 
+        # pre_case hook
+        self.hooks.dispatch(
+            self._hook_ctx("pre_case", case, runner),
+            {"execution_policy": execution_policy, "max_attempts": max_attempts},
+        )
+
         for attempt_index in range(1, max_attempts + 1):
+            # on_retry hook (for attempts after the first)
+            if attempt_index > 1:
+                self.hooks.dispatch(
+                    self._hook_ctx("on_retry", case, runner, attempt_index),
+                    {"previous_attempts": attempts, "attempt_index": attempt_index},
+                )
+
             timeout = self.attempt_timeout_seconds(
                 steps_count=steps_count,
                 attempt_index=attempt_index,
@@ -199,6 +256,12 @@ class ExecutionEngine:
                 final_comment = f"{final_comment} (failed after {attempts_used}/{max_attempts} attempts)"
             else:
                 final_comment = f"failed after {attempts_used}/{max_attempts} attempts"
+
+        # post_case hook
+        self.hooks.dispatch(
+            self._hook_ctx("post_case", case, runner),
+            {"verdict": final_verdict, "attempts_used": attempts_used, "comment": final_comment},
+        )
 
         return RetryResult(
             verdict=final_verdict,
