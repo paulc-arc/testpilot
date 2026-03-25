@@ -72,3 +72,62 @@ class PluginBase(ABC):
     @abstractmethod
     def teardown(self, case: dict[str, Any], topology: Any) -> None:
         """清理測試環境。"""
+
+    # -- optional overridable pipeline -----------------------------------------
+
+    def run_pipeline(
+        self,
+        case: dict[str, Any],
+        topology: Any,
+    ) -> dict[str, Any]:
+        """Execute the full case pipeline: setup → verify → steps → evaluate → teardown.
+
+        Plugins may override this to customise execution order or add
+        additional phases.  The default implementation mirrors the
+        ExecutionEngine contract.
+        """
+        commands: list[str] = []
+        outputs: list[str] = []
+        verdict = False
+        comment = ""
+
+        try:
+            if not self.setup_env(case, topology):
+                return {"verdict": False, "comment": "setup_env failed", "commands": [], "outputs": []}
+            if not self.verify_env(case, topology):
+                return {"verdict": False, "comment": "env_verify gate failed", "commands": [], "outputs": []}
+
+            step_results: dict[str, Any] = {}
+            raw_steps = case.get("steps", [])
+            steps = raw_steps if isinstance(raw_steps, list) else []
+            for step in steps:
+                step_data = dict(step) if isinstance(step, dict) else {"id": "step", "command": str(step)}
+                step_id = str(step_data.get("id", "step"))
+                cmd = str(step_data.get("command", "")).strip()
+                if cmd:
+                    commands.append(cmd)
+                result = self.execute_step(case, step_data, topology)
+                step_results[step_id] = result
+                out = str(result.get("output", "")).strip()
+                if out:
+                    outputs.append(out)
+                if not result.get("success", False):
+                    comment = f"step failed: {step_id}"
+                    break
+
+            if not comment:
+                verdict = self.evaluate(case, {"steps": step_results})
+                if not verdict:
+                    comment = "pass_criteria not satisfied"
+
+        except Exception as exc:
+            comment = f"exception: {exc}"
+        finally:
+            self.teardown(case, topology)
+
+        return {
+            "verdict": verdict,
+            "comment": comment,
+            "commands": commands,
+            "outputs": outputs,
+        }

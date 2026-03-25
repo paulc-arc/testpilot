@@ -17,9 +17,11 @@ import re
 import shutil
 from typing import Iterable
 
-from openpyxl import load_workbook
-from openpyxl.cell.cell import MergedCell
-from openpyxl.utils import column_index_from_string
+from testpilot.reporting.excel_adapter import (
+    col_to_index as column_index_from_string,
+    is_merged_cell,
+    open_workbook as load_workbook,
+)
 
 DEFAULT_SHEET_NAME = "Wifi_LLAPI"
 DEFAULT_TEMPLATE_NAME = "wifi_llapi_template.xlsx"
@@ -274,7 +276,7 @@ def _set_cell_value_safe(ws, row: int, col: str, value: str) -> None:
     """
     col_idx = _to_col_idx(col)
     cell = ws.cell(row=row, column=col_idx)
-    if not isinstance(cell, MergedCell):
+    if not is_merged_cell(cell):
         cell.value = value
         return
 
@@ -346,7 +348,7 @@ def build_template_from_source(
     for row in case_rows:
         for col_idx in clear_col_indices:
             cell = ws.cell(row=row, column=col_idx)
-            if isinstance(cell, MergedCell):
+            if is_merged_cell(cell):
                 continue
             cell.value = None
 
