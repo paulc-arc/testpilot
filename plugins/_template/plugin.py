@@ -9,15 +9,17 @@ from testpilot.core.plugin_base import PluginBase
 
 
 class Plugin(PluginBase):
-    """Minimal plugin template. Replace stubs with real implementation."""
+    """Minimal plugin template.
+
+    Only the four required abstract methods are implemented here.
+    ``version``, ``setup_env``, ``verify_env``, and ``teardown``
+    inherit sensible defaults from :class:`PluginBase`.
+    Override them when your plugin needs custom behaviour.
+    """
 
     @property
     def name(self) -> str:
         return "template"
-
-    @property
-    def version(self) -> str:
-        return "0.1.0"
 
     @property
     def cases_dir(self) -> Path:
@@ -37,17 +39,8 @@ class Plugin(PluginBase):
                 cases.append(data)
         return cases
 
-    def setup_env(self, case: dict[str, Any], topology: Any) -> bool:
-        return True
-
-    def verify_env(self, case: dict[str, Any], topology: Any) -> bool:
-        return True
-
     def execute_step(self, case: dict[str, Any], step: dict[str, Any], topology: Any) -> dict[str, Any]:
         return {"success": True, "output": "", "captured": {}, "timing": 0.0}
 
     def evaluate(self, case: dict[str, Any], results: dict[str, Any]) -> bool:
         return True
-
-    def teardown(self, case: dict[str, Any], topology: Any) -> None:
-        pass

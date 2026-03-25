@@ -24,9 +24,9 @@ class PluginBase(ABC):
         """Plugin 識別名稱，如 'wifi_llapi'。"""
 
     @property
-    @abstractmethod
     def version(self) -> str:
-        """Plugin 版本。"""
+        """Plugin 版本。預設 '0.0.0'；子類別可覆寫。"""
+        return "0.0.0"
 
     @property
     def cases_dir(self) -> Path:
@@ -37,21 +37,25 @@ class PluginBase(ABC):
     def discover_cases(self) -> list[dict[str, Any]]:
         """掃描 cases/ 目錄，回傳所有 test case 描述（已解析的 YAML dict）。"""
 
-    @abstractmethod
     def setup_env(self, case: dict[str, Any], topology: Any) -> bool:
         """依 case 描述佈建測試環境（DUT/STA/EndpointPC）。
+
+        預設實作直接回傳 True（不需佈建）。子類別可覆寫。
 
         Returns:
             True if setup succeeded.
         """
+        return True
 
-    @abstractmethod
     def verify_env(self, case: dict[str, Any], topology: Any) -> bool:
         """環境自檢：驗證連線、服務就緒。
+
+        預設實作直接回傳 True（不需驗證）。子類別可覆寫。
 
         Returns:
             True if environment is ready.
         """
+        return True
 
     @abstractmethod
     def execute_step(self, case: dict[str, Any], step: dict[str, Any], topology: Any) -> dict[str, Any]:
@@ -69,9 +73,8 @@ class PluginBase(ABC):
             True if all criteria pass.
         """
 
-    @abstractmethod
     def teardown(self, case: dict[str, Any], topology: Any) -> None:
-        """清理測試環境。"""
+        """清理測試環境。預設為 no-op；子類別可覆寫。"""
 
     # -- optional overridable reporter -----------------------------------------
 

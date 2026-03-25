@@ -109,6 +109,6 @@ def test_cases_dir_default_property():
 
 def test_abstract_method_set_is_complete():
     """PluginBase defines exactly the expected abstract methods."""
-    expected_abstract = {"name", "version", "discover_cases", "setup_env", "verify_env", "execute_step", "evaluate", "teardown"}
+    expected_abstract = {"name", "discover_cases", "execute_step", "evaluate"}
     actual_abstract = set(PluginBase.__abstractmethods__)
     assert actual_abstract == expected_abstract
