@@ -481,8 +481,10 @@ python -m testpilot.cli run wifi_llapi \
 ### 6) 產出檔案
 
 1. Excel 報告：`plugins/wifi_llapi/reports/YYYYMMDD_<FW>_wifi_LLAPI_<run_id>.xlsx`
-2. 每 case trace：`plugins/wifi_llapi/reports/agent_trace/<run_id>/`
-3. 對齊失敗報告：`plugins/wifi_llapi/reports/alignment/*_alignment_issues.json`
+2. Markdown 報告：`plugins/wifi_llapi/reports/<FW>_wifi_llapi_<run_id>.md`
+3. JSON 報告：`plugins/wifi_llapi/reports/<FW>_wifi_llapi_<run_id>.json`
+4. 每 case trace：`plugins/wifi_llapi/reports/agent_trace/<run_id>/`
+5. 對齊失敗報告：`plugins/wifi_llapi/reports/alignment/*_alignment_issues.json`
 
 ### 7) YAML 指令稽核（dry-run）
 
@@ -503,7 +505,8 @@ python -m testpilot.cli wifi-llapi audit-yaml-commands \
 | 軌道 | 格式 | 狀態 | 用途 |
 |------|------|------|------|
 | 對外交付 | `xlsx` | ✅ 已整合 | Pass / Fail only，寫入 Excel 報告 |
-| 內部診斷 | `md / json` | ⚠️ 已落地未接入 | IReporter + MarkdownReporter + JsonReporter，尚未接入 orchestrator output path |
+| 內部診斷 | `md` | ✅ 已整合 | 人可讀摘要，含 per-case 指令與輸出 |
+| 結構化資料 | `json` | ✅ 已整合 | 機器可讀，含 summary 統計 |
 
 ## Agent / Model Policy
 
