@@ -26,11 +26,14 @@ bash scripts/install.sh
 uv venv && source .venv/bin/activate
 uv pip install -e ".[dev]"
 
-# 2. Configure testbed
+# 2. Activate virtualenv (required before each session)
+source .venv/bin/activate
+
+# 3. Configure testbed
 cp configs/testbed.yaml.example configs/testbed.yaml
 # Edit configs/testbed.yaml for your lab (DUT / STA / Endpoints)
 
-# 3. Verify
+# 4. Verify
 testpilot --version
 testpilot list-plugins
 testpilot list-cases wifi_llapi
@@ -286,11 +289,14 @@ bash scripts/install.sh
 uv venv && source .venv/bin/activate
 uv pip install -e ".[dev]"
 
-# 2. 設定 testbed
+# 2. 啟用虛擬環境（每次開新 terminal 都要執行）
+source .venv/bin/activate
+
+# 3. 設定 testbed
 cp configs/testbed.yaml.example configs/testbed.yaml
 # 依實際環境修改 configs/testbed.yaml（DUT / STA / Endpoint）
 
-# 3. 驗證
+# 4. 驗證
 testpilot --version
 testpilot list-plugins
 testpilot list-cases wifi_llapi
