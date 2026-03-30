@@ -69,9 +69,6 @@ log = logging.getLogger(__name__)
 # 預設路徑（相對於專案根目錄）
 DEFAULT_PLUGINS_DIR = "plugins"
 DEFAULT_CONFIG_DIR = "configs"
-DEFAULT_WIFI_LLAPI_SOURCE_XLSX = (
-    "/mnt/c/Users/paul_chen/Downloads/0302-AT&T_LLAPI_Test_Report_20260107.xlsx"
-)
 
 # Re-export for backward compatibility
 __all__ = ["Orchestrator", "DEFAULT_WIFI_LLAPI_EXECUTION_POLICY"]
@@ -94,6 +91,9 @@ class Orchestrator:
         self.plugins_dir = Path(plugins_dir) if plugins_dir else self.root / DEFAULT_PLUGINS_DIR
         config = config_path or self.root / DEFAULT_CONFIG_DIR / "testbed.yaml"
         self.config = TestbedConfig(config)
+        log_capture.configure(
+            binary=self.config.raw.get("testbed", {}).get("serialwrap_binary"),
+        )
         self.loader = PluginLoader(self.plugins_dir)
         self.runner_selector = RunnerSelector(self.plugins_dir)
         self.execution_engine = ExecutionEngine(self.config)
@@ -454,20 +454,11 @@ class Orchestrator:
             alignment_xlsx = template_path
             source_report = self._load_wifi_llapi_template_source(manifest_path) or str(template_path)
         else:
-            default_source = Path(DEFAULT_WIFI_LLAPI_SOURCE_XLSX)
-            if not default_source.exists():
-                raise FileNotFoundError(
-                    "wifi_llapi template not found. Run "
-                    "`python -m testpilot.cli wifi-llapi build-template-report --source-xlsx <path>` "
-                    "or pass `--report-source-xlsx <path>` to rebuild it."
-                )
-            ensure_template_report(
-                source_xlsx=default_source,
-                template_path=template_path,
-                manifest_path=manifest_path,
+            raise FileNotFoundError(
+                "wifi_llapi template not found. Run "
+                "`testpilot wifi-llapi build-template-report --source-xlsx <path>` "
+                "or pass `--report-source-xlsx <path>` to rebuild it."
             )
-            alignment_xlsx = default_source
-            source_report = str(default_source)
 
         alignment_issues = collect_alignment_issues(cases, alignment_xlsx)
         if alignment_issues:

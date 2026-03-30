@@ -22,6 +22,7 @@ def _write_testbed_yaml(path: Path) -> None:
         """
 testbed:
   name: unit-testbed
+  serialwrap_binary: /tmp/serialwrap
   devices:
     DUT:
       role: ap

@@ -9,21 +9,47 @@ from __future__ import annotations
 import base64
 import json
 import logging
+import os
 import shutil
 import subprocess
+import sys
 import time
 from pathlib import Path
 from typing import Any
 
 logger = logging.getLogger(__name__)
 
-SERIALWRAP_BIN = "/home/paul_chen/.paul_tools/serialwrap"
+SERIALWRAP_BIN_ENV = "SERIALWRAP_BIN"
 DEFAULT_WAL_DIR = Path("/tmp/serialwrap/wal")
+
+_configured_bin: str | None = None
+
+
+def configure(binary: str | None = None) -> None:
+    """Set serialwrap binary path from config. Called once during init."""
+    global _configured_bin  # noqa: PLW0603
+    if binary:
+        _configured_bin = binary
+
+
+def _resolve_bin() -> str:
+    """Resolve serialwrap binary: ENV → configure() value → error."""
+    env_bin = os.environ.get(SERIALWRAP_BIN_ENV)
+    if env_bin:
+        return env_bin
+    if _configured_bin:
+        return _configured_bin
+    print(
+        f"ERROR: serialwrap binary not found. "
+        f"Set {SERIALWRAP_BIN_ENV} env var or 'serialwrap_binary' in testbed config.",
+        file=sys.stderr,
+    )
+    raise SystemExit(1)
 
 
 def _run_sw(args: list[str], timeout: float = 10.0) -> dict[str, Any]:
     """Run a serialwrap CLI command and return parsed JSON response."""
-    cmd = [SERIALWRAP_BIN, *args]
+    cmd = [_resolve_bin(), *args]
     completed = subprocess.run(
         cmd, capture_output=True, text=True, check=False, timeout=timeout,
     )
@@ -161,7 +187,7 @@ def setup_sessions(
             continue
 
         proc = subprocess.Popen(
-            [SERIALWRAP_BIN, "session", "bind",
+            [_resolve_bin(), "session", "bind",
              "--selector", session_id, "--device-by-id", by_id],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
         )

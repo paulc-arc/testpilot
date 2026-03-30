@@ -3,16 +3,41 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import subprocess
+import sys
 import time
 from typing import Any
 
 from .base import TransportBase
 
-SERIALWRAP_BIN = "/home/paul_chen/.paul_tools/serialwrap"
+SERIALWRAP_BIN_ENV = "SERIALWRAP_BIN"
 TERMINAL_STATUSES = {"done", "failed", "error", "timeout", "cancelled", "canceled"}
 MODE_ALIASES = {"fg": "line", "bg": "background"}
+
+
+def _resolve_serialwrap_binary(config: dict[str, Any]) -> str:
+    """Resolve serialwrap binary path: ENV → config['binary'] → error.
+
+    If ENV is set but config is missing, backfill config['binary'] from ENV.
+    """
+    env_bin = os.environ.get(SERIALWRAP_BIN_ENV)
+    cfg_bin = config.get("binary")
+
+    if env_bin:
+        if not cfg_bin:
+            config["binary"] = env_bin
+        return env_bin
+    if cfg_bin:
+        return str(cfg_bin)
+
+    print(
+        f"ERROR: serialwrap binary not found. "
+        f"Set {SERIALWRAP_BIN_ENV} env var or 'binary' in transport config.",
+        file=sys.stderr,
+    )
+    raise SystemExit(1)
 
 
 class SerialWrapTransport(TransportBase):
@@ -20,7 +45,7 @@ class SerialWrapTransport(TransportBase):
 
     def __init__(self, config: dict[str, Any] | None = None) -> None:
         self._config = dict(config or {})
-        self._binary = str(self._config.get("binary", SERIALWRAP_BIN))
+        self._binary = _resolve_serialwrap_binary(self._config)
         self._socket = self._config.get("socket")
         self._source = str(self._config.get("source", "agent:testpilot"))
         self._mode = self._normalize_mode(str(self._config.get("mode", "line")))

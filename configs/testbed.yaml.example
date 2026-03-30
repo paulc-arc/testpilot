@@ -7,6 +7,9 @@
 testbed:
   name: lab-bench-1
 
+  # serialwrap binary path (can also be set via SERIALWRAP_BIN env var)
+  # serialwrap_binary: /usr/local/bin/serialwrap
+
   devices:
     DUT:
       role: ap

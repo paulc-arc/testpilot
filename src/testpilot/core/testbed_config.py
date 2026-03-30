@@ -18,6 +18,7 @@ class TestbedConfig:
 
     def __init__(self, config_path: Path | str) -> None:
         self.path = Path(config_path)
+        self._raw: dict[str, Any] = {}
         self._data: dict[str, Any] = {}
         self._variables: dict[str, str] = {}
         self.load()
@@ -28,10 +29,16 @@ class TestbedConfig:
             return
         with open(self.path, "r", encoding="utf-8") as f:
             raw = yaml.safe_load(f)
-        self._data = raw.get("testbed", raw) if isinstance(raw, dict) else {}
+        self._raw = raw if isinstance(raw, dict) else {}
+        self._data = self._raw.get("testbed", self._raw)
         self._variables = {
             k: str(v) for k, v in self._data.get("variables", {}).items()
         }
+
+    @property
+    def raw(self) -> dict[str, Any]:
+        """Return the full parsed YAML dict (before testbed extraction)."""
+        return self._raw
 
     @property
     def name(self) -> str:

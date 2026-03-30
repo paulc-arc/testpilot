@@ -17,6 +17,12 @@ from testpilot.reporting import log_capture
 # Fixtures
 # ---------------------------------------------------------------------------
 
+@pytest.fixture(autouse=True)
+def _set_serialwrap_bin(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Ensure SERIALWRAP_BIN env var is set for all log_capture tests."""
+    monkeypatch.setenv("SERIALWRAP_BIN", "/tmp/serialwrap")
+
+
 def _make_record(
     seq: int,
     com: str = "COM0",

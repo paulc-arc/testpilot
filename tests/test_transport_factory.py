@@ -12,6 +12,12 @@ from testpilot.transport.ssh import SshTransport
 from testpilot.transport.network import NetworkTransport
 
 
+@pytest.fixture(autouse=True)
+def _set_serialwrap_bin(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Ensure SERIALWRAP_BIN env var is set for transport factory tests."""
+    monkeypatch.setenv("SERIALWRAP_BIN", "/tmp/serialwrap")
+
+
 @pytest.mark.parametrize(
     "kind, expected_cls",
     [
