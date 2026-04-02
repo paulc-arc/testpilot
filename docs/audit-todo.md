@@ -433,14 +433,16 @@ If any item above is not satisfied, the case stays open or moves to blocker trac
   - latest stable fail-shaped mismatches: `D011`, `D013`, `D020`
   - next ready case after resume: `D024 LastDataDownlinkRate`
   - `D024` offline survey is complete: workbook authority is row `24`, workbook `G/H` and the source model both point to DUT `wl -i wl0 sta_info $STA_MAC` `rate of last tx pkt` as the AP -> STA truth source
-  - old run `20260401T152827516151` already captured matching `LastDataDownlinkRate=541600` and `DriverLastDownlinkRateRounded=541600`; the historical `step4` fail is therefore treated as consistent with the older shell-pipeline success-classifier bug that is now covered by runtime regression guards
-  - adjacent follow-up rows are also stale in current YAML metadata: `D025` should map to row `25`, `D026` should map to row `26`
+  - `D025` offline survey is complete: workbook authority is row `25`, workbook `G/H` and the source model both point to DUT `wl -i wl0 sta_info $STA_MAC` `rate of last rx pkt` as the STA -> AP truth source
+  - `D026` offline survey is complete: workbook authority is row `26`, workbook `G/H` and the source evidence both point to DUT `wl -i wl0 sta_info $STA_MAC` `link bandwidth = XX MHZ` plus `WiFi.Radio.1.OperatingChannelBandwidth` as the truth sources
+  - old run `20260401T152827516151` already captured matching LLAPI / driver values for `D024`, `D025`, and `D026`; the historical `step4` fail shape is therefore treated as consistent with the older shell-pipeline success-classifier bug that is now covered by runtime regression guards
+  - current YAML metadata for this slice is still stale: `D024/D025/D026` remain at row `21/22/23` and should be rewritten live to workbook row `24/25/26`
   - current live blocker: no serial devices present; `COM0/COM1` do not exist, so fresh full run and subsequent live calibration cannot start
 - Resume instructions:
   - start from this file plus `compare-0401.{md,json}`
   - use `compare-0401.{md,json}` rebuilt through `20260402T105808547293`
   - before any live run, restore UART visibility so serialwrap can see `/dev/ttyUSB*` / `/dev/serial/by-id`, then rebuild `COM0/COM1` sessions and confirm `session self-test` passes
-  - resume by live-rerunning `D024` against workbook row `24`, then continue the same AssociatedDevice rate/bandwidth slice with `D025` row `25` and `D026` row `26`
+  - resume by live-rerunning the AssociatedDevice rate/bandwidth slice in order: `D024` row `24` → `D025` row `25` → `D026` row `26`
 - [ ] `CAL-201` Validate object identity semantics:
   - STA MAC vs AP BSSID
   - object instance vs wildcard query

@@ -60,7 +60,7 @@
 | P4-01 | wifi-plugin full implementation | done | setup/verify/execute/evaluate 已完成 |
 | P4-02 | case-getRadioStats | done | legacy compatibility fixture 已保留，改為 underscore-prefixed explicit fixture，不進 discover_cases |
 | P4-03 | case-kickStation | done | legacy compatibility fixture 已保留，改為 underscore-prefixed explicit fixture，不進 discover_cases |
-| P4-04 | 420 case source 對齊治理 | in_progress | discoverable inventory 維持 420；目前依 `0401.xlsx` compare-driven single-case loop 持續 live 對齊，manual procedure authority 固定為 workbook `G/H`（忽略 `F`）；最新進度 `264/420` full matches；`D015`/`D016`/`D017`/`D018`/`D023` 已 live 對齊 row 15 / row 16 / row 17 / row 18 / row 23，`D011`/`D013`/`D020` 維持已驗證 fail-shaped mismatch，next=`D024`；offline survey 已確認 `D024/D025/D026` 現有 YAML `source.row` 仍是舊 `21/22/23`，實際 `0401.xlsx` row 應為 `24/25/26`，待 UART 恢復後用 live rewrite 一併刷新；目前 fresh full run 因 lab 端缺少 UART devices / COM0/COM1 sessions 而 blocked |
+| P4-04 | 420 case source 對齊治理 | in_progress | discoverable inventory 維持 420；目前依 `0401.xlsx` compare-driven single-case loop 持續 live 對齊，manual procedure authority 固定為 workbook `G/H`（忽略 `F`）；最新進度 `264/420` full matches；`D015`/`D016`/`D017`/`D018`/`D023` 已 live 對齊 row 15 / row 16 / row 17 / row 18 / row 23，`D011`/`D013`/`D020` 維持已驗證 fail-shaped mismatch，next slice=`D024/D025/D026`；offline survey 已確認這三筆現有 YAML `source.row` 仍是舊 `21/22/23`，實際 `0401.xlsx` row 應為 `24/25/26`，且舊 fail trace 的 step4 其實都已有 matching driver evidence，待 UART 恢復後用同一批 live rewrite 一併刷新；目前 fresh full run 因 lab 端缺少 UART devices / COM0/COM1 sessions 而 blocked |
 | P4-05 | Wifi_LLAPI Excel report pipeline | done | template + run report + merged-cell 相容 |
 
 ## Phase 5：CLI & Integration

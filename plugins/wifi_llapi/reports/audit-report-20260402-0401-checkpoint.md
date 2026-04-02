@@ -17,10 +17,13 @@
   - serialwrap 120-char temp-script staging tests: pass
   - official-case command length inventory over 120 chars: `597` tracked entries
 - repo regression status after the offline-survey regression guard: `uv run pytest -q` → `1601 passed`
-- `D024 LastDataDownlinkRate` offline survey is ready:
-  - workbook authority is row `24`
-  - workbook `G/H` and the source model both use DUT `wl -i wl0 sta_info ${STA_MAC}` `rate of last tx pkt` as the AP -> STA truth source
-  - the old `20260401T152827516151` fail trace already captured matching LLAPI / driver values, so that fail is treated as consistent with the older shell-pipeline success-classifier bug now covered by regression tests
+- `D024` / `D025` / `D026` offline survey is ready:
+  - workbook authority is row `24` / `25` / `26`
+  - workbook `G/H` and source evidence point to DUT `wl -i wl0 sta_info ${STA_MAC}` as the driver truth source:
+    - `D024`: `rate of last tx pkt`
+    - `D025`: `rate of last rx pkt`
+    - `D026`: `link bandwidth = XX MHZ` together with `WiFi.Radio.1.OperatingChannelBandwidth`
+  - the old `20260401T152827516151` fail traces already captured matching LLAPI / driver values for all three cases, so that fail shape is treated as consistent with the older shell-pipeline success-classifier bug now covered by regression tests
 - adjacent stale metadata is also confirmed:
   - current YAML row ids for `D024` / `D025` / `D026` still read `21` / `22` / `23`
   - `0401.xlsx` rows are actually `24` / `25` / `26`
@@ -47,4 +50,4 @@
 2. Rebuild serialwrap `COM0/COM1` sessions and confirm `session self-test` passes.
 3. Run the pending fresh full suite.
 4. Rebuild `compare-0401.{md,json}` from the new full run.
-5. Resume the single-case loop from `D024 LastDataDownlinkRate` (row `24`), then continue `D025` (row `25`) and `D026` (row `26`).
+5. Resume the single-case loop from the AssociatedDevice rate/bandwidth slice: `D024` (row `24`) → `D025` (row `25`) → `D026` (row `26`).
