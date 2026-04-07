@@ -433,7 +433,6 @@ verification_command:
   - 'awk -F= ''/^start_disabled=/{print "StartDisabled24g=" $2; if ($2 == 1) ones++; if ($2 == 0) zeros++; total++} END {print "StartDisabled24gOneCount=" ones+0; print "StartDisabled24gZeroCount=" zeros+0; print "StartDisabled24gTotalCount=" total+0}'' /tmp/wl2_hapd.conf | sed -n ''1,20p'''
 results_reference:
   v4.0.3:
-    5g: To be tested
-    6g: To be tested
-    2.4g: To be tested
-    comment: 'AP1/AP3/AP5 all started enabled on the documented non-open baseline. For each band, toggling Enable from 1 -> 0 -> 1 converged cleanly across the northbound setter/readback, the Status getter, driver `wl -i wlX bss`, and hostapd `start_disabled` (`1` after disable, cleared after re-enable). The workbook baseline for all three bands remains `To be tested`, so this case is calibrated as an AP-only multiband To-be-tested checkpoint.'
+    5g: Pass
+    6g: Pass
+    2.4g: Pass

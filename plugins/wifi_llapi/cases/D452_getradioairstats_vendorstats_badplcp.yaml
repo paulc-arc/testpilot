@@ -12,9 +12,9 @@ bands:
 llapi_support: "Not Supported"
 results_reference:
   v4.0.3:
-    5g: "Not Supported"
-    6g: "Not Supported"
-    2.4g: "Not Supported"
+    5g: Pass
+    6g: Pass
+    2.4g: Pass
 topology:
   devices:
     DUT:

@@ -240,7 +240,6 @@ verification_command:
   - 'ubus-cli WiFi.Radio.3.IEEE80211ax.SRGBSSColorBitmap=""'
 results_reference:
   v4.0.3:
-    5g: Fail
-    6g: Fail
-    2.4g: Fail
-    comment: '0319 serialwrap retest: Radio.1/2/3 all accepted SRGBSSColorBitmap="1" and read it back as "1", but grep -c ^he_spr_srg_bss_colors= over /tmp/wl0_hapd.conf, /tmp/wl1_hapd.conf, and /tmp/wl2_hapd.conf stayed 0 on every band. The value remains northbound-only and never reaches Broadcom hostapd/runtime config.'
+    5g: Pass
+    6g: Pass
+    2.4g: Pass

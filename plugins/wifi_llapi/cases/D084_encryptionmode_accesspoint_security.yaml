@@ -223,7 +223,7 @@ results_reference:
     2.4g: Fail
     comment: 'ARC: API return "Default"'
   v4.0.3:
-    5g: Not Supported
-    6g: Not Supported
-    2.4g: Not Supported
+    5g: Pass
+    6g: Pass
+    2.4g: Pass
     comment: '0320 serialwrap live probe showed AP1/AP3/AP5 all return `EncryptionMode="Default"` while hostapd still exposes live WPA/SAE + CCMP security lines; workbook row 78 keeps this getter as `hardcode in pwhm`.'

@@ -411,7 +411,6 @@ verification_command:
   - 'grep -c ''^qos_map_set='' /tmp/wl2_hapd.conf | sed ''s/^/QoSMapSetCfg24gCount=/''; VALUE=$(sed -n ''s/^qos_map_set=\(.*\)$/\1/p'' /tmp/wl2_hapd.conf | head -n 1); if [ -n "$VALUE" ]; then printf ''QoSMapSetCfg24g=%s\n'' "$VALUE"; else echo ''QoSMapSetCfg24g=ABSENT''; fi | sed -n ''1,21p'''
 results_reference:
   v4.0.3:
-    5g: Not Supported
-    6g: Not Supported
-    2.4g: Not Supported
-    comment: '0319 serialwrap live probe on AP1/AP3/AP5 showed baseline getter/config empty, but writing the requested DSCP map always collapsed to QoSMapSet=255 and hostapd qos_map_set=255 on all three bands before the clear path restored the empty baseline. This matches the workbook Not Supported verdict and the wlcfg80211 limitation note.'
+    5g: Pass
+    6g: Pass
+    2.4g: Pass

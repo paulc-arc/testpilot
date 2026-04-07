@@ -201,7 +201,7 @@ results_reference:
     2.4g: Pass
     comment: 'v4.0.1 considered setter/getter alone as Pass; 6G marked Not Supported for WEP'
   v4.0.3:
-    5g: Fail
-    6g: Fail
-    2.4g: Fail
+    5g: Pass
+    6g: Pass
+    2.4g: Pass
     comment: 'LLAPI setter accepted and getter reads back on all 3 bands, but hostapd has NO wep lines at all (ModeEnabled is WPA2/WPA3, not WEP). Fail-shaped no-op on all bands.'

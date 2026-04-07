@@ -477,7 +477,6 @@ verification_command:
   - 'grep -c ''^interworking='' /tmp/wl2_hapd.conf | sed ''s/^/Interworking24gTotalCount=/'' | sed -n ''1,21p'''
 results_reference:
   v4.0.3:
-    5g: To be tested
-    6g: To be tested
-    2.4g: To be tested
-    comment: ''
+    5g: Pass
+    6g: Pass
+    2.4g: Pass

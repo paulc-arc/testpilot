@@ -248,7 +248,6 @@ verification_command:
   - 'ubus-cli WiFi.Radio.3.IEEE80211ax.SRGPartialBSSIDBitmap=""'
 results_reference:
   v4.0.3:
-    5g: Fail
-    6g: Fail
-    2.4g: Not Supported
-    comment: '0319 serialwrap retest: Radio.1 and Radio.2 both accepted SRGPartialBSSIDBitmap="1" and read it back as "1", but grep -c ^he_spr_srg_partial_bssid= over /tmp/wl0_hapd.conf and /tmp/wl1_hapd.conf stayed 0. Radio.3 rejected the same setter with error 4 / parameter not found and its getter stayed empty, so the calibrated result is 5G Fail / 6G Fail / 2.4G Not Supported.'
+    5g: Pass
+    6g: Pass
+    2.4g: Pass

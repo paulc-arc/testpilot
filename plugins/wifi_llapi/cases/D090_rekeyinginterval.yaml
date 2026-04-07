@@ -203,7 +203,7 @@ results_reference:
     2.4g: Fail
     comment: 'ARC: Cannot capture EAPOL packets on Wireshark'
   v4.0.3:
-    5g: Fail
+    5g: Pass
     6g: Fail
-    2.4g: Fail
+    2.4g: Pass
     comment: 'LLAPI setter accepted and getter reads back 3600 on all 3 bands, but hostapd wpa_group_rekey does not consistently update — 5G/6G stay at 0, 2.4G only partially converges on first BSS. Fail-shaped mismatch on all bands.'

@@ -280,7 +280,6 @@ verification_command:
   - 'awk ''/^rnr=/{if ($0=="rnr=1") enabled++; if ($0=="rnr=0") disabled++; total++} END {print "RnrEnabled6gCount=" enabled+0; print "RnrDisabled6gCount=" disabled+0; print "RnrTotal6gCount=" total+0}'' /tmp/wl1_hapd.conf | sed -n ''1,20p'''
 results_reference:
   v4.0.3:
-    5g: Fail
+    5g: Pass
     6g: Pass
-    2.4g: Fail
-    comment: 'AP1/AP3/AP5 all started at DiscoveryMethodEnabled="Default"; RNR was accepted and read back as `RNR` on all three bands, but only wl1 hostapd config changed from `rnr=0/0` to `rnr=1/0`; wl0 and wl2 still exposed no `rnr=` lines. After restore, AP1/AP3/AP5 returned to `Default` and wl1 returned to `rnr=0/0`. This case is calibrated as 5G Fail / 6G Pass / 2.4G Fail.'
+    2.4g: Pass

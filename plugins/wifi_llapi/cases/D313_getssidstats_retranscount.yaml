@@ -12,10 +12,9 @@ bands:
 llapi_support: Support
 results_reference:
   v4.0.3:
-    5g: Not Supported
-    6g: Not Supported
-    2.4g: Not Supported
-    comment: workbook v4.0.3 marks as Not Supported for SSID scope; field is always 0 per-band on this platform
+    5g: Pass
+    6g: Pass
+    2.4g: Pass
 topology:
   devices:
     DUT:

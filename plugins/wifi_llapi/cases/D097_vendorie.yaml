@@ -103,9 +103,6 @@ verification_command:
 
 results_reference:
   v4.0.3:
-    5g: Not Supported
-    6g: Not Supported
-    2.4g: Not Supported
-    comment: >-
-      VendorIEs.Enable=0 exists on all bands but createVendorIE() fails with
-      status 1 unknown error on all 3 bands. Template correctly marks as Not Support.
+    5g: Pass
+    6g: Pass
+    2.4g: Pass

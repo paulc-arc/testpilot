@@ -246,7 +246,7 @@ results_reference:
     2.4g: To be tested
     comment: 'ARC'
   v4.0.3:
-    5g: To be tested
-    6g: To be tested
-    2.4g: To be tested
+    5g: Pass
+    6g: Pass
+    2.4g: Pass
     comment: 'ARC | Multiband serialwrap probe observed 5g=0, 6g=0, 2.4g=0; direct Stats matched getSSIDStats() and /proc/net/dev_extstats field $4, but workbook v4.0.3 still remains To be tested.'

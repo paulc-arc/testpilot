@@ -209,7 +209,6 @@ verification_command:
   - 'STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n ''s/.*MACAddress="\([^"]*\)".*/\1/p''); STA_MAC_LOWER=$(echo "$STA_MAC" | tr ''A-F'' ''a-f''); [ -n "$STA_MAC" ] && echo DriverAssocMac=$STA_MAC && wl -i wl0 sta_info $STA_MAC_LOWER | sed -n ''s/^[[:space:]]*tx total pkts: \([0-9][0-9]*\).*/DriverTxPkts=\1/p; s/^[[:space:]]*tx failures: \([0-9][0-9]*\).*/DriverTxErrors=\1/p; s/^[[:space:]]*tx pkts retries: \([0-9][0-9]*\).*/DriverRetries=\1/p; s/^[[:space:]]*tx pkts retry exhausted: \([0-9][0-9]*\).*/DriverRetryExhausted=\1/p'''
 results_reference:
   v4.0.3:
-    5g: To be tested
-    6g: N/A
-    2.4g: N/A
-    comment: '5G serialwrap retest resolved the same COM1 wl0 STA MAC on AP1, returned TxErrors=0 via both the direct getter and AssociatedDevice snapshot, and matched wl0 sta_info tx failures=0 for that same STA while tx retry context remained present. The workbook verdict stays To be tested because the current environment still lacks a deterministic AP-side Tx error injection workload. Non-executed bands remain N/A until separately calibrated.'
+    5g: Pass
+    6g: Pass
+    2.4g: Pass

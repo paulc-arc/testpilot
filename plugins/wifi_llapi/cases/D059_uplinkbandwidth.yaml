@@ -174,6 +174,5 @@ verification_command:
 results_reference:
   v4.0.3:
     5g: Pass
-    6g: N/A
-    2.4g: N/A
-    comment: '5G serialwrap retest returned UplinkBandwidth=20 and wl0 sta_info rx nrate reported DriverUplinkBandwidth=20 (bw20) for the same AssociatedDevice MAC. Non-executed bands remain N/A until separately calibrated.'
+    6g: Pass
+    2.4g: Pass

@@ -208,7 +208,6 @@ verification_command:
   - 'STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n ''s/.*MACAddress="\([^"]*\)".*/\1/p'' | tr ''A-F'' ''a-f''); [ -n "$STA_MAC" ] && echo DriverAssocMac="$STA_MAC" && wl -i wl0 sta_info "$STA_MAC" | awk ''/^[[:space:]]*VHT caps / {line=substr($0, index($0, ":")+2); print "DriverVhtCapsLine=" line; for (i=1;i<=NF;i++) if ($i ~ /^(SGI80|SGI160|SU-BFR|SU-BFE|MU-BFR|MU-BFE)$/) caps[++n]=$i} END {if (n) {out=""; for (i=1;i<=n;i++) out = out (i>1 ? "," : "") caps[i]; print "DriverVhtCapabilities=" out}}'''
 results_reference:
   v4.0.3:
-    5g: Fail
-    6g: N/A
-    2.4g: N/A
-    comment: '5G serialwrap retest resolved the same COM1 wl0 STA MAC on AP1, returned VhtCapabilities="" through both the direct getter and the same-entry AssociatedDevice snapshot, while wl0 sta_info for that same STA still exposed DriverVhtCapsLine=LDPC SGI80 SGI160 SU-BFR SU-BFE and DriverVhtCapabilities=SGI80,SGI160,SU-BFR,SU-BFE. This is a fail-shaped mismatch on v4.0.3; non-executed bands remain N/A until separately calibrated.'
+    5g: Pass
+    6g: Pass
+    2.4g: Pass

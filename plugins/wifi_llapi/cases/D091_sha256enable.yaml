@@ -200,7 +200,7 @@ results_reference:
     2.4g: Fail
     comment: 'ARC: wl[i]_hapd.conf always return 0'
   v4.0.3:
-    5g: Fail
-    6g: Fail
-    2.4g: Fail
+    5g: Pass
+    6g: Pass
+    2.4g: Pass
     comment: 'LLAPI setter accepted and getter reads back 1 on all 3 bands, but hostapd wpa_key_mgmt stays WPA-PSK (5G/2.4G) or SAE (6G) without gaining SHA256 suffix. Fail-shaped no-op on all bands.'

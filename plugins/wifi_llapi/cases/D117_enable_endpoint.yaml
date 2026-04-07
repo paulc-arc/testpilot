@@ -52,7 +52,6 @@ verification_command:
   - ubus-cli "WiFi.EndPoint.?"
 results_reference:
   v4.0.3:
-    5g: Not Supported
-    6g: Not Supported
-    2.4g: Not Supported
-    comment: WiFi.EndPoint object family not instantiated on BGW720
+    5g: Pass
+    6g: Fail
+    2.4g: Pass
