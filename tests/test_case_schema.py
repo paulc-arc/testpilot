@@ -49,3 +49,26 @@ def test_depends_on_ordering():
     ])
     with pytest.raises(CaseValidationError, match="not found before"):
         validate_case(case)
+
+
+def test_step_command_accepts_non_empty_string_list():
+    case = _minimal_case(steps=[
+        {"id": "s1", "action": "exec", "target": "DUT", "command": ["echo one", "echo two"]},
+    ])
+    validate_case(case)
+
+
+def test_step_command_rejects_non_string_list_items():
+    case = _minimal_case(steps=[
+        {"id": "s1", "action": "exec", "target": "DUT", "command": ["echo one", 2]},
+    ])
+    with pytest.raises(CaseValidationError, match="command must be a string or non-empty list of strings"):
+        validate_case(case)
+
+
+def test_step_command_rejects_empty_string_list_items():
+    case = _minimal_case(steps=[
+        {"id": "s1", "action": "exec", "target": "DUT", "command": ["echo one", "   "]},
+    ])
+    with pytest.raises(CaseValidationError, match="command must be a string or non-empty list of strings"):
+        validate_case(case)

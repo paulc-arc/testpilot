@@ -150,10 +150,10 @@ pass_criteria:
   operator: equals
   reference: assoc_driver.AssocMAC
   description: AssociatedDevice.1.MACAddress should match the live COM1/driver MAC, not a canned sample value.
-verification_command: |
-  wpa_cli -p /var/run/wpa_supplicant -i wl1 status
-  wl -i wl1 assoclist
-  ubus-cli "WiFi.AccessPoint.3.AssociatedDevice.1.MACAddress?"
+verification_command:
+  - wpa_cli -p /var/run/wpa_supplicant -i wl1 status
+  - wl -i wl1 assoclist
+  - 'ubus-cli "WiFi.AccessPoint.3.AssociatedDevice.1.MACAddress?"'
 results_reference:
   v4.0.1:
     5g: Pass

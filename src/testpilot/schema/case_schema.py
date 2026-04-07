@@ -24,6 +24,19 @@ class CaseValidationError(Exception):
     """Test case YAML 驗證失敗。"""
 
 
+def _validate_step_command(step: dict[str, Any], *, source: Path | str, index: int) -> None:
+    command = step.get("command")
+    if command is None:
+        return
+    if isinstance(command, str):
+        return
+    if isinstance(command, list) and all(isinstance(item, str) and item.strip() for item in command):
+        return
+    raise CaseValidationError(
+        f"{source}: step[{index}] command must be a string or non-empty list of strings"
+    )
+
+
 def load_case(path: Path | str) -> dict[str, Any]:
     """載入並驗證單一 test case YAML 檔。"""
     path = Path(path)
@@ -70,6 +83,7 @@ def validate_case(case: dict[str, Any], source: Path | str = "<unknown>") -> Non
         step_missing = REQUIRED_STEP_KEYS - set(step.keys())
         if step_missing:
             raise CaseValidationError(f"{source}: step[{i}] missing keys: {step_missing}")
+        _validate_step_command(step, source=source, index=i)
         sid = step["id"]
         if sid in step_ids:
             raise CaseValidationError(f"{source}: duplicate step id: {sid}")

@@ -230,22 +230,22 @@ pass_criteria:
   operator: equals
   value: ""
   description: 2.4G Radio.3 should restore back to an empty SRGPartialBSSIDBitmap value.
-verification_command: |
-  ubus-cli "WiFi.Radio.1.IEEE80211ax.SRGPartialBSSIDBitmap?"
-  ubus-cli WiFi.Radio.1.IEEE80211ax.SRGPartialBSSIDBitmap="1"
-  ubus-cli "WiFi.Radio.1.IEEE80211ax.SRGPartialBSSIDBitmap?"
-  grep -c '^he_spr_srg_partial_bssid=' /tmp/wl0_hapd.conf | sed 's/^/HostapdSrgPartialBssidLines=/'
-  ubus-cli WiFi.Radio.1.IEEE80211ax.SRGPartialBSSIDBitmap=""
-  ubus-cli "WiFi.Radio.2.IEEE80211ax.SRGPartialBSSIDBitmap?"
-  ubus-cli WiFi.Radio.2.IEEE80211ax.SRGPartialBSSIDBitmap="1"
-  ubus-cli "WiFi.Radio.2.IEEE80211ax.SRGPartialBSSIDBitmap?"
-  grep -c '^he_spr_srg_partial_bssid=' /tmp/wl1_hapd.conf | sed 's/^/HostapdSrgPartialBssidLines=/'
-  ubus-cli WiFi.Radio.2.IEEE80211ax.SRGPartialBSSIDBitmap=""
-  ubus-cli "WiFi.Radio.3.IEEE80211ax.SRGPartialBSSIDBitmap?"
-  OUT=$(ubus-cli "WiFi.Radio.3.IEEE80211ax.SRGPartialBSSIDBitmap=1" 2>&1); printf '%s\n' "$OUT"; printf '%s\n' "$OUT" | sed -n 's/.*failed (\([0-9][0-9]*\) - \(.*\))/error=\1/p'; printf '%s\n' "$OUT" | sed -n 's/.*failed (\([0-9][0-9]*\) - \(.*\))/message=\2/p'
-  ubus-cli "WiFi.Radio.3.IEEE80211ax.SRGPartialBSSIDBitmap?"
-  grep -c '^he_spr_srg_partial_bssid=' /tmp/wl2_hapd.conf | sed 's/^/HostapdSrgPartialBssidLines=/'
-  ubus-cli WiFi.Radio.3.IEEE80211ax.SRGPartialBSSIDBitmap=""
+verification_command:
+  - 'ubus-cli "WiFi.Radio.1.IEEE80211ax.SRGPartialBSSIDBitmap?"'
+  - 'ubus-cli WiFi.Radio.1.IEEE80211ax.SRGPartialBSSIDBitmap="1"'
+  - 'ubus-cli "WiFi.Radio.1.IEEE80211ax.SRGPartialBSSIDBitmap?"'
+  - 'grep -c ''^he_spr_srg_partial_bssid='' /tmp/wl0_hapd.conf | sed ''s/^/HostapdSrgPartialBssidLines=/'''
+  - 'ubus-cli WiFi.Radio.1.IEEE80211ax.SRGPartialBSSIDBitmap=""'
+  - 'ubus-cli "WiFi.Radio.2.IEEE80211ax.SRGPartialBSSIDBitmap?"'
+  - 'ubus-cli WiFi.Radio.2.IEEE80211ax.SRGPartialBSSIDBitmap="1"'
+  - 'ubus-cli "WiFi.Radio.2.IEEE80211ax.SRGPartialBSSIDBitmap?"'
+  - 'grep -c ''^he_spr_srg_partial_bssid='' /tmp/wl1_hapd.conf | sed ''s/^/HostapdSrgPartialBssidLines=/'''
+  - 'ubus-cli WiFi.Radio.2.IEEE80211ax.SRGPartialBSSIDBitmap=""'
+  - 'ubus-cli "WiFi.Radio.3.IEEE80211ax.SRGPartialBSSIDBitmap?"'
+  - 'OUT=$(ubus-cli "WiFi.Radio.3.IEEE80211ax.SRGPartialBSSIDBitmap=1" 2>&1); printf ''%s\n'' "$OUT"; printf ''%s\n'' "$OUT" | sed -n ''s/.*failed (\([0-9][0-9]*\) - \(.*\))/error=\1/p''; printf ''%s\n'' "$OUT" | sed -n ''s/.*failed (\([0-9][0-9]*\) - \(.*\))/message=\2/p'''
+  - 'ubus-cli "WiFi.Radio.3.IEEE80211ax.SRGPartialBSSIDBitmap?"'
+  - 'grep -c ''^he_spr_srg_partial_bssid='' /tmp/wl2_hapd.conf | sed ''s/^/HostapdSrgPartialBssidLines=/'''
+  - 'ubus-cli WiFi.Radio.3.IEEE80211ax.SRGPartialBSSIDBitmap=""'
 results_reference:
   v4.0.3:
     5g: Fail

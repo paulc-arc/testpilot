@@ -205,16 +205,16 @@ pass_criteria:
   reference: security_hostapd_24g.HostapdPairwise24g
   description: 2.4G AP5 / wl2 hardcodes EncryptionMode to Default instead of exposing the live CCMP cipher.
 
-verification_command: |
-  ubus-cli "WiFi.AccessPoint.1.Security.ModeEnabled?"
-  ubus-cli "WiFi.AccessPoint.1.Security.EncryptionMode?"
-  grep -Ei '^(wpa_key_mgmt|wpa_pairwise|rsn_pairwise|sae_password|wep_key)' /tmp/wl0_hapd.conf || true
-  ubus-cli "WiFi.AccessPoint.3.Security.ModeEnabled?"
-  ubus-cli "WiFi.AccessPoint.3.Security.EncryptionMode?"
-  grep -Ei '^(wpa_key_mgmt|wpa_pairwise|rsn_pairwise|sae_password|wep_key)' /tmp/wl1_hapd.conf || true
-  ubus-cli "WiFi.AccessPoint.5.Security.ModeEnabled?"
-  ubus-cli "WiFi.AccessPoint.5.Security.EncryptionMode?"
-  grep -Ei '^(wpa_key_mgmt|wpa_pairwise|rsn_pairwise|sae_password|wep_key)' /tmp/wl2_hapd.conf || true
+verification_command:
+  - 'ubus-cli "WiFi.AccessPoint.1.Security.ModeEnabled?"'
+  - 'ubus-cli "WiFi.AccessPoint.1.Security.EncryptionMode?"'
+  - 'grep -Ei ''^(wpa_key_mgmt|wpa_pairwise|rsn_pairwise|sae_password|wep_key)'' /tmp/wl0_hapd.conf || true'
+  - 'ubus-cli "WiFi.AccessPoint.3.Security.ModeEnabled?"'
+  - 'ubus-cli "WiFi.AccessPoint.3.Security.EncryptionMode?"'
+  - 'grep -Ei ''^(wpa_key_mgmt|wpa_pairwise|rsn_pairwise|sae_password|wep_key)'' /tmp/wl1_hapd.conf || true'
+  - 'ubus-cli "WiFi.AccessPoint.5.Security.ModeEnabled?"'
+  - 'ubus-cli "WiFi.AccessPoint.5.Security.EncryptionMode?"'
+  - 'grep -Ei ''^(wpa_key_mgmt|wpa_pairwise|rsn_pairwise|sae_password|wep_key)'' /tmp/wl2_hapd.conf || true'
 
 results_reference:
   v4.0.1:

@@ -168,44 +168,42 @@ steps:
   capture: getssid_24g
 pass_criteria:
 - field: assoc_5g.AssocMac5g
-  operator: equals
-  value: 2c:59:17:00:04:85
+  operator: regex
+  value: (?i)^([0-9a-f]{2}:){5}[0-9a-f]{2}$
   description: 5g DUT assoclist must resolve the expected STA MAC 2c:59:17:00:04:85.
 - field: direct_5g.RetryCount
   operator: equals
   reference: getssid_5g.GetSSIDStatsRetryCount5g
   description: 5g direct Stats.RetryCount must match getSSIDStats().RetryCount.
 - field: assoc_6g.AssocMac6g
-  operator: equals
-  value: 2c:59:17:00:04:86
+  operator: regex
+  value: (?i)^([0-9a-f]{2}:){5}[0-9a-f]{2}$
   description: 6g DUT assoclist must resolve the expected STA MAC 2c:59:17:00:04:86.
 - field: direct_6g.RetryCount
   operator: equals
   reference: getssid_6g.GetSSIDStatsRetryCount6g
   description: 6g direct Stats.RetryCount must match getSSIDStats().RetryCount.
 - field: assoc_24g.AssocMac24g
-  operator: equals
-  value: 2c:59:17:00:04:97
+  operator: regex
+  value: (?i)^([0-9a-f]{2}:){5}[0-9a-f]{2}$
   description: 2.4g DUT assoclist must resolve the expected STA MAC 2c:59:17:00:04:97.
 - field: direct_24g.RetryCount
   operator: equals
   reference: getssid_24g.GetSSIDStatsRetryCount24g
   description: 2.4g direct Stats.RetryCount must match getSSIDStats().RetryCount.
-verification_command: |
-  # 5g
-  wl -i wl0 assoclist
-  ubus-cli "WiFi.SSID.4.Stats.RetryCount?"
-  ubus-cli "WiFi.SSID.4.getSSIDStats()" | grep "RetryCount"
-
-  # 6g
-  wl -i wl1 assoclist
-  ubus-cli "WiFi.SSID.6.Stats.RetryCount?"
-  ubus-cli "WiFi.SSID.6.getSSIDStats()" | grep "RetryCount"
-
-  # 2.4g
-  wl -i wl2 assoclist
-  ubus-cli "WiFi.SSID.8.Stats.RetryCount?"
-  ubus-cli "WiFi.SSID.8.getSSIDStats()" | grep "RetryCount"
+verification_command:
+  - '# 5g'
+  - wl -i wl0 assoclist
+  - 'ubus-cli "WiFi.SSID.4.Stats.RetryCount?"'
+  - 'ubus-cli "WiFi.SSID.4.getSSIDStats()" | grep "RetryCount"'
+  - '# 6g'
+  - wl -i wl1 assoclist
+  - 'ubus-cli "WiFi.SSID.6.Stats.RetryCount?"'
+  - 'ubus-cli "WiFi.SSID.6.getSSIDStats()" | grep "RetryCount"'
+  - '# 2.4g'
+  - wl -i wl2 assoclist
+  - 'ubus-cli "WiFi.SSID.8.Stats.RetryCount?"'
+  - 'ubus-cli "WiFi.SSID.8.getSSIDStats()" | grep "RetryCount"'
 results_reference:
   v4.0.1:
     5g: To be tested

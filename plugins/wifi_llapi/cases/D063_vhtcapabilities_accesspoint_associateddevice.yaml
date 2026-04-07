@@ -201,11 +201,11 @@ pass_criteria:
   operator: not_equals
   reference: result.VhtCapabilities
   description: The non-empty driver-side VHT capability list must not collapse to the empty LLAPI VhtCapabilities value.
-verification_command: |
-  cat /sys/class/net/wl0/address | tr 'A-F' 'a-f' | sed 's/^/StaMac=/'
-  ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.VhtCapabilities?"
-  ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.?" | awk -F= '/^WiFi\.AccessPoint\.1\.AssociatedDevice\.1\.MACAddress=/ {gsub(/"/, "", $2); print "AssocMAC=" tolower($2)} /^WiFi\.AccessPoint\.1\.AssociatedDevice\.1\.VhtCapabilities=/ {gsub(/"/, "", $2); print "AssocVhtCapabilities=" $2}'
-  STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p' | tr 'A-F' 'a-f'); [ -n "$STA_MAC" ] && echo DriverAssocMac="$STA_MAC" && wl -i wl0 sta_info "$STA_MAC" | awk '/^[[:space:]]*VHT caps / {line=substr($0, index($0, ":")+2); print "DriverVhtCapsLine=" line; for (i=1;i<=NF;i++) if ($i ~ /^(SGI80|SGI160|SU-BFR|SU-BFE|MU-BFR|MU-BFE)$/) caps[++n]=$i} END {if (n) {out=""; for (i=1;i<=n;i++) out = out (i>1 ? "," : "") caps[i]; print "DriverVhtCapabilities=" out}}'
+verification_command:
+  - 'cat /sys/class/net/wl0/address | tr ''A-F'' ''a-f'' | sed ''s/^/StaMac=/'''
+  - 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.VhtCapabilities?"'
+  - 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.?" | awk -F= ''/^WiFi\.AccessPoint\.1\.AssociatedDevice\.1\.MACAddress=/ {gsub(/"/, "", $2); print "AssocMAC=" tolower($2)} /^WiFi\.AccessPoint\.1\.AssociatedDevice\.1\.VhtCapabilities=/ {gsub(/"/, "", $2); print "AssocVhtCapabilities=" $2}'''
+  - 'STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n ''s/.*MACAddress="\([^"]*\)".*/\1/p'' | tr ''A-F'' ''a-f''); [ -n "$STA_MAC" ] && echo DriverAssocMac="$STA_MAC" && wl -i wl0 sta_info "$STA_MAC" | awk ''/^[[:space:]]*VHT caps / {line=substr($0, index($0, ":")+2); print "DriverVhtCapsLine=" line; for (i=1;i<=NF;i++) if ($i ~ /^(SGI80|SGI160|SU-BFR|SU-BFE|MU-BFR|MU-BFE)$/) caps[++n]=$i} END {if (n) {out=""; for (i=1;i<=n;i++) out = out (i>1 ? "," : "") caps[i]; print "DriverVhtCapabilities=" out}}'''
 results_reference:
   v4.0.3:
     5g: Fail

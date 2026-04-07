@@ -146,7 +146,7 @@ steps:
 - id: step3
   action: exec
   target: DUT
-  command: STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p'); [ -n "$STA_MAC" ] && wl -i wl0 sta_info $STA_MAC | sed -n '/HT caps/{/40MHz/s/.*/DriverHt40MHz=1/p; /SGI20/s/.*/DriverHtSgi20=1/p; /SGI40/s/.*/DriverHtSgi40=1/p;}'
+  command: 'STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n ''s/.*MACAddress="\([^"]*\)".*/\1/p''); [ -n "$STA_MAC" ] && wl -i wl0 sta_info $STA_MAC | sed -n ''/HT caps/{/40MHz/s/.*/DriverHt40MHz=1/p; /SGI20/s/.*/DriverHtSgi20=1/p; /SGI40/s/.*/DriverHtSgi40=1/p;}'''
   depends_on: step2
   capture: driver_ht
 pass_criteria:
@@ -170,10 +170,10 @@ pass_criteria:
   operator: equals
   value: '1'
   description: wl0 sta_info HT caps must expose SGI40 support.
-verification_command: |
-  ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.HtCapabilities?"
-  STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p')
-  wl -i wl0 sta_info $STA_MAC | grep "HT caps"
+verification_command:
+  - 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.HtCapabilities?"'
+  - 'STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n ''s/.*MACAddress="\([^"]*\)".*/\1/p'')'
+  - 'wl -i wl0 sta_info $STA_MAC | grep "HT caps"'
 results_reference:
   v4.0.1:
     5g: Pass

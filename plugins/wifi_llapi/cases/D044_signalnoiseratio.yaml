@@ -135,8 +135,7 @@ steps:
 - id: step3
   action: exec
   target: DUT
-  command: >-
-    STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p'); STA_MAC_LOWER=$(echo "$STA_MAC" | tr 'A-F' 'a-f'); SIGNAL=$(iw dev wl0 station dump | awk -v mac="$STA_MAC_LOWER" '$1=="Station" && $2==mac {matched=1; next} $1=="Station" {matched=0} matched && $1=="signal:" {print $2; exit}'); NOISE=$(wl -i wl0 sta_info $STA_MAC_LOWER | awk '/per antenna noise floor:/ {print $5; exit}'); [ -n "$STA_MAC" ] && echo DriverAssocMac=$STA_MAC && [ -n "$SIGNAL" ] && echo DriverSignal=$SIGNAL && [ -n "$NOISE" ] && echo DriverNoise=$NOISE && [ -n "$SIGNAL" ] && [ -n "$NOISE" ] && echo DriverSignalNoiseRatio=$((SIGNAL - NOISE)) && echo DriverSignalNoiseRatioMin=$((SIGNAL - NOISE - 2)) && echo DriverSignalNoiseRatioMax=$((SIGNAL - NOISE + 2))
+  command: 'STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n ''s/.*MACAddress="\([^"]*\)".*/\1/p''); STA_MAC_LOWER=$(echo "$STA_MAC" | tr ''A-F'' ''a-f''); SIGNAL=$(iw dev wl0 station dump | awk -v mac="$STA_MAC_LOWER" ''$1=="Station" && $2==mac {matched=1; next} $1=="Station" {matched=0} matched && $1=="signal:" {print $2; exit}''); NOISE=$(wl -i wl0 sta_info $STA_MAC_LOWER | awk ''/per antenna noise floor:/ {print $5; exit}''); [ -n "$STA_MAC" ]; echo DriverAssocMac=$STA_MAC; [ -n "$SIGNAL" ]; echo DriverSignal=$SIGNAL; [ -n "$NOISE" ]; echo DriverNoise=$NOISE; echo DriverSignalNoiseRatio=$((SIGNAL - NOISE)); echo DriverSignalNoiseRatioMin=$((SIGNAL - NOISE - 2)); echo DriverSignalNoiseRatioMax=$((SIGNAL - NOISE + 2))'
   depends_on: step2
   capture: driver_snr
 pass_criteria:
@@ -176,9 +175,9 @@ pass_criteria:
   operator: '<='
   reference: driver_snr.DriverSignalNoiseRatioMax
   description: LLAPI SignalNoiseRatio should stay within 2 dB above the computed driver SNR for the same STA.
-verification_command: |
-  ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.SignalNoiseRatio?"
-  STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p'); STA_MAC_LOWER=$(echo "$STA_MAC" | tr 'A-F' 'a-f'); SIGNAL=$(iw dev wl0 station dump | awk -v mac="$STA_MAC_LOWER" '$1=="Station" && $2==mac {matched=1; next} $1=="Station" {matched=0} matched && $1=="signal:" {print $2; exit}'); NOISE=$(wl -i wl0 sta_info $STA_MAC_LOWER | awk '/per antenna noise floor:/ {print $5; exit}'); [ -n "$STA_MAC" ] && echo DriverAssocMac=$STA_MAC && [ -n "$SIGNAL" ] && echo DriverSignal=$SIGNAL && [ -n "$NOISE" ] && echo DriverNoise=$NOISE && [ -n "$SIGNAL" ] && [ -n "$NOISE" ] && echo DriverSignalNoiseRatio=$((SIGNAL - NOISE)) && echo DriverSignalNoiseRatioMin=$((SIGNAL - NOISE - 2)) && echo DriverSignalNoiseRatioMax=$((SIGNAL - NOISE + 2))
+verification_command:
+  - 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.SignalNoiseRatio?"'
+  - 'STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n ''s/.*MACAddress="\([^"]*\)".*/\1/p''); STA_MAC_LOWER=$(echo "$STA_MAC" | tr ''A-F'' ''a-f''); SIGNAL=$(iw dev wl0 station dump | awk -v mac="$STA_MAC_LOWER" ''$1=="Station" && $2==mac {matched=1; next} $1=="Station" {matched=0} matched && $1=="signal:" {print $2; exit}''); NOISE=$(wl -i wl0 sta_info $STA_MAC_LOWER | awk ''/per antenna noise floor:/ {print $5; exit}''); [ -n "$STA_MAC" ] && echo DriverAssocMac=$STA_MAC && [ -n "$SIGNAL" ] && echo DriverSignal=$SIGNAL && [ -n "$NOISE" ] && echo DriverNoise=$NOISE && [ -n "$SIGNAL" ] && [ -n "$NOISE" ] && echo DriverSignalNoiseRatio=$((SIGNAL - NOISE)) && echo DriverSignalNoiseRatioMin=$((SIGNAL - NOISE - 2)) && echo DriverSignalNoiseRatioMax=$((SIGNAL - NOISE + 2))'
 results_reference:
   v4.0.3:
     5g: Pass

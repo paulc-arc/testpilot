@@ -153,7 +153,7 @@ steps:
 - id: step4
   action: exec
   target: DUT
-  command: STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p'); [ -n "$STA_MAC" ] && wl -i wl0 sta_info $STA_MAC | sed -n 's/.*link bandwidth = *\([0-9][0-9]*\) MHZ.*/DriverLinkBandwidth=\1MHz/p'
+  command: 'STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n ''s/.*MACAddress="\([^"]*\)".*/\1/p''); [ -n "$STA_MAC" ] && wl -i wl0 sta_info $STA_MAC | sed -n ''s/.*link bandwidth = *\([0-9][0-9]*\) MHZ.*/DriverLinkBandwidth=\1MHz/p'''
   depends_on: step3
   capture: driver_bw
 pass_criteria:
@@ -169,11 +169,11 @@ pass_criteria:
   operator: equals
   reference: driver_bw.DriverLinkBandwidth
   description: LLAPI LinkBandwidth must match the driver link bandwidth for the same STA.
-verification_command: |
-  ubus-cli "WiFi.Radio.1.OperatingChannelBandwidth?"
-  ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.LinkBandwidth?"
-  STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p')
-  wl -i wl0 sta_info $STA_MAC | grep "link bandwidth"
+verification_command:
+  - 'ubus-cli "WiFi.Radio.1.OperatingChannelBandwidth?"'
+  - 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.LinkBandwidth?"'
+  - 'STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n ''s/.*MACAddress="\([^"]*\)".*/\1/p'')'
+  - 'wl -i wl0 sta_info $STA_MAC | grep "link bandwidth"'
 results_reference:
   v4.0.1:
     5g: Pass

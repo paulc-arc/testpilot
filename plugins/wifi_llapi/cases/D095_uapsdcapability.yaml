@@ -43,10 +43,10 @@ steps:
   - id: step1_uapsd_5g
     action: exec
     target: DUT
-    command: |
-      echo "UAPSDCapability5g=$(ubus-cli 'WiFi.AccessPoint.1.UAPSDCapability?' 2>/dev/null | grep -o 'UAPSDCapability=[0-9]*' | cut -d= -f2)"
-      echo "HapdUapsd5g=$(grep 'uapsd_advertisement_enabled=' /tmp/wl0_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
-      echo "DriverWmeApsd5g=$(wl -i wl0 wme_apsd 2>/dev/null)"
+    command:
+      - echo "UAPSDCapability5g=$(ubus-cli 'WiFi.AccessPoint.1.UAPSDCapability?' 2>/dev/null | grep -o 'UAPSDCapability=[0-9]*' | cut -d= -f2)"
+      - echo "HapdUapsd5g=$(grep 'uapsd_advertisement_enabled=' /tmp/wl0_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+      - echo "DriverWmeApsd5g=$(wl -i wl0 wme_apsd 2>/dev/null)"
     capture: uapsd_5g
 
   # ---------- 6G ----------
@@ -54,10 +54,10 @@ steps:
     action: exec
     target: DUT
     depends_on: step1_uapsd_5g
-    command: |
-      echo "UAPSDCapability6g=$(ubus-cli 'WiFi.AccessPoint.3.UAPSDCapability?' 2>/dev/null | grep -o 'UAPSDCapability=[0-9]*' | cut -d= -f2)"
-      echo "HapdUapsd6g=$(grep 'uapsd_advertisement_enabled=' /tmp/wl1_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
-      echo "DriverWmeApsd6g=$(wl -i wl1 wme_apsd 2>/dev/null)"
+    command:
+      - echo "UAPSDCapability6g=$(ubus-cli 'WiFi.AccessPoint.3.UAPSDCapability?' 2>/dev/null | grep -o 'UAPSDCapability=[0-9]*' | cut -d= -f2)"
+      - echo "HapdUapsd6g=$(grep 'uapsd_advertisement_enabled=' /tmp/wl1_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+      - echo "DriverWmeApsd6g=$(wl -i wl1 wme_apsd 2>/dev/null)"
     capture: uapsd_6g
 
   # ---------- 2.4G ----------
@@ -65,10 +65,10 @@ steps:
     action: exec
     target: DUT
     depends_on: step2_uapsd_6g
-    command: |
-      echo "UAPSDCapability24g=$(ubus-cli 'WiFi.AccessPoint.5.UAPSDCapability?' 2>/dev/null | grep -o 'UAPSDCapability=[0-9]*' | cut -d= -f2)"
-      echo "HapdUapsd24g=$(grep 'uapsd_advertisement_enabled=' /tmp/wl2_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
-      echo "DriverWmeApsd24g=$(wl -i wl2 wme_apsd 2>/dev/null)"
+    command:
+      - echo "UAPSDCapability24g=$(ubus-cli 'WiFi.AccessPoint.5.UAPSDCapability?' 2>/dev/null | grep -o 'UAPSDCapability=[0-9]*' | cut -d= -f2)"
+      - echo "HapdUapsd24g=$(grep 'uapsd_advertisement_enabled=' /tmp/wl2_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+      - echo "DriverWmeApsd24g=$(wl -i wl2 wme_apsd 2>/dev/null)"
     capture: uapsd_24g
 
 pass_criteria:
@@ -85,13 +85,13 @@ pass_criteria:
     value: '1'
     description: '2.4G UAPSDCapability should be 1 (capable)'
 
-verification_command: |
-  wl -i wl0 wme_apsd
-  wl -i wl1 wme_apsd
-  wl -i wl2 wme_apsd
-  grep uapsd_advertisement_enabled /tmp/wl0_hapd.conf
-  grep uapsd_advertisement_enabled /tmp/wl1_hapd.conf
-  grep uapsd_advertisement_enabled /tmp/wl2_hapd.conf
+verification_command:
+  - 'wl -i wl0 wme_apsd'
+  - 'wl -i wl1 wme_apsd'
+  - 'wl -i wl2 wme_apsd'
+  - 'grep uapsd_advertisement_enabled /tmp/wl0_hapd.conf'
+  - 'grep uapsd_advertisement_enabled /tmp/wl1_hapd.conf'
+  - 'grep uapsd_advertisement_enabled /tmp/wl2_hapd.conf'
 
 results_reference:
   v4.0.1:

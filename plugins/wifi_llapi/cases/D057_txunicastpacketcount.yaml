@@ -211,11 +211,11 @@ pass_criteria:
   operator: regex
   value: ^[0-9]+$
   description: wl0 sta_info must still expose tx ucast bytes as supporting context for the same STA.
-verification_command: |
-  cat /sys/class/net/wl0/address | tr 'A-F' 'a-f' | sed 's/^/StaMac=/'
-  ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.TxUnicastPacketCount?"
-  ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.?" | awk -F= '/^WiFi\.AccessPoint\.1\.AssociatedDevice\.1\.MACAddress=/ {gsub(/"/, "", $2); print "AssocMAC=" tolower($2)} /^WiFi\.AccessPoint\.1\.AssociatedDevice\.1\.TxUnicastPacketCount=/ {print "AssocTxUnicastPacketCount=" $2} /^WiFi\.AccessPoint\.1\.AssociatedDevice\.1\.TxPacketCount=/ {print "AssocTxPacketCount=" $2}'
-  STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p' | tr 'A-F' 'a-f'); [ -n "$STA_MAC" ] && echo DriverAssocMac=$STA_MAC && wl -i wl0 sta_info $STA_MAC | sed -n 's/^[[:space:]]*tx total pkts: \([0-9][0-9]*\).*/DriverTxPacketCount=\1/p; s/^[[:space:]]*tx ucast pkts: \([0-9][0-9]*\).*/DriverTxUnicastPacketCount=\1/p; s/^[[:space:]]*tx total bytes: \([0-9][0-9]*\).*/DriverTxBytes=\1/p; s/^[[:space:]]*tx ucast bytes: \([0-9][0-9]*\).*/DriverTxUnicastBytes=\1/p'
+verification_command:
+  - 'cat /sys/class/net/wl0/address | tr ''A-F'' ''a-f'' | sed ''s/^/StaMac=/'''
+  - 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.TxUnicastPacketCount?"'
+  - 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.?" | awk -F= ''/^WiFi\.AccessPoint\.1\.AssociatedDevice\.1\.MACAddress=/ {gsub(/"/, "", $2); print "AssocMAC=" tolower($2)} /^WiFi\.AccessPoint\.1\.AssociatedDevice\.1\.TxUnicastPacketCount=/ {print "AssocTxUnicastPacketCount=" $2} /^WiFi\.AccessPoint\.1\.AssociatedDevice\.1\.TxPacketCount=/ {print "AssocTxPacketCount=" $2}'''
+  - 'STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n ''s/.*MACAddress="\([^"]*\)".*/\1/p'' | tr ''A-F'' ''a-f''); [ -n "$STA_MAC" ] && echo DriverAssocMac=$STA_MAC && wl -i wl0 sta_info $STA_MAC | sed -n ''s/^[[:space:]]*tx total pkts: \([0-9][0-9]*\).*/DriverTxPacketCount=\1/p; s/^[[:space:]]*tx ucast pkts: \([0-9][0-9]*\).*/DriverTxUnicastPacketCount=\1/p; s/^[[:space:]]*tx total bytes: \([0-9][0-9]*\).*/DriverTxBytes=\1/p; s/^[[:space:]]*tx ucast bytes: \([0-9][0-9]*\).*/DriverTxUnicastBytes=\1/p'''
 results_reference:
   v4.0.3:
     5g: Fail

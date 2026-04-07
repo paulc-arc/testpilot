@@ -48,8 +48,8 @@ pass_criteria:
   operator: contains
   value: No data found
   description: WiFi.EndPoint tree should not exist on BGW720
-verification_command: |
-  ubus-cli "WiFi.EndPoint.?"
+verification_command:
+  - ubus-cli "WiFi.EndPoint.?"
 results_reference:
   v4.0.3:
     5g: Not Supported

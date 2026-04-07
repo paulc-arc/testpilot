@@ -174,9 +174,9 @@ pass_criteria:
   operator: equals
   reference: driver_counter.DriverRxPacketCount
   description: LLAPI RxPacketCount must match iw station dump rx packets for the same STA.
-verification_command: |
-  ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.RxPacketCount?"
-  STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p'); STA_MAC_LOWER=$(echo "$STA_MAC" | tr 'A-F' 'a-f'); [ -n "$STA_MAC" ] && iw dev wl0 station dump | awk -v mac="$STA_MAC_LOWER" -v sta="$STA_MAC" '$1=="Station" && $2==mac {matched=1; print "DriverAssocMac=" sta; next} $1=="Station" {matched=0} matched && $1=="rx" && $2=="packets:" {print "DriverRxPacketCount=" $3}'
+verification_command:
+  - 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.RxPacketCount?"'
+  - 'STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n ''s/.*MACAddress="\([^"]*\)".*/\1/p''); STA_MAC_LOWER=$(echo "$STA_MAC" | tr ''A-F'' ''a-f''); [ -n "$STA_MAC" ] && iw dev wl0 station dump | awk -v mac="$STA_MAC_LOWER" -v sta="$STA_MAC" ''$1=="Station" && $2==mac {matched=1; print "DriverAssocMac=" sta; next} $1=="Station" {matched=0} matched && $1=="rx" && $2=="packets:" {print "DriverRxPacketCount=" $3}'''
 results_reference:
   v4.0.3:
     5g: Pass

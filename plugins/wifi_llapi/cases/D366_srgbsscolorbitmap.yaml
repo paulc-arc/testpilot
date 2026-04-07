@@ -222,22 +222,22 @@ pass_criteria:
   operator: equals
   value: ""
   description: 2.4G Radio.3 should restore back to an empty SRGBSSColorBitmap value.
-verification_command: |
-  ubus-cli "WiFi.Radio.1.IEEE80211ax.SRGBSSColorBitmap?"
-  ubus-cli WiFi.Radio.1.IEEE80211ax.SRGBSSColorBitmap="1"
-  ubus-cli "WiFi.Radio.1.IEEE80211ax.SRGBSSColorBitmap?"
-  grep -c '^he_spr_srg_bss_colors=' /tmp/wl0_hapd.conf | sed 's/^/HostapdSrgBssColorLines=/'
-  ubus-cli WiFi.Radio.1.IEEE80211ax.SRGBSSColorBitmap=""
-  ubus-cli "WiFi.Radio.2.IEEE80211ax.SRGBSSColorBitmap?"
-  ubus-cli WiFi.Radio.2.IEEE80211ax.SRGBSSColorBitmap="1"
-  ubus-cli "WiFi.Radio.2.IEEE80211ax.SRGBSSColorBitmap?"
-  grep -c '^he_spr_srg_bss_colors=' /tmp/wl1_hapd.conf | sed 's/^/HostapdSrgBssColorLines=/'
-  ubus-cli WiFi.Radio.2.IEEE80211ax.SRGBSSColorBitmap=""
-  ubus-cli "WiFi.Radio.3.IEEE80211ax.SRGBSSColorBitmap?"
-  ubus-cli WiFi.Radio.3.IEEE80211ax.SRGBSSColorBitmap="1"
-  ubus-cli "WiFi.Radio.3.IEEE80211ax.SRGBSSColorBitmap?"
-  grep -c '^he_spr_srg_bss_colors=' /tmp/wl2_hapd.conf | sed 's/^/HostapdSrgBssColorLines=/'
-  ubus-cli WiFi.Radio.3.IEEE80211ax.SRGBSSColorBitmap=""
+verification_command:
+  - 'ubus-cli "WiFi.Radio.1.IEEE80211ax.SRGBSSColorBitmap?"'
+  - 'ubus-cli WiFi.Radio.1.IEEE80211ax.SRGBSSColorBitmap="1"'
+  - 'ubus-cli "WiFi.Radio.1.IEEE80211ax.SRGBSSColorBitmap?"'
+  - 'grep -c ''^he_spr_srg_bss_colors='' /tmp/wl0_hapd.conf | sed ''s/^/HostapdSrgBssColorLines=/'''
+  - 'ubus-cli WiFi.Radio.1.IEEE80211ax.SRGBSSColorBitmap=""'
+  - 'ubus-cli "WiFi.Radio.2.IEEE80211ax.SRGBSSColorBitmap?"'
+  - 'ubus-cli WiFi.Radio.2.IEEE80211ax.SRGBSSColorBitmap="1"'
+  - 'ubus-cli "WiFi.Radio.2.IEEE80211ax.SRGBSSColorBitmap?"'
+  - 'grep -c ''^he_spr_srg_bss_colors='' /tmp/wl1_hapd.conf | sed ''s/^/HostapdSrgBssColorLines=/'''
+  - 'ubus-cli WiFi.Radio.2.IEEE80211ax.SRGBSSColorBitmap=""'
+  - 'ubus-cli "WiFi.Radio.3.IEEE80211ax.SRGBSSColorBitmap?"'
+  - 'ubus-cli WiFi.Radio.3.IEEE80211ax.SRGBSSColorBitmap="1"'
+  - 'ubus-cli "WiFi.Radio.3.IEEE80211ax.SRGBSSColorBitmap?"'
+  - 'grep -c ''^he_spr_srg_bss_colors='' /tmp/wl2_hapd.conf | sed ''s/^/HostapdSrgBssColorLines=/'''
+  - 'ubus-cli WiFi.Radio.3.IEEE80211ax.SRGBSSColorBitmap=""'
 results_reference:
   v4.0.3:
     5g: Fail

@@ -47,9 +47,9 @@ steps:
   - id: step1_baseline_5g
     action: exec
     target: DUT
-    command: |
-      echo "BaselineWEPKey5g=$(ubus-cli 'WiFi.AccessPoint.1.Security.WEPKey?' 2>/dev/null | grep -o 'WEPKey="[^"]*"' | cut -d'"' -f2)"
-      echo "HostapdWep5g=$(grep -ic wep /tmp/wl0_hapd.conf 2>/dev/null || echo 0)"
+    command:
+      - echo "BaselineWEPKey5g=$(ubus-cli 'WiFi.AccessPoint.1.Security.WEPKey?' 2>/dev/null | grep -o 'WEPKey="[^"]*"' | cut -d'"' -f2)"
+      - echo "HostapdWep5g=$(grep -ic wep /tmp/wl0_hapd.conf 2>/dev/null || echo 0)"
     capture: baseline_5g
 
   - id: step2_set_5g
@@ -63,29 +63,29 @@ steps:
     action: exec
     target: DUT
     depends_on: step2_set_5g
-    command: |
-      sleep 2
-      echo "GetterWEPKey5g=$(ubus-cli 'WiFi.AccessPoint.1.Security.WEPKey?' 2>/dev/null | grep -o 'WEPKey="[^"]*"' | cut -d'"' -f2)"
-      echo "HostapdWepAfter5g=$(grep -ic wep /tmp/wl0_hapd.conf 2>/dev/null || echo 0)"
+    command:
+      - sleep 2
+      - echo "GetterWEPKey5g=$(ubus-cli 'WiFi.AccessPoint.1.Security.WEPKey?' 2>/dev/null | grep -o 'WEPKey="[^"]*"' | cut -d'"' -f2)"
+      - echo "HostapdWepAfter5g=$(grep -ic wep /tmp/wl0_hapd.conf 2>/dev/null || echo 0)"
     capture: readback_5g
 
   - id: step4_restore_5g
     action: exec
     target: DUT
     depends_on: step3_readback_5g
-    command: |
-      ubus-cli WiFi.AccessPoint.1.Security.WEPKey=123456789ABCD
-      sleep 2
-      echo "RestoredWEPKey5g=$(ubus-cli 'WiFi.AccessPoint.1.Security.WEPKey?' 2>/dev/null | grep -o 'WEPKey="[^"]*"' | cut -d'"' -f2)"
+    command:
+      - ubus-cli WiFi.AccessPoint.1.Security.WEPKey=123456789ABCD
+      - sleep 2
+      - echo "RestoredWEPKey5g=$(ubus-cli 'WiFi.AccessPoint.1.Security.WEPKey?' 2>/dev/null | grep -o 'WEPKey="[^"]*"' | cut -d'"' -f2)"
     capture: restore_5g
 
   - id: step5_baseline_6g
     action: exec
     target: DUT
     depends_on: step4_restore_5g
-    command: |
-      echo "BaselineWEPKey6g=$(ubus-cli 'WiFi.AccessPoint.3.Security.WEPKey?' 2>/dev/null | grep -o 'WEPKey="[^"]*"' | cut -d'"' -f2)"
-      echo "HostapdWep6g=$(grep -ic wep /tmp/wl1_hapd.conf 2>/dev/null || echo 0)"
+    command:
+      - echo "BaselineWEPKey6g=$(ubus-cli 'WiFi.AccessPoint.3.Security.WEPKey?' 2>/dev/null | grep -o 'WEPKey="[^"]*"' | cut -d'"' -f2)"
+      - echo "HostapdWep6g=$(grep -ic wep /tmp/wl1_hapd.conf 2>/dev/null || echo 0)"
     capture: baseline_6g
 
   - id: step6_set_6g
@@ -99,29 +99,29 @@ steps:
     action: exec
     target: DUT
     depends_on: step6_set_6g
-    command: |
-      sleep 2
-      echo "GetterWEPKey6g=$(ubus-cli 'WiFi.AccessPoint.3.Security.WEPKey?' 2>/dev/null | grep -o 'WEPKey="[^"]*"' | cut -d'"' -f2)"
-      echo "HostapdWepAfter6g=$(grep -ic wep /tmp/wl1_hapd.conf 2>/dev/null || echo 0)"
+    command:
+      - sleep 2
+      - echo "GetterWEPKey6g=$(ubus-cli 'WiFi.AccessPoint.3.Security.WEPKey?' 2>/dev/null | grep -o 'WEPKey="[^"]*"' | cut -d'"' -f2)"
+      - echo "HostapdWepAfter6g=$(grep -ic wep /tmp/wl1_hapd.conf 2>/dev/null || echo 0)"
     capture: readback_6g
 
   - id: step8_restore_6g
     action: exec
     target: DUT
     depends_on: step7_readback_6g
-    command: |
-      ubus-cli WiFi.AccessPoint.3.Security.WEPKey=123456789ABCD
-      sleep 2
-      echo "RestoredWEPKey6g=$(ubus-cli 'WiFi.AccessPoint.3.Security.WEPKey?' 2>/dev/null | grep -o 'WEPKey="[^"]*"' | cut -d'"' -f2)"
+    command:
+      - ubus-cli WiFi.AccessPoint.3.Security.WEPKey=123456789ABCD
+      - sleep 2
+      - echo "RestoredWEPKey6g=$(ubus-cli 'WiFi.AccessPoint.3.Security.WEPKey?' 2>/dev/null | grep -o 'WEPKey="[^"]*"' | cut -d'"' -f2)"
     capture: restore_6g
 
   - id: step9_baseline_24g
     action: exec
     target: DUT
     depends_on: step8_restore_6g
-    command: |
-      echo "BaselineWEPKey24g=$(ubus-cli 'WiFi.AccessPoint.5.Security.WEPKey?' 2>/dev/null | grep -o 'WEPKey="[^"]*"' | cut -d'"' -f2)"
-      echo "HostapdWep24g=$(grep -ic wep /tmp/wl2_hapd.conf 2>/dev/null || echo 0)"
+    command:
+      - echo "BaselineWEPKey24g=$(ubus-cli 'WiFi.AccessPoint.5.Security.WEPKey?' 2>/dev/null | grep -o 'WEPKey="[^"]*"' | cut -d'"' -f2)"
+      - echo "HostapdWep24g=$(grep -ic wep /tmp/wl2_hapd.conf 2>/dev/null || echo 0)"
     capture: baseline_24g
 
   - id: step10_set_24g
@@ -135,20 +135,20 @@ steps:
     action: exec
     target: DUT
     depends_on: step10_set_24g
-    command: |
-      sleep 2
-      echo "GetterWEPKey24g=$(ubus-cli 'WiFi.AccessPoint.5.Security.WEPKey?' 2>/dev/null | grep -o 'WEPKey="[^"]*"' | cut -d'"' -f2)"
-      echo "HostapdWepAfter24g=$(grep -ic wep /tmp/wl2_hapd.conf 2>/dev/null || echo 0)"
+    command:
+      - sleep 2
+      - echo "GetterWEPKey24g=$(ubus-cli 'WiFi.AccessPoint.5.Security.WEPKey?' 2>/dev/null | grep -o 'WEPKey="[^"]*"' | cut -d'"' -f2)"
+      - echo "HostapdWepAfter24g=$(grep -ic wep /tmp/wl2_hapd.conf 2>/dev/null || echo 0)"
     capture: readback_24g
 
   - id: step12_restore_24g
     action: exec
     target: DUT
     depends_on: step11_readback_24g
-    command: |
-      ubus-cli WiFi.AccessPoint.5.Security.WEPKey=123456789ABCD
-      sleep 2
-      echo "RestoredWEPKey24g=$(ubus-cli 'WiFi.AccessPoint.5.Security.WEPKey?' 2>/dev/null | grep -o 'WEPKey="[^"]*"' | cut -d'"' -f2)"
+    command:
+      - ubus-cli WiFi.AccessPoint.5.Security.WEPKey=123456789ABCD
+      - sleep 2
+      - echo "RestoredWEPKey24g=$(ubus-cli 'WiFi.AccessPoint.5.Security.WEPKey?' 2>/dev/null | grep -o 'WEPKey="[^"]*"' | cut -d'"' -f2)"
     capture: restore_24g
 
 pass_criteria:
@@ -189,10 +189,10 @@ pass_criteria:
     value: '123456789ABCD'
     description: '2.4G WEPKey restored to 123456789ABCD'
 
-verification_command: |
-  grep -i wep /tmp/wl0_hapd.conf 2>/dev/null || echo NO_WEP_LINES_5G
-  grep -i wep /tmp/wl1_hapd.conf 2>/dev/null || echo NO_WEP_LINES_6G
-  grep -i wep /tmp/wl2_hapd.conf 2>/dev/null || echo NO_WEP_LINES_24G
+verification_command:
+  - 'grep -i wep /tmp/wl0_hapd.conf 2>/dev/null || echo NO_WEP_LINES_5G'
+  - 'grep -i wep /tmp/wl1_hapd.conf 2>/dev/null || echo NO_WEP_LINES_6G'
+  - 'grep -i wep /tmp/wl2_hapd.conf 2>/dev/null || echo NO_WEP_LINES_24G'
 
 results_reference:
   v4.0.1:

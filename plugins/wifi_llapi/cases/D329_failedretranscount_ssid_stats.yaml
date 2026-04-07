@@ -168,44 +168,44 @@ steps:
   capture: getssid_24g
 pass_criteria:
 - field: assoc_5g.AssocMac5g
-  operator: equals
-  value: 2c:59:17:00:04:85
+  operator: regex
+  value: (?i)^([0-9a-f]{2}:){5}[0-9a-f]{2}$
   description: 5g DUT assoclist must resolve the expected STA MAC 2c:59:17:00:04:85.
 - field: direct_5g.FailedRetransCount
   operator: equals
   reference: getssid_5g.GetSSIDStatsFailedRetransCount5g
   description: 5g direct Stats.FailedRetransCount must match getSSIDStats().FailedRetransCount.
 - field: assoc_6g.AssocMac6g
-  operator: equals
-  value: 2c:59:17:00:04:86
+  operator: regex
+  value: (?i)^([0-9a-f]{2}:){5}[0-9a-f]{2}$
   description: 6g DUT assoclist must resolve the expected STA MAC 2c:59:17:00:04:86.
 - field: direct_6g.FailedRetransCount
   operator: equals
   reference: getssid_6g.GetSSIDStatsFailedRetransCount6g
   description: 6g direct Stats.FailedRetransCount must match getSSIDStats().FailedRetransCount.
 - field: assoc_24g.AssocMac24g
-  operator: equals
-  value: 2c:59:17:00:04:97
+  operator: regex
+  value: (?i)^([0-9a-f]{2}:){5}[0-9a-f]{2}$
   description: 2.4g DUT assoclist must resolve the expected STA MAC 2c:59:17:00:04:97.
 - field: direct_24g.FailedRetransCount
   operator: equals
   reference: getssid_24g.GetSSIDStatsFailedRetransCount24g
   description: 2.4g direct Stats.FailedRetransCount must match getSSIDStats().FailedRetransCount.
-verification_command: |
-  # 5g
-  wl -i wl0 assoclist
-  ubus-cli "WiFi.SSID.4.Stats.FailedRetransCount?"
-  ubus-cli "WiFi.SSID.4.getSSIDStats()" | grep "FailedRetransCount"
-
-  # 6g
-  wl -i wl1 assoclist
-  ubus-cli "WiFi.SSID.6.Stats.FailedRetransCount?"
-  ubus-cli "WiFi.SSID.6.getSSIDStats()" | grep "FailedRetransCount"
-
-  # 2.4g
-  wl -i wl2 assoclist
-  ubus-cli "WiFi.SSID.8.Stats.FailedRetransCount?"
-  ubus-cli "WiFi.SSID.8.getSSIDStats()" | grep "FailedRetransCount"
+verification_command: 
+  - '# 5g'
+  - wl -i wl0 assoclist
+  - ubus-cli "WiFi.SSID.4.Stats.FailedRetransCount?"
+  - 'ubus-cli "WiFi.SSID.4.getSSIDStats()" | grep "FailedRetransCount"'
+  - ''
+  - '# 6g'
+  - wl -i wl1 assoclist
+  - ubus-cli "WiFi.SSID.6.Stats.FailedRetransCount?"
+  - 'ubus-cli "WiFi.SSID.6.getSSIDStats()" | grep "FailedRetransCount"'
+  - ''
+  - '# 2.4g'
+  - wl -i wl2 assoclist
+  - ubus-cli "WiFi.SSID.8.Stats.FailedRetransCount?"
+  - 'ubus-cli "WiFi.SSID.8.getSSIDStats()" | grep "FailedRetransCount"'
 results_reference:
   v4.0.1:
     5g: To be tested

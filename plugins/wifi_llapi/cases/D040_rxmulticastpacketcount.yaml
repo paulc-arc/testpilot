@@ -178,9 +178,9 @@ pass_criteria:
   operator: '>'
   value: '0'
   description: After the broadcast/multicast probe, wl0 sta_info must report non-zero rx mcast/bcast pkts for the same STA.
-verification_command: |
-  ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.RxMulticastPacketCount?"
-  STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p'); [ -n "$STA_MAC" ] && echo DriverAssocMac=$STA_MAC && wl -i wl0 sta_info $STA_MAC | awk '/rx mcast\/bcast pkts:/ {print "DriverRxMulticastPacketCount=" $4}'
+verification_command:
+  - 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.RxMulticastPacketCount?"'
+  - 'STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n ''s/.*MACAddress="\([^"]*\)".*/\1/p''); [ -n "$STA_MAC" ] && echo DriverAssocMac=$STA_MAC && wl -i wl0 sta_info $STA_MAC | awk ''/rx mcast\/bcast pkts:/ {print "DriverRxMulticastPacketCount=" $4}'''
 results_reference:
   v4.0.3:
     5g: Fail

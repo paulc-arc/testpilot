@@ -157,9 +157,9 @@ pass_criteria:
   operator: contains
   reference: driver_capability.DriverUNIIBandsCapabilities
   description: LLAPI UNIIBandsCapabilities should contain the STA-derived 5 GHz U-NII baseline.
-verification_command: |
-  ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.UNIIBandsCapabilities?"
-  STA_MAC=$(ifconfig wl0 | sed -n 's/.*HWaddr \([0-9A-Fa-f:]*\).*/\1/p' | tr '[:lower:]' '[:upper:]'); STA_PHY=$(iw dev wl0 info | awk '/wiphy/ {print "phy"$2; exit}'); [ -n "$STA_MAC" ] && echo DriverAssocMac=$STA_MAC && [ -n "$STA_PHY" ] && iw phy "$STA_PHY" info | awk 'BEGIN {u1=0; u2a=0; u2c=0; u3=0} /5180 MHz/ {u1=1} /5260 MHz/ {u2a=1} /5500 MHz/ {u2c=1} /5745 MHz/ {u3=1} END {bands=""; if (u1) bands=bands "U-NII-1,"; if (u2a) bands=bands "U-NII-2A,"; if (u2c) bands=bands "U-NII-2C,"; if (u3) bands=bands "U-NII-3,"; sub(/,$/, "", bands); print "DriverUNIIBandsCapabilities=" bands}'
+verification_command:
+  - 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.UNIIBandsCapabilities?"'
+  - 'STA_MAC=$(ifconfig wl0 | sed -n ''s/.*HWaddr \([0-9A-Fa-f:]*\).*/\1/p'' | tr ''[:lower:]'' ''[:upper:]''); STA_PHY=$(iw dev wl0 info | awk ''/wiphy/ {print "phy"$2; exit}''); [ -n "$STA_MAC" ] && echo DriverAssocMac=$STA_MAC && [ -n "$STA_PHY" ] && iw phy "$STA_PHY" info | awk ''BEGIN {u1=0; u2a=0; u2c=0; u3=0} /5180 MHz/ {u1=1} /5260 MHz/ {u2a=1} /5500 MHz/ {u2c=1} /5745 MHz/ {u3=1} END {bands=""; if (u1) bands=bands "U-NII-1,"; if (u2a) bands=bands "U-NII-2A,"; if (u2c) bands=bands "U-NII-2C,"; if (u3) bands=bands "U-NII-3,"; sub(/,$/, "", bands); print "DriverUNIIBandsCapabilities=" bands}'''
 results_reference:
   v4.0.3:
     5g: Pass

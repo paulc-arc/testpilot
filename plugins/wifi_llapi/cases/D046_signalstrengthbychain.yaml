@@ -141,8 +141,7 @@ steps:
 - id: step4
   action: exec
   target: DUT
-  command: >-
-    STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p'); STA_MAC_LOWER=$(echo "$STA_MAC" | tr 'A-F' 'a-f'); [ -n "$STA_MAC" ] && echo DriverAssocMac=$STA_MAC && wl -i wl0 sta_info $STA_MAC_LOWER | sed -n 's/.*per antenna average rssi of rx data frames: *//p' | tr ' ' '\n' | sed '/^$/d;s/$/.0/' | paste -sd, - | sed 's/^/DriverSignalStrengthByChain=/'
+  command: 'STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n ''s/.*MACAddress="\([^"]*\)".*/\1/p''); STA_MAC_LOWER=$(echo "$STA_MAC" | tr ''A-F'' ''a-f''); [ -n "$STA_MAC" ]; echo DriverAssocMac=$STA_MAC; wl -i wl0 sta_info $STA_MAC_LOWER | sed -n ''s/.*per antenna average rssi of rx data frames: *//p'' | tr '' '' ''\n'' | sed ''/^$/d'' | awk ''BEGIN{first=1} {printf "%s%s.0", (first?"":","), $1; first=0} END{if (!first) printf "\n"}'' | sed ''s/^/DriverSignalStrengthByChain=/'''
   depends_on: step3
   capture: driver_signal
 pass_criteria:
@@ -174,10 +173,10 @@ pass_criteria:
   operator: equals
   reference: driver_signal.DriverSignalStrengthByChain
   description: LLAPI SignalStrengthByChain must match the driver per-antenna average RSSI list for the same STA.
-verification_command: |
-  cat /sys/class/net/wl0/address | tr 'a-f' 'A-F' | sed 's/^/StaMac=/'
-  ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.SignalStrengthByChain?"
-  STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p'); STA_MAC_LOWER=$(echo "$STA_MAC" | tr 'A-F' 'a-f'); [ -n "$STA_MAC" ] && echo DriverAssocMac=$STA_MAC && wl -i wl0 sta_info $STA_MAC_LOWER | sed -n 's/.*per antenna average rssi of rx data frames: *//p' | tr ' ' '\n' | sed '/^$/d;s/$/.0/' | paste -sd, - | sed 's/^/DriverSignalStrengthByChain=/'
+verification_command:
+  - 'cat /sys/class/net/wl0/address | tr ''a-f'' ''A-F'' | sed ''s/^/StaMac=/'''
+  - 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.SignalStrengthByChain?"'
+  - 'STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n ''s/.*MACAddress="\([^"]*\)".*/\1/p''); STA_MAC_LOWER=$(echo "$STA_MAC" | tr ''A-F'' ''a-f''); [ -n "$STA_MAC" ] && echo DriverAssocMac=$STA_MAC && wl -i wl0 sta_info $STA_MAC_LOWER | sed -n ''s/.*per antenna average rssi of rx data frames: *//p'' | tr '' '' ''\n'' | sed ''/^$/d;s/$/.0/'' | paste -sd, - | sed ''s/^/DriverSignalStrengthByChain=/'''
 results_reference:
   v4.0.3:
     5g: Pass

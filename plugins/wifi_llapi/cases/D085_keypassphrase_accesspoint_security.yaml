@@ -75,8 +75,9 @@ steps:
   action: exec
   target: DUT
   band: 5g
-  command: >-
-    printf 'RequestedKeyPassPhrase5g=0689388783\n'; ubus-cli 'WiFi.AccessPoint.1.Security.KeyPassPhrase="0689388783"'
+  command:
+    - printf 'RequestedKeyPassPhrase5g=0689388783\n'
+    - ubus-cli 'WiFi.AccessPoint.1.Security.KeyPassPhrase="0689388783"'
   depends_on: step1_keypassphrase_baseline_5g
   capture: keypassphrase_set_5g
 - id: step3_keypassphrase_after_set_5g
@@ -91,8 +92,9 @@ steps:
   action: exec
   target: DUT
   band: 5g
-  command: >-
-    printf 'RestoreKeyPassPhrase5g=00000000\n'; ubus-cli 'WiFi.AccessPoint.1.Security.KeyPassPhrase="00000000"'
+  command:
+    - printf 'RestoreKeyPassPhrase5g=00000000\n'
+    - ubus-cli 'WiFi.AccessPoint.1.Security.KeyPassPhrase="00000000"'
   depends_on: step3_keypassphrase_after_set_5g
   capture: keypassphrase_restore_5g
 - id: step5_keypassphrase_after_restore_5g
@@ -114,8 +116,9 @@ steps:
   action: exec
   target: DUT
   band: 6g
-  command: >-
-    printf 'RequestedKeyPassPhrase6g=0689388783\n'; ubus-cli 'WiFi.AccessPoint.3.Security.KeyPassPhrase="0689388783"'
+  command:
+    - printf 'RequestedKeyPassPhrase6g=0689388783\n'
+    - ubus-cli 'WiFi.AccessPoint.3.Security.KeyPassPhrase="0689388783"'
   depends_on: step6_keypassphrase_baseline_6g
   capture: keypassphrase_set_6g
 - id: step8_keypassphrase_after_set_6g
@@ -130,8 +133,9 @@ steps:
   action: exec
   target: DUT
   band: 6g
-  command: >-
-    printf 'RestoreKeyPassPhrase6g=00000000\n'; ubus-cli 'WiFi.AccessPoint.3.Security.KeyPassPhrase="00000000"'
+  command:
+    - printf 'RestoreKeyPassPhrase6g=00000000\n'
+    - ubus-cli 'WiFi.AccessPoint.3.Security.KeyPassPhrase="00000000"'
   depends_on: step8_keypassphrase_after_set_6g
   capture: keypassphrase_restore_6g
 - id: step10_keypassphrase_after_restore_6g
@@ -153,8 +157,9 @@ steps:
   action: exec
   target: DUT
   band: 2.4g
-  command: >-
-    printf 'RequestedKeyPassPhrase24g=0689388783\n'; ubus-cli 'WiFi.AccessPoint.5.Security.KeyPassPhrase="0689388783"'
+  command:
+    - printf 'RequestedKeyPassPhrase24g=0689388783\n'
+    - ubus-cli 'WiFi.AccessPoint.5.Security.KeyPassPhrase="0689388783"'
   depends_on: step11_keypassphrase_baseline_24g
   capture: keypassphrase_set_24g
 - id: step13_keypassphrase_after_set_24g
@@ -169,8 +174,9 @@ steps:
   action: exec
   target: DUT
   band: 2.4g
-  command: >-
-    printf 'RestoreKeyPassPhrase24g=00000000\n'; ubus-cli 'WiFi.AccessPoint.5.Security.KeyPassPhrase="00000000"'
+  command:
+    - printf 'RestoreKeyPassPhrase24g=00000000\n'
+    - ubus-cli 'WiFi.AccessPoint.5.Security.KeyPassPhrase="00000000"'
   depends_on: step13_keypassphrase_after_set_24g
   capture: keypassphrase_restore_24g
 - id: step15_keypassphrase_after_restore_24g
@@ -292,13 +298,13 @@ pass_criteria:
   reference: keypassphrase_after_restore_24g.AfterRestoreGetterKeyPassPhrase24g
   description: 2.4G AP5 / wl2 hostapd should return to the same baseline passphrase as the getter after restore.
 
-verification_command: |
-  ubus-cli "WiFi.AccessPoint.1.Security.KeyPassPhrase?"
-  grep -E '^(wpa_passphrase|sae_password)' /tmp/wl0_hapd.conf || true
-  ubus-cli "WiFi.AccessPoint.3.Security.KeyPassPhrase?"
-  grep -E '^(wpa_passphrase|sae_password)' /tmp/wl1_hapd.conf || true
-  ubus-cli "WiFi.AccessPoint.5.Security.KeyPassPhrase?"
-  grep -E '^(wpa_passphrase|sae_password)' /tmp/wl2_hapd.conf || true
+verification_command:
+  - 'ubus-cli "WiFi.AccessPoint.1.Security.KeyPassPhrase?"'
+  - 'grep -E ''^(wpa_passphrase|sae_password)'' /tmp/wl0_hapd.conf || true'
+  - 'ubus-cli "WiFi.AccessPoint.3.Security.KeyPassPhrase?"'
+  - 'grep -E ''^(wpa_passphrase|sae_password)'' /tmp/wl1_hapd.conf || true'
+  - 'ubus-cli "WiFi.AccessPoint.5.Security.KeyPassPhrase?"'
+  - 'grep -E ''^(wpa_passphrase|sae_password)'' /tmp/wl2_hapd.conf || true'
 
 results_reference:
   v4.0.1:

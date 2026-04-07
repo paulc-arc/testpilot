@@ -74,8 +74,9 @@ steps:
   action: exec
   target: DUT
   band: 5g
-  command: >-
-    printf 'RequestedMultiApType5g=BackhaulBSS\n'; ubus-cli WiFi.AccessPoint.1.MultiAPType=BackhaulBSS
+  command:
+    - printf 'RequestedMultiApType5g=BackhaulBSS\n'
+    - ubus-cli WiFi.AccessPoint.1.MultiAPType=BackhaulBSS
   depends_on: step1_multiap_baseline_5g
   capture: multiap_set_backhaul_5g
 - id: step3_multiap_after_set_5g
@@ -90,8 +91,9 @@ steps:
   action: exec
   target: DUT
   band: 5g
-  command: >-
-    printf 'RestoreMultiApType5g=FronthaulBSS,BackhaulBSS\n'; ubus-cli 'WiFi.AccessPoint.1.MultiAPType="FronthaulBSS,BackhaulBSS"'
+  command:
+    - printf 'RestoreMultiApType5g=FronthaulBSS,BackhaulBSS\n'
+    - ubus-cli 'WiFi.AccessPoint.1.MultiAPType="FronthaulBSS,BackhaulBSS"'
   depends_on: step3_multiap_after_set_5g
   capture: multiap_restore_5g
 - id: step5_multiap_after_restore_5g
@@ -113,8 +115,9 @@ steps:
   action: exec
   target: DUT
   band: 6g
-  command: >-
-    printf 'RequestedMultiApType6g=BackhaulBSS\n'; ubus-cli WiFi.AccessPoint.3.MultiAPType=BackhaulBSS
+  command:
+    - printf 'RequestedMultiApType6g=BackhaulBSS\n'
+    - ubus-cli WiFi.AccessPoint.3.MultiAPType=BackhaulBSS
   depends_on: step6_multiap_baseline_6g
   capture: multiap_set_backhaul_6g
 - id: step8_multiap_after_set_6g
@@ -129,8 +132,9 @@ steps:
   action: exec
   target: DUT
   band: 6g
-  command: >-
-    printf 'RestoreMultiApType6g=FronthaulBSS,BackhaulBSS\n'; ubus-cli 'WiFi.AccessPoint.3.MultiAPType="FronthaulBSS,BackhaulBSS"'
+  command:
+    - printf 'RestoreMultiApType6g=FronthaulBSS,BackhaulBSS\n'
+    - ubus-cli 'WiFi.AccessPoint.3.MultiAPType="FronthaulBSS,BackhaulBSS"'
   depends_on: step8_multiap_after_set_6g
   capture: multiap_restore_6g
 - id: step10_multiap_after_restore_6g
@@ -152,8 +156,9 @@ steps:
   action: exec
   target: DUT
   band: 2.4g
-  command: >-
-    printf 'RequestedMultiApType24g=BackhaulBSS\n'; ubus-cli WiFi.AccessPoint.5.MultiAPType=BackhaulBSS
+  command:
+    - printf 'RequestedMultiApType24g=BackhaulBSS\n'
+    - ubus-cli WiFi.AccessPoint.5.MultiAPType=BackhaulBSS
   depends_on: step11_multiap_baseline_24g
   capture: multiap_set_backhaul_24g
 - id: step13_multiap_after_set_24g
@@ -168,8 +173,9 @@ steps:
   action: exec
   target: DUT
   band: 2.4g
-  command: >-
-    printf 'RestoreMultiApType24g=FronthaulBSS,BackhaulBSS\n'; ubus-cli 'WiFi.AccessPoint.5.MultiAPType="FronthaulBSS,BackhaulBSS"'
+  command:
+    - printf 'RestoreMultiApType24g=FronthaulBSS,BackhaulBSS\n'
+    - ubus-cli 'WiFi.AccessPoint.5.MultiAPType="FronthaulBSS,BackhaulBSS"'
   depends_on: step13_multiap_after_set_24g
   capture: multiap_restore_24g
 - id: step15_multiap_after_restore_24g
@@ -387,20 +393,20 @@ pass_criteria:
   value: '0x3: Fronthaul-BSS Backhaul-BSS'
   description: 2.4G AP5 / wl2 driver map should return to dual-role mode after restore.
 
-verification_command: |
-  ubus-cli "WiFi.AccessPoint.1.MultiAPType?"
-  grep -n '^multi_ap=' /tmp/wl0_hapd.conf 2>/dev/null || true
-  wl -i wl0 map
-  ubus-cli WiFi.AccessPoint.1.MultiAPType=BackhaulBSS
-  sleep 5
-  ubus-cli "WiFi.AccessPoint.1.MultiAPType?"
-  grep -n '^multi_ap=' /tmp/wl0_hapd.conf 2>/dev/null || true
-  wl -i wl0 map
-  ubus-cli 'WiFi.AccessPoint.1.MultiAPType="FronthaulBSS,BackhaulBSS"'
-  sleep 5
-  ubus-cli "WiFi.AccessPoint.1.MultiAPType?"
-  grep -n '^multi_ap=' /tmp/wl0_hapd.conf 2>/dev/null || true
-  wl -i wl0 map
+verification_command:
+  - 'ubus-cli "WiFi.AccessPoint.1.MultiAPType?"'
+  - 'grep -n ''^multi_ap='' /tmp/wl0_hapd.conf 2>/dev/null || true'
+  - wl -i wl0 map
+  - ubus-cli WiFi.AccessPoint.1.MultiAPType=BackhaulBSS
+  - sleep 5
+  - 'ubus-cli "WiFi.AccessPoint.1.MultiAPType?"'
+  - 'grep -n ''^multi_ap='' /tmp/wl0_hapd.conf 2>/dev/null || true'
+  - wl -i wl0 map
+  - 'ubus-cli ''WiFi.AccessPoint.1.MultiAPType="FronthaulBSS,BackhaulBSS"'''
+  - sleep 5
+  - 'ubus-cli "WiFi.AccessPoint.1.MultiAPType?"'
+  - 'grep -n ''^multi_ap='' /tmp/wl0_hapd.conf 2>/dev/null || true'
+  - wl -i wl0 map
 
 results_reference:
   v4.0.1:

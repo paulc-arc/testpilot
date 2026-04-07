@@ -150,12 +150,12 @@ pass_criteria:
   operator: equals
   value: Default
   description: EncryptionMode should stay Default; do not replace it with driver auth/crypto strings.
-verification_command: |
-  wpa_cli -p /var/run/wpa_supplicant -i wl1 status
-  wl -i wl1 assoclist
-  STA_MAC=$(wl -i wl1 assoclist | awk 'NR==1{print $2}')
-  ubus-cli "WiFi.AccessPoint.3.AssociatedDevice.1.EncryptionMode?"
-  wl -i wl1 sta_info $STA_MAC | grep -E "auth:|crypto:"
+verification_command:
+  - wpa_cli -p /var/run/wpa_supplicant -i wl1 status
+  - wl -i wl1 assoclist
+  - STA_MAC=$(wl -i wl1 assoclist | awk 'NR==1{print $2}')
+  - 'ubus-cli "WiFi.AccessPoint.3.AssociatedDevice.1.EncryptionMode?"'
+  - 'wl -i wl1 sta_info $STA_MAC | grep -E "auth:|crypto:"'
 results_reference:
   v4.0.1:
     5g: Fail

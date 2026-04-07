@@ -73,8 +73,9 @@ steps:
   action: exec
   target: DUT
   band: 5g
-  command: >-
-    printf 'RequestedEnableMbo5g=1\n'; ubus-cli WiFi.AccessPoint.1.MBOEnable=1
+  command:
+    - printf 'RequestedEnableMbo5g=1\n'
+    - ubus-cli WiFi.AccessPoint.1.MBOEnable=1
   depends_on: step1_mbo_baseline_5g
   capture: mbo_enable_5g
 - id: step3_mbo_after_enable_5g
@@ -89,8 +90,9 @@ steps:
   action: exec
   target: DUT
   band: 5g
-  command: >-
-    printf 'RestoreMbo5g=0\n'; ubus-cli WiFi.AccessPoint.1.MBOEnable=0
+  command:
+    - printf 'RestoreMbo5g=0\n'
+    - ubus-cli WiFi.AccessPoint.1.MBOEnable=0
   depends_on: step3_mbo_after_enable_5g
   capture: mbo_restore_5g
 - id: step5_mbo_after_restore_5g
@@ -112,8 +114,9 @@ steps:
   action: exec
   target: DUT
   band: 6g
-  command: >-
-    printf 'RequestedEnableMbo6g=1\n'; ubus-cli WiFi.AccessPoint.3.MBOEnable=1
+  command:
+    - printf 'RequestedEnableMbo6g=1\n'
+    - ubus-cli WiFi.AccessPoint.3.MBOEnable=1
   depends_on: step6_mbo_baseline_6g
   capture: mbo_enable_6g
 - id: step8_mbo_after_enable_6g
@@ -128,8 +131,9 @@ steps:
   action: exec
   target: DUT
   band: 6g
-  command: >-
-    printf 'RestoreMbo6g=0\n'; ubus-cli WiFi.AccessPoint.3.MBOEnable=0
+  command:
+    - printf 'RestoreMbo6g=0\n'
+    - ubus-cli WiFi.AccessPoint.3.MBOEnable=0
   depends_on: step8_mbo_after_enable_6g
   capture: mbo_restore_6g
 - id: step10_mbo_after_restore_6g
@@ -151,8 +155,9 @@ steps:
   action: exec
   target: DUT
   band: 2.4g
-  command: >-
-    printf 'RequestedEnableMbo24g=1\n'; ubus-cli WiFi.AccessPoint.5.MBOEnable=1
+  command:
+    - printf 'RequestedEnableMbo24g=1\n'
+    - ubus-cli WiFi.AccessPoint.5.MBOEnable=1
   depends_on: step11_mbo_baseline_24g
   capture: mbo_enable_24g
 - id: step13_mbo_after_enable_24g
@@ -167,8 +172,9 @@ steps:
   action: exec
   target: DUT
   band: 2.4g
-  command: >-
-    printf 'RestoreMbo24g=0\n'; ubus-cli WiFi.AccessPoint.5.MBOEnable=0
+  command:
+    - printf 'RestoreMbo24g=0\n'
+    - ubus-cli WiFi.AccessPoint.5.MBOEnable=0
   depends_on: step13_mbo_after_enable_24g
   capture: mbo_restore_24g
 - id: step15_mbo_after_restore_24g
@@ -326,17 +332,17 @@ pass_criteria:
   value: '0'
   description: 2.4G AP5 / wl2 hostapd still exposes zero mbo= lines after restore.
 
-verification_command: |
-  ubus-cli "WiFi.AccessPoint.1.MBOEnable?"
-  grep -n '^mbo=' /tmp/wl0_hapd.conf 2>/dev/null || true
-  ubus-cli WiFi.AccessPoint.1.MBOEnable=1
-  sleep 5
-  ubus-cli "WiFi.AccessPoint.1.MBOEnable?"
-  grep -n '^mbo=' /tmp/wl0_hapd.conf 2>/dev/null || true
-  ubus-cli WiFi.AccessPoint.1.MBOEnable=0
-  sleep 5
-  ubus-cli "WiFi.AccessPoint.1.MBOEnable?"
-  grep -n '^mbo=' /tmp/wl0_hapd.conf 2>/dev/null || true
+verification_command:
+  - 'ubus-cli "WiFi.AccessPoint.1.MBOEnable?"'
+  - 'grep -n ''^mbo='' /tmp/wl0_hapd.conf 2>/dev/null || true'
+  - ubus-cli WiFi.AccessPoint.1.MBOEnable=1
+  - sleep 5
+  - 'ubus-cli "WiFi.AccessPoint.1.MBOEnable?"'
+  - 'grep -n ''^mbo='' /tmp/wl0_hapd.conf 2>/dev/null || true'
+  - ubus-cli WiFi.AccessPoint.1.MBOEnable=0
+  - sleep 5
+  - 'ubus-cli "WiFi.AccessPoint.1.MBOEnable?"'
+  - 'grep -n ''^mbo='' /tmp/wl0_hapd.conf 2>/dev/null || true'
 
 results_reference:
   v4.0.1:

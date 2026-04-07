@@ -42,10 +42,10 @@ steps:
   - id: step1_5g_vendorie
     action: exec
     target: DUT
-    command: |
-      echo "Enable5g=$(ubus-cli 'WiFi.AccessPoint.1.VendorIEs.Enable?' 2>/dev/null | grep -o 'Enable=[0-9]*' | cut -d= -f2)"
-      CREATE5G=$(ubus-cli 'WiFi.AccessPoint.1.VendorIEs.createVendorIE()' 2>&1)
-      echo "CreateResult5g=$CREATE5G"
+    command:
+      - echo "Enable5g=$(ubus-cli 'WiFi.AccessPoint.1.VendorIEs.Enable?' 2>/dev/null | grep -o 'Enable=[0-9]*' | cut -d= -f2)"
+      - CREATE5G=$(ubus-cli 'WiFi.AccessPoint.1.VendorIEs.createVendorIE()' 2>&1)
+      - echo "CreateResult5g=$CREATE5G"
     capture: vie_5g
 
   # ---------- 6G ----------
@@ -53,10 +53,10 @@ steps:
     action: exec
     target: DUT
     depends_on: step1_5g_vendorie
-    command: |
-      echo "Enable6g=$(ubus-cli 'WiFi.AccessPoint.3.VendorIEs.Enable?' 2>/dev/null | grep -o 'Enable=[0-9]*' | cut -d= -f2)"
-      CREATE6G=$(ubus-cli 'WiFi.AccessPoint.3.VendorIEs.createVendorIE()' 2>&1)
-      echo "CreateResult6g=$CREATE6G"
+    command:
+      - echo "Enable6g=$(ubus-cli 'WiFi.AccessPoint.3.VendorIEs.Enable?' 2>/dev/null | grep -o 'Enable=[0-9]*' | cut -d= -f2)"
+      - CREATE6G=$(ubus-cli 'WiFi.AccessPoint.3.VendorIEs.createVendorIE()' 2>&1)
+      - echo "CreateResult6g=$CREATE6G"
     capture: vie_6g
 
   # ---------- 2.4G ----------
@@ -64,10 +64,10 @@ steps:
     action: exec
     target: DUT
     depends_on: step2_6g_vendorie
-    command: |
-      echo "Enable24g=$(ubus-cli 'WiFi.AccessPoint.5.VendorIEs.Enable?' 2>/dev/null | grep -o 'Enable=[0-9]*' | cut -d= -f2)"
-      CREATE24G=$(ubus-cli 'WiFi.AccessPoint.5.VendorIEs.createVendorIE()' 2>&1)
-      echo "CreateResult24g=$CREATE24G"
+    command:
+      - echo "Enable24g=$(ubus-cli 'WiFi.AccessPoint.5.VendorIEs.Enable?' 2>/dev/null | grep -o 'Enable=[0-9]*' | cut -d= -f2)"
+      - CREATE24G=$(ubus-cli 'WiFi.AccessPoint.5.VendorIEs.createVendorIE()' 2>&1)
+      - echo "CreateResult24g=$CREATE24G"
     capture: vie_24g
 
 pass_criteria:
@@ -96,10 +96,10 @@ pass_criteria:
     value: 'ERROR'
     description: '2.4G createVendorIE() should return ERROR'
 
-verification_command: |
-  ubus-cli "WiFi.AccessPoint.1.VendorIEs.?"
-  ubus-cli "WiFi.AccessPoint.3.VendorIEs.?"
-  ubus-cli "WiFi.AccessPoint.5.VendorIEs.?"
+verification_command:
+  - 'ubus-cli "WiFi.AccessPoint.1.VendorIEs.?"'
+  - 'ubus-cli "WiFi.AccessPoint.3.VendorIEs.?"'
+  - 'ubus-cli "WiFi.AccessPoint.5.VendorIEs.?"'
 
 results_reference:
   v4.0.3:

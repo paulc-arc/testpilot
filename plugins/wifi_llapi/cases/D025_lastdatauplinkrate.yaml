@@ -173,10 +173,10 @@ pass_criteria:
   operator: equals
   reference: driver_rate.DriverLastUplinkRateRounded
   description: LLAPI uplink rate must match the driver last-rx rate after 100-kbps normalization.
-verification_command: |
-  ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.LastDataUplinkRate?"
-  STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p')
-  wl -i wl0 sta_info $STA_MAC | grep "rate of last rx pkt"
+verification_command:
+  - 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.LastDataUplinkRate?"'
+  - 'STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n ''s/.*MACAddress="\([^"]*\)".*/\1/p'')'
+  - 'wl -i wl0 sta_info $STA_MAC | grep "rate of last rx pkt"'
 results_reference:
   v4.0.1:
     5g: Pass

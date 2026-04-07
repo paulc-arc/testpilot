@@ -193,11 +193,11 @@ pass_criteria:
   operator: not_equals
   reference: result.VendorOUI
   description: The non-empty driver-side vendor OUI list must not collapse to the empty LLAPI VendorOUI value.
-verification_command: |
-  cat /sys/class/net/wl0/address | tr 'A-F' 'a-f' | sed 's/^/StaMac=/'
-  ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.VendorOUI?"
-  ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.?" | awk -F= '/^WiFi\.AccessPoint\.1\.AssociatedDevice\.1\.MACAddress=/ {gsub(/"/, "", $2); print "AssocMAC=" tolower($2)} /^WiFi\.AccessPoint\.1\.AssociatedDevice\.1\.VendorOUI=/ {gsub(/"/, "", $2); print "AssocVendorOUI=" $2}'
-  STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p' | tr 'A-F' 'a-f'); [ -n "$STA_MAC" ] && echo DriverAssocMac="$STA_MAC" && wl -i wl0 sta_info "$STA_MAC" | awk '/^[[:space:]]*VENDOR OUI VALUE\[[0-9]+\]/ {oui[++n]=$NF} END {if (n) {print "DriverVendorOUICount=" n; list=""; for (i=1;i<=n;i++) list = list (i>1 ? "," : "") oui[i]; print "DriverVendorOUIList=" list}}'
+verification_command:
+  - 'cat /sys/class/net/wl0/address | tr ''A-F'' ''a-f'' | sed ''s/^/StaMac=/'''
+  - 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.VendorOUI?"'
+  - 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.?" | awk -F= ''/^WiFi\.AccessPoint\.1\.AssociatedDevice\.1\.MACAddress=/ {gsub(/"/, "", $2); print "AssocMAC=" tolower($2)} /^WiFi\.AccessPoint\.1\.AssociatedDevice\.1\.VendorOUI=/ {gsub(/"/, "", $2); print "AssocVendorOUI=" $2}'''
+  - 'STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n ''s/.*MACAddress="\([^"]*\)".*/\1/p'' | tr ''A-F'' ''a-f''); [ -n "$STA_MAC" ] && echo DriverAssocMac="$STA_MAC" && wl -i wl0 sta_info "$STA_MAC" | awk ''/^[[:space:]]*VENDOR OUI VALUE\[[0-9]+\]/ {oui[++n]=$NF} END {if (n) {print "DriverVendorOUICount=" n; list=""; for (i=1;i<=n;i++) list = list (i>1 ? "," : "") oui[i]; print "DriverVendorOUIList=" list}}'''
 results_reference:
   v4.0.3:
     5g: Fail

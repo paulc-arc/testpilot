@@ -126,8 +126,9 @@ steps:
 - id: step1
   action: exec
   target: STA
-  command: >-
-    cat /sys/class/net/wl0/address | tr 'A-F' 'a-f' | sed 's/^/StaMac=/'; ifconfig wl0 | sed -n 's/.*RX packets:\([0-9][0-9]*\).*/StaRxPacketsBefore=\1/p; s/.*RX bytes:\([0-9][0-9]*\).*/StaRxBytesBefore=\1/p'
+  command:
+    - cat /sys/class/net/wl0/address | tr 'A-F' 'a-f' | sed 's/^/StaMac=/'
+    - ifconfig wl0 | sed -n 's/.*RX packets:\([0-9][0-9]*\).*/StaRxPacketsBefore=\1/p; s/.*RX bytes:\([0-9][0-9]*\).*/StaRxBytesBefore=\1/p'
   capture: sta_identity
 - id: step2
   action: exec
@@ -219,13 +220,14 @@ pass_criteria:
   operator: equals
   value: '0'
   description: wl0 sta_info tx mcast/bcast bytes still reads 0 for the same STA even after the broadcast probe.
-verification_command: |
-  cat /sys/class/net/wl0/address | tr 'A-F' 'a-f' | sed 's/^/StaMac=/'; ifconfig wl0 | sed -n 's/.*RX packets:\([0-9][0-9]*\).*/StaRxPacketsBefore=\1/p; s/.*RX bytes:\([0-9][0-9]*\).*/StaRxBytesBefore=\1/p'
-  OUT=$(ping -b -I br-lan -c 10 -W 1 192.168.1.255 2>&1); printf '%s\n' "$OUT"; printf '%s\n' "$OUT" | awk '/packets transmitted/ {print "ProbeTxPackets=" $1; exit}'
-  ifconfig wl0 | sed -n 's/.*RX packets:\([0-9][0-9]*\).*/StaRxPacketsAfter=\1/p; s/.*RX bytes:\([0-9][0-9]*\).*/StaRxBytesAfter=\1/p'
-  ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.TxMulticastPacketCount?"
-  ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.?" | awk -F= '/^WiFi\.AccessPoint\.1\.AssociatedDevice\.1\.MACAddress=/ {gsub(/"/, "", $2); print "AssocMAC=" tolower($2)} /^WiFi\.AccessPoint\.1\.AssociatedDevice\.1\.TxMulticastPacketCount=/ {print "AssocTxMulticastPacketCount=" $2}'
-  STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p' | tr 'A-F' 'a-f'); [ -n "$STA_MAC" ] && echo DriverAssocMac=$STA_MAC && wl -i wl0 sta_info $STA_MAC | sed -n 's/^[[:space:]]*tx mcast\/bcast pkts: \([0-9][0-9]*\).*/DriverTxMulticastPacketCount=\1/p; s/^[[:space:]]*tx mcast\/bcast bytes: \([0-9][0-9]*\).*/DriverTxMulticastBytes=\1/p'
+verification_command:
+  - 'cat /sys/class/net/wl0/address | tr ''A-F'' ''a-f'' | sed ''s/^/StaMac=/'''
+  - 'ifconfig wl0 | sed -n ''s/.*RX packets:\([0-9][0-9]*\).*/StaRxPacketsBefore=\1/p; s/.*RX bytes:\([0-9][0-9]*\).*/StaRxBytesBefore=\1/p'''
+  - 'OUT=$(ping -b -I br-lan -c 10 -W 1 192.168.1.255 2>&1); printf ''%s\n'' "$OUT"; printf ''%s\n'' "$OUT" | awk ''/packets transmitted/ {print "ProbeTxPackets=" $1; exit}'''
+  - 'ifconfig wl0 | sed -n ''s/.*RX packets:\([0-9][0-9]*\).*/StaRxPacketsAfter=\1/p; s/.*RX bytes:\([0-9][0-9]*\).*/StaRxBytesAfter=\1/p'''
+  - 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.TxMulticastPacketCount?"'
+  - 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.?" | awk -F= ''/^WiFi\.AccessPoint\.1\.AssociatedDevice\.1\.MACAddress=/ {gsub(/"/, "", $2); print "AssocMAC=" tolower($2)} /^WiFi\.AccessPoint\.1\.AssociatedDevice\.1\.TxMulticastPacketCount=/ {print "AssocTxMulticastPacketCount=" $2}'''
+  - 'STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n ''s/.*MACAddress="\([^"]*\)".*/\1/p'' | tr ''A-F'' ''a-f''); [ -n "$STA_MAC" ] && echo DriverAssocMac=$STA_MAC && wl -i wl0 sta_info $STA_MAC | sed -n ''s/^[[:space:]]*tx mcast\/bcast pkts: \([0-9][0-9]*\).*/DriverTxMulticastPacketCount=\1/p; s/^[[:space:]]*tx mcast\/bcast bytes: \([0-9][0-9]*\).*/DriverTxMulticastBytes=\1/p'''
 results_reference:
   v4.0.3:
     5g: To be tested

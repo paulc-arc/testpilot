@@ -135,8 +135,7 @@ steps:
 - id: step3
   action: exec
   target: DUT
-  command: >-
-    STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p'); STA_MAC_LOWER=$(echo "$STA_MAC" | tr 'A-F' 'a-f'); [ -n "$STA_MAC" ] && iw dev wl0 station dump | awk -v mac="$STA_MAC_LOWER" -v sta="$STA_MAC" '$1=="Station" && $2==mac {matched=1; print "DriverAssocMac=" sta; next} $1=="Station" {matched=0} matched && $1=="signal:" {signal=$2; print "DriverSignalStrength=" signal; print "DriverSignalStrengthMin=" signal-2; print "DriverSignalStrengthMax=" signal+2}'
+  command: 'STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n ''s/.*MACAddress="\([^"]*\)".*/\1/p''); STA_MAC_LOWER=$(echo "$STA_MAC" | tr ''A-F'' ''a-f''); [ -n "$STA_MAC" ]; iw dev wl0 station dump | awk -v mac="$STA_MAC_LOWER" -v sta="$STA_MAC" ''$1=="Station" && $2==mac {matched=1; print "DriverAssocMac=" sta; next} $1=="Station" {matched=0} matched && $1=="signal:" {signal=$2; print "DriverSignalStrength=" signal; print "DriverSignalStrengthMin=" signal-2; print "DriverSignalStrengthMax=" signal+2}'''
   depends_on: step2
   capture: driver_signal
 pass_criteria:
@@ -172,9 +171,9 @@ pass_criteria:
   operator: '<='
   reference: driver_signal.DriverSignalStrengthMax
   description: LLAPI SignalStrength should stay within 2 dBm above the iw station dump signal for the same STA.
-verification_command: |
-  ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.SignalStrength?"
-  STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p'); STA_MAC_LOWER=$(echo "$STA_MAC" | tr 'A-F' 'a-f'); [ -n "$STA_MAC" ] && iw dev wl0 station dump | awk -v mac="$STA_MAC_LOWER" -v sta="$STA_MAC" '$1=="Station" && $2==mac {matched=1; print "DriverAssocMac=" sta; next} $1=="Station" {matched=0} matched && $1=="signal:" {signal=$2; print "DriverSignalStrength=" signal; print "DriverSignalStrengthMin=" signal-2; print "DriverSignalStrengthMax=" signal+2}'
+verification_command:
+  - 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.SignalStrength?"'
+  - 'STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n ''s/.*MACAddress="\([^"]*\)".*/\1/p''); STA_MAC_LOWER=$(echo "$STA_MAC" | tr ''A-F'' ''a-f''); [ -n "$STA_MAC" ] && iw dev wl0 station dump | awk -v mac="$STA_MAC_LOWER" -v sta="$STA_MAC" ''$1=="Station" && $2==mac {matched=1; print "DriverAssocMac=" sta; next} $1=="Station" {matched=0} matched && $1=="signal:" {signal=$2; print "DriverSignalStrength=" signal; print "DriverSignalStrengthMin=" signal-2; print "DriverSignalStrengthMax=" signal+2}'''
 results_reference:
   v4.0.3:
     5g: Pass

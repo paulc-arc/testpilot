@@ -74,8 +74,9 @@ steps:
   action: exec
   target: DUT
   band: 5g
-  command: >-
-    printf 'RequestedMfpConfig5g=Disabled\n'; ubus-cli WiFi.AccessPoint.1.Security.MFPConfig=Disabled
+  command:
+    - printf 'RequestedMfpConfig5g=Disabled\n'
+    - ubus-cli WiFi.AccessPoint.1.Security.MFPConfig=Disabled
   depends_on: step1_security_mode_5g
   capture: mfp_disable_5g
 - id: step3_mfp_after_disable_5g
@@ -97,8 +98,9 @@ steps:
   action: exec
   target: DUT
   band: 6g
-  command: >-
-    printf 'RequestedMfpConfig6g=Disabled\n'; ubus-cli WiFi.AccessPoint.3.Security.MFPConfig=Disabled
+  command:
+    - printf 'RequestedMfpConfig6g=Disabled\n'
+    - ubus-cli WiFi.AccessPoint.3.Security.MFPConfig=Disabled
   depends_on: step4_security_mode_6g
   capture: mfp_disable_6g
 - id: step6_mfp_after_disable_6g
@@ -120,8 +122,9 @@ steps:
   action: exec
   target: DUT
   band: 2.4g
-  command: >-
-    printf 'RequestedMfpConfig24g=Disabled\n'; ubus-cli WiFi.AccessPoint.5.Security.MFPConfig=Disabled
+  command:
+    - printf 'RequestedMfpConfig24g=Disabled\n'
+    - ubus-cli WiFi.AccessPoint.5.Security.MFPConfig=Disabled
   depends_on: step7_security_mode_24g
   capture: mfp_disable_24g
 - id: step9_mfp_after_disable_24g
@@ -219,19 +222,19 @@ pass_criteria:
   reference: mfp_after_disable_24g.HostapdMfpConfig24g
   description: 2.4G AP5 / wl2 getter and hostapd should converge on Disabled.
 
-verification_command: |
-  ubus-cli "WiFi.AccessPoint.1.Security.ModeEnabled?"
-  ubus-cli WiFi.AccessPoint.1.Security.MFPConfig=Disabled
-  ubus-cli "WiFi.AccessPoint.1.Security.MFPConfig?"
-  grep -E '^(wpa_key_mgmt|ieee80211w)' /tmp/wl0_hapd.conf || true
-  ubus-cli "WiFi.AccessPoint.3.Security.ModeEnabled?"
-  ubus-cli WiFi.AccessPoint.3.Security.MFPConfig=Disabled
-  ubus-cli "WiFi.AccessPoint.3.Security.MFPConfig?"
-  grep -E '^(wpa_key_mgmt|ieee80211w)' /tmp/wl1_hapd.conf || true
-  ubus-cli "WiFi.AccessPoint.5.Security.ModeEnabled?"
-  ubus-cli WiFi.AccessPoint.5.Security.MFPConfig=Disabled
-  ubus-cli "WiFi.AccessPoint.5.Security.MFPConfig?"
-  grep -E '^(wpa_key_mgmt|ieee80211w)' /tmp/wl2_hapd.conf || true
+verification_command:
+  - 'ubus-cli "WiFi.AccessPoint.1.Security.ModeEnabled?"'
+  - ubus-cli WiFi.AccessPoint.1.Security.MFPConfig=Disabled
+  - 'ubus-cli "WiFi.AccessPoint.1.Security.MFPConfig?"'
+  - 'grep -E ''^(wpa_key_mgmt|ieee80211w)'' /tmp/wl0_hapd.conf || true'
+  - 'ubus-cli "WiFi.AccessPoint.3.Security.ModeEnabled?"'
+  - ubus-cli WiFi.AccessPoint.3.Security.MFPConfig=Disabled
+  - 'ubus-cli "WiFi.AccessPoint.3.Security.MFPConfig?"'
+  - 'grep -E ''^(wpa_key_mgmt|ieee80211w)'' /tmp/wl1_hapd.conf || true'
+  - 'ubus-cli "WiFi.AccessPoint.5.Security.ModeEnabled?"'
+  - ubus-cli WiFi.AccessPoint.5.Security.MFPConfig=Disabled
+  - 'ubus-cli "WiFi.AccessPoint.5.Security.MFPConfig?"'
+  - 'grep -E ''^(wpa_key_mgmt|ieee80211w)'' /tmp/wl2_hapd.conf || true'
 
 results_reference:
   v4.0.1:

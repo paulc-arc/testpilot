@@ -262,22 +262,22 @@ pass_criteria:
   operator: equals
   value: '2'
   description: wl1 hostapd config should still expose two total `rnr=` lines after restore.
-verification_command: |
-  ubus-cli "WiFi.AccessPoint.1.DiscoveryMethodEnabled?"
-  ubus-cli "WiFi.AccessPoint.3.DiscoveryMethodEnabled?"
-  ubus-cli "WiFi.AccessPoint.5.DiscoveryMethodEnabled?"
-  ubus-cli WiFi.AccessPoint.1.DiscoveryMethodEnabled=RNR
-  ubus-cli WiFi.AccessPoint.3.DiscoveryMethodEnabled=RNR
-  ubus-cli WiFi.AccessPoint.5.DiscoveryMethodEnabled=RNR
-  ubus-cli "WiFi.AccessPoint.*.DiscoveryMethodEnabled?"
-  awk '/^rnr=/{if ($0=="rnr=1") enabled++; if ($0=="rnr=0") disabled++; total++} END {print "RnrEnabled5gCount=" enabled+0; print "RnrDisabled5gCount=" disabled+0; print "RnrTotal5gCount=" total+0}' /tmp/wl0_hapd.conf
-  awk '/^rnr=/{if ($0=="rnr=1") enabled++; if ($0=="rnr=0") disabled++; total++} END {print "RnrEnabled6gCount=" enabled+0; print "RnrDisabled6gCount=" disabled+0; print "RnrTotal6gCount=" total+0}' /tmp/wl1_hapd.conf
-  awk '/^rnr=/{if ($0=="rnr=1") enabled++; if ($0=="rnr=0") disabled++; total++} END {print "RnrEnabled24gCount=" enabled+0; print "RnrDisabled24gCount=" disabled+0; print "RnrTotal24gCount=" total+0}' /tmp/wl2_hapd.conf
-  ubus-cli WiFi.AccessPoint.1.DiscoveryMethodEnabled=Default
-  ubus-cli WiFi.AccessPoint.3.DiscoveryMethodEnabled=Default
-  ubus-cli WiFi.AccessPoint.5.DiscoveryMethodEnabled=Default
-  ubus-cli "WiFi.AccessPoint.*.DiscoveryMethodEnabled?" | sed -n '1,20p'
-  awk '/^rnr=/{if ($0=="rnr=1") enabled++; if ($0=="rnr=0") disabled++; total++} END {print "RnrEnabled6gCount=" enabled+0; print "RnrDisabled6gCount=" disabled+0; print "RnrTotal6gCount=" total+0}' /tmp/wl1_hapd.conf | sed -n '1,20p'
+verification_command:
+  - 'ubus-cli "WiFi.AccessPoint.1.DiscoveryMethodEnabled?"'
+  - 'ubus-cli "WiFi.AccessPoint.3.DiscoveryMethodEnabled?"'
+  - 'ubus-cli "WiFi.AccessPoint.5.DiscoveryMethodEnabled?"'
+  - ubus-cli WiFi.AccessPoint.1.DiscoveryMethodEnabled=RNR
+  - ubus-cli WiFi.AccessPoint.3.DiscoveryMethodEnabled=RNR
+  - ubus-cli WiFi.AccessPoint.5.DiscoveryMethodEnabled=RNR
+  - 'ubus-cli "WiFi.AccessPoint.*.DiscoveryMethodEnabled?"'
+  - 'awk ''/^rnr=/{if ($0=="rnr=1") enabled++; if ($0=="rnr=0") disabled++; total++} END {print "RnrEnabled5gCount=" enabled+0; print "RnrDisabled5gCount=" disabled+0; print "RnrTotal5gCount=" total+0}'' /tmp/wl0_hapd.conf'
+  - 'awk ''/^rnr=/{if ($0=="rnr=1") enabled++; if ($0=="rnr=0") disabled++; total++} END {print "RnrEnabled6gCount=" enabled+0; print "RnrDisabled6gCount=" disabled+0; print "RnrTotal6gCount=" total+0}'' /tmp/wl1_hapd.conf'
+  - 'awk ''/^rnr=/{if ($0=="rnr=1") enabled++; if ($0=="rnr=0") disabled++; total++} END {print "RnrEnabled24gCount=" enabled+0; print "RnrDisabled24gCount=" disabled+0; print "RnrTotal24gCount=" total+0}'' /tmp/wl2_hapd.conf'
+  - ubus-cli WiFi.AccessPoint.1.DiscoveryMethodEnabled=Default
+  - ubus-cli WiFi.AccessPoint.3.DiscoveryMethodEnabled=Default
+  - ubus-cli WiFi.AccessPoint.5.DiscoveryMethodEnabled=Default
+  - 'ubus-cli "WiFi.AccessPoint.*.DiscoveryMethodEnabled?" | sed -n ''1,20p'''
+  - 'awk ''/^rnr=/{if ($0=="rnr=1") enabled++; if ($0=="rnr=0") disabled++; total++} END {print "RnrEnabled6gCount=" enabled+0; print "RnrDisabled6gCount=" disabled+0; print "RnrTotal6gCount=" total+0}'' /tmp/wl1_hapd.conf | sed -n ''1,20p'''
 results_reference:
   v4.0.3:
     5g: Fail

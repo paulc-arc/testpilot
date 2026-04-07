@@ -188,18 +188,18 @@ pass_criteria:
   operator: equals
   value: Default
   description: 2.4G AP5 should be restored to Default before the case exits.
-verification_command: |
-  ubus-cli "WiFi.AccessPoint.1.DiscoveryMethodEnabled?"
-  ubus-cli "WiFi.AccessPoint.3.DiscoveryMethodEnabled?"
-  ubus-cli "WiFi.AccessPoint.5.DiscoveryMethodEnabled?"
-  ubus-cli WiFi.AccessPoint.1.DiscoveryMethodEnabled=UPR
-  ubus-cli WiFi.AccessPoint.3.DiscoveryMethodEnabled=UPR
-  ubus-cli WiFi.AccessPoint.5.DiscoveryMethodEnabled=UPR
-  ubus-cli "WiFi.AccessPoint.*.DiscoveryMethodEnabled?"
-  ubus-cli WiFi.AccessPoint.1.DiscoveryMethodEnabled=Default
-  ubus-cli WiFi.AccessPoint.3.DiscoveryMethodEnabled=Default
-  ubus-cli WiFi.AccessPoint.5.DiscoveryMethodEnabled=Default
-  ubus-cli "WiFi.AccessPoint.*.DiscoveryMethodEnabled?" | sed -n '1,20p'
+verification_command:
+  - 'ubus-cli "WiFi.AccessPoint.1.DiscoveryMethodEnabled?"'
+  - 'ubus-cli "WiFi.AccessPoint.3.DiscoveryMethodEnabled?"'
+  - 'ubus-cli "WiFi.AccessPoint.5.DiscoveryMethodEnabled?"'
+  - ubus-cli WiFi.AccessPoint.1.DiscoveryMethodEnabled=UPR
+  - ubus-cli WiFi.AccessPoint.3.DiscoveryMethodEnabled=UPR
+  - ubus-cli WiFi.AccessPoint.5.DiscoveryMethodEnabled=UPR
+  - 'ubus-cli "WiFi.AccessPoint.*.DiscoveryMethodEnabled?"'
+  - ubus-cli WiFi.AccessPoint.1.DiscoveryMethodEnabled=Default
+  - ubus-cli WiFi.AccessPoint.3.DiscoveryMethodEnabled=Default
+  - ubus-cli WiFi.AccessPoint.5.DiscoveryMethodEnabled=Default
+  - 'ubus-cli "WiFi.AccessPoint.*.DiscoveryMethodEnabled?" | sed -n ''1,20p'''
 results_reference:
   v4.0.3:
     5g: Not Supported

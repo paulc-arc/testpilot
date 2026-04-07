@@ -163,9 +163,9 @@ pass_criteria:
   operator: equals
   value: '1'
   description: wl0 sta_info must still expose an HE SET line for the same STA.
-verification_command: |
-  ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.SupportedMCS?"
-  STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p'); STA_MAC_LOWER=$(echo "$STA_MAC" | tr 'A-F' 'a-f'); [ -n "$STA_MAC" ] && echo DriverAssocMac=$STA_MAC && wl -i wl0 sta_info $STA_MAC_LOWER | awk '/HE caps/ {he=1} /MCS SET/ {mcs=1} /HE SET/ {heset=1} END {if (he) print "DriverHeCapsPresent=1"; if (mcs) print "DriverMCSSetPresent=1"; if (heset) print "DriverHeSetPresent=1"}'
+verification_command:
+  - 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.SupportedMCS?"'
+  - 'STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n ''s/.*MACAddress="\([^"]*\)".*/\1/p''); STA_MAC_LOWER=$(echo "$STA_MAC" | tr ''A-F'' ''a-f''); [ -n "$STA_MAC" ] && echo DriverAssocMac=$STA_MAC && wl -i wl0 sta_info $STA_MAC_LOWER | awk ''/HE caps/ {he=1} /MCS SET/ {mcs=1} /HE SET/ {heset=1} END {if (he) print "DriverHeCapsPresent=1"; if (mcs) print "DriverMCSSetPresent=1"; if (heset) print "DriverHeSetPresent=1"}'''
 results_reference:
   v4.0.3:
     5g: Fail

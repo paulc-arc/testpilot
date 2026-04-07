@@ -144,7 +144,7 @@ steps:
 - id: step3
   action: exec
   target: DUT
-  command: 'STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n ''s/.*MACAddress="\([^"]*\)".*/\1/p''); [ -n "$STA_MAC" ] && echo DriverAssocMac=$STA_MAC && wl -i wl0 sta_info $STA_MAC | sed -n ''s/.*per antenna noise floor: *\(-*[0-9][0-9]*\).*/DriverNoise=\1/p'''
+  command: 'STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n ''s/.*MACAddress="\([^"]*\)".*/\1/p''); [ -n "$STA_MAC" ] && echo DriverAssocMac=$STA_MAC; [ -n "$STA_MAC" ] && wl -i wl0 sta_info $STA_MAC | sed -n ''s/.*per antenna noise floor: *\(-*[0-9][0-9]*\).*/DriverNoise=\1/p'''
   depends_on: step2
   capture: driver_noise
 pass_criteria:
@@ -164,9 +164,11 @@ pass_criteria:
   operator: <
   value: '0'
   description: Driver evidence must still show a real negative noise floor for the same STA.
-verification_command: |
-  ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.Noise?"
-  STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p'); [ -n "$STA_MAC" ] && echo DriverAssocMac=$STA_MAC && wl -i wl0 sta_info $STA_MAC | sed -n 's/.*per antenna noise floor: *\(-*[0-9][0-9]*\).*/DriverNoise=\1/p'
+verification_command:
+  - 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.Noise?"'
+  - 'STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n ''s/.*MACAddress="\([^"]*\)".*/\1/p'')'
+  - '[ -n "$STA_MAC" ] && echo DriverAssocMac=$STA_MAC'
+  - '[ -n "$STA_MAC" ] && wl -i wl0 sta_info $STA_MAC | sed -n ''s/.*per antenna noise floor: *\(-*[0-9][0-9]*\).*/DriverNoise=\1/p'''
 results_reference:
   v4.0.3:
     5g: Fail

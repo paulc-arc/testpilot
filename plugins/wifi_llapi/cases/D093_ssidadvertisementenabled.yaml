@@ -42,9 +42,9 @@ steps:
   - id: step1_baseline_5g
     action: exec
     target: DUT
-    command: |
-      echo "BaselineAdv5g=$(ubus-cli 'WiFi.AccessPoint.1.SSIDAdvertisementEnabled?' 2>/dev/null | grep -o 'SSIDAdvertisementEnabled=[0-9]*' | cut -d= -f2)"
-      echo "BaselineHapd5g=$(grep 'ignore_broadcast_ssid=' /tmp/wl0_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+    command:
+      - echo "BaselineAdv5g=$(ubus-cli 'WiFi.AccessPoint.1.SSIDAdvertisementEnabled?' 2>/dev/null | grep -o 'SSIDAdvertisementEnabled=[0-9]*' | cut -d= -f2)"
+      - echo "BaselineHapd5g=$(grep 'ignore_broadcast_ssid=' /tmp/wl0_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
     capture: baseline_5g
 
   - id: step2_set_5g
@@ -58,21 +58,21 @@ steps:
     action: exec
     target: DUT
     depends_on: step2_set_5g
-    command: |
-      sleep 3
-      echo "GetterAdv5g=$(ubus-cli 'WiFi.AccessPoint.1.SSIDAdvertisementEnabled?' 2>/dev/null | grep -o 'SSIDAdvertisementEnabled=[0-9]*' | cut -d= -f2)"
-      echo "HapdAfterSet5g=$(grep 'ignore_broadcast_ssid=' /tmp/wl0_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+    command:
+      - sleep 3
+      - echo "GetterAdv5g=$(ubus-cli 'WiFi.AccessPoint.1.SSIDAdvertisementEnabled?' 2>/dev/null | grep -o 'SSIDAdvertisementEnabled=[0-9]*' | cut -d= -f2)"
+      - echo "HapdAfterSet5g=$(grep 'ignore_broadcast_ssid=' /tmp/wl0_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
     capture: readback_5g
 
   - id: step4_restore_5g
     action: exec
     target: DUT
     depends_on: step3_readback_5g
-    command: |
-      ubus-cli WiFi.AccessPoint.1.SSIDAdvertisementEnabled=1
-      sleep 3
-      echo "RestoredAdv5g=$(ubus-cli 'WiFi.AccessPoint.1.SSIDAdvertisementEnabled?' 2>/dev/null | grep -o 'SSIDAdvertisementEnabled=[0-9]*' | cut -d= -f2)"
-      echo "RestoredHapd5g=$(grep 'ignore_broadcast_ssid=' /tmp/wl0_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+    command:
+      - ubus-cli WiFi.AccessPoint.1.SSIDAdvertisementEnabled=1
+      - sleep 3
+      - echo "RestoredAdv5g=$(ubus-cli 'WiFi.AccessPoint.1.SSIDAdvertisementEnabled?' 2>/dev/null | grep -o 'SSIDAdvertisementEnabled=[0-9]*' | cut -d= -f2)"
+      - echo "RestoredHapd5g=$(grep 'ignore_broadcast_ssid=' /tmp/wl0_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
     capture: restore_5g
 
   # ---------- 6G ----------
@@ -80,9 +80,9 @@ steps:
     action: exec
     target: DUT
     depends_on: step4_restore_5g
-    command: |
-      echo "BaselineAdv6g=$(ubus-cli 'WiFi.AccessPoint.3.SSIDAdvertisementEnabled?' 2>/dev/null | grep -o 'SSIDAdvertisementEnabled=[0-9]*' | cut -d= -f2)"
-      echo "BaselineHapd6g=$(grep 'ignore_broadcast_ssid=' /tmp/wl1_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+    command:
+      - echo "BaselineAdv6g=$(ubus-cli 'WiFi.AccessPoint.3.SSIDAdvertisementEnabled?' 2>/dev/null | grep -o 'SSIDAdvertisementEnabled=[0-9]*' | cut -d= -f2)"
+      - echo "BaselineHapd6g=$(grep 'ignore_broadcast_ssid=' /tmp/wl1_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
     capture: baseline_6g
 
   - id: step6_set_6g
@@ -96,21 +96,21 @@ steps:
     action: exec
     target: DUT
     depends_on: step6_set_6g
-    command: |
-      sleep 3
-      echo "GetterAdv6g=$(ubus-cli 'WiFi.AccessPoint.3.SSIDAdvertisementEnabled?' 2>/dev/null | grep -o 'SSIDAdvertisementEnabled=[0-9]*' | cut -d= -f2)"
-      echo "HapdAfterSet6g=$(grep 'ignore_broadcast_ssid=' /tmp/wl1_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+    command:
+      - sleep 3
+      - echo "GetterAdv6g=$(ubus-cli 'WiFi.AccessPoint.3.SSIDAdvertisementEnabled?' 2>/dev/null | grep -o 'SSIDAdvertisementEnabled=[0-9]*' | cut -d= -f2)"
+      - echo "HapdAfterSet6g=$(grep 'ignore_broadcast_ssid=' /tmp/wl1_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
     capture: readback_6g
 
   - id: step8_restore_6g
     action: exec
     target: DUT
     depends_on: step7_readback_6g
-    command: |
-      ubus-cli WiFi.AccessPoint.3.SSIDAdvertisementEnabled=1
-      sleep 3
-      echo "RestoredAdv6g=$(ubus-cli 'WiFi.AccessPoint.3.SSIDAdvertisementEnabled?' 2>/dev/null | grep -o 'SSIDAdvertisementEnabled=[0-9]*' | cut -d= -f2)"
-      echo "RestoredHapd6g=$(grep 'ignore_broadcast_ssid=' /tmp/wl1_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+    command:
+      - ubus-cli WiFi.AccessPoint.3.SSIDAdvertisementEnabled=1
+      - sleep 3
+      - echo "RestoredAdv6g=$(ubus-cli 'WiFi.AccessPoint.3.SSIDAdvertisementEnabled?' 2>/dev/null | grep -o 'SSIDAdvertisementEnabled=[0-9]*' | cut -d= -f2)"
+      - echo "RestoredHapd6g=$(grep 'ignore_broadcast_ssid=' /tmp/wl1_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
     capture: restore_6g
 
   # ---------- 2.4G ----------
@@ -118,9 +118,9 @@ steps:
     action: exec
     target: DUT
     depends_on: step8_restore_6g
-    command: |
-      echo "BaselineAdv24g=$(ubus-cli 'WiFi.AccessPoint.5.SSIDAdvertisementEnabled?' 2>/dev/null | grep -o 'SSIDAdvertisementEnabled=[0-9]*' | cut -d= -f2)"
-      echo "BaselineHapd24g=$(grep 'ignore_broadcast_ssid=' /tmp/wl2_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+    command:
+      - echo "BaselineAdv24g=$(ubus-cli 'WiFi.AccessPoint.5.SSIDAdvertisementEnabled?' 2>/dev/null | grep -o 'SSIDAdvertisementEnabled=[0-9]*' | cut -d= -f2)"
+      - echo "BaselineHapd24g=$(grep 'ignore_broadcast_ssid=' /tmp/wl2_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
     capture: baseline_24g
 
   - id: step10_set_24g
@@ -134,21 +134,21 @@ steps:
     action: exec
     target: DUT
     depends_on: step10_set_24g
-    command: |
-      sleep 3
-      echo "GetterAdv24g=$(ubus-cli 'WiFi.AccessPoint.5.SSIDAdvertisementEnabled?' 2>/dev/null | grep -o 'SSIDAdvertisementEnabled=[0-9]*' | cut -d= -f2)"
-      echo "HapdAfterSet24g=$(grep 'ignore_broadcast_ssid=' /tmp/wl2_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+    command:
+      - sleep 3
+      - echo "GetterAdv24g=$(ubus-cli 'WiFi.AccessPoint.5.SSIDAdvertisementEnabled?' 2>/dev/null | grep -o 'SSIDAdvertisementEnabled=[0-9]*' | cut -d= -f2)"
+      - echo "HapdAfterSet24g=$(grep 'ignore_broadcast_ssid=' /tmp/wl2_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
     capture: readback_24g
 
   - id: step12_restore_24g
     action: exec
     target: DUT
     depends_on: step11_readback_24g
-    command: |
-      ubus-cli WiFi.AccessPoint.5.SSIDAdvertisementEnabled=1
-      sleep 3
-      echo "RestoredAdv24g=$(ubus-cli 'WiFi.AccessPoint.5.SSIDAdvertisementEnabled?' 2>/dev/null | grep -o 'SSIDAdvertisementEnabled=[0-9]*' | cut -d= -f2)"
-      echo "RestoredHapd24g=$(grep 'ignore_broadcast_ssid=' /tmp/wl2_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+    command:
+      - ubus-cli WiFi.AccessPoint.5.SSIDAdvertisementEnabled=1
+      - sleep 3
+      - echo "RestoredAdv24g=$(ubus-cli 'WiFi.AccessPoint.5.SSIDAdvertisementEnabled?' 2>/dev/null | grep -o 'SSIDAdvertisementEnabled=[0-9]*' | cut -d= -f2)"
+      - echo "RestoredHapd24g=$(grep 'ignore_broadcast_ssid=' /tmp/wl2_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
     capture: restore_24g
 
 pass_criteria:
@@ -213,10 +213,10 @@ pass_criteria:
     value: '0'
     description: '2.4G hostapd ignore_broadcast_ssid restored to 0'
 
-verification_command: |
-  grep ignore_broadcast_ssid /tmp/wl0_hapd.conf
-  grep ignore_broadcast_ssid /tmp/wl1_hapd.conf
-  grep ignore_broadcast_ssid /tmp/wl2_hapd.conf
+verification_command:
+  - 'grep ignore_broadcast_ssid /tmp/wl0_hapd.conf'
+  - 'grep ignore_broadcast_ssid /tmp/wl1_hapd.conf'
+  - 'grep ignore_broadcast_ssid /tmp/wl2_hapd.conf'
 
 results_reference:
   v4.0.1:

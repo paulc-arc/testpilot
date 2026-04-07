@@ -42,9 +42,9 @@ steps:
   - id: step1_status_5g
     action: exec
     target: DUT
-    command: |
-      echo "Status5g=$(ubus-cli 'WiFi.AccessPoint.1.Status?' 2>/dev/null | grep -o 'Status="[^"]*"' | cut -d'"' -f2)"
-      echo "DriverBss5g=$(wl -i wl0 bss 2>/dev/null)"
+    command:
+      - echo "Status5g=$(ubus-cli 'WiFi.AccessPoint.1.Status?' 2>/dev/null | grep -o 'Status="[^"]*"' | cut -d'"' -f2)"
+      - echo "DriverBss5g=$(wl -i wl0 bss 2>/dev/null)"
     capture: status_5g
 
   # ---------- 6G ----------
@@ -52,9 +52,9 @@ steps:
     action: exec
     target: DUT
     depends_on: step1_status_5g
-    command: |
-      echo "Status6g=$(ubus-cli 'WiFi.AccessPoint.3.Status?' 2>/dev/null | grep -o 'Status="[^"]*"' | cut -d'"' -f2)"
-      echo "DriverBss6g=$(wl -i wl1 bss 2>/dev/null)"
+    command:
+      - echo "Status6g=$(ubus-cli 'WiFi.AccessPoint.3.Status?' 2>/dev/null | grep -o 'Status="[^"]*"' | cut -d'"' -f2)"
+      - echo "DriverBss6g=$(wl -i wl1 bss 2>/dev/null)"
     capture: status_6g
 
   # ---------- 2.4G ----------
@@ -62,9 +62,9 @@ steps:
     action: exec
     target: DUT
     depends_on: step2_status_6g
-    command: |
-      echo "Status24g=$(ubus-cli 'WiFi.AccessPoint.5.Status?' 2>/dev/null | grep -o 'Status="[^"]*"' | cut -d'"' -f2)"
-      echo "DriverBss24g=$(wl -i wl2 bss 2>/dev/null)"
+    command:
+      - echo "Status24g=$(ubus-cli 'WiFi.AccessPoint.5.Status?' 2>/dev/null | grep -o 'Status="[^"]*"' | cut -d'"' -f2)"
+      - echo "DriverBss24g=$(wl -i wl2 bss 2>/dev/null)"
     capture: status_24g
 
 pass_criteria:
@@ -93,10 +93,10 @@ pass_criteria:
     value: 'up'
     description: '2.4G driver bss should be up'
 
-verification_command: |
-  wl -i wl0 bss
-  wl -i wl1 bss
-  wl -i wl2 bss
+verification_command:
+  - 'wl -i wl0 bss'
+  - 'wl -i wl1 bss'
+  - 'wl -i wl2 bss'
 
 results_reference:
   v4.0.1:

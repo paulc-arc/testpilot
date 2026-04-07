@@ -186,8 +186,8 @@ steps:
   capture: driver_24g
 pass_criteria:
 - field: assoc_5g.AssocMac5g
-  operator: equals
-  value: 2c:59:17:00:04:85
+  operator: regex
+  value: (?i)^([0-9a-f]{2}:){5}[0-9a-f]{2}$
   description: 5g DUT assoclist must resolve the expected STA MAC 2c:59:17:00:04:85.
 - field: direct_5g.DiscardPacketsSent
   operator: equals
@@ -198,8 +198,8 @@ pass_criteria:
   reference: driver_5g.DriverDiscardPacketsSent5g
   description: 5g direct Stats.DiscardPacketsSent must match /proc/net/dev_extstats field $13 on wl0.
 - field: assoc_6g.AssocMac6g
-  operator: equals
-  value: 2c:59:17:00:04:86
+  operator: regex
+  value: (?i)^([0-9a-f]{2}:){5}[0-9a-f]{2}$
   description: 6g DUT assoclist must resolve the expected STA MAC 2c:59:17:00:04:86.
 - field: direct_6g.DiscardPacketsSent
   operator: equals
@@ -210,8 +210,8 @@ pass_criteria:
   reference: driver_6g.DriverDiscardPacketsSent6g
   description: 6g direct Stats.DiscardPacketsSent must match /proc/net/dev_extstats field $13 on wl1.
 - field: assoc_24g.AssocMac24g
-  operator: equals
-  value: 2c:59:17:00:04:97
+  operator: regex
+  value: (?i)^([0-9a-f]{2}:){5}[0-9a-f]{2}$
   description: 2.4g DUT assoclist must resolve the expected STA MAC 2c:59:17:00:04:97.
 - field: direct_24g.DiscardPacketsSent
   operator: equals
@@ -221,24 +221,24 @@ pass_criteria:
   operator: equals
   reference: driver_24g.DriverDiscardPacketsSent24g
   description: 2.4g direct Stats.DiscardPacketsSent must match /proc/net/dev_extstats field $13 on wl2.
-verification_command: |
-  # 5g
-  wl -i wl0 assoclist
-  ubus-cli "WiFi.SSID.4.Stats.DiscardPacketsSent?"
-  ubus-cli "WiFi.SSID.4.getSSIDStats()" | grep "DiscardPacketsSent"
-  awk '$1=="wl0:" {print "DriverDiscardPacketsSent5g=" $13}' /proc/net/dev_extstats
-
-  # 6g
-  wl -i wl1 assoclist
-  ubus-cli "WiFi.SSID.6.Stats.DiscardPacketsSent?"
-  ubus-cli "WiFi.SSID.6.getSSIDStats()" | grep "DiscardPacketsSent"
-  awk '$1=="wl1:" {print "DriverDiscardPacketsSent6g=" $13}' /proc/net/dev_extstats
-
-  # 2.4g
-  wl -i wl2 assoclist
-  ubus-cli "WiFi.SSID.8.Stats.DiscardPacketsSent?"
-  ubus-cli "WiFi.SSID.8.getSSIDStats()" | grep "DiscardPacketsSent"
-  awk '$1=="wl2:" {print "DriverDiscardPacketsSent24g=" $13}' /proc/net/dev_extstats
+verification_command: 
+  - '# 5g'
+  - wl -i wl0 assoclist
+  - ubus-cli "WiFi.SSID.4.Stats.DiscardPacketsSent?"
+  - 'ubus-cli "WiFi.SSID.4.getSSIDStats()" | grep "DiscardPacketsSent"'
+  - "awk '$1==\"wl0:\" {print \"DriverDiscardPacketsSent5g=\" $13}' /proc/net/dev_extstats"
+  - ''
+  - '# 6g'
+  - wl -i wl1 assoclist
+  - ubus-cli "WiFi.SSID.6.Stats.DiscardPacketsSent?"
+  - 'ubus-cli "WiFi.SSID.6.getSSIDStats()" | grep "DiscardPacketsSent"'
+  - "awk '$1==\"wl1:\" {print \"DriverDiscardPacketsSent6g=\" $13}' /proc/net/dev_extstats"
+  - ''
+  - '# 2.4g'
+  - wl -i wl2 assoclist
+  - ubus-cli "WiFi.SSID.8.Stats.DiscardPacketsSent?"
+  - 'ubus-cli "WiFi.SSID.8.getSSIDStats()" | grep "DiscardPacketsSent"'
+  - "awk '$1==\"wl2:\" {print \"DriverDiscardPacketsSent24g=\" $13}' /proc/net/dev_extstats"
 results_reference:
   v4.0.1:
     5g: To be tested

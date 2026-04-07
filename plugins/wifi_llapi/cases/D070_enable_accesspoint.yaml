@@ -403,34 +403,34 @@ pass_criteria:
   operator: equals
   value: '0'
   description: 2.4G hostapd config should clear start_disabled after re-enable.
-verification_command: |
-  ubus-cli "WiFi.AccessPoint.1.Enable?"
-  ubus-cli "WiFi.AccessPoint.3.Enable?"
-  ubus-cli "WiFi.AccessPoint.5.Enable?"
-  ubus-cli WiFi.AccessPoint.1.Enable=0
-  ubus-cli "WiFi.AccessPoint.1.?" | sed -n 's/^WiFi\.AccessPoint\.1\.Enable=/Enable5g=/p; s/^WiFi\.AccessPoint\.1\.Status=/Status5g=/p'
-  wl -i wl0 bss | sed -n 's/^/DriverBssState5g=/p'
-  awk -F= '/^start_disabled=/{print "StartDisabled5g=" $2; if ($2 == 1) ones++; if ($2 == 0) zeros++; total++} END {print "StartDisabled5gOneCount=" ones+0; print "StartDisabled5gZeroCount=" zeros+0; print "StartDisabled5gTotalCount=" total+0}' /tmp/wl0_hapd.conf
-  ubus-cli WiFi.AccessPoint.1.Enable=1
-  ubus-cli "WiFi.AccessPoint.1.?" | sed -n 's/^WiFi\.AccessPoint\.1\.Enable=/Enable5g=/p; s/^WiFi\.AccessPoint\.1\.Status=/Status5g=/p' | sed -n '1,20p'
-  wl -i wl0 bss | sed -n 's/^/DriverBssState5g=/p' | sed -n '1,20p'
-  awk -F= '/^start_disabled=/{print "StartDisabled5g=" $2; if ($2 == 1) ones++; if ($2 == 0) zeros++; total++} END {print "StartDisabled5gOneCount=" ones+0; print "StartDisabled5gZeroCount=" zeros+0; print "StartDisabled5gTotalCount=" total+0}' /tmp/wl0_hapd.conf | sed -n '1,20p'
-  ubus-cli WiFi.AccessPoint.3.Enable=0
-  ubus-cli "WiFi.AccessPoint.3.?" | sed -n 's/^WiFi\.AccessPoint\.3\.Enable=/Enable6g=/p; s/^WiFi\.AccessPoint\.3\.Status=/Status6g=/p'
-  wl -i wl1 bss | sed -n 's/^/DriverBssState6g=/p'
-  awk -F= '/^start_disabled=/{print "StartDisabled6g=" $2; if ($2 == 1) ones++; if ($2 == 0) zeros++; total++} END {print "StartDisabled6gOneCount=" ones+0; print "StartDisabled6gZeroCount=" zeros+0; print "StartDisabled6gTotalCount=" total+0}' /tmp/wl1_hapd.conf
-  ubus-cli WiFi.AccessPoint.3.Enable=1
-  ubus-cli "WiFi.AccessPoint.3.?" | sed -n 's/^WiFi\.AccessPoint\.3\.Enable=/Enable6g=/p; s/^WiFi\.AccessPoint\.3\.Status=/Status6g=/p' | sed -n '1,20p'
-  wl -i wl1 bss | sed -n 's/^/DriverBssState6g=/p' | sed -n '1,20p'
-  awk -F= '/^start_disabled=/{print "StartDisabled6g=" $2; if ($2 == 1) ones++; if ($2 == 0) zeros++; total++} END {print "StartDisabled6gOneCount=" ones+0; print "StartDisabled6gZeroCount=" zeros+0; print "StartDisabled6gTotalCount=" total+0}' /tmp/wl1_hapd.conf | sed -n '1,20p'
-  ubus-cli WiFi.AccessPoint.5.Enable=0
-  ubus-cli "WiFi.AccessPoint.5.?" | sed -n 's/^WiFi\.AccessPoint\.5\.Enable=/Enable24g=/p; s/^WiFi\.AccessPoint\.5\.Status=/Status24g=/p'
-  wl -i wl2 bss | sed -n 's/^/DriverBssState24g=/p'
-  awk -F= '/^start_disabled=/{print "StartDisabled24g=" $2; if ($2 == 1) ones++; if ($2 == 0) zeros++; total++} END {print "StartDisabled24gOneCount=" ones+0; print "StartDisabled24gZeroCount=" zeros+0; print "StartDisabled24gTotalCount=" total+0}' /tmp/wl2_hapd.conf
-  ubus-cli WiFi.AccessPoint.5.Enable=1
-  ubus-cli "WiFi.AccessPoint.5.?" | sed -n 's/^WiFi\.AccessPoint\.5\.Enable=/Enable24g=/p; s/^WiFi\.AccessPoint\.5\.Status=/Status24g=/p' | sed -n '1,20p'
-  wl -i wl2 bss | sed -n 's/^/DriverBssState24g=/p' | sed -n '1,20p'
-  awk -F= '/^start_disabled=/{print "StartDisabled24g=" $2; if ($2 == 1) ones++; if ($2 == 0) zeros++; total++} END {print "StartDisabled24gOneCount=" ones+0; print "StartDisabled24gZeroCount=" zeros+0; print "StartDisabled24gTotalCount=" total+0}' /tmp/wl2_hapd.conf | sed -n '1,20p'
+verification_command:
+  - 'ubus-cli "WiFi.AccessPoint.1.Enable?"'
+  - 'ubus-cli "WiFi.AccessPoint.3.Enable?"'
+  - 'ubus-cli "WiFi.AccessPoint.5.Enable?"'
+  - ubus-cli WiFi.AccessPoint.1.Enable=0
+  - 'ubus-cli "WiFi.AccessPoint.1.?" | sed -n ''s/^WiFi\.AccessPoint\.1\.Enable=/Enable5g=/p; s/^WiFi\.AccessPoint\.1\.Status=/Status5g=/p'''
+  - 'wl -i wl0 bss | sed -n ''s/^/DriverBssState5g=/p'''
+  - 'awk -F= ''/^start_disabled=/{print "StartDisabled5g=" $2; if ($2 == 1) ones++; if ($2 == 0) zeros++; total++} END {print "StartDisabled5gOneCount=" ones+0; print "StartDisabled5gZeroCount=" zeros+0; print "StartDisabled5gTotalCount=" total+0}'' /tmp/wl0_hapd.conf'
+  - ubus-cli WiFi.AccessPoint.1.Enable=1
+  - 'ubus-cli "WiFi.AccessPoint.1.?" | sed -n ''s/^WiFi\.AccessPoint\.1\.Enable=/Enable5g=/p; s/^WiFi\.AccessPoint\.1\.Status=/Status5g=/p'' | sed -n ''1,20p'''
+  - 'wl -i wl0 bss | sed -n ''s/^/DriverBssState5g=/p'' | sed -n ''1,20p'''
+  - 'awk -F= ''/^start_disabled=/{print "StartDisabled5g=" $2; if ($2 == 1) ones++; if ($2 == 0) zeros++; total++} END {print "StartDisabled5gOneCount=" ones+0; print "StartDisabled5gZeroCount=" zeros+0; print "StartDisabled5gTotalCount=" total+0}'' /tmp/wl0_hapd.conf | sed -n ''1,20p'''
+  - ubus-cli WiFi.AccessPoint.3.Enable=0
+  - 'ubus-cli "WiFi.AccessPoint.3.?" | sed -n ''s/^WiFi\.AccessPoint\.3\.Enable=/Enable6g=/p; s/^WiFi\.AccessPoint\.3\.Status=/Status6g=/p'''
+  - 'wl -i wl1 bss | sed -n ''s/^/DriverBssState6g=/p'''
+  - 'awk -F= ''/^start_disabled=/{print "StartDisabled6g=" $2; if ($2 == 1) ones++; if ($2 == 0) zeros++; total++} END {print "StartDisabled6gOneCount=" ones+0; print "StartDisabled6gZeroCount=" zeros+0; print "StartDisabled6gTotalCount=" total+0}'' /tmp/wl1_hapd.conf'
+  - ubus-cli WiFi.AccessPoint.3.Enable=1
+  - 'ubus-cli "WiFi.AccessPoint.3.?" | sed -n ''s/^WiFi\.AccessPoint\.3\.Enable=/Enable6g=/p; s/^WiFi\.AccessPoint\.3\.Status=/Status6g=/p'' | sed -n ''1,20p'''
+  - 'wl -i wl1 bss | sed -n ''s/^/DriverBssState6g=/p'' | sed -n ''1,20p'''
+  - 'awk -F= ''/^start_disabled=/{print "StartDisabled6g=" $2; if ($2 == 1) ones++; if ($2 == 0) zeros++; total++} END {print "StartDisabled6gOneCount=" ones+0; print "StartDisabled6gZeroCount=" zeros+0; print "StartDisabled6gTotalCount=" total+0}'' /tmp/wl1_hapd.conf | sed -n ''1,20p'''
+  - ubus-cli WiFi.AccessPoint.5.Enable=0
+  - 'ubus-cli "WiFi.AccessPoint.5.?" | sed -n ''s/^WiFi\.AccessPoint\.5\.Enable=/Enable24g=/p; s/^WiFi\.AccessPoint\.5\.Status=/Status24g=/p'''
+  - 'wl -i wl2 bss | sed -n ''s/^/DriverBssState24g=/p'''
+  - 'awk -F= ''/^start_disabled=/{print "StartDisabled24g=" $2; if ($2 == 1) ones++; if ($2 == 0) zeros++; total++} END {print "StartDisabled24gOneCount=" ones+0; print "StartDisabled24gZeroCount=" zeros+0; print "StartDisabled24gTotalCount=" total+0}'' /tmp/wl2_hapd.conf'
+  - ubus-cli WiFi.AccessPoint.5.Enable=1
+  - 'ubus-cli "WiFi.AccessPoint.5.?" | sed -n ''s/^WiFi\.AccessPoint\.5\.Enable=/Enable24g=/p; s/^WiFi\.AccessPoint\.5\.Status=/Status24g=/p'' | sed -n ''1,20p'''
+  - 'wl -i wl2 bss | sed -n ''s/^/DriverBssState24g=/p'' | sed -n ''1,20p'''
+  - 'awk -F= ''/^start_disabled=/{print "StartDisabled24g=" $2; if ($2 == 1) ones++; if ($2 == 0) zeros++; total++} END {print "StartDisabled24gOneCount=" ones+0; print "StartDisabled24gZeroCount=" zeros+0; print "StartDisabled24gTotalCount=" total+0}'' /tmp/wl2_hapd.conf | sed -n ''1,20p'''
 results_reference:
   v4.0.3:
     5g: To be tested

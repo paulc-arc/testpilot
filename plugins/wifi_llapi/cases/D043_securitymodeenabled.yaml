@@ -156,9 +156,9 @@ pass_criteria:
   operator: equals
   reference: driver_security.DriverSecurityModeEnabled
   description: LLAPI SecurityModeEnabled must match the normalized driver-side security mode for the same STA.
-verification_command: |
-  ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.SecurityModeEnabled?"
-  STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p'); [ -n "$STA_MAC" ] && echo DriverAssocMac=$STA_MAC && wl -i wl0 sta_info $STA_MAC | awk '/auth:/ {if ($2=="WPA3-SAE-PSK") print "DriverSecurityModeEnabled=WPA3-Personal"; else if ($2=="WPA2-PSK") print "DriverSecurityModeEnabled=WPA2-Personal"; else print "DriverSecurityModeEnabled=" $2}'
+verification_command:
+  - 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.SecurityModeEnabled?"'
+  - 'STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n ''s/.*MACAddress="\([^"]*\)".*/\1/p''); [ -n "$STA_MAC" ] && echo DriverAssocMac=$STA_MAC && wl -i wl0 sta_info $STA_MAC | awk ''/auth:/ {if ($2=="WPA3-SAE-PSK") print "DriverSecurityModeEnabled=WPA3-Personal"; else if ($2=="WPA2-PSK") print "DriverSecurityModeEnabled=WPA2-Personal"; else print "DriverSecurityModeEnabled=" $2}'''
 results_reference:
   v4.0.3:
     5g: Pass
