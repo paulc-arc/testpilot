@@ -88,7 +88,7 @@
   - `67 metadata drifts`
 - Interpreted via `evaluation_verdict` rather than stale synthesized per-band `results_reference`, the remaining workbook-Pass gaps are:
   - `77` total workbook-Pass gaps
-  - `4` true-open cases in the current local repo inventory: `D281`, `D282`, `D295`, `D324`
+  - `3` true-open cases in the current local repo inventory: `D281`, `D282`, `D295`
   - this detached compare snapshot is still pre-`D330` rewrite evidence; the local repo state below is newer than the detached run results
 - Latest aligned spectrum follow-up:
   - `D532 getSpectrumInfo ourUsage` rerun `20260411T183356920330` = `Pass`
@@ -175,10 +175,11 @@
   - `D324` still remains blocked, but now with pure verdict-layer evidence: attempt 1 `5G 329835/329835/305843`, `6G 271290/271290/270724`, `2.4G 381499/381499/381341`; attempt 2 `5G 562142/562414/537347`, `6G 402490/402490/402332`, `2.4G 611651/611651/611493`
   - `D331` is now aligned via clean-start official rerun `20260412T040941971904`, so `plugins/wifi_llapi/reports/D324_block.md` remains the superseding blocker authority, `plugins/wifi_llapi/reports/D331_block.md` becomes historical resolution evidence, and the next resume pointer now moves to `D333`
   - `D333 PacketsSent` is now also aligned via clean-start official rerun `20260412T054702963914`: after hardening the shared 6G baseline hot path with driver-assoc fallback, pre-restart `ocv=0` acceptance, and generic `sleep 15`, the anchored `PacketsSent` extractor plus `wl if_counters txframe + matching wds txframe` snapshot rewrite exact-closed 5G/6G/2.4G at `461/461/461`, `592/592/592`, and `707/707/707`. `plugins/wifi_llapi/reports/D333_block.md` is now retained only as historical resolution evidence, and the next resume pointer now moves to `D324`
+  - `D324 BytesSent` is now also aligned via official rerun `20260412T060612008433`: the same source-backed WDS-sum authority (`wl if_counters txbyte + matching wds txbyte`) becomes durable once it is sampled raw-first in the same shell step as `getSSIDStats()` and the direct `Stats.BytesSent?` getter, and the rerun exact-closed 5G/6G/2.4G at `1141986/1141986/1141986`, `1113827/1113827/1113827`, and `1186105/1186105/1186105`. `plugins/wifi_llapi/reports/D324_block.md` is now retained only as historical resolution evidence, and the next resume pointer now moves to `D295`
 - Practical next resume order:
-  1. resume the remaining open-set blocker work from `D324`
-  2. keep `D324` blocked unless its drift is explained with a deterministic source-backed correction
-  3. keep `D281` / `D282` / `D295` / `D324` as the remaining blocked slice unless a new deterministic replay closes them
+  1. resume the remaining open-set blocker work from `D295`
+  2. keep `D295` blocked unless its drift is explained with a deterministic source-backed correction
+  3. keep `D281` / `D282` / `D295` as the remaining blocked slice unless a new deterministic replay closes them
 
 ## How to resume this work next time
 

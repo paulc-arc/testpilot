@@ -20,7 +20,7 @@ TestPilot 的主目標是：
 
 ## 2. 現況快照（2026-04-11）
 
-> 2026-04-12 latest continuation: `D331 MulticastPacketsSent` 與 `D333 PacketsSent` 都已完成 clean-start official-runner 對齊。`D331` 由 raw-first single-snapshot source-backed formula 在 rerun `20260412T040941971904` exact-close `904/904/904`、`732/732/732`、`973/973/973`；`D333` 則在 shared 6G baseline hot path 補上 driver-assoc fallback、pre-restart `ocv=0` acceptance 與 generic `sleep 15` 後，於 rerun `20260412T054702963914` exact-close `461/461/461`、`592/592/592`、`707/707/707`。目前 remaining open-set blockers 已縮成 `D281`、`D282`、`D295`、`D324`，next ready case=`D324`。
+> 2026-04-12 latest continuation: `D331 MulticastPacketsSent`、`D333 PacketsSent`、`D324 BytesSent` 都已完成 official-runner 對齊。`D331` 由 raw-first single-snapshot source-backed formula 在 rerun `20260412T040941971904` exact-close `904/904/904`、`732/732/732`、`973/973/973`；`D333` 則在 shared 6G baseline hot path 補上 driver-assoc fallback、pre-restart `ocv=0` acceptance 與 generic `sleep 15` 後，於 rerun `20260412T054702963914` exact-close `461/461/461`、`592/592/592`、`707/707/707`；`D324` 則以 raw-first single-snapshot `txbyte + matching wds txbyte` 公式在 rerun `20260412T060612008433` exact-close `1141986/1141986/1141986`、`1113827/1113827/1113827`、`1186105/1186105/1186105`。目前 remaining open-set blockers 已縮成 `D281`、`D282`、`D295`，next ready case=`D295`。
 
 ### 2.1 已落地能力
 

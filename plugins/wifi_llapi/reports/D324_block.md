@@ -1,4 +1,4 @@
-# D324 BytesSent blocker
+# D324 BytesSent resolution notes
 
 ## Scope
 
@@ -9,6 +9,7 @@
 - Latest failed full-run evidence: `20260411T074146043202`
 - Latest failed isolated rerun: `20260411T190338070996`
 - Latest failed official WDS-sum rerun: `20260412T005627796136`
+- Resolving official rerun: `20260412T060612008433`
 
 ## Workbook-style procedure replay
 
@@ -147,16 +148,33 @@ However, the next source-backed hypothesis has now also been exercised and rejec
 - but the official runner still sees separate refreshes for direct `Stats.*`, `getSSIDStats()`, and the later driver readback
 - so the full three-way equality still drifts during the same sequential replay
 
+## Resolution
+
+Official rerun `20260412T060612008433` resolved the remaining runner-path drift by keeping the same source-backed WDS-sum authority, but changing the per-band command ordering into one raw-first snapshot:
+
+1. sample raw `wl if_counters txbyte + matching wds txbyte` first
+2. capture one `getSSIDStats()` snapshot
+3. read the direct `Stats.BytesSent?` getter in the same shell step
+4. evaluate all three values from that same replay window
+
+That rerun exact-closed the full runner path on attempt 1:
+
+- 5G: `direct / getSSIDStats / formula = 1141986 / 1141986 / 1141986`
+- 6G: `1113827 / 1113827 / 1113827`
+- 2.4G: `1186105 / 1186105 / 1186105`
+
+So the earlier staircase (`direct < getSSIDStats < driver`) was not an authority mismatch in `wlX txbyte + Σ matching wds* txbyte` itself; it was sequential refresh noise caused by reading direct `Stats.*`, `getSSIDStats()`, and the driver formula in separate shell steps.
+
 ## Current decision
 
-`D324` remains **blocked**.
+`D324` is now **aligned**.
 
-- Do **not** keep claiming `wlX if_counters txbyte` is a durable all-band oracle
-- Do **not** treat the earlier exact-close rerun as sufficient green-lock anymore
-- Do **not** refresh the YAML to the WDS-sum rewrite yet; the official runner still shows non-durable sequential refresh drift
+- keep the committed YAML on the raw-first single-snapshot source-backed formula
+- keep workbook row metadata at `324`
+- keep `results_reference.v4.0.3` at `Pass / Pass / Pass`
+- retain this file only as historical trial and resolution evidence
 
 ## Next direction
 
-1. If D324 is revisited again, capture lower-level per-read evidence around the sequential refresh path to determine whether `Stats.*` and `getSSIDStats()` can ever be made to share one durable snapshot in the official runner.
-2. Do **not** commit any further timing-only workaround unless it exact-closes all three bands in the official runner path.
-3. Keep `D324` blocked for now; `D281`/`D282` have already been re-triaged since the earlier rerun, so the next ready open-set revisit now moves to `D331`.
+1. Move the next open-set revisit to `D295`.
+2. Keep `D281` / `D282` / `D295` as the remaining open blockers until each one has a deterministic source-backed official rerun.
