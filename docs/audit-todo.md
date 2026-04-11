@@ -98,6 +98,8 @@
   - `D330 MulticastPacketsReceived` isolated rerun `20260411T191809490680` now closes the active 0403 source-backed formula `max((rxmulti + matching wds_rxmulti) - BroadcastPacketsReceived, 0)` on 5G / 6G / 2.4G
   - attempt 1 failed at the temp-script layer with `/tmp/_tp_cmd.sh: line 2: syntax error: unterminated quoted string`, but attempt 2 exact-closed `direct / getSSIDStats / driver-formula = 0 / 0 / 0` on all three bands
   - the case YAML is now refreshed from stale row `254` to workbook row `330`
+  - `D332 PacketsReceived` stale workbook replay `20260411T194312398713` re-proved both `/proc/net/dev_extstats` `$3` drift (`5G 2234/2237` vs direct `2000/2002`) and loose `getSSIDStats()` overmatch (`expected=0`)
+  - after refreshing the case to workbook row `332`, anchoring the `getSSIDStats()` extraction, and switching the driver oracle to `wl if_counters rxframe + matching wds rxframe`, rerun `20260411T194647490016` passed in one attempt
 - Latest reopened runtime blocker:
   - `D295 scan()` is now formalized in `plugins/wifi_llapi/reports/D295_block.md`
   - committed DUT-only topology can fall back to `WiFi.Radio.{1,2,3}.Status="Dormant"` and then `scan()/startScan()` return `status 1 - unknown error`
@@ -110,9 +112,12 @@
   - `D331 MulticastPacketsSent` is now formalized in `plugins/wifi_llapi/reports/D331_block.md`
   - trial reruns `20260411T192138186700` and `20260411T192524301950` both rejected the stale workbook `/proc/net/dev_extstats` `$18` path, but 5G still stayed at a fixed `driver = direct + 4` drift (`259962 / 259966`, `260097 / 260101`, then `260377 / 260381`, `260613 / 260617`)
   - using the same `getSSIDStats()` snapshot for the subtraction term did not remove that `+4`, so the formula rewrite remains non-durable and uncommitted
+  - `D333 PacketsSent` is now formalized in `plugins/wifi_llapi/reports/D333_block.md`
+  - stale replay `20260411T194816992700` re-proved both the loose `getSSIDStats()` overmatch (`26411/26413`) and the non-authoritative workbook `/proc/net/dev_extstats` `$11` path
+  - source-backed trial rerun `20260411T195140855058` exact-closed 6G/2.4G, but 5G still held a fixed `driver = direct + 5` drift (`293527 / 293532`, `293669 / 293674`), so the formula rewrite is reverted and carried as a blocker
 - Practical next resume order:
-  1. continue the patch-scope true-open set from `D332-D333` / `D335-D336`
-  2. keep `D331` blocked unless the fixed 5G `+4` drift is explained with a deterministic source-backed correction
+  1. continue the patch-scope true-open set from `D335-D336`
+  2. keep `D331` / `D333` blocked unless the fixed 5G `+4` / `+5` drifts are explained with deterministic source-backed corrections
   3. only revisit `D324` if a live `wlX + matching wds*` `txbyte` oracle capture is needed
 
 ## How to resume this work next time

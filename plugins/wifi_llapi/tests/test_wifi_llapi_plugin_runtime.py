@@ -2561,7 +2561,7 @@ def test_pre_skip_aligned_manual_cases_avoid_stale_sample_values():
         "D329_failedretranscount_ssid_stats.yaml": {"row": 329, "api": "FailedRetransCount", "driver": "DriverFailedRetransCount", "awk_field": "txretransfail", "expected": "Pass"},
         "D330_multicastpacketsreceived.yaml": {"row": 330, "api": "MulticastPacketsReceived", "driver": "DriverMulticastPacketsReceived", "awk_field": "rxmulti", "expected": "Pass"},
         "D331_multicastpacketssent.yaml": {"row": 255, "api": "MulticastPacketsSent", "driver": "DriverMulticastPacketsSent", "awk_field": "$18", "expected": "Fail"},
-        "D332_packetsreceived_ssid_stats.yaml": {"row": 256, "api": "PacketsReceived", "driver": "DriverPacketsReceived", "awk_field": "$3", "expected": "Pass"},
+        "D332_packetsreceived_ssid_stats.yaml": {"row": 332, "api": "PacketsReceived", "driver": "DriverPacketsReceived", "awk_field": "rxframe", "expected": "Pass"},
         "D333_packetssent_ssid_stats.yaml": {"row": 257, "api": "PacketsSent", "driver": "DriverPacketsSent", "awk_field": "$11", "expected": "Pass"},
         "D334_retranscount_ssid_stats.yaml": {"row": 334, "api": "RetransCount", "driver": "DriverRetransCount", "awk_field": "txretrans", "expected": "Pass"},
         "D335_unicastpacketsreceived.yaml": {"row": 259, "api": "UnicastPacketsReceived", "driver": "DriverUnicastPacketsReceived", "awk_field": "$21", "expected": "Fail"},
