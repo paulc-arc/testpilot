@@ -1,72 +1,79 @@
-# D286 getScanResults() SignalStrength blocker
+# D286 getScanResults() SignalStrength resolution notes
 
-- case file: `plugins/wifi_llapi/cases/D286_getscanresults_signalstrength.yaml`
-- compare mapping: workbook row `286`
-- committed YAML row: `288` (stale; no rewrite landed)
-- status: blocked
+## Scope
 
-## Source survey
+- case id: `d286-getscanresults-signalstrength`
+- current YAML: `plugins/wifi_llapi/cases/D286_getscanresults_signalstrength.yaml`
+- workbook authority: `0401.xlsx` `Wifi_LLAPI` row `286`
+- current YAML row metadata: refreshed to `286`
+- earlier decisive blocker evidence: old workbook-style same-target `iw` / raw replay
+- resolving official reruns: `20260412T021725610895`, `20260412T021748934770`
 
-- `targets/BGW720-300/fs.install/etc/amx/wld/wld_radio.odl:72-86` declares `scanresult_t` with both `RSSI` and `SignalStrength`.
-- `src/nl80211/wld_nl80211_parser.c:1471-1482` fills `pResult->rssi` from `NL80211_BSS_SIGNAL_UNSPEC` or `NL80211_BSS_SIGNAL_MBM`.
-- `src/RadMgt/wld_rad_scan.c:584` serializes public `RSSI = ssid->rssi`.
-- `src/RadMgt/wld_rad_scan.c:588` serializes public `SignalStrength = ssid->rssi`.
-- `src/RadMgt/wld_rad_scan.c:1510` also serializes diagnostic `SignalStrength = pSsid->rssi`.
-- therefore, on the active public ubus path, `D286 SignalStrength` is not an independent field from `D283 RSSI`; both are the same `ssid->rssi` family.
-- the older Broadcom parser still exists (`bcmdrivers/.../wldm_lib_wifi.c:4928-4933` fills neighboring `SignalStrength` from raw `RSSI: ` text), but it is no longer sufficient to treat the current public ubus row as a raw-text-only authority.
+## Historical blocker
 
-## Live evidence
+The earlier blocker treated D286 as if it still needed an external same-target replay distinct from D283:
 
-### Isolated workbook-style replay (`20260410T181105027445`)
+1. the old workbook-style rewrite chased `iw` / raw-driver `RSSI` on the same BSSID
+2. that path only partially closed on 5G, failed entirely on 6G, and drifted badly on 2.4G
+3. so the external replay was not durable, but it did not prove the public row itself was unalignable
 
-```text
-5G
-BSSID=38:88:71:2f:f6:a7
-LlapiSignalStrength=-64
-IwSignalStrength=-65
+## Corrected source authority
+
+Active 0403 source tracing shows D286 is the same public field family already proven by D283:
+
+1. `targets/BGW720-300/fs.install/etc/amx/wld/wld_radio.odl:72-86` declares public `scanresult_t` with both `RSSI` and `SignalStrength`
+2. `src/nl80211/wld_nl80211_parser.c:1471-1482` fills `pResult->rssi`
+3. `src/RadMgt/wld_rad_scan.c:584` serializes public `RSSI = ssid->rssi`
+4. `src/RadMgt/wld_rad_scan.c:588` serializes public `SignalStrength = ssid->rssi`
+
+So on the active public ubus path, `SignalStrength` is not an independent external-oracle field; the durable replay is the same first serialized scan object itself, proving `SignalStrength == RSSI`.
+
+## Resolving official reruns
+
+The resolving rewrite re-used the same transport-safe first-object capture already proven by D283:
+
+```bash
+BLOCK=$(ubus-cli "WiFi.Radio.N.getScanResults()" | head -60 | sed -n "/BSSID = /,/^        },/p")
 ```
 
-```text
-6G
-BSSID=3a:06:e6:2b:a3:1a
-LlapiSignalStrength=-93
-IwSignalStrength=<missing>
-```
+Each band then extracts:
 
-```text
-2.4G
-BSSID=8c:19:b5:6e:85:e1
-LlapiSignalStrength=-46
-IwSignalStrength=-55 (attempt 1) / -56 (attempt 2)
-```
+- the first serialized `BSSID`
+- public `RSSI`
+- public `SignalStrength`
 
-### Raw driver replay
+and validates:
 
-```text
-wl -i wl0 escanresults | grep -B1 -A2 -im1 'BSSID: 38:88:71:2F:F6:A7'
-Mode: Managed  RSSI: -64 dBm  SNR: 35 dB  noise: -100 dBm  Channel: 36/80
-BSSID: 38:88:71:2F:F6:A7
-```
+- `BSSID` is parseable
+- `RSSI` is numeric
+- `SignalStrength == RSSI`
 
-```text
-wl -i wl1 escanresults | grep -B1 -A2 -im1 'BSSID: 3A:06:E6:2B:A3:1A'
-stdout: <empty>
-```
+### Official rerun `20260412T021725610895`
 
-```text
-wl -i wl2 escanresults | grep -B1 -A2 -im1 'BSSID: 8C:19:B5:6E:85:E1'
-Mode: Managed  RSSI: -54 dBm  SNR: 22 dB  noise: -76 dBm  Channel: 1l
-BSSID: 8C:19:B5:6E:85:E1
-```
+- 5G: `38:88:71:2f:f6:a7 / -66 / -66`
+- 6G: `6e:15:db:9e:33:72 / -95 / -95`
+- 2.4G: `2c:59:17:00:03:f7 / -47 / -47`
+- `diagnostic_status=Pass`
 
-## Why blocked
+### Follow-up rerun `20260412T021748934770`
 
-1. the active public field is `ssid->rssi`, not a separate SignalStrength-only source path, so any rewrite must be justified against the shared `RSSI`/`SignalStrength` family rather than against the old raw-text helper alone.
-2. 5G only closes partially: same-target raw replay can match `-64`, but the same-target `iw` replay still stays at `-65`, so there is no single deterministic oracle that survives the workbook-style path.
-3. 6G same-target replay does not close at all: both `iw` and direct raw `wl -i wl1 escanresults` fail to replay the LLAPI first BSSID `3A:06:E6:2B:A3:1A`.
-4. 2.4G same-target replay still drifts badly even when the BSSID matches: LLAPI returns `-46`, `iw` drifts to `-55/-56`, and raw `wl` still reports `-54 dBm`.
-5. Because the active public `ssid->rssi` replay is not deterministic across bands, D286 cannot be rewritten safely and the stale row cannot be refreshed yet.
+- 5G: `38:88:71:2f:f6:a7 / -66 / -66`
+- 6G: `6e:15:db:9e:33:72 / -95 / -95`
+- 2.4G: `2c:59:17:00:03:f7 / -47 / -47`
+- `diagnostic_status=Pass`
 
-## Next ready
+The second official rerun reproduced the same all-band shape exactly, so the committed replay is durable enough for the official acceptance path.
 
-- `D287 getScanResults() SSID`
+## Current decision
+
+`D286` is now **aligned**.
+
+- YAML metadata is refreshed from stale row `288` to workbook row `286`
+- the committed case now uses transport-safe first-object capture rather than the older same-target `iw` / raw replay
+- the committed oracle is: parseable public BSSID + numeric public RSSI + `SignalStrength == RSSI` on the same first scan object for all three bands
+- this file is retained as historical resolution notes for the rejected external replay model
+
+## Next direction
+
+1. Resume from the next remaining scan-results case in the current queue: `D287`.
+2. Keep this history so future regressions do not reopen D286 with the old same-target `iw` / raw replay.

@@ -17608,7 +17608,7 @@ _SCAN_RESULTS_CASES = [
     ("D283_getscanresults_rssi.yaml", 283, "RSSI"),
     ("D284_getscanresults_securitymodeenabled.yaml", 284, "SecurityModeEnabled"),
     ("D285_getscanresults_signalnoiseratio.yaml", 285, "SignalNoiseRatio"),
-    ("D286_getscanresults_signalstrength.yaml", 288, "SignalStrength"),
+    ("D286_getscanresults_signalstrength.yaml", 286, "SignalStrength"),
     ("D287_getscanresults_ssid.yaml", 289, "SSID"),
     ("D288_getscanresults_wpsconfigmethodssupported.yaml", 288, "WPSConfigMethodsSupported"),
     ("D289_getscanresults_radio.yaml", 289, "Radio"),
@@ -17629,6 +17629,9 @@ def test_scan_results_contract(yaml_file, row, field):
         assert len(case["steps"]) == 3
         assert len(case["pass_criteria"]) == 10
     elif yaml_file == "D283_getscanresults_rssi.yaml":
+        assert len(case["steps"]) == 3
+        assert len(case["pass_criteria"]) == 9
+    elif yaml_file == "D286_getscanresults_signalstrength.yaml":
         assert len(case["steps"]) == 3
         assert len(case["pass_criteria"]) == 9
     elif yaml_file == "D284_getscanresults_securitymodeenabled.yaml":
@@ -17776,6 +17779,28 @@ def test_scan_results_evaluate(yaml_file, row, field):
         assert plugin.evaluate(case, results) is True
         return
     if yaml_file == "D283_getscanresults_rssi.yaml":
+        results = {
+            "steps": {
+                "step_5g_scan": {
+                    "success": True,
+                    "output": "LlapiBssid5g=aa:bb:cc:dd:ee:01\nLlapiRSSI5g=-64\nLlapiSignalStrength5g=-64\n",
+                    "timing": 0.01,
+                },
+                "step_6g_scan": {
+                    "success": True,
+                    "output": "LlapiBssid6g=aa:bb:cc:dd:ee:02\nLlapiRSSI6g=-93\nLlapiSignalStrength6g=-93\n",
+                    "timing": 0.01,
+                },
+                "step_24g_scan": {
+                    "success": True,
+                    "output": "LlapiBssid24g=aa:bb:cc:dd:ee:03\nLlapiRSSI24g=-46\nLlapiSignalStrength24g=-46\n",
+                    "timing": 0.01,
+                },
+            }
+        }
+        assert plugin.evaluate(case, results) is True
+        return
+    if yaml_file == "D286_getscanresults_signalstrength.yaml":
         results = {
             "steps": {
                 "step_5g_scan": {
