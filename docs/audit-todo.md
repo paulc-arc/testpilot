@@ -117,9 +117,12 @@
   - `D333 PacketsSent` is now formalized in `plugins/wifi_llapi/reports/D333_block.md`
   - stale replay `20260411T194816992700` re-proved both the loose `getSSIDStats()` overmatch (`26411/26413`) and the non-authoritative workbook `/proc/net/dev_extstats` `$11` path
   - source-backed trial rerun `20260411T195140855058` exact-closed 6G/2.4G, but 5G still held a fixed `driver = direct + 5` drift (`293527 / 293532`, `293669 / 293674`), so the formula rewrite is reverted and carried as a blocker
+  - `D336 UnicastPacketsSent` is now formalized in `plugins/wifi_llapi/reports/D336_block.md`
+  - stale replay `20260411T201639103833` re-proved workbook `/proc/net/dev_extstats` `$22` as an all-band zero-shaped stale oracle (`26434/0`, `21540/0`, `10563/0`)
+  - source-backed trials `20260411T201939105374` and `20260411T202824539933` rejected both the first parser shape and the safer txframe/txmulti formula as durable all-band oracles: attempt 1 still drifted on 6G (`21654 / 21682`), while attempt 2 exact-closed 5G/6G but left 2.4G at `11690 / 11691`
 - Practical next resume order:
-  1. continue the patch-scope true-open set from `D336`
-  2. keep `D331` / `D333` blocked unless the fixed 5G `+4` / `+5` drifts are explained with deterministic source-backed corrections
+  1. resume the remaining patch-scope blocker family from `D277`, then `D281-D287`, `D290`, `D295`, `D322-D324`, `D331`, `D333`, `D336`
+  2. keep `D331` / `D333` / `D336` blocked unless their drifts are explained with deterministic source-backed corrections
   3. only revisit `D324` if a live `wlX + matching wds*` `txbyte` oracle capture is needed
 
 ## How to resume this work next time
