@@ -8,6 +8,7 @@
 - Latest formula trial reruns:
   - `20260411T192138186700`
   - `20260411T192524301950`
+  - `20260411T234124237416` (superseding official rerun)
 
 ## Workbook-style procedure replay
 
@@ -61,13 +62,31 @@ Run `20260411T192524301950` retried the same formula, but changed the subtractio
 
 The 5G `+4` drift remained unchanged, so the mismatch is not explained only by using a separately sampled direct `BroadcastPacketsSent?`.
 
+### Superseding official rerun — same formula still fails in the real runner path
+
+Official rerun `20260411T234124237416` retried the same source-backed formula after the temporary YAML rewrite, but the failure shape became even less durable:
+
+- attempt 1
+  - 5G: `direct / getSSIDStats / formula = 286001 / 286001 / 286006`
+  - 6G: `177024 / 177024 / 177063`
+  - 2.4G: `302809 / 302809 / 302810`
+- attempt 2
+  - 5G: `286140 / 286140 / 286192`
+  - 6G: `177132 / 177132 / 177132`
+  - 2.4G: `302912 / 302912 / 302912`
+
+This supersedes the earlier fixed-`+4` reading: in the real runner path the 5G delta is now non-deterministic (`+5`, then `+52`), 6G only exact-closes on the second attempt, and 2.4G still showed a `+1` first-attempt drift before exact-closing.
+
+Focused DUT-only probes still exact-close the same formula outside the full runner path, including repeated delayed replays (`Direct / Get / Driver = 123422 / 123422 / 123422` across five loops), so the acceptance authority must remain the official runner rather than the isolated probe.
+
 ## Why YAML is not updated yet
 
-The source-backed formula is directionally correct and much closer than the stale workbook `/proc $18` compare, but it still is not exact or deterministic on 5G:
+The source-backed formula is directionally correct and much closer than the stale workbook `/proc $18` compare, but it still is not exact or deterministic on the real runner path:
 
-- both trial reruns kept the same `+4` 5G delta
-- 6G exact-closed only after the second attempt
-- 2.4G exact-closed, but that is not enough to claim a durable three-band oracle
+- the first two trial reruns kept the same fixed `+4` 5G delta
+- the superseding official rerun widened the 5G drift to `+5`, then `+52`
+- 6G exact-closed only on the second official attempt
+- 2.4G still showed a first-attempt `+1` drift before exact-closing
 
 So there is still no live-validated reason to commit the formula rewrite into the official YAML.
 
@@ -81,6 +100,6 @@ So there is still no live-validated reason to commit the formula rewrite into th
 
 ## Next direction
 
-1. Trace where the persistent 5G `+4` comes from in the TX-side merge path after `tmp_stats.BroadcastPacketsSent` is restored/subtracted.
-2. Check whether the public field is shaving off a small fixed header/control contribution that raw `txmulti` still keeps.
-3. If a deterministic correction term or tighter authoritative source can be proven, rerun the direct-property case; otherwise keep D331 blocked and move on to `D332` / `D333`.
+1. Trace why the full runner path can still inflate the 5G source-backed formula after the 6G OCV/hostapd stabilization sequence, even when isolated DUT probes exact-close.
+2. Check whether the public field is sampling a post-merge/public snapshot that lags the raw TX-side subtraction formula under runner timing.
+3. If a deterministic runner-stable oracle can be proven, rerun the direct-property case; otherwise keep D331 blocked and move on to `D333` / `D336`.

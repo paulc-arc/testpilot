@@ -113,7 +113,8 @@
 - Latest new direct-stats blocker:
   - `D331 MulticastPacketsSent` is now formalized in `plugins/wifi_llapi/reports/D331_block.md`
   - trial reruns `20260411T192138186700` and `20260411T192524301950` both rejected the stale workbook `/proc/net/dev_extstats` `$18` path, but 5G still stayed at a fixed `driver = direct + 4` drift (`259962 / 259966`, `260097 / 260101`, then `260377 / 260381`, `260613 / 260617`)
-  - using the same `getSSIDStats()` snapshot for the subtraction term did not remove that `+4`, so the formula rewrite remains non-durable and uncommitted
+  - the superseding official rerun `20260411T234124237416` then proved the rewrite is still not durable in the real runner path: 5G drift widened to `286001 / 286006` and then `286140 / 286192`, while 6G/2.4G only exact-closed on the second attempt
+  - focused DUT-only probes still exact-close the same formula outside the runner, so the local rewrite was rolled back and `D331` remains blocked until a runner-stable oracle exists
   - `D333 PacketsSent` is now formalized in `plugins/wifi_llapi/reports/D333_block.md`
   - stale replay `20260411T194816992700` re-proved both the loose `getSSIDStats()` overmatch (`26411/26413`) and the non-authoritative workbook `/proc/net/dev_extstats` `$11` path
   - source-backed trial rerun `20260411T195140855058` exact-closed 6G/2.4G, but 5G still held a fixed `driver = direct + 5` drift (`293527 / 293532`, `293669 / 293674`), so the formula rewrite is reverted and carried as a blocker
