@@ -17612,7 +17612,7 @@ _SCAN_RESULTS_CASES = [
     ("D287_getscanresults_ssid.yaml", 289, "SSID"),
     ("D288_getscanresults_wpsconfigmethodssupported.yaml", 288, "WPSConfigMethodsSupported"),
     ("D289_getscanresults_radio.yaml", 289, "Radio"),
-    ("D290_getscanresults_centrechannel.yaml", 292, "CentreChannel"),
+    ("D290_getscanresults_centrechannel.yaml", 290, "CentreChannel"),
 ]
 
 _SCAN_IDS = [t[0].split(".")[0] for t in _SCAN_RESULTS_CASES]
@@ -17626,6 +17626,9 @@ def test_scan_results_contract(yaml_file, row, field):
     assert case["source"]["row"] == row
     assert case["llapi_support"] == "Support"
     if yaml_file == "D277_getscanresults_bandwidth.yaml":
+        assert len(case["steps"]) == 3
+        assert len(case["pass_criteria"]) == 10
+    elif yaml_file == "D290_getscanresults_centrechannel.yaml":
         assert len(case["steps"]) == 3
         assert len(case["pass_criteria"]) == 10
     elif yaml_file == "D278_getscanresults_bssid.yaml":
@@ -17686,6 +17689,40 @@ def test_scan_results_evaluate(yaml_file, row, field):
                         "LlapiBssid24g=aa:bb:cc:dd:ee:03\n"
                         "LlapiBandwidth24g=20\n"
                         "WlBandwidth24g=20\n"
+                    ),
+                    "timing": 0.01,
+                },
+            }
+        }
+        assert plugin.evaluate(case, results) is True
+        return
+    if yaml_file == "D290_getscanresults_centrechannel.yaml":
+        results = {
+            "steps": {
+                "step_5g_scan": {
+                    "success": True,
+                    "output": (
+                        "LlapiBssid5g=aa:bb:cc:dd:ee:01\n"
+                        "LlapiCentreChannel5g=42\n"
+                        "WlCentreChannel5g=42\n"
+                    ),
+                    "timing": 0.01,
+                },
+                "step_6g_scan": {
+                    "success": True,
+                    "output": (
+                        "LlapiBssid6g=aa:bb:cc:dd:ee:02\n"
+                        "LlapiCentreChannel6g=31\n"
+                        "WlCentreChannel6g=15\n"
+                    ),
+                    "timing": 0.01,
+                },
+                "step_24g_scan": {
+                    "success": True,
+                    "output": (
+                        "LlapiBssid24g=aa:bb:cc:dd:ee:03\n"
+                        "LlapiCentreChannel24g=1\n"
+                        "WlCentreChannel24g=1\n"
                     ),
                     "timing": 0.01,
                 },

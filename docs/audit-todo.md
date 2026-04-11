@@ -132,10 +132,12 @@
   - `D286_block.md` is now corrected to that same source model, but its existing live replay evidence still stays blocked (`5G -64/-65`, missing 6G same-target replay, 2.4G `-46` vs `-55/-56` / raw `-54`). So D283 remains blocked on the committed full-payload transport shape, D286 remains blocked on the shared semantic replay gap, and the next resume pointer moves to `D287`
   - `D287 getScanResults() SSID` also remains blocked, but the authority model is now corrected. Active 0403 public `SSID` is carried in the parsed scan-result model (`pWirelessDevIE->ssid` -> `wld_scanResultSSID_t.ssid` -> `wld_rad_scan.c` public `SSID`) rather than being treated as a pure raw `SSID:` helper field
   - the existing isolated rerun `20260410T182739821870` therefore stays blocked for a narrower reason: 5G and 2.4G exact-close on the same target BSSID, but 6G still exposes `3a:06:e6:2b:a3:1a` / `.ROAMTEST_RSNO_P10P_1` on LLAPI while both `iw` and direct raw `wl -i wl1 escanresults` fail to replay that same target. The committed YAML stays unchanged at stale row `289`; see `plugins/wifi_llapi/reports/D287_block.md`
+  - `D290 getScanResults() CentreChannel` is now aligned and no longer blocked. The old blocker only lacked the right same-target replay path: after one-shot environment repair (`wifi-llapi baseline-qualify --repeat-count 1 --soak-minutes 0`), fresh isolated rerun `20260411T220324862766` closed same-target raw `wl escanresults` Chanspec replay on all three bands
+  - the committed case now carries a source-backed `Pass / Fail / Pass` shape at workbook row `290`: 5G exact-closes `42/42`, 2.4G exact-closes `1/1`, and 6G is locked as the same-target fail-shaped mismatch `LlapiCentreChannel6g=31` vs `WlCentreChannel6g=15` on BSSID `6e:15:db:9e:33:72`
 - Practical next resume order:
-  1. resume the remaining patch-scope blocker family from `D290`, then `D295`, `D322-D324`, `D331`, `D333`, `D336`
+  1. resume the remaining unresolved queue from `D529`, then `D322-D323`, `D331`, `D333`, `D336`
   2. keep `D331` / `D333` / `D336` blocked unless their drifts are explained with deterministic source-backed corrections
-  3. only revisit `D324` if a live `wlX + matching wds*` `txbyte` oracle capture is needed
+  3. revisit `D281-D287` only if new same-source external replay evidence appears
 
 ## How to resume this work next time
 
