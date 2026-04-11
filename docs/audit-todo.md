@@ -138,8 +138,10 @@
   - the committed case now fixes the template metadata shape (`object=WiFi.Radio.{i}.`, `api=getSpectrumInfo()`), replaces the old generic numeric regex with explicit first-entry channel extractors, keeps workbook row `531`, and remains plain `Pass / Pass / Pass`
   - `D530 getSpectrumInfo noiselevel` is now aligned, but it stays a dynamic numeric case rather than a fixed-value case. Active 0403 source keeps the public field on `_getSpectrumInfo()` -> `s_prepareSpectrumOutput()` -> `amxc_var_add_key(int32_t, "noiselevel", llEntry->noiselevel)`, so the field is a survey-driven live reading
   - the first exact-value trial was rejected after 2.4G drifted across retries/reruns (`-75 / -77 / -78`), so the committed case only fixes the template metadata shape (`object=WiFi.Radio.{i}.`, `api=getSpectrumInfo()`), preserves the source-correct numeric regex pass shape, and is green-locked by isolated rerun `20260411T222349217612`
+  - `D531 getSpectrumInfo accesspoints` is now aligned, and it follows the same metadata-only dynamic numeric pattern. Active 0403 source keeps the public field on `_getSpectrumInfo()` -> `s_prepareSpectrumOutput()` -> `amxc_var_add_key(uint32_t, "accesspoints", llEntry->nrCoChannelAP)`, so the field is a survey-driven co-channel AP count rather than a fixed constant
+  - the committed case therefore only fixes the template metadata shape (`object=WiFi.Radio.{i}.`, `api=getSpectrumInfo()`), preserves the source-correct numeric regex pass shape, and is green-locked by isolated rerun `20260411T223140870454`
 - Practical next resume order:
-  1. resume the remaining unresolved queue from `D531`, then `D322-D323`, `D331`, `D333`, `D336`
+  1. resume the remaining unresolved queue from `D532`, then `D322-D323`, `D331`, `D333`, `D336`
   2. keep `D331` / `D333` / `D336` blocked unless their drifts are explained with deterministic source-backed corrections
   3. revisit `D281-D287` only if new same-source external replay evidence appears
 
