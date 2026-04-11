@@ -88,7 +88,7 @@
   - `67 metadata drifts`
 - Interpreted via `evaluation_verdict` rather than stale synthesized per-band `results_reference`, the remaining workbook-Pass gaps are:
   - `77` total workbook-Pass gaps
-  - `11` patch-scope true-open cases in the current repo inventory: `D281-D287`, `D290`, `D295`, `D324`, `D333`
+  - `4` true-open cases in the current local repo inventory: `D281`, `D282`, `D295`, `D324`
   - this detached compare snapshot is still pre-`D330` rewrite evidence; the local repo state below is newer than the detached run results
 - Latest aligned spectrum follow-up:
   - `D532 getSpectrumInfo ourUsage` rerun `20260411T183356920330` = `Pass`
@@ -123,12 +123,11 @@
   - clean-start official rerun `20260412T040941971904` resolved the remaining runner-path drift by making each band emit one raw-first snapshot: sample `wl if_counters txmulti + matching wds txmulti` first, then capture a single `getSSIDStats()` snapshot for both `MulticastPacketsSent` and `BroadcastPacketsSent`, and finally cross-check the direct getter in the same shell step
   - that rerun exact-closed `direct / getSSIDStats / driver-formula` on all three bands: `5G 904/904/904`, `6G 732/732/732`, `2.4G 973/973/973`
   - the committed metadata is now refreshed from stale row `255` to workbook row `331`, and `results_reference.v4.0.3` is now `Pass / Pass / Pass`
-  - `D333 PacketsSent` is now formalized in `plugins/wifi_llapi/reports/D333_block.md`
-  - stale replay `20260411T194816992700` re-proved both the loose `getSSIDStats()` overmatch (`26411/26413`) and the non-authoritative workbook `/proc/net/dev_extstats` `$11` path
-  - source-backed trial rerun `20260411T195140855058` exact-closed 6G/2.4G, but 5G still held a fixed `driver = direct + 5` drift (`293527 / 293532`, `293669 / 293674`)
-  - the superseding official rerun `20260411T235643720137` then re-proved that same runner-path `+5` on 5G (`319230 / 319235 / 319235`, `319376 / 319376 / 319381`)
-  - the post-`verify_env` settle retrial `20260412T004816450100` materially narrowed the residual mismatch — attempt 1 failed only on 5G by `+1`, attempt 2 failed only on 6G by `+2` — but the official acceptance path still did not exact-close all three bands
-  - focused DUT-only probes still exact-close outside the runner, so the local rewrite was rolled back again and `D333` remains blocked
+  - `D333 PacketsSent` is now aligned, and `plugins/wifi_llapi/reports/D333_block.md` is retained only as historical trial evidence
+  - the stale workbook replay `20260411T194816992700` had already rejected both the loose `getSSIDStats()` overmatch and the non-authoritative `/proc/net/dev_extstats` `$11` path, while the earlier source-backed trials narrowed the official-runner residual from `5G +5` to `5G +1` then `6G +2`
+  - clean-start official rerun `20260412T054702963914` finally exact-closed the same anchored extractor plus `wl if_counters txframe + matching wds txframe` snapshot rewrite on attempt 1: `5G 461/461/461`, `6G 592/592/592`, `2.4G 707/707/707`
+  - the resolving shared-baseline deltas were not in the formula itself but in the 6G hot path around it: driver-assoc fallback when public `AssociatedDevice` is transiently empty, accepting pre-restart `ocv=0` when the post-restart file probe briefly drops it, and extending the generic 6G settle window to `sleep 15`
+  - the committed metadata is now refreshed from stale row `257` to workbook row `333`, and the next ready open-set revisit moves to `D324`
   - `D336 UnicastPacketsSent` is now aligned, while `plugins/wifi_llapi/reports/D336_block.md` is kept as historical trial evidence
   - stale replay `20260411T201639103833` re-proved workbook `/proc/net/dev_extstats` `$22` as an all-band zero-shaped stale oracle (`26434/0`, `21540/0`, `10563/0`)
   - the resolving official rerun `20260412T000744842751` passed after switching the driver oracle to the unsigned 0403 formula `((txframe + matching wds txframe) - (d11_txmulti + matching wds d11_txmulti)) & 0xffffffff`: attempt 1 still drifted on 6G by `+1` (`24709 / 24710 / 24710`), but attempt 2 exact-closed 5G/6G/2.4G (`27172/27172/27172`, `24703/24703/24703`, `17117/17117/17117`)
@@ -175,10 +174,11 @@
   - clean-start official rerun `20260412T033924192464` therefore no longer died in `verify_env`: both attempts reached `evaluate`, 5G assoc was present on both attempts, and the older `assoc_5g.AssocMac5g`-missing failure did not recur
   - `D324` still remains blocked, but now with pure verdict-layer evidence: attempt 1 `5G 329835/329835/305843`, `6G 271290/271290/270724`, `2.4G 381499/381499/381341`; attempt 2 `5G 562142/562414/537347`, `6G 402490/402490/402332`, `2.4G 611651/611651/611493`
   - `D331` is now aligned via clean-start official rerun `20260412T040941971904`, so `plugins/wifi_llapi/reports/D324_block.md` remains the superseding blocker authority, `plugins/wifi_llapi/reports/D331_block.md` becomes historical resolution evidence, and the next resume pointer now moves to `D333`
+  - `D333 PacketsSent` is now also aligned via clean-start official rerun `20260412T054702963914`: after hardening the shared 6G baseline hot path with driver-assoc fallback, pre-restart `ocv=0` acceptance, and generic `sleep 15`, the anchored `PacketsSent` extractor plus `wl if_counters txframe + matching wds txframe` snapshot rewrite exact-closed 5G/6G/2.4G at `461/461/461`, `592/592/592`, and `707/707/707`. `plugins/wifi_llapi/reports/D333_block.md` is now retained only as historical resolution evidence, and the next resume pointer now moves to `D324`
 - Practical next resume order:
-  1. resume the remaining open-set blocker work from `D333`
-  2. keep `D324` / `D333` blocked unless their drifts are explained with deterministic source-backed corrections
-  3. keep `D281` / `D282` / `D295` as the remaining non-direct blocker slice unless a new deterministic replay closes them
+  1. resume the remaining open-set blocker work from `D324`
+  2. keep `D324` blocked unless its drift is explained with a deterministic source-backed correction
+  3. keep `D281` / `D282` / `D295` / `D324` as the remaining blocked slice unless a new deterministic replay closes them
 
 ## How to resume this work next time
 

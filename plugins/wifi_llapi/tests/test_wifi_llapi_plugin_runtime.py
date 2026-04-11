@@ -1720,6 +1720,79 @@ def test_verify_env_defers_failed_band_warmup_to_execute_step(monkeypatch):
     plugin.teardown(case, topology=topology)
 
 
+def test_verify_env_falls_back_to_driver_assoclist_when_public_assoc_missing(monkeypatch):
+    plugin = _load_plugin()
+    topology = _FakeTopology()
+    topology._devices["DUT"]["simulate_assoc_query_fail"] = True
+    recorder = _FactoryRecorder()
+    _install_fake_factory(monkeypatch, recorder)
+
+    case = {
+        "id": "wifi-llapi-runtime-6g-assoclist-fallback",
+        "topology": {
+            "devices": {
+                "DUT": {"transport": "serial"},
+                "STA": {"transport": "adb"},
+            },
+            "links": [{"from": "STA", "to": "DUT", "band": "6g"}],
+        },
+        "steps": [{"id": "s1", "band": "6g", "command": "wl -i wl1 assoclist"}],
+        "pass_criteria": [{"field": "result", "operator": "contains", "value": "OK"}],
+    }
+
+    assert plugin.setup_env(case, topology=topology) is True
+    assert plugin.verify_env(case, topology=topology) is True
+
+    dut = next(
+        transport for transport in recorder.transports if transport.transport_type == "serial"
+    )
+    assert 'ubus-cli "WiFi.AccessPoint.3.AssociatedDevice.*.MACAddress?"' in dut.executed_commands
+    assert "wl -i wl1 assoclist" in dut.executed_commands
+    plugin.teardown(case, topology=topology)
+
+
+def test_verify_env_uses_longer_generic_6g_connect_settle(monkeypatch):
+    plugin = _load_plugin()
+    topology = _FakeTopology()
+    recorder = _FactoryRecorder()
+    _install_fake_factory(monkeypatch, recorder)
+
+    case = {
+        "id": "wifi-llapi-runtime-6g-settle-window",
+        "topology": {
+            "devices": {
+                "DUT": {"transport": "serial"},
+                "STA": {"transport": "adb"},
+            },
+            "links": [{"from": "STA", "to": "DUT", "band": "6g"}],
+        },
+        "steps": [{"id": "s1", "band": "6g", "command": "wl -i wl1 assoclist"}],
+        "pass_criteria": [{"field": "result", "operator": "contains", "value": "OK"}],
+    }
+
+    calls: list[tuple[str, int]] = []
+
+    def fake_run_required_command(**kwargs):
+        return True
+
+    def fake_wait_for_6g_sta_ap_teardown(**kwargs):
+        return True
+
+    def fake_connect_with_retry(*, label, sleep_seconds, **kwargs):
+        calls.append((label, sleep_seconds))
+        return True
+
+    monkeypatch.setattr(plugin, "_run_required_command", fake_run_required_command)
+    monkeypatch.setattr(plugin, "_wait_for_6g_sta_ap_teardown", fake_wait_for_6g_sta_ap_teardown)
+    monkeypatch.setattr(plugin, "_connect_with_retry", fake_connect_with_retry)
+
+    assert plugin.setup_env(case, topology=topology) is True
+    assert plugin._run_sta_band_connect_sequence(case) is True
+
+    assert ("sta_6g", 15) in calls
+    plugin.teardown(case, topology=topology)
+
+
 def test_setup_env_fails_on_yaml_dut_command_failure(monkeypatch):
     plugin = _load_plugin()
     topology = _FakeTopology()
@@ -2082,6 +2155,57 @@ def test_apply_6g_ocv_fix_accepts_running_hostapd_without_socket(monkeypatch):
     monkeypatch.setattr(plugin, "_execute_env_command", fake_execute_env_command)
 
     plugin._apply_6g_ocv_fix(dut, "wifi-llapi-runtime-6g-ocv-process-fallback")
+
+    restart_commands = [
+        "pid=$(pgrep -f '/tmp/wl1_hapd.conf' 2>/dev/null | head -n1); if [ -n \"$pid\" ]; then kill \"$pid\" 2>/dev/null || true; fi",
+        "sleep 2",
+        "rm -f /var/run/hostapd/wl1 /var/run/hostapd/wl1.1",
+        "wl -i wl1 ap 1",
+        "wl -i wl1 up",
+        "ifconfig wl1 up",
+        "hostapd -ddt -B /tmp/wl1_hapd.conf",
+        "sleep 2",
+    ]
+    assert executed == [
+        "grep -q ieee80211w /tmp/wl1_hapd.conf 2>/dev/null && echo READY || echo WAIT",
+        "sed -i '/^ocv=/d; /^ieee80211w=/a ocv=0' /tmp/wl1_hapd.conf",
+        "grep '^ocv=0' /tmp/wl1_hapd.conf 2>&1",
+        *restart_commands,
+        "wl -i wl1 bss up",
+        "sleep 2",
+        "sleep 3",
+        "grep '^ocv=0' /tmp/wl1_hapd.conf 2>&1",
+        "test -S /var/run/hostapd/wl1 && echo READY || echo WAIT",
+        "pgrep -f '/tmp/wl1_hapd.conf' >/dev/null && echo READY || echo WAIT",
+        "wl -i wl1 bss",
+    ]
+
+
+def test_apply_6g_ocv_fix_accepts_post_restart_ocv_probe_drop_when_process_and_bss_survive(monkeypatch):
+    plugin = _load_plugin()
+    dut = object()
+    executed: list[str] = []
+    verify_outputs = iter(("ocv=0\n", ""))
+
+    def fake_execute_env_command(transport, command, *, timeout=30.0):
+        del timeout
+        assert transport is dut
+        executed.append(command)
+        if command == "grep -q ieee80211w /tmp/wl1_hapd.conf 2>/dev/null && echo READY || echo WAIT":
+            return {"returncode": 0, "stdout": "READY", "stderr": ""}
+        if command == "grep '^ocv=0' /tmp/wl1_hapd.conf 2>&1":
+            return {"returncode": 0, "stdout": next(verify_outputs), "stderr": ""}
+        if command == "test -S /var/run/hostapd/wl1 && echo READY || echo WAIT":
+            return {"returncode": 0, "stdout": "WAIT", "stderr": ""}
+        if command == "pgrep -f '/tmp/wl1_hapd.conf' >/dev/null && echo READY || echo WAIT":
+            return {"returncode": 0, "stdout": "READY", "stderr": ""}
+        if command == "wl -i wl1 bss":
+            return {"returncode": 0, "stdout": "up", "stderr": ""}
+        return {"returncode": 0, "stdout": "", "stderr": ""}
+
+    monkeypatch.setattr(plugin, "_execute_env_command", fake_execute_env_command)
+
+    plugin._apply_6g_ocv_fix(dut, "wifi-llapi-runtime-6g-ocv-post-probe-drop")
 
     restart_commands = [
         "pid=$(pgrep -f '/tmp/wl1_hapd.conf' 2>/dev/null | head -n1); if [ -n \"$pid\" ]; then kill \"$pid\" 2>/dev/null || true; fi",
@@ -2709,7 +2833,17 @@ def test_pre_skip_aligned_manual_cases_avoid_stale_sample_values():
             "driver_ref": "snapshot_5g.DriverMulticastPacketsSent5g",
         },
         "D332_packetsreceived_ssid_stats.yaml": {"row": 332, "api": "PacketsReceived", "driver": "DriverPacketsReceived", "awk_field": "rxframe", "expected": "Pass"},
-        "D333_packetssent_ssid_stats.yaml": {"row": 257, "api": "PacketsSent", "driver": "DriverPacketsSent", "awk_field": "$11", "expected": "Pass"},
+        "D333_packetssent_ssid_stats.yaml": {
+            "row": 333,
+            "api": "PacketsSent",
+            "driver": "DriverPacketsSent",
+            "awk_field": "txframe",
+            "expected": "Pass",
+            "assoc_field": "snapshot_5g.AssocMac5g",
+            "direct_field": "snapshot_5g.DirectPacketsSent5g",
+            "get_ref": "snapshot_5g.GetSSIDStatsPacketsSent5g",
+            "driver_ref": "snapshot_5g.DriverPacketsSent5g",
+        },
         "D334_retranscount_ssid_stats.yaml": {"row": 334, "api": "RetransCount", "driver": "DriverRetransCount", "awk_field": "txretrans", "expected": "Pass"},
         "D335_unicastpacketsreceived.yaml": {"row": 335, "api": "UnicastPacketsReceived", "driver": "DriverUnicastPacketsReceived", "awk_field": "rxframe", "expected": "Pass"},
         "D336_unicastpacketssent.yaml": {"row": 336, "api": "UnicastPacketsSent", "driver": "DriverUnicastPacketsSent", "awk_field": "d11_txfrag", "expected": "Pass"},

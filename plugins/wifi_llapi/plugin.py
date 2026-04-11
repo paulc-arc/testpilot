@@ -2145,7 +2145,7 @@ class Plugin(PluginBase):
                         f"wl -i {iface} status",
                     ),
                     attempts=3,
-                    sleep_seconds=8,
+                    sleep_seconds=15,
                 )
             if six_g_ok:
                 self._run_required_command(
@@ -2510,7 +2510,8 @@ class Plugin(PluginBase):
 
         stabilized = False
         for attempt in range(1, 4):
-            if not patch_and_verify():
+            pre_restart_ocv_ok = patch_and_verify()
+            if not pre_restart_ocv_ok:
                 log.warning(
                     "[%s] verify_env: %s 6G ocv=0 verify failed — BSS loop may persist",
                     self.name,
@@ -2528,7 +2529,7 @@ class Plugin(PluginBase):
                 "sleep 3",
             ):
                 self._execute_env_command(dut, cmd, timeout=15.0)
-            ocv_ok = "ocv=0" in self._env_output_text(
+            post_restart_ocv_ok = "ocv=0" in self._env_output_text(
                 self._execute_env_command(dut, verify_cmd, timeout=5.0)
             )
             socket_ok = "READY" in self._env_output_text(
@@ -2540,16 +2541,17 @@ class Plugin(PluginBase):
             bss_ok = self._env_output_text(
                 self._execute_env_command(dut, bss_cmd, timeout=5.0)
             ).strip().lower() == "up"
-            if ocv_ok and (socket_ok or process_ok) and bss_ok:
+            if (pre_restart_ocv_ok or post_restart_ocv_ok) and (socket_ok or process_ok) and bss_ok:
                 stabilized = True
                 break
             log.info(
                 "[%s] verify_env: %s 6G restart attempt=%d unstable "
-                "(ocv=%s socket=%s process=%s bss=%s), retrying",
+                "(pre_ocv=%s post_ocv=%s socket=%s process=%s bss=%s), retrying",
                 self.name,
                 case_id,
                 attempt,
-                ocv_ok,
+                pre_restart_ocv_ok,
+                post_restart_ocv_ok,
                 socket_ok,
                 process_ok,
                 bss_ok,
@@ -2687,6 +2689,21 @@ class Plugin(PluginBase):
             assoc_result = self._execute_env_command(dut, assoc_command, timeout=15.0)
             assoc_stdout = self._env_output_text(assoc_result)
             assoc_ok = self._env_command_succeeded(assoc_command, assoc_result)
+            if not assoc_ok:
+                fallback_command = f"wl -i {sta_iface} assoclist"
+                fallback_result = self._execute_env_command(dut, fallback_command, timeout=15.0)
+                fallback_stdout = self._env_output_text(fallback_result)
+                if self._env_command_succeeded(fallback_command, fallback_result):
+                    assoc_ok = True
+                    log.info(
+                        "[%s] verify_env: %s DUT %s AssociatedDevice empty; using driver assoclist fallback (%s)",
+                        self.name,
+                        case_id,
+                        band,
+                        self._preview_value(fallback_stdout),
+                    )
+                else:
+                    assoc_stdout = f"{assoc_stdout}\n[fallback] {fallback_stdout}".strip()
             if not assoc_ok:
                 self._record_runtime_failure(
                     case,

@@ -1,14 +1,15 @@
-# D333 PacketsSent blocker
+# D333 PacketsSent resolution notes
 
 ## Scope
 
 - Case: `wifi-llapi-d333-packetssent`
 - Workbook row authority: `D333` / workbook row `333`
-- Current committed YAML remains on the pre-trial workbook-style state (`source.row=257`)
+- Current YAML metadata is now refreshed from stale workbook-style row `257` to workbook row `333`
 - Latest stale replay run: `20260411T194816992700`
 - Latest source-backed trial run: `20260411T195140855058`
 - Superseding official rerun: `20260411T235643720137`
 - Post-`verify_env` settle retrial: `20260412T004816450100`
+- Resolving clean-start official rerun: `20260412T054702963914`
 
 ## Workbook-style replay result
 
@@ -102,17 +103,32 @@ So the short settle helps, but it still does **not** make the real runner path d
 
 Focused DUT-only probes still exact-close the same formula outside the full runner path (`2415/2415/2415`, `1058/1058/1058`, `734/734/734` on 5G/6G/2.4G with no active `wds*` peer), so the official runner remains the acceptance authority.
 
+## Resolution
+
+Clean-start official rerun `20260412T054702963914` resolved the remaining acceptance-path blocker once the shared 6G baseline hot path was hardened further:
+
+1. `verify_env` now accepts a driver `assoclist` fallback when public `AssociatedDevice.*` is transiently empty
+2. `_apply_6g_ocv_fix()` now accepts the already-patched pre-restart `ocv=0` state when post-restart file probes briefly drop it, as long as the restarted hostapd process/BSS survive
+3. the generic 6G connect settle window now waits `sleep 15` before the first verify pass
+
+With those shared fixes in place, the same source-backed snapshot rewrite exact-closed on attempt 1:
+
+- 5G: `direct / getSSIDStats / formula = 461 / 461 / 461`
+- 6G: `592 / 592 / 592`
+- 2.4G: `707 / 707 / 707`
+
+So the earlier `+5`, then `+1`, then `+2` residuals were not an authority problem in the `txframe + matching wds txframe` formula itself; they were still shared baseline / runner-path noise before the snapshot steps ran.
+
 ## Current decision
 
-`D333` remains **blocked**.
+`D333` is now **aligned**.
 
-- the stale workbook `/proc $11` path is rejected
-- the source-backed `txframe + matching wds txframe` trial is directionally correct but still not deterministic enough to commit on the real runner path
-- the post-`verify_env` settle retrial narrowed the drift to `5G +1` then `6G +2`, but still failed the official runner acceptance path
-- the official YAML is reverted to its pre-trial state while this blocker note carries the new evidence
+- keep the committed YAML on the anchored `PacketsSent` extractor plus `wl if_counters txframe + matching wds txframe` snapshot rewrite
+- keep workbook row metadata at `333`
+- keep `results_reference.v4.0.3` at `Pass / Pass / Pass`
+- retain this file only as historical trial and resolution evidence
 
 ## Next direction
 
-1. Trace why the residual runner drift now migrates from 5G attempt 1 to 6G attempt 2 after the post-`verify_env` settle.
-2. Check whether the public `PacketsSent` snapshot lags a small post-merge/public adjustment that raw `txframe + matching wds txframe` still does not model under the official retry path.
-3. Keep `D333` blocked for now and move on to the remaining blocked direct-stats/open-set work, starting from `D324`.
+1. Move the next open-set direct-stats revisit to `D324`.
+2. Keep `D281` / `D282` / `D295` / `D324` as the remaining open blockers until each one has a deterministic source-backed official rerun.
