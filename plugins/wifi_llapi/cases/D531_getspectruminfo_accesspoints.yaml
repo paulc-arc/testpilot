@@ -1,7 +1,7 @@
 id: d531-spectruminfo-accesspoints
 name: D531 getSpectrumInfo accesspoints
 source:
-  row: 533
+  row: 531
   object: WiFi.Radio.{i}.
   api: getSpectrumInfo()
   baseline: 0310-BGW720-300

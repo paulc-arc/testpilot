@@ -18327,12 +18327,12 @@ def test_ssid_wmm_stats_evaluate(yaml_file, row, ac_category, wmm_metric):
 # Batch 6 — Spectrum (D528-D533): getSpectrumInfo method-call fields
 # ---------------------------------------------------------------------------
 _SPECTRUM_CASES = [
-    ("D528_getspectruminfo_bandwidth.yaml", 530, "bandwidth", "20MHz"),
-    ("D529_getspectruminfo_channel.yaml", 531, "channel", "36"),
-    ("D530_getspectruminfo_noiselevel.yaml", 532, "noiselevel", "42"),
-    ("D531_getspectruminfo_accesspoints.yaml", 533, "accesspoints", "42"),
-    ("D532_getspectruminfo_ourusage.yaml", 534, "ourUsage", "42"),
-    ("D533_getspectruminfo_availability.yaml", 535, "availability", "42"),
+    ("D528_getspectruminfo_bandwidth.yaml", 528, "bandwidth", "20MHz"),
+    ("D529_getspectruminfo_channel.yaml", 529, "channel", "36"),
+    ("D530_getspectruminfo_noiselevel.yaml", 530, "noiselevel", "42"),
+    ("D531_getspectruminfo_accesspoints.yaml", 531, "accesspoints", "42"),
+    ("D532_getspectruminfo_ourusage.yaml", 532, "ourUsage", "42"),
+    ("D533_getspectruminfo_availability.yaml", 533, "availability", "42"),
 ]
 _SPECTRUM_IDS = [t[0].split(".")[0] for t in _SPECTRUM_CASES]
 

@@ -1,7 +1,7 @@
 id: d529-spectruminfo-channel
 name: D529 getSpectrumInfo channel
 source:
-  row: 531
+  row: 529
   object: WiFi.Radio.{i}.
   api: getSpectrumInfo()
   baseline: 0310-BGW720-300

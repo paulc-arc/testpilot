@@ -1,9 +1,9 @@
 id: d533-spectruminfo-availability
 name: D533 getSpectrumInfo availability
 source:
-  row: 535
-  object: WiFi.Radio.{i}.getSpectrumInfo()
-  api: availability
+  row: 533
+  object: WiFi.Radio.{i}.
+  api: getSpectrumInfo()
   baseline: 0310-BGW720-300
 bands:
 - 5g

@@ -1,9 +1,9 @@
 id: d532-spectruminfo-ourusage
 name: D532 getSpectrumInfo ourUsage
 source:
-  row: 534
-  object: WiFi.Radio.{i}.getSpectrumInfo()
-  api: ourUsage
+  row: 532
+  object: WiFi.Radio.{i}.
+  api: getSpectrumInfo()
   baseline: 0310-BGW720-300
 bands:
 - 5g
