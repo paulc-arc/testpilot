@@ -94,12 +94,17 @@
   - `D533 getSpectrumInfo availability` rerun `20260411T183405281629` = `Pass`
   - both cases are now being carried as plain `Pass/Pass/Pass` instead of the stale fail-shaped workbook carry-over
 - Latest reopened runtime blocker:
-  - `D295 scan()` isolated rerun `20260411T183430680092` hung again after `setup_env`
-  - current issue is runtime/execution-path hang, not a newly proven semantic mismatch
+  - `D295 scan()` is now formalized in `plugins/wifi_llapi/reports/D295_block.md`
+  - committed DUT-only topology can fall back to `WiFi.Radio.{1,2,3}.Status="Dormant"` and then `scan()/startScan()` return `status 1 - unknown error`
+  - local `STA + links` topology experiment rerun `20260411T185559873987` only moved the failure deeper into `verify_env` / 6G OCV restart and still produced no step output
+- Latest reopened direct-stats blocker:
+  - `D324 BytesSent` is now formalized in `plugins/wifi_llapi/reports/D324_block.md`
+  - isolated rerun `20260411T190338070996` re-proved `direct == getSSIDStats()` but invalidated base `wlX if_counters txbyte` as a durable all-band oracle
+  - source trace now points at `whm_brcm_vap_update_ap_stats()` merging matching `wds*` peer stats into public `BytesSent`
 - Practical next resume order:
-  1. inspect the partial `D295` artifacts from `20260411T183430680092`
-  2. either close `D295` with new live evidence or formalize/update a blocker note
-  3. continue the patch-scope true-open set from `D324` / `D330-D333` / `D335-D336`
+  1. capture active `wlX + matching wds*` `txbyte` evidence during a live `D324`-style run
+  2. if that closes, rewrite `D324`; otherwise keep it blocked
+  3. continue the patch-scope true-open set from `D330-D333` / `D335-D336`
 
 ## How to resume this work next time
 

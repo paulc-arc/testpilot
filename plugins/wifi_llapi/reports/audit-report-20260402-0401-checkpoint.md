@@ -147,8 +147,9 @@
 - `D533 getSpectrumInfo availability` is now aligned. Active 0403 still serializes `availability` through the same `_getSpectrumInfo()` public path, and `wld_rad_nl80211_updateUsageStatsFromSurveyInfo()` derives it from survey idle/free airtime ratios; isolated rerun `20260411T183405281629` exact-closed the public shape as integer percentages across 5G / 6G / 2.4G, so this stale fail-shaped workbook carry-over has also been rejected
 - recomputing workbook compare against detached full run `20260411T074146043202` with the current local YAML overlay now yields `220 / 420 full matches`, `200 mismatches`, and `67 metadata drifts`
 - interpreted via `evaluation_verdict` rather than stale synthesized per-band `results_reference`, `77` workbook-Pass gaps still remain; the current patch-scope true-open set is `D277`, `D281-D287`, `D290`, `D295`, `D322-D324`, `D330-D333`, and `D335-D336`
-- `D295 scan()` is now reopened as a runtime blocker candidate. Although it had previously been calibrated on `scan() returned + same-target driver-cache match`, the latest isolated rerun `20260411T183430680092` hung again immediately after `setup_env` and emitted no step output, so this case must return to runtime-hang triage instead of being treated as fully closed
-- next ready runtime-triage case in the current repo inventory: `D295`
+- `D295 scan()` is now formally blocked in `plugins/wifi_llapi/reports/D295_block.md`. The committed DUT-only topology can fall back to `WiFi.Radio.{1,2,3}.Status="Dormant"` and then `scan()/startScan()` return `status 1 - unknown error`; a local `STA + links` topology experiment rerun (`20260411T185559873987`) only moved the failure deeper into `verify_env` / 6G OCV restart and still emitted no step output, so the experimental topology patch was rejected and reverted
+- `D324 BytesSent` is now also formally blocked in `plugins/wifi_llapi/reports/D324_block.md`. Fresh isolated rerun `20260411T190338070996` re-proved `direct == getSSIDStats()` but invalidated base `wlX if_counters txbyte` on multiple bands, while active 0403 source now shows `whm_brcm_vap_update_ap_stats()` can merge matching `wds*` peer stats into public `BytesSent`
+- next ready runtime-triage case in the current repo inventory: `D330`
 
 </details>
 
