@@ -88,7 +88,7 @@
   - `67 metadata drifts`
 - Interpreted via `evaluation_verdict` rather than stale synthesized per-band `results_reference`, the remaining workbook-Pass gaps are:
   - `77` total workbook-Pass gaps
-  - `19` patch-scope true-open cases: `D277`, `D281-D287`, `D290`, `D295`, `D322-D324`, `D330-D333`, `D335-D336`
+  - `18` patch-scope true-open cases in the current repo inventory: `D281-D287`, `D290`, `D295`, `D322-D324`, `D330-D333`, `D335-D336`
   - this detached compare snapshot is still pre-`D330` rewrite evidence; the local repo state below is newer than the detached run results
 - Latest aligned spectrum follow-up:
   - `D532 getSpectrumInfo ourUsage` rerun `20260411T183356920330` = `Pass`
@@ -120,8 +120,12 @@
   - `D336 UnicastPacketsSent` is now formalized in `plugins/wifi_llapi/reports/D336_block.md`
   - stale replay `20260411T201639103833` re-proved workbook `/proc/net/dev_extstats` `$22` as an all-band zero-shaped stale oracle (`26434/0`, `21540/0`, `10563/0`)
   - source-backed trials `20260411T201939105374` and `20260411T202824539933` rejected both the first parser shape and the safer txframe/txmulti formula as durable all-band oracles: attempt 1 still drifted on 6G (`21654 / 21682`), while attempt 2 exact-closed 5G/6G but left 2.4G at `11690 / 11691`
+- Latest aligned scan-results follow-up:
+  - `D277 getScanResults() Bandwidth` isolated rerun `20260411T205454026707` is now authoritative and no longer blocked
+  - pre-reducing `getScanResults()` to the first scan object removed the old 6G full-payload broker recovery path, so the case now completes with `diagnostic_status=Pass`
+  - the new same-target replay closes against `wl escanresults` Chanspec bandwidth on 5G / 6G / 2.4G as `80/80`, `320/160`, and `20/20`, so the committed case now carries a source-backed `Pass / Fail / Pass` verdict shape at workbook row `277`
 - Practical next resume order:
-  1. resume the remaining patch-scope blocker family from `D277`, then `D281-D287`, `D290`, `D295`, `D322-D324`, `D331`, `D333`, `D336`
+  1. resume the remaining patch-scope blocker family from `D281-D287`, then `D290`, `D295`, `D322-D324`, `D331`, `D333`, `D336`
   2. keep `D331` / `D333` / `D336` blocked unless their drifts are explained with deterministic source-backed corrections
   3. only revisit `D324` if a live `wlX + matching wds*` `txbyte` oracle capture is needed
 

@@ -17599,7 +17599,7 @@ def test_d262_void_evaluate():
 
 _SCAN_RESULTS_CASES = [
     # (yaml_file, row, field)
-    ("D277_getscanresults_bandwidth.yaml", 279, "Bandwidth"),
+    ("D277_getscanresults_bandwidth.yaml", 277, "Bandwidth"),
     ("D278_getscanresults_bssid.yaml", 278, "BSSID"),
     ("D279_getscanresults_channel.yaml", 279, "Channel"),
     ("D280_getscanresults_encryptionmode.yaml", 280, "EncryptionMode"),
@@ -17625,7 +17625,10 @@ def test_scan_results_contract(yaml_file, row, field):
     case = load_case(cases_dir / yaml_file)
     assert case["source"]["row"] == row
     assert case["llapi_support"] == "Support"
-    if yaml_file == "D278_getscanresults_bssid.yaml":
+    if yaml_file == "D277_getscanresults_bandwidth.yaml":
+        assert len(case["steps"]) == 3
+        assert len(case["pass_criteria"]) == 10
+    elif yaml_file == "D278_getscanresults_bssid.yaml":
         assert len(case["steps"]) == 6
         assert len(case["pass_criteria"]) == 6
     elif yaml_file == "D280_getscanresults_encryptionmode.yaml":
@@ -17656,6 +17659,40 @@ def test_scan_results_evaluate(yaml_file, row, field):
     plugin = _load_plugin()
     cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
     case = load_case(cases_dir / yaml_file)
+    if yaml_file == "D277_getscanresults_bandwidth.yaml":
+        results = {
+            "steps": {
+                "step_5g_scan": {
+                    "success": True,
+                    "output": (
+                        "LlapiBssid5g=aa:bb:cc:dd:ee:01\n"
+                        "LlapiBandwidth5g=80\n"
+                        "WlBandwidth5g=80\n"
+                    ),
+                    "timing": 0.01,
+                },
+                "step_6g_scan": {
+                    "success": True,
+                    "output": (
+                        "LlapiBssid6g=aa:bb:cc:dd:ee:02\n"
+                        "LlapiBandwidth6g=320\n"
+                        "WlBandwidth6g=160\n"
+                    ),
+                    "timing": 0.01,
+                },
+                "step_24g_scan": {
+                    "success": True,
+                    "output": (
+                        "LlapiBssid24g=aa:bb:cc:dd:ee:03\n"
+                        "LlapiBandwidth24g=20\n"
+                        "WlBandwidth24g=20\n"
+                    ),
+                    "timing": 0.01,
+                },
+            }
+        }
+        assert plugin.evaluate(case, results) is True
+        return
     if yaml_file == "D278_getscanresults_bssid.yaml":
         results = {
             "steps": {
