@@ -1,74 +1,87 @@
-# D287 getScanResults() SSID blocker
+# D287 getScanResults() SSID resolution notes
 
-## Status
+## Scope
 
-- case file: `plugins/wifi_llapi/cases/D287_getscanresults_ssid.yaml`
-- workbook row: `287`
-- committed YAML row: `289` (stale; no rewrite landed)
-- status: blocked
-- blocker type: **active public `SSID` is the nl80211/IE-parsed scan-result string, but there is still no durable all-band same-source external replay for the 6G target**
+- case id: `d287-getscanresults-ssid`
+- current YAML: `plugins/wifi_llapi/cases/D287_getscanresults_ssid.yaml`
+- workbook authority: `0401.xlsx` `Wifi_LLAPI` row `287`
+- current YAML row metadata: refreshed to `287`
+- earlier decisive blocker evidence: old workbook-style same-target replay on stale 6G target `3a:06:e6:2b:a3:1a`
+- resolving official reruns: `20260412T022708923585`, `20260412T022738004752`
 
-## Source survey
+## Historical blocker
 
-The old blocker note treated neighboring `SSID: ` text parsing as if it were the active public ubus authority. The active 0403 public path is broader:
+The earlier blocker did not prove the public row was unalignable. It proved the old selector was wrong:
 
-1. `wld_nl80211_parser.c:1409-1424`
-   - `s_copyScanInfoFromIEs(...)` copies `pWirelessDevIE->ssid` into `wld_scanResultSSID_t.ssid`
-2. `wld_rad_scan.c:577-579`
-   - public `getScanResults()` serializes `SSID` from `ssid->ssid / ssidLen` using `wld_ssid_to_string(...)`
-3. `wld_radio.odl`
-   - public scan-result model declares both `SSID` and `BSSID`
+1. the trial rewrite used a workbook-style same-target `iw` replay against 6G target `3a:06:e6:2b:a3:1a`
+2. 5G and 2.4G exact-closed on that older replay path, but 6G never produced a same-target external `SSID`
+3. direct raw `wl -i wl1 escanresults` also failed to replay that same stale 6G BSSID
 
-So the active public ubus field is the parsed scan-result model string, not merely the older Broadcom raw-text helper.
+So the blocker was the unstable/stale 6G target choice, not the public `SSID` field itself.
 
-The legacy Broadcom path still exists:
+## Corrected source authority
 
-- `bcmdrivers/.../wldm_lib_wifi.c:887-889`
-  - maps neighboring scan fields from raw `SSID: ` and `BSSID: ` tokens
+Active 0403 source tracing keeps the public row on the parsed scan-result model:
 
-That helper remains useful as a comparison point, but it is no longer sufficient to treat raw `SSID:` text parsing as the definitive public authority for this row.
+1. `src/nl80211/wld_nl80211_parser.c:1409-1424` copies `pWirelessDevIE->ssid` into `wld_scanResultSSID_t.ssid`
+2. `src/RadMgt/wld_rad_scan.c:577-579` serializes public `SSID` from `ssid->ssid / ssidLen` with `wld_ssid_to_string(...)`
+3. `targets/BGW720-300/fs.install/etc/amx/wld/wld_radio.odl:72-86` declares public `scanresult_t` with both `SSID` and `BSSID`
 
-## Live evidence
+So the durable replay must stay on the same serialized public scan object, not on the older stale external 6G target.
 
-### Isolated workbook-style replay (`20260410T182739821870`)
+## Resolving official reruns
 
-```text
-5G
-BSSID=38:88:71:2f:f6:a7
-LlapiSSID=Verizon_Z4RY7R
-IwSSID=Verizon_Z4RY7R
+The resolving rewrite follows the same transport-safe first-object strategy already proven by D283-D286:
+
+```bash
+OUT=$(ubus-cli "WiFi.Radio.N.getScanResults()" | head -60)
 ```
 
-```text
-6G
-BSSID=3a:06:e6:2b:a3:1a
-LlapiSSID=.ROAMTEST_RSNO_P10P_1
-IwSSID=<missing>
+Each band then extracts the first serialized:
+
+- `BSSID`
+- `SSID`
+
+and replays the same BSSID via:
+
+```bash
+iw dev wlN scan | grep -A20 -im1 "^BSS $TARGET"
 ```
 
-```text
-2.4G
-BSSID=8c:19:b5:6e:85:e1
-LlapiSSID=TMOBILE-85DF-TDK-2G
-IwSSID=TMOBILE-85DF-TDK-2G
-```
+to compare:
 
-### Raw driver replay
+- non-empty public `LlapiSSID`
+- non-empty same-target external `IwSSID`
+- `IwSSID == LlapiSSID`
 
-```text
-wl -i wl1 escanresults | grep -m1 -B2 -A1 'BSSID: 3A:06:E6:2B:A3:1A'
-stdout: <empty>
-```
+The first official probe `20260412T022553794480` exposed a repo-side parser bug, not a runtime mismatch: the loose `SSID` extractor also matched `BSSID`, so 5G briefly compared `Verizon_Z4RY7R` against `38:88:71:2f:f6:a7`. Anchoring the LLAPI extractors to `^[[:space:]]*SSID = ` and `^[[:space:]]*BSSID = ` fixed that local bug without changing the case semantics.
 
-## Why blocked
+### Official rerun `20260412T022708923585`
 
-1. 5G and 2.4G same-target replay can close cleanly, so the trial rewrite itself was a valid probe.
-2. The active public `SSID` source is now understood as the parsed scan-result model string, not just the old raw `SSID:` helper.
-3. 6G still cannot close the same-target external replay path: LLAPI exposes `3a:06:e6:2b:a3:1a` / `.ROAMTEST_RSNO_P10P_1`, but `iw dev wl1 scan` emits no same-target `SSID`, and direct raw `wl -i wl1 escanresults` cannot replay that BSSID either.
-4. Because the all-band same-source replay still fails on 6G, D287 cannot be rewritten safely and the stale row cannot be refreshed yet.
+- 5G: `38:88:71:2f:f6:a7 / Verizon_Z4RY7R / Verizon_Z4RY7R`
+- 6G: `6e:15:db:9e:33:72 / **TELUS0227 / **TELUS0227`
+- 2.4G: `2c:59:17:00:03:f7 / OpenWrt_1 / OpenWrt_1`
+- `diagnostic_status=Pass`
+
+### Follow-up rerun `20260412T022738004752`
+
+- 5G: `38:88:71:2f:f6:a7 / Verizon_Z4RY7R / Verizon_Z4RY7R`
+- 6G: `6e:15:db:9e:33:72 / **TELUS0227 / **TELUS0227`
+- 2.4G: `2c:59:17:00:03:f7 / OpenWrt_1 / OpenWrt_1`
+- `diagnostic_status=Pass`
+
+The second official rerun reproduced the same all-band shape exactly, so the committed replay is durable enough for the official acceptance path.
+
+## Current decision
+
+`D287` is now **aligned**.
+
+- YAML metadata is refreshed from stale row `289` to workbook row `287`
+- the committed case now uses transport-safe first-object capture plus same-target `iw` SSID replay
+- the committed oracle is: parseable first-object BSSID + non-empty public SSID + non-empty same-target `iw` SSID + `IwSSID == LlapiSSID` on all three bands
+- this file is retained as historical resolution notes for the rejected stale-6G-target replay model
 
 ## Next direction
 
-1. keep the committed YAML unchanged for now
-2. if this row is reopened, treat the comparison as a parsed-scan-result replay problem, not a pure raw-text parser problem
-3. next unresolved blocker after D287 in the current queue: `D290`
+1. Return to the remaining scan-results blockers in the current queue: `D281`, then `D282`.
+2. Keep this history so future regressions do not reopen D287 with the old `3a:06:e6:2b:a3:1a` selector.

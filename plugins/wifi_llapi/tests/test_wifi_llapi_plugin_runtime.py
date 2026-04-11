@@ -17609,7 +17609,7 @@ _SCAN_RESULTS_CASES = [
     ("D284_getscanresults_securitymodeenabled.yaml", 284, "SecurityModeEnabled"),
     ("D285_getscanresults_signalnoiseratio.yaml", 285, "SignalNoiseRatio"),
     ("D286_getscanresults_signalstrength.yaml", 286, "SignalStrength"),
-    ("D287_getscanresults_ssid.yaml", 289, "SSID"),
+    ("D287_getscanresults_ssid.yaml", 287, "SSID"),
     ("D288_getscanresults_wpsconfigmethodssupported.yaml", 288, "WPSConfigMethodsSupported"),
     ("D289_getscanresults_radio.yaml", 289, "Radio"),
     ("D290_getscanresults_centrechannel.yaml", 290, "CentreChannel"),
@@ -17639,6 +17639,9 @@ def test_scan_results_contract(yaml_file, row, field):
         assert len(case["pass_criteria"]) == 12
     elif yaml_file == "D285_getscanresults_signalnoiseratio.yaml":
         assert len(case["steps"]) == 3
+        assert len(case["pass_criteria"]) == 12
+    elif yaml_file == "D287_getscanresults_ssid.yaml":
+        assert len(case["steps"]) == 6
         assert len(case["pass_criteria"]) == 12
     elif yaml_file == "D290_getscanresults_centrechannel.yaml":
         assert len(case["steps"]) == 3
@@ -17816,6 +17819,43 @@ def test_scan_results_evaluate(yaml_file, row, field):
                 "step_24g_scan": {
                     "success": True,
                     "output": "LlapiBssid24g=aa:bb:cc:dd:ee:03\nLlapiRSSI24g=-46\nLlapiSignalStrength24g=-46\n",
+                    "timing": 0.01,
+                },
+            }
+        }
+        assert plugin.evaluate(case, results) is True
+        return
+    if yaml_file == "D287_getscanresults_ssid.yaml":
+        results = {
+            "steps": {
+                "step_5g_scan": {
+                    "success": True,
+                    "output": "LlapiBssid5g=aa:bb:cc:dd:ee:01\nLlapiSSID5g=Verizon_Z4RY7R\n",
+                    "timing": 0.01,
+                },
+                "step_5g_iw_scan": {
+                    "success": True,
+                    "output": "IwSSID5g=Verizon_Z4RY7R\n",
+                    "timing": 0.01,
+                },
+                "step_6g_scan": {
+                    "success": True,
+                    "output": "LlapiBssid6g=aa:bb:cc:dd:ee:02\nLlapiSSID6g=TELUS0227\n",
+                    "timing": 0.01,
+                },
+                "step_6g_iw_scan": {
+                    "success": True,
+                    "output": "IwSSID6g=TELUS0227\n",
+                    "timing": 0.01,
+                },
+                "step_24g_scan": {
+                    "success": True,
+                    "output": "LlapiBssid24g=aa:bb:cc:dd:ee:03\nLlapiSSID24g=TMOBILE-85DF-TDK-2G\n",
+                    "timing": 0.01,
+                },
+                "step_24g_iw_scan": {
+                    "success": True,
+                    "output": "IwSSID24g=TMOBILE-85DF-TDK-2G\n",
                     "timing": 0.01,
                 },
             }
