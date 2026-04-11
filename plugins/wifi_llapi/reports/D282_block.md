@@ -7,7 +7,7 @@
 - workbook authority: `0401.xlsx` `Wifi_LLAPI` row `282`
 - current YAML row metadata: `284`
 - disposition: **blocked / keep YAML unchanged**
-- blocker type: **active 0403 public `OperatingStandards` is derived from nl80211 beacon/probe IE parsing, but there is still no durable external oracle that replays the same parsed bitmask path on all three bands**
+- blocker type: **active 0403 public `getScanResults().OperatingStandards` is a standalone parsed bitmask, but the public row does not expose the sibling `SupportedStandards` bitmask, so current external capability replay is still not a durable same-source oracle**
 
 ## Why this case is blocked
 
@@ -17,11 +17,17 @@ For the active 0403 public getter, `OperatingStandards` is carried in `wld_scanR
 
 That matters because the shared radio-standards model is a **bitmask**, not a single-value enum, and the shared header explicitly marks the older "legacy representation" as something to avoid. So cumulative LLAPI shapes such as `a,n,ac,ax`, `ax,be`, or `b,g,n,ax` are expected on the active public path and do not need to match the older Broadcom helper's `if / else-if` output shape.
 
+The newer source reading also tightens the model further:
+
+1. the nl80211 parser fills **both** `pResult->operatingStandards` and `pResult->supportedStandards`
+2. but `_getScanResults()` / `s_getScanResults()` only serializes public `OperatingStandards`
+3. the sibling `SupportedStandards` bitmask is serialized only in other diagnostic/helper paths, not in the public row used by workbook `282`
+
 The blocker is now narrower:
 
 1. the old `wl escanresults`-style replay is not guaranteed to be the same-source oracle for public `OperatingStandards`
 2. 6G still lacks a durable same-target external replay
-3. 2.4G still shows an extra `be` on the external replay, which is more consistent with a capability/supported-family readout than with the active public `OperatingStandards` bitmask serialization
+3. 2.4G still shows an extra external `be`, which now looks more like a replay of **supported/capability-family** semantics than of the active public `OperatingStandards` bitmask
 
 ## Active public 0403 path
 
@@ -30,8 +36,10 @@ The active `ubus-cli "WiFi.Radio.{i}.getScanResults()"` chain is:
 1. `wld_nl80211_getScanResultsPerFreqBand(...)` returns band-filtered scan results through the nl80211 scan callback path
 2. `wld_nl80211_parser.c` parses `NL80211_BSS_INFORMATION_ELEMENTS` / `NL80211_BSS_BEACON_IES` with `swl_80211_parseInfoElementsBuffer(...)`
 3. `s_copyScanInfoFromIEs(...)` copies `pWirelessDevIE->operatingStandards` into `wld_scanResultSSID_t.operatingStandards`
-4. `wifiGen_rad_getScanResults(...)` returns copies of `pRad->scanState.lastScanResults`
-5. `wld_rad_scan.c` serializes `ssid->operatingStandards` to the public `OperatingStandards` string with `SWL_RADSTD_FORMAT_STANDARD`
+4. the same parser also copies `pWirelessDevIE->supportedStandards` into `wld_scanResultSSID_t.supportedStandards`
+5. `wifiGen_rad_getScanResults(...)` returns copies of `pRad->scanState.lastScanResults`
+6. `_getScanResults()` / `s_getScanResults()` serializes only `ssid->operatingStandards` to the public `OperatingStandards` string with `SWL_RADSTD_FORMAT_STANDARD`
+7. the sibling `SupportedStandards` string is serialized elsewhere (`s_addDiagSingleResultToMap(...)`), but not in `_getScanResults()`
 
 Key citations:
 
@@ -39,12 +47,14 @@ Key citations:
 - `src/nl80211/wld_nl80211_parser.c:1409-1426`
 - `src/nl80211/wld_nl80211_parser.c:1524-1539`
 - `src/Plugin/wifiGen_rad.c:1110-1119`
-- `src/RadMgt/wld_rad_scan.c:602-605`
+- `src/RadMgt/wld_rad_scan.c:544-605`
+- `src/RadMgt/wld_rad_scan.c:1492-1520`
 - `targets/BGW720-300/fs.build/public/include/prplos/swl/swl_common_radioStandards.h:128-172`
 
 The critical shared-model points are:
 
 - `swl_wirelessDevice_infoElements_t` stores both `operatingStandards` and `supportedStandards` as `swl_radioStandard_m` bitmasks
+- `_getScanResults()` only exports `OperatingStandards`, even though the parser also populated `supportedStandards`
 - `SWL_RADSTD_FORMAT_STANDARD` is the active public serialization format
 - the shared header explicitly says the old legacy representation should be avoided
 
@@ -100,6 +110,7 @@ So the workbook-style replay still failed in two different ways:
 
 1. 6G never produced a same-target external compare block
 2. 2.4G external replay kept one extra family (`be`) beyond the public LLAPI value
+3. the public LLAPI capture itself exposed only `LlapiOperatingStandards*`; there was no same-target public `SupportedStandards` field to tell whether the external `...,+be` was actually matching the sibling supported-family bitmask instead
 
 ### Controlled baseline probes
 
@@ -114,9 +125,10 @@ This reinforces that the current external replay is not a durable same-source or
 ## Why no YAML rewrite landed
 
 1. the active public source is now traced to nl80211 IE parsing plus shared bitmask serialization, not to the old Broadcom helper
-2. 6G still does not yield a deterministic same-target external replay
-3. 2.4G still suggests a supported/capability-family drift (`...,+be`) rather than a clean replay of the public `OperatingStandards` bitmask
-4. there is still no live-authoritative basis to:
+2. the public workbook row only exports `OperatingStandards`, even though the parser also populated `supportedStandards`
+3. 6G still does not yield a deterministic same-target external replay
+4. 2.4G still suggests a supported/capability-family drift (`...,+be`) rather than a clean replay of the public `OperatingStandards` bitmask
+5. there is still no live-authoritative basis to:
    - refresh `source.row` from `284` to `282`
    - commit any new workbook-style equality semantics
    - declare raw `wl escanresults`-derived standards as the authoritative 0403 oracle for this row
@@ -125,8 +137,8 @@ So D282 must remain blocked and the committed YAML stays unchanged for now.
 
 ## Best next direction if this row is reopened
 
-1. find a replayable external oracle that preserves the same beacon/probe IE semantics as `swl_80211_parseInfoElementsBuffer(...)`
-2. on the same target BSSID, compare LLAPI `OperatingStandards` and `SupportedStandards` together before inferring anything from external `HT/VHT/HE/EHT` capability text
+1. find a replayable same-target oracle that exposes **both** parsed `OperatingStandards` and `SupportedStandards` semantics, not just raw capability text
+2. if reopening this row, avoid treating external `HT/VHT/HE/EHT` capability accumulation as equivalent to public `OperatingStandards` without first proving whether it actually matches the hidden `supportedStandards` bitmask instead
 3. only after a same-source oracle exists, decide whether D282 should become:
    - a workbook-style plain `Pass`, or
    - a source-backed mixed verdict / fail-shaped mismatch
