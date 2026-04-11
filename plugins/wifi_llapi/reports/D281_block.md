@@ -7,7 +7,7 @@
 - workbook authority: `0401.xlsx` `Wifi_LLAPI` row `281`
 - current YAML row metadata: `283`
 - disposition: **blocked / keep YAML unchanged**
-- blocker type: **active 0403 public `Noise` path is spectrum-backed, but there is still no durable public oracle to replay that path end-to-end**
+- blocker type: **active 0403 public `Noise` path is spectrum-backed, but even same-channel public `getSpectrumInfo()` replay is not yet official-runner durable**
 
 ## Why this case is blocked
 
@@ -15,13 +15,13 @@ The old blocker assumption was that public `getScanResults().Noise` should exact
 
 In the active pWHM/wifiGen path, public `WiFi.Radio.{i}.getScanResults()` returns entries copied from `pRad->scanState.lastScanResults`, and the scan-complete callback then back-fills each entry's `noise` from the radio's spectrum cache on a **per-channel** basis. That means direct `wl escanresults` per-BSSID `noise:` is no longer a guaranteed same-source oracle for the public `Noise` field.
 
-The updated live trial below proves this distinction is real:
+The updated live trials below prove this distinction is real:
 
-1. after fixing the BSSID extraction/parsing issue, 5G exact-closes (`-100 / -100`)
-2. 6G still drifts in the same direction on both attempts (`-97 / -102`, then `-97 / -103`)
-3. 2.4G remains non-durable (`-78 / -76`, then `-78 / -78`)
+1. after fixing the same-target parser, 5G exact-closes (`-100 / -100`)
+2. 6G still drifts in the same direction on both attempts against direct `wl escanresults` (`-97 / -102`, then `-97 / -103`)
+3. a newer same-channel public-spectrum trial can exact-close once, but still fails the next official rerun through both transport and numeric drift (`step_6g_scan` temp-script syntax error, then 2.4G `-80 / -79`)
 
-So the blocker is no longer "missing parser / missing target only"; it is now specifically that the authoritative 0403 public `Noise` source appears to be spectrum-backed while the durable public replay oracle for that source is still missing.
+So the blocker is no longer "missing parser / missing target only"; it is now specifically that the authoritative 0403 public `Noise` source is spectrum-backed, but the source-correct replay path still is not durable enough in the official runner.
 
 ## Workbook replay target
 
@@ -173,6 +173,77 @@ This superseding rerun is the key new evidence:
 2. 6G now shows a repeatable drift against direct `wl escanresults` (`-97` vs `-102/-103`)
 3. 2.4G still does not stay durable enough to freeze an exact-equality workbook-style replay
 
+### Same-channel public-spectrum official rerun `20260412T011311621294`
+
+After the source survey corrected the authority model to per-channel spectrum back-fill, a second local trial rewrite switched D281 to:
+
+1. extract the first `Channel` and `Noise` from `getScanResults()`
+2. read `getSpectrumInfo()` and extract the same channel's `noiselevel`
+3. require `Noise == SpectrumNoise`
+
+Observed output shape:
+
+```text
+5G:
+  Channel=36
+  Noise=-100
+  SpectrumNoise=-100
+
+6G:
+  Channel=5
+  Noise=-97
+  SpectrumNoise=-97
+
+2.4G:
+  Channel=1
+  Noise=-80
+  SpectrumNoise=-80
+```
+
+That first official rerun exact-closed in one attempt, so it confirmed the new direction was source-correct — but not yet durable.
+
+### Follow-up same-channel public-spectrum official rerun `20260412T011644317498`
+
+The immediate follow-up rerun disproved durability.
+
+Attempt 1:
+
+```text
+5G:
+  Channel=36
+  Noise=-100
+  SpectrumNoise=-100
+
+6G:
+  /tmp/_tp_cmd.sh: line 2: syntax error: unexpected end of file (expecting ")")
+```
+
+Attempt 2:
+
+```text
+5G:
+  Channel=36
+  Noise=-100
+  SpectrumNoise=-100
+
+6G:
+  Channel=5
+  Noise=-97
+  SpectrumNoise=-97
+
+2.4G:
+  Channel=1
+  Noise=-80
+  SpectrumNoise=-79
+```
+
+This superseding rerun changed the blocker again:
+
+1. the same-channel public-spectrum path is real and can exact-close
+2. but the official runner still is not durable enough to accept it:
+   - attempt 1 failed at `step_6g_scan` with a staged temp-script syntax error
+   - attempt 2 still left a live numeric drift on 2.4G (`-80` vs `-79`)
+
 ## Source-backed explanation
 
 The legacy/alternate Broadcom path still contains the older `wl escanresults` parser:
@@ -202,28 +273,26 @@ So the newest source-backed conclusion is:
 
 1. direct `wl escanresults` `noise:` is **not** the active authoritative oracle for public `getScanResults().Noise`
 2. active public `Noise` is at least partly **spectrum-backed / per-channel**
-3. the internal spectrum cache used for that back-fill is not yet replayable through a durable public oracle in the current lab
+3. the same-channel public `getSpectrumInfo().noiselevel` view is a plausible replay oracle, but it is still not durable enough in the official runner
 
 ## Why no YAML rewrite landed
 
 1. the old direct `wl escanresults` same-target replay was built on the wrong authority assumption for active 0403 public `Noise`
-2. after fixing the parser, 6G still shows a repeatable drift against direct `wl escanresults`
-3. 2.4G still does not stay deterministic enough to freeze an exact-equality replay across attempts
-4. `ubus-cli "WiFi.Radio.{i}.getSpectrumInfo()"` currently returns an empty list in the present lab state, so the public spectrum path is not yet a usable replay oracle
+2. the newer same-channel public-spectrum replay exact-closed once, but immediately failed the next official rerun
+3. the retry path still exposed a staged temp-script failure on 6G (`step_6g_scan command failed`)
+4. even when the command completed, 2.4G still drifted numerically (`Noise=-80` vs `SpectrumNoise=-79`)
 5. therefore there is still no live-authoritative basis to:
    - refresh `source.row` from `283` to `281`
    - commit any new exact-equality or tolerance-based semantics
-   - declare `wl escanresults noise:` as the authoritative 0403 runtime oracle
+   - declare the same-channel public-spectrum equality as runner-stable on 0403
 
 So D281 must remain blocked and the committed YAML stays unchanged for now.
 
 ## Next direction
 
-1. expose or discover a replayable public/runtime oracle for the spectrum-backed `noiselevel` that is currently copied into `lastScanResults`
-2. verify whether `getSpectrumInfo(update=true)` or another scan-state object can surface the same channel-level `noiselevel` values used by `s_updateScanResultsWithSpectrumInfo()`
-3. only after that oracle is live-replayable, decide whether D281 should become:
-   - a workbook-style plain `Pass`, or
-   - a source-backed mixed verdict (if 6G keeps a deterministic divergence while 5G/2.4G exact-close)
+1. reduce the long staged command risk in the same-channel public-spectrum trial so `step_6g_scan` no longer fails at temp-script syntax generation
+2. determine whether the surviving 2.4G `Noise=-80` vs `SpectrumNoise=-79` gap is a cache-timing issue or a real semantic mismatch
+3. only if repeated official reruns exact-close after both issues are resolved should D281 refresh `source.row` to `281`
 
 ## Next ready case
 
