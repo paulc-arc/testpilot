@@ -4,7 +4,7 @@ version: '1.0'
 source:
   report: "0310-BGW720-300_LLAPI_Test_Report.xlsx"
   sheet: Wifi_LLAPI
-  row: 96
+  row: 94
   object: "WiFi.AccessPoint.{i}."
   api: "Status"
 platform:
@@ -28,7 +28,7 @@ test_environment: |
   Topology:
   - DUT: COM1 (B0, AP role)
   Transport:
-  - DUT via serialwrap COM0
+  - DUT via serialwrap COM1
   Baseline:
   - 5G  = AP1 / wl0 / testpilot5G / WPA2-Personal
   - 6G  = AP3 / wl1 / testpilot6G / WPA3-Personal / SAE
@@ -104,9 +104,10 @@ results_reference:
     6g: Pass
     2.4g: Pass
   v4.0.3:
-    5g: Fail
-    6g: Fail
-    2.4g: Fail
+    5g: Pass
+    6g: Pass
+    2.4g: Pass
     comment: >-
-      All 3 bands: Status="Enabled" with driver bss=up. Read-only getter
-      correctly reflects Enable=1 state on all bands.
+      Active reruns show AP1/AP3/AP5 all return `Status="Enabled"` while
+      direct driver `wl -i wl{0,1,2} bss` stays `up`, so the read-only getter
+      correctly reflects the enabled AccessPoint state on all three bands.

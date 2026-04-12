@@ -12177,15 +12177,15 @@ def test_d094_status_accesspoint_contract():
     """D094 YAML loads, discovers, and has correct metadata."""
     cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
     d094 = load_case(cases_dir / "D094_status_accesspoint.yaml")
-    assert d094["source"]["row"] == 96
+    assert d094["source"]["row"] == 94
     assert d094["source"]["api"] == "Status"
     assert len(d094["steps"]) == 3
     assert len(d094["pass_criteria"]) == 6
     assert d094["bands"] == ["5g", "6g", "2.4g"]
     ref = d094["results_reference"]["v4.0.3"]
-    assert ref["5g"] == "Fail"
-    assert ref["6g"] == "Fail"
-    assert ref["2.4g"] == "Fail"
+    assert ref["5g"] == "Pass"
+    assert ref["6g"] == "Pass"
+    assert ref["2.4g"] == "Pass"
 
 
 def test_d094_status_accesspoint_setup_env(monkeypatch):

@@ -1,5 +1,64 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-13 early-17)
+
+> This checkpoint records the `D094` metadata/results_reference closure after `D081`.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D094 AccessPoint.Status` is now aligned via official rerun `20260413T030202219754`
+- the authoritative full-run trace had already been `evaluation_verdict=Pass`
+- the rerun exact-closed tri-band `Status="Enabled"` against direct driver `wl -i wl{0,1,2} bss = up`
+- the only remaining defects were stale workbook row `96`, stale raw `Fail / Fail / Fail`, and an internal COM transport note mismatch
+- committed metadata is now workbook row `94` with `results_reference.v4.0.3 = Pass / Pass / Pass`
+- case notes now keep the DUT transport wording consistent at COM1
+- overlay compare is now `254 / 420 full matches`、`166 mismatches`、`58 metadata drifts`
+- next ready workbook-Pass revisit is `D095`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D094` | 94 | `Status` | `Pass / Pass / Pass` | `20260413T030202219754_DUT.log L5-L25` | `20260413T030202219754_STA.log (no STA transport used)` |
+
+#### D094 AccessPoint.Status
+
+**STA 指令**
+
+```sh
+# none; AP-only case
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.Status?"
+wl -i wl0 bss
+ubus-cli "WiFi.AccessPoint.3.Status?"
+wl -i wl1 bss
+ubus-cli "WiFi.AccessPoint.5.Status?"
+wl -i wl2 bss
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+20260413T030202219754_DUT.log L8-L11
+Status5g=Enabled
+DriverBss5g=up
+
+20260413T030202219754_DUT.log L15-L18
+Status6g=Enabled
+DriverBss6g=up
+
+20260413T030202219754_DUT.log L22-L25
+Status24g=Enabled
+DriverBss24g=up
+```
+
 ## Checkpoint summary (2026-04-13 early-16)
 
 > This checkpoint records the `D081` source-backed workbook-Pass closure after `D065`.
