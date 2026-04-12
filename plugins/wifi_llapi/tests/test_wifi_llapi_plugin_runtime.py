@@ -17845,6 +17845,7 @@ _RADIO_GETTER_CASES = [
     ("D385_radcapabilitiesvhtstr.yaml", 288, "RX_LDPC,SGI_80,SGI_160,SU_BFR,SU_BFE,LINK_ADAPT_CAP", "", "", "WiFi.Radio.{r}.RadCapabilitiesVHTStr"),
     ("D404_txbeamformingcapsavailable.yaml", 299, "VHT_SU_BF,HE_SU_BF,HE_MU_BF,EHT_SU_BF,EHT_MU_80_BF,EHT_MU_160_BF,EHT_MU_320_BF", "HE_SU_BF,HE_MU_BF,EHT_SU_BF,EHT_MU_80_BF,EHT_MU_160_BF,EHT_MU_320_BF", "HE_SU_BF,HE_MU_BF,EHT_SU_BF,EHT_MU_80_BF,EHT_MU_160_BF,EHT_MU_320_BF", "WiFi.Radio.{r}.TxBeamformingCapsAvailable"),
     ("D405_txbeamformingcapsenabled.yaml", 300, "DEFAULT", "DEFAULT", "DEFAULT", "WiFi.Radio.{r}.TxBeamformingCapsEnabled"),
+    ("D460_hecapabilities_radio.yaml", 460, "TCBCwAIbFQAAjAA=", "TCBCwAIbFQAAjAA=", "IiBCwAIDFQAAjAA=", "WiFi.Radio.{r}.HePhyCapabilities"),
     ("D461_htcapabilities_radio.yaml", 338, "YhA=", "AAA=", "YhA=", "WiFi.Radio.{r}.HTCapabilities"),
     ("D467_rxbeamformingcapsenabled.yaml", 343, "DEFAULT", "DEFAULT", "DEFAULT", "WiFi.Radio.{r}.RxBeamformingCapsEnabled"),
     # --- Batch 5b: IEEE80211ax property getters ---
@@ -19385,38 +19386,63 @@ def test_skip_blocked_discover(yaml_file, row, reference):
 
 
 # ---------------------------------------------------------------------------
-# Batch 6 — Radio Not Supported (D460, D494): error=4 on all radios
+# Batch 6 — D494 protected VHT getter with mixed band results
 # ---------------------------------------------------------------------------
-_RADIO_NOT_SUPPORTED_CASES = [
-    ("D460_hecapabilities_radio.yaml", 462, "HECapabilities", "WiFi.Radio.{i}."),
-    ("D494_vhtcapabilities_radio.yaml", 496, "VHTCapabilities", "WiFi.Radio.{i}."),
-]
-_RADIO_NS_IDS = [t[0].split(".")[0] for t in _RADIO_NOT_SUPPORTED_CASES]
-
-
-@pytest.mark.parametrize(
-    "yaml_file,row,api_field,path_prefix",
-    _RADIO_NOT_SUPPORTED_CASES,
-    ids=_RADIO_NS_IDS,
-)
-def test_radio_not_supported_load(yaml_file, row, api_field, path_prefix):
+def test_d494_radio_vhtcapabilities_load():
     cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
-    case = load_case(cases_dir / yaml_file)
-    assert case["source"]["row"] == row
+    case = load_case(cases_dir / "D494_vhtcapabilities_radio.yaml")
+    assert case["source"]["row"] == 494
+    assert case["llapi_support"] == "Support"
     ref = case["results_reference"]["v4.0.3"]
     assert ref["5g"] == "Pass"
-    assert ref["6g"] == "Pass"
-    assert ref["2.4g"] == "Pass"
+    assert ref["6g"] == "Not Supported"
+    assert ref["2.4g"] == "Not Supported"
+    assert 'protected;WiFi.Radio.1.VHTCapabilities?' in case["steps"][0]["command"]
+    assert 'VHTCapabilities=\\1' in case["steps"][0]["command"]
+    assert 'WiFi.Radio.2.VHTCapabilities?' in case["steps"][1]["command"]
+    assert 'error=\\1' in case["steps"][1]["command"]
+    assert case["pass_criteria"][0]["field"] == "getter_5g.VHTCapabilities"
+    assert case["pass_criteria"][1]["field"] == "getter_6g.error"
+    assert case["pass_criteria"][4]["field"] == "getter_24g.message"
 
 
-@pytest.mark.parametrize(
-    "yaml_file,row,api_field,path_prefix",
-    _RADIO_NOT_SUPPORTED_CASES,
-    ids=_RADIO_NS_IDS,
-)
-def test_radio_not_supported_discover(yaml_file, row, api_field, path_prefix):
+def test_d494_radio_vhtcapabilities_discover():
     cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
-    case = load_case(cases_dir / yaml_file)
+    case = load_case(cases_dir / "D494_vhtcapabilities_radio.yaml")
     plugin = _load_plugin()
     discoverable = {c["id"] for c in plugin.discover_cases()}
     assert case["id"] in discoverable, f"{case['id']} not discoverable"
+
+
+def test_d494_radio_vhtcapabilities_evaluate():
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / "D494_vhtcapabilities_radio.yaml")
+    results = {
+        "steps": {
+            "step_5g_getter": {
+                "success": True,
+                "output": 'VHTCapabilities=dliDDw==',
+                "timing": 0.01,
+            },
+            "step_6g_getter": {
+                "success": True,
+                "output": (
+                    "ERROR: get WiFi.Radio.2.VHTCapabilities failed (4 - parameter not found)\n"
+                    "error=4\n"
+                    "message=parameter not found"
+                ),
+                "timing": 0.01,
+            },
+            "step_24g_getter": {
+                "success": True,
+                "output": (
+                    "ERROR: get WiFi.Radio.3.VHTCapabilities failed (4 - parameter not found)\n"
+                    "error=4\n"
+                    "message=parameter not found"
+                ),
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(case, results) is True

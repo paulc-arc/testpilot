@@ -8,28 +8,30 @@
     "plugins/wifi_llapi/reports/agent_trace/20260412T231709014359",
     "plugins/wifi_llapi/reports/agent_trace/20260412T235952361188",
     "plugins/wifi_llapi/reports/agent_trace/20260413T000249620932",
-    "plugins/wifi_llapi/reports/agent_trace/20260413T003340845889"
+    "plugins/wifi_llapi/reports/agent_trace/20260413T003340845889",
+    "plugins/wifi_llapi/reports/agent_trace/20260413T005520941756",
+    "plugins/wifi_llapi/reports/agent_trace/20260413T005633950804"
   ],
   "answers_xlsx": "0401.xlsx",
   "cases_dir": "plugins/wifi_llapi/cases",
   "compared_case_count": 420,
   "missing_answer_count": 0,
   "missing_answer_rows": [],
-  "metadata_drift_count": 62,
-  "full_match_count": 240,
-  "mismatch_case_count": 180,
+  "metadata_drift_count": 61,
+  "full_match_count": 242,
+  "mismatch_case_count": 178,
   "band_summary": {
     "5g": {
-      "matched": 250,
-      "mismatched": 170
+      "matched": 252,
+      "mismatched": 168
     },
     "6g": {
-      "matched": 251,
-      "mismatched": 169
+      "matched": 252,
+      "mismatched": 168
     },
     "2.4g": {
-      "matched": 249,
-      "mismatched": 171
+      "matched": 250,
+      "mismatched": 170
     }
   },
   "cases": [
@@ -3595,7 +3597,7 @@
       "case_id": "wifi-llapi-D088-modessupported",
       "case_file": "D088_modessupported.yaml",
       "dnum": 88,
-      "source_row": 82,
+      "source_row": 88,
       "source_object": "WiFi.AccessPoint.{i}.Security",
       "source_api": "ModesSupported",
       "answer_row": 88,
@@ -15121,48 +15123,44 @@
       "case_id": "d460-radio-hecapabilities",
       "case_file": "D460_hecapabilities_radio.yaml",
       "dnum": 460,
-      "source_row": 462,
+      "source_row": 460,
       "source_object": "WiFi.Radio.{i}.",
-      "source_api": "HECapabilities",
+      "source_api": "HePhyCapabilities",
       "answer_row": 460,
       "answer_object": "WiFi.Radio.{i}.",
       "answer_api": "HePhyCapabilities",
-      "mapping_status": "drift",
+      "mapping_status": "exact",
       "mapping_object_match": true,
-      "mapping_api_match": false,
-      "final_status": "Fail",
-      "evaluation_verdict": "Fail",
-      "attempts_used": 2,
-      "comment": "step failed: step_5g_getter (failed after 2/2 attempts)",
+      "mapping_api_match": true,
+      "final_status": "Pass",
+      "evaluation_verdict": "Pass",
+      "attempts_used": 1,
+      "comment": "",
       "bands": {
         "5g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         },
         "6g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         },
         "2.4g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         }
       },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
+      "mismatch_bands": [],
+      "matches_answer": true,
       "workbook_test_steps_excerpt": "",
       "workbook_command_output_excerpt": "",
-      "trace_path": "plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d460-radio-hecapabilities.json"
+      "trace_path": "plugins/wifi_llapi/reports/agent_trace/20260413T005520941756/d460-radio-hecapabilities.json"
     },
     {
       "case_id": "d461-radio-htcapabilities",
@@ -16292,7 +16290,7 @@
       "case_id": "d494-radio-vhtcapabilities",
       "case_file": "D494_vhtcapabilities_radio.yaml",
       "dnum": 494,
-      "source_row": 496,
+      "source_row": 494,
       "source_object": "WiFi.Radio.{i}.",
       "source_api": "VHTCapabilities",
       "answer_row": 494,
@@ -16301,37 +16299,35 @@
       "mapping_status": "exact",
       "mapping_object_match": true,
       "mapping_api_match": true,
-      "final_status": "Fail",
-      "evaluation_verdict": "Fail",
-      "attempts_used": 2,
-      "comment": "step failed: step_5g_getter (failed after 2/2 attempts)",
+      "final_status": "Pass",
+      "evaluation_verdict": "Pass",
+      "attempts_used": 1,
+      "comment": "",
       "bands": {
         "5g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         },
         "6g": {
-          "actual_raw": "Fail",
+          "actual_raw": "Not Supported",
           "actual_norm": "Fail",
           "expected_raw": "Not Supported",
           "expected_norm": "Fail"
         },
         "2.4g": {
-          "actual_raw": "Fail",
+          "actual_raw": "Not Supported",
           "actual_norm": "Fail",
           "expected_raw": "Not Supported",
           "expected_norm": "Fail"
         }
       },
-      "mismatch_bands": [
-        "5g"
-      ],
-      "matches_answer": false,
+      "mismatch_bands": [],
+      "matches_answer": true,
       "workbook_test_steps_excerpt": "1. Try to get API default value: root@prplOS:/# ubus-cli WiFi.Radio.*.VHTCapabilities.? > WiFi.Radio.*.VHTCapabilities.? ERROR: get WiFi.Radio.*.VHTCapabilities. failed (2 - object not found)",
       "workbook_command_output_excerpt": "",
-      "trace_path": "plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d494-radio-vhtcapabilities.json"
+      "trace_path": "plugins/wifi_llapi/reports/agent_trace/20260413T005633950804/d494-radio-vhtcapabilities.json"
     },
     {
       "case_id": "wifi-llapi-d495-retrycount",
@@ -25012,53 +25008,6 @@
       "trace_path": "plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d455-getradiostats-multipleretrycount.json"
     },
     {
-      "case_id": "d460-radio-hecapabilities",
-      "case_file": "D460_hecapabilities_radio.yaml",
-      "dnum": 460,
-      "source_row": 462,
-      "source_object": "WiFi.Radio.{i}.",
-      "source_api": "HECapabilities",
-      "answer_row": 460,
-      "answer_object": "WiFi.Radio.{i}.",
-      "answer_api": "HePhyCapabilities",
-      "mapping_status": "drift",
-      "mapping_object_match": true,
-      "mapping_api_match": false,
-      "final_status": "Fail",
-      "evaluation_verdict": "Fail",
-      "attempts_used": 2,
-      "comment": "step failed: step_5g_getter (failed after 2/2 attempts)",
-      "bands": {
-        "5g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        },
-        "6g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        },
-        "2.4g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        }
-      },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
-      "workbook_test_steps_excerpt": "",
-      "workbook_command_output_excerpt": "",
-      "trace_path": "plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d460-radio-hecapabilities.json"
-    },
-    {
       "case_id": "d461-radio-htcapabilities",
       "case_file": "D461_htcapabilities_radio.yaml",
       "dnum": 461,
@@ -26138,51 +26087,6 @@
       "workbook_test_steps_excerpt": "",
       "workbook_command_output_excerpt": "wl -i wl0 wme_counters | grep -A2 \"AC_VO\" | grep -E 'tx frames|rx frames' wl -i wl1 wme_counters | grep -A2 \"AC_VO\" | grep -E 'tx frames|rx frames' wl -i wl2 wme_counters | grep -A2 \"AC_VO\" | grep -E 'tx frames|rx frames'",
       "trace_path": "plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d493-getradiostats-wmm-failedbytessent-ac_vo.json"
-    },
-    {
-      "case_id": "d494-radio-vhtcapabilities",
-      "case_file": "D494_vhtcapabilities_radio.yaml",
-      "dnum": 494,
-      "source_row": 496,
-      "source_object": "WiFi.Radio.{i}.",
-      "source_api": "VHTCapabilities",
-      "answer_row": 494,
-      "answer_object": "WiFi.Radio.{i}.",
-      "answer_api": "VHTCapabilities",
-      "mapping_status": "exact",
-      "mapping_object_match": true,
-      "mapping_api_match": true,
-      "final_status": "Fail",
-      "evaluation_verdict": "Fail",
-      "attempts_used": 2,
-      "comment": "step failed: step_5g_getter (failed after 2/2 attempts)",
-      "bands": {
-        "5g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        },
-        "6g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Not Supported",
-          "expected_norm": "Fail"
-        },
-        "2.4g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Not Supported",
-          "expected_norm": "Fail"
-        }
-      },
-      "mismatch_bands": [
-        "5g"
-      ],
-      "matches_answer": false,
-      "workbook_test_steps_excerpt": "1. Try to get API default value: root@prplOS:/# ubus-cli WiFi.Radio.*.VHTCapabilities.? > WiFi.Radio.*.VHTCapabilities.? ERROR: get WiFi.Radio.*.VHTCapabilities. failed (2 - object not found)",
-      "workbook_command_output_excerpt": "",
-      "trace_path": "plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d494-radio-vhtcapabilities.json"
     },
     {
       "case_id": "d496-ssid-wmm-ac_be_stats_wmmbytesreceived_ssid",

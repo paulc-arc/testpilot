@@ -11,6 +11,8 @@
   - `plugins/wifi_llapi/reports/agent_trace/20260412T235952361188`
   - `plugins/wifi_llapi/reports/agent_trace/20260413T000249620932`
   - `plugins/wifi_llapi/reports/agent_trace/20260413T003340845889`
+  - `plugins/wifi_llapi/reports/agent_trace/20260413T005520941756`
+  - `plugins/wifi_llapi/reports/agent_trace/20260413T005633950804`
 - answer sheet: `0401.xlsx`
 - cases dir: `plugins/wifi_llapi/cases`
 - compare rule: normalize both sides so only `Pass` stays `Pass`; all other values become `Fail`.
@@ -21,18 +23,18 @@
 | metric | value |
 | --- | ---: |
 | compared cases | 420 |
-| full matches | 240 |
-| mismatch cases | 180 |
+| full matches | 242 |
+| mismatch cases | 178 |
 | missing answer rows | 0 |
-| metadata drift rows | 62 |
+| metadata drift rows | 61 |
 
 ## Per-band summary
 
 | band | matched | mismatched |
 | --- | ---: | ---: |
-| 5g | 250 | 170 |
-| 6g | 251 | 169 |
-| 2.4g | 249 | 171 |
+| 5g | 252 | 168 |
+| 6g | 252 | 168 |
+| 2.4g | 250 | 170 |
 
 ## Mismatch table
 
@@ -171,7 +173,6 @@
 | `d438-security-transitiondisable` | 438 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d454-getradiostats-failedretranscount` | 454 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d455-getradiostats-multipleretrycount` | 455 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
-| `d460-radio-hecapabilities` | 460 | drift | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d461-radio-htcapabilities` | 461 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d462-radio-bsscolor` | 462 | drift | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d463-radio-hesigaspatialreusevalue15allowed` | 463 | drift | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
@@ -195,7 +196,6 @@
 | `d491-getradiostats-wmm-failedbytessent-ac_bk` | 491 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d492-getradiostats-wmm-failedbytessent-ac_vi` | 492 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d493-getradiostats-wmm-failedbytessent-ac_vo` | 493 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
-| `d494-radio-vhtcapabilities` | 494 | exact | Fail / Fail / Fail | Pass / Not Supported / Not Supported | Fail / Fail / Fail | Pass / Fail / Fail | 5g |
 | `d496-ssid-wmm-ac_be_stats_wmmbytesreceived_ssid` | 496 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d499-ssid-wmm-ac_vo_stats_wmmbytesreceived_ssid` | 499 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d502-ssid-wmm-ac_vi_stats_wmmbytessent_ssid` | 502 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
@@ -2789,26 +2789,6 @@
 - 0401 H excerpt: (empty)
 - trace: `plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d455-getradiostats-multipleretrycount.json`
 
-### d460-radio-hecapabilities
-
-- case file: `D460_hecapabilities_radio.yaml`
-- answer row: `460`
-- mapping status: `drift`
-- source metadata: `WiFi.Radio.{i}.` / `HECapabilities`
-- workbook metadata: `WiFi.Radio.{i}.` / `HePhyCapabilities`
-- final status: `Fail`
-- evaluation verdict: `Fail`
-- attempts used: `2`
-- runtime comment: step failed: step_5g_getter (failed after 2/2 attempts)
-- actual raw: `Fail` / `Fail` / `Fail`
-- expected raw: `Pass` / `Pass` / `Pass`
-- actual normalized: `Fail` / `Fail` / `Fail`
-- expected normalized: `Pass` / `Pass` / `Pass`
-- mismatch bands: `5g, 6g, 2.4g`
-- 0401 G excerpt: (empty)
-- 0401 H excerpt: (empty)
-- trace: `plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d460-radio-hecapabilities.json`
-
 ### d461-radio-htcapabilities
 
 - case file: `D461_htcapabilities_radio.yaml`
@@ -3261,26 +3241,6 @@
 - 0401 G excerpt: (empty)
 - 0401 H excerpt: wl -i wl0 wme_counters | grep -A2 "AC_VO" | grep -E 'tx frames|rx frames' wl -i wl1 wme_counters | grep -A2 "AC_VO" | grep -E 'tx frames|rx frames' wl -i wl2 wme_counters | grep -A2 "AC_VO" | grep -E 'tx frames|rx frames'
 - trace: `plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d493-getradiostats-wmm-failedbytessent-ac_vo.json`
-
-### d494-radio-vhtcapabilities
-
-- case file: `D494_vhtcapabilities_radio.yaml`
-- answer row: `494`
-- mapping status: `exact`
-- source metadata: `WiFi.Radio.{i}.` / `VHTCapabilities`
-- workbook metadata: `WiFi.Radio.{i}.` / `VHTCapabilities`
-- final status: `Fail`
-- evaluation verdict: `Fail`
-- attempts used: `2`
-- runtime comment: step failed: step_5g_getter (failed after 2/2 attempts)
-- actual raw: `Fail` / `Fail` / `Fail`
-- expected raw: `Pass` / `Not Supported` / `Not Supported`
-- actual normalized: `Fail` / `Fail` / `Fail`
-- expected normalized: `Pass` / `Fail` / `Fail`
-- mismatch bands: `5g`
-- 0401 G excerpt: 1. Try to get API default value: root@prplOS:/# ubus-cli WiFi.Radio.*.VHTCapabilities.? > WiFi.Radio.*.VHTCapabilities.? ERROR: get WiFi.Radio.*.VHTCapabilities. failed (2 - object not found)
-- 0401 H excerpt: (empty)
-- trace: `plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d494-radio-vhtcapabilities.json`
 
 ### d496-ssid-wmm-ac_be_stats_wmmbytesreceived_ssid
 

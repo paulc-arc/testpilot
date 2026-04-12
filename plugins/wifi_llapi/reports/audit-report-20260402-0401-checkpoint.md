@@ -1,5 +1,105 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-13 early-4)
+
+> This checkpoint records the `D460` / `D494` closure on top of the earlier D088 step-command work.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D460 HePhyCapabilities` is now aligned via official rerun `20260413T005520941756`
+- `D460` root cause was stale workbook mapping drift: the case still used wrong API / row (`HECapabilities`, `462`) even though workbook row `460` and live 0403 `wld_radio.odl` expose `HePhyCapabilities`
+- live DUT evidence exact-closed `WiFi.Radio.1/2.HePhyCapabilities="TCBCwAIbFQAAjAA="` and `WiFi.Radio.3.HePhyCapabilities="IiBCwAIDFQAAjAA="`
+- `D494 VHTCapabilities` is now aligned via official rerun `20260413T005633950804`
+- `D494` root cause was mixed authoring drift: workbook row `494` requires protected 5G `VHTCapabilities` readback, while 6G / 2.4G stay `parameter not found`; the old case incorrectly modeled all three radios as the same `error=4` shape
+- `D494` now uses explicit protected 5G shell capture (`VHTCapabilities=dliDDw==`) and parsed `error=4` / `message=parameter not found` on 6G / 2.4G
+- committed metadata is now workbook row `460` / `494`
+- overlay compare recomputed on top of authoritative full run `20260412T113008433351`
+  plus D024 / D025 / D022 / D072 / D047 / D050 / D088 / D460 / D494 reruns is now
+  `242 / 420 full matches`、`178 mismatches`、`61 metadata drifts`
+- the focused `step_command_failed` queue from the original seven-case set is now empty
+- remaining non-env open items now start with semantic / mapping buckets: `D079` remains `pass_criteria_not_satisfied`, env-only bucket remains `D328` / `D336`, blocked bucket remains `D053`
+- next ready phase: calibration / mapping / results_reference bucket
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D460` | 460 | `HePhyCapabilities` | `Pass / Pass / Pass` | `20260413T005520941756_DUT.log L5-L18` | `N/A (AP-only case)` |
+| `D494` | 494 | `VHTCapabilities` | `Pass / Not Supported / Not Supported` | `20260413T005633950804_DUT.log L5-L58` | `N/A (AP-only case)` |
+
+#### D460 HePhyCapabilities
+
+**STA 指令**
+
+```sh
+# N/A (AP-only case; no STA transport used)
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.Radio.1.HePhyCapabilities?"
+ubus-cli "WiFi.Radio.2.HePhyCapabilities?"
+ubus-cli "WiFi.Radio.3.HePhyCapabilities?"
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+20260413T005520941756_DUT.log L5-L18
+WiFi.Radio.1.HePhyCapabilities="TCBCwAIbFQAAjAA="
+WiFi.Radio.2.HePhyCapabilities="TCBCwAIbFQAAjAA="
+WiFi.Radio.3.HePhyCapabilities="IiBCwAIDFQAAjAA="
+```
+
+#### D494 VHTCapabilities
+
+**STA 指令**
+
+```sh
+# N/A (AP-only case; no STA transport used)
+```
+
+**DUT 指令**
+
+```sh
+OUT=$(ubus-cli "protected;WiFi.Radio.1.VHTCapabilities?" 2>&1 || true)
+printf '%s\n' "$OUT"
+printf '%s\n' "$OUT" | sed -n 's/.*WiFi.Radio.1.VHTCapabilities="\([^"]*\)"/VHTCapabilities=\1/p'
+OUT=$(ubus-cli "WiFi.Radio.2.VHTCapabilities?" 2>&1 || true)
+printf '%s\n' "$OUT"
+printf '%s\n' "$OUT" | sed -n 's/.*failed (\([0-9][0-9]*\) - \(.*\))/error=\1/p'
+printf '%s\n' "$OUT" | sed -n 's/.*failed (\([0-9][0-9]*\) - \(.*\))/message=\2/p'
+OUT=$(ubus-cli "WiFi.Radio.3.VHTCapabilities?" 2>&1 || true)
+printf '%s\n' "$OUT"
+printf '%s\n' "$OUT" | sed -n 's/.*failed (\([0-9][0-9]*\) - \(.*\))/error=\1/p'
+printf '%s\n' "$OUT" | sed -n 's/.*failed (\([0-9][0-9]*\) - \(.*\))/message=\2/p'
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+20260413T005633950804_DUT.log L16-L22
+> WiFi.Radio.1.VHTCapabilities?
+WiFi.Radio.1.VHTCapabilities="dliDDw=="
+VHTCapabilities=dliDDw==
+
+20260413T005633950804_DUT.log L37-L40
+> WiFi.Radio.2.VHTCapabilities?
+ERROR: get WiFi.Radio.2.VHTCapabilities failed (4 - parameter not found)
+error=4
+message=parameter not found
+
+20260413T005633950804_DUT.log L55-L58
+> WiFi.Radio.3.VHTCapabilities?
+ERROR: get WiFi.Radio.3.VHTCapabilities failed (4 - parameter not found)
+error=4
+message=parameter not found
+```
+
 ## Checkpoint summary (2026-04-13 early-3)
 
 > This checkpoint records the `D088` alignment closure on top of the D079 runtime de-truncation fix.
