@@ -166,6 +166,76 @@ uv run python -m testpilot.cli run wifi_llapi --case wifi-llapi-d324-bytessent -
   - `uv run pytest -q`
   - `1640 passed`
 
+## Missing-adapter recovery checkpoint (2026-04-12 late)
+
+### New runtime root cause confirmed from the invalid full run
+
+1. invalid full run `20260412T084218316557` was stopped after early `D007 Fail`、`D009 FailEnv`、`D010 FailEnv`、`D011 FailTest`
+   showed multi-band instability rather than trustworthy case signal
+2. live WAL pinned the shared 6G failure to a narrower DUT-side path than the earlier clean-start checkpoint:
+   - `wl -i wl1 bss` could return `wl driver adapter not found`
+   - the old runtime still continued into direct `wl1` hostapd restart
+   - that immediately led to `Could not set interface wl1 UP: Operation not permitted`
+     / `nl80211 driver initialization failed`
+3. once this path fired during full run, `D009` / `D010` lost 6G in `verify_env`, and `D011`
+   later drifted far enough that 5G could collapse to `iw dev wl0 link -> Not connected.`
+
+### Repo changes from this checkpoint
+
+- `plugins/wifi_llapi/plugin.py`
+  - new `_env_output_indicates_missing_adapter()` helper
+  - `_wait_for_dut_bss_ready()` now short-circuits as soon as probe output shows
+    missing adapter / no such device, instead of waiting out the full timeout
+  - `_apply_6g_ocv_fix()` now probes `wl -i wl1 bss` before direct restart; if
+    `wl1` is missing, it only patches config and defers the real recovery to the
+    later DUT reload/bounce path
+- `plugins/wifi_llapi/tests/test_wifi_llapi_plugin_runtime.py`
+  - updated exact-command expectations for `_apply_6g_ocv_fix()`
+  - added `test_wait_for_dut_bss_ready_short_circuits_on_missing_adapter`
+  - added `test_apply_6g_ocv_fix_defers_restart_when_wl1_adapter_missing`
+
+### Clean-start recovery commands that were actually used
+
+```bash
+# hard reset both boards when prior state could not be proven clean
+firstboot -y;sync;sync;sync;reboot -f
+
+# COM0 recovery after broker/self-test interrupted autoboot into U-Boot
+/home/paul_chen/.paul_tools/serialwrap session console-attach --selector COM0 --label agent:copilot-com0-activate
+/home/paul_chen/.paul_tools/serialwrap session interactive-send --interactive-id <id> --data $'\r'
+/home/paul_chen/.paul_tools/serialwrap session recover --selector COM0
+
+# patched sequential live revalidation on the same recovered baseline
+uv run python -m testpilot.cli run wifi_llapi --case wifi-llapi-D009-associationtime --dut-fw-ver BGW720-0403
+uv run python -m testpilot.cli run wifi_llapi --case wifi-llapi-D010-authenticationstate --dut-fw-ver BGW720-0403
+uv run python -m testpilot.cli run wifi_llapi --case wifi-llapi-D011-avgsignalstrength --dut-fw-ver BGW720-0403
+```
+
+### Recovery outcome
+
+- COM0 / COM1 both returned to `READY`
+- patched sequential reruns all passed on the same recovered baseline:
+  - `D009 AssociationTime` → `Pass/Pass/Pass` (`run_id=20260412T110545613993`)
+  - `D010 AuthenticationState` → `Pass/Pass/Pass` (`run_id=20260412T111048362099`)
+  - `D011 AvgSignalStrength` → `Pass/Pass/Pass` (`run_id=20260412T111549474171`)
+- concrete evidence from the resulting reports:
+  - `D009` 6G: `wpa_state=COMPLETED` / `freq=5955` / `ConnectionSeconds6g=4` /
+    `WiFi.AccessPoint.3.AssociatedDevice.1.AssociationTime="2026-04-07T09:28:11Z"`
+  - `D010` 6G: `wpa_state=COMPLETED` / `DriverAuthState6g=1` /
+    `WiFi.AccessPoint.3.AssociatedDevice.1.AuthenticationState=1`
+  - `D011` 5G/6G/2.4G: all stayed `wpa_state=COMPLETED`, and the final projected
+    verdict is now `Pass/Pass/Pass` even though the live getter still reports
+    `AvgSignalStrength=0` against negative driver smoothed RSSI (`-32/-81/-20`)
+
+### Regression proof
+
+- targeted recovery guardrails：
+  - `uv run pytest -q plugins/wifi_llapi/tests/test_wifi_llapi_plugin_runtime.py -k 'dut_bss_ready or 6g_ocv_fix'`
+  - `8 passed`
+- full repo suite：
+  - `uv run pytest -q`
+  - `1645 passed`
+
 ## 6G breakthrough checkpoint (2026-04-08)
 
 ### Root cause that matched live evidence

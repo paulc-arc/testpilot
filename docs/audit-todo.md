@@ -239,17 +239,14 @@ If I open only this file in a future session, I should do the following in order
   - `D017 DownlinkMCS` → `Pass/Pass/Pass` via run `20260402T063003376730`
   - `D018 DownlinkShortGuard` → `Pass/Pass/Pass` via run `20260402T071356233843`
   - `D023 Inactive` → `Pass/Pass/Pass` via run `20260402T105808547293`
+- Late 2026-04-12 recovery revalidation:
+  - invalid full run `20260412T084218316557` was stopped after early `D007`/`D009`/`D010`/`D011` multi-band instability
+  - the guarded 6G recovery patch plus dual `firstboot` recovery revalidated `D009` / `D010` / `D011` sequentially on the same baseline:
+    - `D009 AssociationTime` → `Pass/Pass/Pass` via run `20260412T110545613993`
+    - `D010 AuthenticationState` → `Pass/Pass/Pass` via run `20260412T111048362099`
+    - `D011 AvgSignalStrength` → `Pass/Pass/Pass` via run `20260412T111549474171`
+  - `D011` therefore no longer remains in the unresolved mismatch set, even though the live getter still returns `AvgSignalStrength=0` against negative driver smoothed RSSI on all three bands
 - Latest verified unresolved mismatches:
-  - `D011 AvgSignalStrength` → live/source-confirmed `Fail/Fail/Fail` via run `20260402T034832813249`
-  - workbook row 11 still expects raw `Pass/Pass/Pass`, so compare remains mismatched on all three bands
-  - live evidence:
-    - AP1/AP3/AP5 each exposed one live STA (`AssocMac5g/6g/24g`)
-    - `wl sta_info` still reported negative smoothed RSSI (`-28 / -85 / -2`)
-    - `ubus-cli "WiFi.AccessPoint.{1,3,5}.AssociatedDevice.1.AvgSignalStrength?"` stayed `0` on all three bands
-  - source evidence:
-    - public/source `wld_ap_nl80211_copyStationInfoToAssocDev()` updates `pAD->SignalStrength`, not the average accumulator path
-    - pWHM `wld_assocdev.c` publishes `AvgSignalStrength` from `WLD_ACC_TO_VAL(pAD->rssiAccumulator)`
-    - live firmware therefore still behaves fail-shaped even though the datamodel field exists
   - `D013 Capabilities` → live/source-confirmed `Fail/Fail/Fail` via run `20260402T051006378317`
   - workbook row 13 still expects raw `Pass/Pass/Pass`, so compare remains mismatched on all three bands
   - live evidence:
@@ -278,6 +275,12 @@ If I open only this file in a future session, I should do the following in order
   - `uv run python -m testpilot.cli run wifi_llapi --case wifi-llapi-D010-authenticationstate --dut-fw-ver BGW720-B0-403` → `Pass/Pass/Pass`
   - `uv run pytest -q plugins/wifi_llapi/tests/test_wifi_llapi_plugin_runtime.py -k 'D011 or pending_readonly_associateddevice_cases_use_live_cross_checks or pending_readonly_associateddevice_cases_evaluate_live_examples or pre_skip_aligned_manual_cases_avoid_stale_sample_values'` → `3 passed`
   - `uv run python -m testpilot.cli run wifi_llapi --case wifi-llapi-D011-avgsignalstrength --dut-fw-ver BGW720-B0-403` → live evidence `Fail/Fail/Fail` (`evaluation_verdict=Pass`, final projected status `Fail`)
+  - superseding late-2026-04-12 recovery validation:
+    - `uv run pytest -q plugins/wifi_llapi/tests/test_wifi_llapi_plugin_runtime.py -k 'dut_bss_ready or 6g_ocv_fix'` → `8 passed`
+    - `uv run pytest -q` → `1645 passed`
+    - `uv run python -m testpilot.cli run wifi_llapi --case wifi-llapi-D009-associationtime --dut-fw-ver BGW720-0403` → `Pass/Pass/Pass` via run `20260412T110545613993`
+    - `uv run python -m testpilot.cli run wifi_llapi --case wifi-llapi-D010-authenticationstate --dut-fw-ver BGW720-0403` → `Pass/Pass/Pass` via run `20260412T111048362099`
+    - `uv run python -m testpilot.cli run wifi_llapi --case wifi-llapi-D011-avgsignalstrength --dut-fw-ver BGW720-0403` → `Pass/Pass/Pass` via run `20260412T111549474171`
   - `uv run pytest -q plugins/wifi_llapi/tests/test_wifi_llapi_plugin_runtime.py -k 'D012 or pending_readonly_associateddevice_cases_use_live_cross_checks or pending_readonly_associateddevice_cases_evaluate_live_examples or pre_skip_aligned_manual_cases_avoid_stale_sample_values'` → `3 passed`
   - `uv run python -m testpilot.cli run wifi_llapi --case wifi-llapi-D012-avgsignalstrengthbychain --dut-fw-ver BGW720-B0-403` → `Pass/Pass/Pass` via run `20260402T040807394935` (`AvgSignalStrengthByChain=-30 / -86 / -13`)
   - `uv run pytest -q plugins/wifi_llapi/tests/test_wifi_llapi_plugin_runtime.py -k 'D013 or pending_readonly_associateddevice_cases_use_live_cross_checks or pending_readonly_associateddevice_cases_evaluate_live_examples or pre_skip_aligned_manual_cases_avoid_stale_sample_values'` → `3 passed`
@@ -511,10 +514,11 @@ If any item above is not satisfied, the case stays open or moves to blocker trac
   - re-ran full suite again after the offline-survey regression guard (`1601 passed`)
   - attempted fresh live full-run preflight, but serialwrap daemon reported `0` devices / `0` sessions and the environment exposed no `/dev/ttyUSB*` or `/dev/serial/by-id`, so live Phase 3 is blocked pending DUT/STA UART return
 - Progress record:
-  - latest aligned case: `D276 getRadioStats() UnicastPacketsSent` via run `20260410T125445239119`
-  - latest blocked case: `D277 getScanResults() Bandwidth`
+  - latest aligned case: `D011 AvgSignalStrength` via run `20260412T111549474171`
+  - latest blocked case: `none in the guarded 6G recovery checkpoint; the invalid full run was discarded instead`
   - latest compare summary: `264 / 420` full matches, `156` mismatches (still the last rebuilt compare snapshot; not yet recomputed after the post-summary D111 rerun)
-  - latest stable fail-shaped mismatches: `D011`, `D013`, `D020`
+  - latest stable fail-shaped mismatches: `D013`, `D020`
+  - latest shared-baseline recovery checkpoint: invalid full run `20260412T084218316557` was stopped after early `D007`/`D009`/`D010`/`D011` instability; the missing-adapter 6G recovery guard plus dual `firstboot` recovery then revalidated sequential `D009` / `D010` / `D011` as `Pass/Pass/Pass` via runs `20260412T110545613993` / `20260412T111048362099` / `20260412T111549474171`, and full repo regression is now `1645 passed`
   - latest parser-backed fix: workbook replay on live DUT/STA proved `D111` already returns `AssociationTime = "YYYY-MM-DDTHH:MM:SSZ",`; the full-run fail shape came from `plugins/wifi_llapi/plugin.py::_extract_key_values()` stripping quotes before trailing commas, leaving a spurious tail `"` in `stats_output.AssociationTime`
   - latest regression after the D272-D276 row refresh: targeted method-stats tests `132 passed`; full `plugins/wifi_llapi/tests/test_wifi_llapi_plugin_runtime.py` now `1223 passed`
   - latest D211 live replay verdict: workbook row `211` BE/AX getters both followed setter, but AX phase still kept `wl0/wl1/wl2 eht features=127`; 6G `/tmp/wl1_hapd.conf` also kept secondary `ieee80211be=1` after `OperatingStandards=ax`
@@ -630,6 +634,7 @@ If any item above is not satisfied, the case stays open or moves to blocker trac
   - D211 remains the latest semantic blocked/fail-shaped mismatch
   - latest D334 alignment: the first real runner replay `20260411T021238026451` already exact-closed direct Stats and getSSIDStats(), but it still lacked an independent driver oracle and the original extractor could ambiguously match `FailedRetransCount`. The active 0403 source-backed path is now re-confirmed by the fresh D334 survey at `wldm_SSID_TrafficStats()` -> `wl if_counters txretrans`, with no WDS accumulation on the direct-property path. A focused live probe then exact-closed `direct / getSSIDStats / low-32(txretrans)` at 5G `4294967295`, 6G `4294963915`, and 2.4G `0`. After refreshing the case to use anchored `getSSIDStats()` extraction plus the low-32 driver oracle, real runner rerun `20260411T022030741126` passed on retry: attempt 1 saw a transient 6G drift (`4294967294` vs driver `0`), but attempt 2 exact-closed `direct / getSSIDStats / if_counters` on all three bands (`0 / 0 / 0`, `0 / 0 / 0`, `0 / 0 / 0`). The committed YAML metadata is therefore refreshed from stale row `258` to workbook row `334`, targeted validation stayed green, the command-budget inventory moved to `630`, and full repo regression stayed green at `1634 passed`
   - next ready case after resume: `D529`
+  - superseding late-2026-04-12 continuation: current active focus is no longer recovering COM0/COM1 back to `READY`; that work is done. Invalid full run `20260412T084218316557` has been discarded, guarded missing-adapter 6G recovery is live in the repo, sequential reruns `D009` / `D010` / `D011` have all revalidated as `Pass/Pass/Pass`, and the next ready operational step is to commit/push this patch then relaunch full run from current HEAD
   - `D024` offline survey is complete: workbook authority is row `24`, workbook `G/H` and the source model both point to DUT `wl -i wl0 sta_info $STA_MAC` `rate of last tx pkt` as the AP -> STA truth source
   - `D025` offline survey is complete: workbook authority is row `25`, workbook `G/H` and the source model both point to DUT `wl -i wl0 sta_info $STA_MAC` `rate of last rx pkt` as the STA -> AP truth source
   - `D026` offline survey is complete: workbook authority is row `26`, workbook `G/H` and the source evidence both point to DUT `wl -i wl0 sta_info $STA_MAC` `link bandwidth = XX MHZ` plus `WiFi.Radio.1.OperatingChannelBandwidth` as the truth sources

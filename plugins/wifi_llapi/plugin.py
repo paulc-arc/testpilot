@@ -1362,6 +1362,11 @@ class Plugin(PluginBase):
         )
 
     @classmethod
+    def _env_output_indicates_missing_adapter(cls, output: str) -> bool:
+        lowered_output = str(output or "").strip().lower()
+        return "wl driver adapter not found" in lowered_output or "no such device" in lowered_output
+
+    @classmethod
     def _env_command_succeeded(cls, command: str, result: dict[str, Any]) -> bool:
         output = cls._env_output_text(result)
         lowered_output = output.lower()
@@ -2437,15 +2442,25 @@ class Plugin(PluginBase):
         deadline = time.monotonic() + timeout_seconds
         while time.monotonic() < deadline:
             result = self._execute_env_command(dut, command, timeout=20.0)
-            out = self._env_output_text(result).strip().lower()
-            if "up" in out:
+            out = self._env_output_text(result).strip()
+            lowered_out = out.lower()
+            if "up" in lowered_out:
                 return True
+            if self._env_output_indicates_missing_adapter(out):
+                log.warning(
+                    "[%s] verify_env: %s bss[%d] probe missing adapter (%s), escalating recovery",
+                    self.name,
+                    case_id,
+                    index,
+                    self._preview_value(out or "<empty>", limit=96),
+                )
+                return False
             log.info(
                 "[%s] verify_env: %s bss[%d] not ready yet (%s), retrying...",
                 self.name,
                 case_id,
                 index,
-                out,
+                lowered_out,
             )
             self._execute_env_command(dut, f"sleep {int(poll_interval)}", timeout=poll_interval + 5)
         log.warning(
@@ -2517,6 +2532,18 @@ class Plugin(PluginBase):
                     self.name,
                     case_id,
                 )
+            pre_restart_bss_out = self._env_output_text(
+                self._execute_env_command(dut, bss_cmd, timeout=5.0)
+            ).strip()
+            if self._env_output_indicates_missing_adapter(pre_restart_bss_out):
+                log.warning(
+                    "[%s] verify_env: %s 6G wl1 adapter unavailable before hostapd restart (%s); "
+                    "deferring to DUT reload/bounce",
+                    self.name,
+                    case_id,
+                    self._preview_value(pre_restart_bss_out or "<empty>", limit=96),
+                )
+                return
             # On current lab firmware, restarting wl1 hostapd can leave stale control
             # sockets behind, flip wl1 back to managed mode, and trigger a wld rewrite
             # that drops ocv=0. Restore AP mode first and keep looping until ocv and the

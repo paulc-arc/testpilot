@@ -1466,6 +1466,37 @@ def test_ensure_selected_dut_bss_ready_reload_6g_before_bounce(monkeypatch):
     assert bounces == []
 
 
+def test_wait_for_dut_bss_ready_short_circuits_on_missing_adapter(monkeypatch):
+    plugin = _load_plugin()
+    dut = object()
+    executed: list[str] = []
+
+    def fake_execute_env_command(transport, command, *, timeout=30.0):
+        del timeout
+        assert transport is dut
+        executed.append(command)
+        if command == "wl -i wl1 bss":
+            return {"returncode": 1, "stdout": "", "stderr": "wl: wl driver adapter not found"}
+        raise AssertionError(f"unexpected command: {command}")
+
+    monkeypatch.setattr(plugin, "_execute_env_command", fake_execute_env_command)
+
+    assert (
+        plugin._wait_for_dut_bss_ready(
+            {"id": "wifi-llapi-runtime-missing-adapter"},
+            dut,
+            case_id="wifi-llapi-runtime-missing-adapter",
+            band="6g",
+            index=1,
+            command="wl -i wl1 bss",
+            timeout_seconds=60.0,
+            poll_interval=5.0,
+        )
+        is False
+    )
+    assert executed == ["wl -i wl1 bss"]
+
+
 def test_execute_remediation_tolerates_null_band_params(monkeypatch):
     plugin = _load_plugin()
     topology = _FakeTopology()
@@ -2049,6 +2080,7 @@ def test_apply_6g_ocv_fix_cleans_control_sockets_and_forces_bss_up(monkeypatch):
         "grep -q ieee80211w /tmp/wl1_hapd.conf 2>/dev/null && echo READY || echo WAIT",
         "sed -i '/^ocv=/d; /^ieee80211w=/a ocv=0' /tmp/wl1_hapd.conf",
         "grep '^ocv=0' /tmp/wl1_hapd.conf 2>&1",
+        "wl -i wl1 bss",
         "pid=$(pgrep -f '/tmp/wl1_hapd.conf' 2>/dev/null | head -n1); if [ -n \"$pid\" ]; then kill \"$pid\" 2>/dev/null || true; fi",
         "sleep 2",
         "rm -f /var/run/hostapd/wl1 /var/run/hostapd/wl1.1",
@@ -2074,7 +2106,7 @@ def test_apply_6g_ocv_fix_restarts_again_when_ocv_disappears_after_restart(monke
     verify_outputs = iter(("ocv=0\n", "", "ocv=0\n", "ocv=0\n"))
     socket_outputs = iter(("WAIT", "READY"))
     process_outputs = iter(("WAIT", "READY"))
-    bss_outputs = iter(("down", "up"))
+    bss_outputs = iter(("down", "down", "down", "up"))
 
     def fake_execute_env_command(transport, command, *, timeout=30.0):
         del timeout
@@ -2110,6 +2142,7 @@ def test_apply_6g_ocv_fix_restarts_again_when_ocv_disappears_after_restart(monke
         "grep -q ieee80211w /tmp/wl1_hapd.conf 2>/dev/null && echo READY || echo WAIT",
         "sed -i '/^ocv=/d; /^ieee80211w=/a ocv=0' /tmp/wl1_hapd.conf",
         "grep '^ocv=0' /tmp/wl1_hapd.conf 2>&1",
+        "wl -i wl1 bss",
         *restart_commands,
         "wl -i wl1 bss up",
         "sleep 2",
@@ -2120,6 +2153,7 @@ def test_apply_6g_ocv_fix_restarts_again_when_ocv_disappears_after_restart(monke
         "wl -i wl1 bss",
         "sed -i '/^ocv=/d; /^ieee80211w=/a ocv=0' /tmp/wl1_hapd.conf",
         "grep '^ocv=0' /tmp/wl1_hapd.conf 2>&1",
+        "wl -i wl1 bss",
         *restart_commands,
         "wl -i wl1 bss up",
         "sleep 2",
@@ -2170,6 +2204,7 @@ def test_apply_6g_ocv_fix_accepts_running_hostapd_without_socket(monkeypatch):
         "grep -q ieee80211w /tmp/wl1_hapd.conf 2>/dev/null && echo READY || echo WAIT",
         "sed -i '/^ocv=/d; /^ieee80211w=/a ocv=0' /tmp/wl1_hapd.conf",
         "grep '^ocv=0' /tmp/wl1_hapd.conf 2>&1",
+        "wl -i wl1 bss",
         *restart_commands,
         "wl -i wl1 bss up",
         "sleep 2",
@@ -2221,6 +2256,7 @@ def test_apply_6g_ocv_fix_accepts_post_restart_ocv_probe_drop_when_process_and_b
         "grep -q ieee80211w /tmp/wl1_hapd.conf 2>/dev/null && echo READY || echo WAIT",
         "sed -i '/^ocv=/d; /^ieee80211w=/a ocv=0' /tmp/wl1_hapd.conf",
         "grep '^ocv=0' /tmp/wl1_hapd.conf 2>&1",
+        "wl -i wl1 bss",
         *restart_commands,
         "wl -i wl1 bss up",
         "sleep 2",
@@ -2228,6 +2264,35 @@ def test_apply_6g_ocv_fix_accepts_post_restart_ocv_probe_drop_when_process_and_b
         "grep '^ocv=0' /tmp/wl1_hapd.conf 2>&1",
         "test -S /var/run/hostapd/wl1 && echo READY || echo WAIT",
         "pgrep -f '/tmp/wl1_hapd.conf' >/dev/null && echo READY || echo WAIT",
+        "wl -i wl1 bss",
+    ]
+
+
+def test_apply_6g_ocv_fix_defers_restart_when_wl1_adapter_missing(monkeypatch):
+    plugin = _load_plugin()
+    dut = object()
+    executed: list[str] = []
+
+    def fake_execute_env_command(transport, command, *, timeout=30.0):
+        del timeout
+        assert transport is dut
+        executed.append(command)
+        if command == "grep -q ieee80211w /tmp/wl1_hapd.conf 2>/dev/null && echo READY || echo WAIT":
+            return {"returncode": 0, "stdout": "READY", "stderr": ""}
+        if command == "grep '^ocv=0' /tmp/wl1_hapd.conf 2>&1":
+            return {"returncode": 0, "stdout": "ocv=0\n", "stderr": ""}
+        if command == "wl -i wl1 bss":
+            return {"returncode": 1, "stdout": "", "stderr": "wl: wl driver adapter not found"}
+        return {"returncode": 0, "stdout": "", "stderr": ""}
+
+    monkeypatch.setattr(plugin, "_execute_env_command", fake_execute_env_command)
+
+    plugin._apply_6g_ocv_fix(dut, "wifi-llapi-runtime-6g-ocv-missing-adapter")
+
+    assert executed == [
+        "grep -q ieee80211w /tmp/wl1_hapd.conf 2>/dev/null && echo READY || echo WAIT",
+        "sed -i '/^ocv=/d; /^ieee80211w=/a ocv=0' /tmp/wl1_hapd.conf",
+        "grep '^ocv=0' /tmp/wl1_hapd.conf 2>&1",
         "wl -i wl1 bss",
     ]
 

@@ -1,5 +1,49 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-12)
+
+> This checkpoint records the guarded 6G recovery patch and the post-fix live revalidation after the invalid full run was stopped.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- invalid full run `20260412T084218316557` has been discarded as non-authoritative after early
+  `D007 Fail`、`D009 FailEnv`、`D010 FailEnv`、`D011 FailTest` showed multi-band
+  baseline instability instead of trustworthy case verdicts
+- live WAL isolated the remaining shared-baseline failure to a narrower DUT-side path:
+  - `wl -i wl1 bss` could return `wl driver adapter not found`
+  - the old runtime still continued into direct `wl1` hostapd restart
+  - that led to `Could not set interface wl1 UP: Operation not permitted` /
+    `nl80211 driver initialization failed`
+- minimal fix landed in `plugins/wifi_llapi/plugin.py`
+  - new `_env_output_indicates_missing_adapter()` helper
+  - `_wait_for_dut_bss_ready()` now short-circuits on missing-adapter probe output
+  - `_apply_6g_ocv_fix()` now probes `wl -i wl1 bss` before direct restart and defers
+    restart entirely when `wl1` is missing
+- regression after the fix:
+  - targeted 6G recovery tests: `8 passed`
+  - full repo suite: `1645 passed`
+- both boards were then clean-reset with `firstboot -y;sync;sync;sync;reboot -f`
+- COM0 was briefly trapped in U-Boot because broker/self-test interrupted autoboot;
+  serialwrap `console-attach` + `interactive-send '\r'` + `session recover` brought it back
+  to `READY`, and COM1 also ended at `READY`
+- patched sequential live reruns all revalidated on the same recovered baseline:
+  - `D009 AssociationTime` → `Pass/Pass/Pass` via run `20260412T110545613993`
+  - `D010 AuthenticationState` → `Pass/Pass/Pass` via run `20260412T111048362099`
+  - `D011 AvgSignalStrength` → `Pass/Pass/Pass` via run `20260412T111549474171`
+- concrete evidence from those reruns:
+  - `D009` 6G ended with `wpa_state=COMPLETED`, `ConnectionSeconds6g=4`, and populated
+    `AssociationTime`
+  - `D010` 5G/6G/2.4G each ended with `DriverAuthState=1` and
+    `WiFi.AccessPoint.{1,3,5}.AssociatedDevice.1.AuthenticationState=1`
+  - `D011` no longer reproduces the old 5G `iw dev wl0 link -> Not connected.` failure;
+    all three bands stayed `wpa_state=COMPLETED`, and the final projected verdict is now
+    `Pass/Pass/Pass`
+- next ready action from this checkpoint: commit/push the guarded 6G recovery patch and
+  relaunch full run from current HEAD
+
+</details>
+
 ## Checkpoint summary (2026-04-10)
 
 > This checkpoint records the first post-summary live calibration result after the detached full run comparison.
@@ -194,7 +238,7 @@
 - workbook procedure authority fixed to `Wifi_LLAPI` columns `G/H` (`Test steps` / `Command Output`); `F` is ignored
 - latest carried-forward compare snapshot remains `264 / 420` full matches and `156` mismatches
 - latest carried-forward aligned live case remains `D023 Inactive` via run `20260402T105808547293`
-- latest carried-forward stable fail-shaped mismatches remain `D011` / `D013` / `D020`
+- latest carried-forward stable fail-shaped mismatches remain `D013` / `D020`
 - preflight guardrails revalidated:
   - multiline block-scalar ban for official case command fields: pass
   - serialwrap 120-char temp-script staging tests: pass
