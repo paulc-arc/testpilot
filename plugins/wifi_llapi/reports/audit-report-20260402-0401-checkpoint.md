@@ -1,5 +1,90 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-13 early-10)
+
+> This checkpoint records the blocked `D035` trial after `D467`.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D035 AssociatedDevice OperatingStandard` was the next workbook-Pass revisit after `D467`, but it did not converge into a safe repo rewrite
+- official rerun `20260413T014428270219` failed twice at `step1_5g_sta_join` with trace output `iw dev wl0 link -> Not connected.`
+- the same STA verify-env log still showed `SSID: testpilot5G` and `wpa_state=COMPLETED`, so this was not a simple missing-baseline case
+- reconnect trial rerun `20260413T015210910141` removed the immediate 5G join failure, but the run then fell into a repeated 6G `ocv=0` / `ATTACH` recovery loop and was stopped without a stable final verdict
+- the local tri-band rewrite was reverted and not committed
+- overlay compare therefore stays `247 / 420 full matches`、`173 mismatches`、`58 metadata drifts`
+- blocker authority is now `plugins/wifi_llapi/reports/D035_block.md`
+- next ready workbook-Pass revisit is `D045`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D035` | 35 | `OperatingStandard` | `Blocked (runtime/env)` | `20260413T014428270219_DUT.log L694-L700, L747-L758` | `20260413T014428270219_STA.log L505-L534` |
+
+#### D035 AssociatedDevice OperatingStandard
+
+**STA 指令**
+
+```sh
+iw dev wl0 link
+wpa_cli -p /var/run/wpa_supplicant -i wl0 status
+
+# reconnect trial
+wpa_cli -p /var/run/wpa_supplicant -i wl0 select_network 0
+sleep 5
+iw dev wl0 link
+wpa_cli -p /var/run/wpa_supplicant -i wl0 status
+```
+
+**DUT 指令**
+
+```sh
+wl -i wl1 bss
+ubus-cli "WiFi.AccessPoint.3.AssociatedDevice.*.MACAddress?"
+ubus-cli WiFi.AccessPoint.5.Enable=1
+wl -i wl2 bss
+```
+
+**判定 blocker 的 log 摘錄 / log 區間**
+
+```text
+20260413T014428270219 agent trace
+attempt 1/2 and 2/2:
+step1_5g_sta_join command failed
+command: iw dev wl0 link
+output: Not connected.
+
+20260413T014428270219_STA.log L505-L534
+iw dev wl0 link
+Connected to 2c:59:17:00:19:95 (on wl0)
+        SSID: testpilot5G
+...
+wpa_cli -p /var/run/wpa_supplicant -i wl0 status
+ssid=testpilot5G
+key_mgmt=WPA2-PSK
+wpa_state=COMPLETED
+
+20260413T014428270219_DUT.log L694-L700, L747-L758
+wl -i wl1 bss
+up
+WiFi.AccessPoint.3.AssociatedDevice.1.MACAddress="2C:59:17:00:04:86"
+ubus-cli WiFi.AccessPoint.5.Enable=1
+WiFi.AccessPoint.5.Enable=1
+--wl2 FSM DONE--
+wl -i wl2 bss
+up
+
+20260413T015210910141 runner transcript (aborted trial)
+verify_env: d035-assocdev-operatingstandard 6G restart attempt=1 unstable
+verify_env: d035-assocdev-operatingstandard 6G ocv=0 fix applied, wl1 hostapd restarted
+env: retry command after recovery_action=ATTACH attempt=1 cmd=grep '^ocv=0' /tmp/wl1_hapd.conf 2>&1
+env: retry command after recovery_action=ATTACH attempt=2 cmd=grep '^ocv=0' /tmp/wl1_hapd.conf 2>&1
+verify_env: d035-assocdev-operatingstandard 6G ocv=0 verify failed — BSS loop may persist
+```
+
 ## Checkpoint summary (2026-04-13 early-9)
 
 > This checkpoint records the `D467` results_reference / row closure after `D465`.

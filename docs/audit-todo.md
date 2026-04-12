@@ -115,6 +115,11 @@
     - `SetOffStatus5g/6g/24g = invalid_value`
     - post-set getter + ACL state remain unchanged on all three bands
   - current `D079` YAML still expects 5G `BlackList` / `deny`, so the case is now reclassified from `step_command_failed` to semantic `pass_criteria_not_satisfied` / workbook-authority review
+  - `D035 AssociatedDevice OperatingStandard` was then trialed as the next workbook-Pass revisit, but the rewrite did not converge
+    - official rerun `20260413T014428270219` still failed twice at `step1_5g_sta_join` with trace output `iw dev wl0 link -> Not connected.`
+    - the same STA verify-env log nevertheless showed `SSID: testpilot5G` / `wpa_state=COMPLETED`, so this was not a clean metadata-only closure
+    - reconnect trial rerun `20260413T015210910141` removed the immediate 5G join failure but then got trapped in repeated 6G `ocv=0` / `ATTACH` recovery (`6G restart attempt=1 unstable`, `env: retry command after recovery_action=ATTACH`, `6G ocv=0 verify failed — BSS loop may persist`)
+    - the local tri-band rewrite was reverted; blocker authority is now `plugins/wifi_llapi/reports/D035_block.md`
 - Current authoritative full-run source remains `20260412T113008433351`
 - Latest recomputed overlay compare on top of authoritative full run `20260412T113008433351`
   plus D024 / D025 / D022 / D072 / D047 / D050 / D088 / D460 / D494 / D461 / D462 / D463 / D465 / D467 reruns:
@@ -126,8 +131,8 @@
   - reclassified after runtime fix: `D079 -> pass_criteria_not_satisfied`
   - remaining open set: `none`
   - env-only bucket remains `D328`、`D336`
-  - blocked bucket remains `D053` (`needs deterministic AP-to-STA unicast payload`)
-- Next ready workbook-Pass revisit: `D035`
+  - blocked bucket is now `D053` (`needs deterministic AP-to-STA unicast payload`) plus `D035` (`tri-band rewrite blocked by shared 6G OCV / ATTACH recovery loop`)
+- Next ready workbook-Pass revisit: `D045`
 
 ## Latest repo handoff snapshot（2026-04-11）
 
