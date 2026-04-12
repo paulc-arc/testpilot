@@ -34,7 +34,8 @@
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T052709875993",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T055159421076",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T060855269192",
-    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T061743676049"
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T061743676049",
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T062615392940"
   ],
   "answers_xlsx": "/home/paul_chen/prj_arc/testpilot/0401.xlsx",
   "cases_dir": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases",
@@ -42,12 +43,12 @@
   "missing_answer_count": 0,
   "missing_answer_rows": [],
   "metadata_drift_count": 58,
-  "full_match_count": 266,
-  "mismatch_case_count": 154,
+  "full_match_count": 267,
+  "mismatch_case_count": 153,
   "band_summary": {
     "5g": {
-      "matched": 272,
-      "mismatched": 148
+      "matched": 273,
+      "mismatched": 147
     },
     "6g": {
       "matched": 275,
@@ -2602,7 +2603,7 @@
       "case_id": "wifi-llapi-D063-vhtcapabilities-accesspoint-associateddevice",
       "case_file": "D063_vhtcapabilities_accesspoint_associateddevice.yaml",
       "dnum": 63,
-      "source_row": 65,
+      "source_row": 63,
       "source_object": "WiFi.AccessPoint.{i}.AssociatedDevice.{i}.",
       "source_api": "VhtCapabilities",
       "answer_row": 63,
@@ -2611,37 +2612,35 @@
       "mapping_status": "exact",
       "mapping_object_match": true,
       "mapping_api_match": true,
-      "final_status": "Fail",
-      "evaluation_verdict": "Fail",
-      "attempts_used": 2,
-      "comment": "pass_criteria not satisfied (failed after 2/2 attempts)",
+      "final_status": "Pass",
+      "evaluation_verdict": "Pass",
+      "attempts_used": 1,
+      "comment": "",
       "bands": {
         "5g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         },
         "6g": {
-          "actual_raw": "N/A",
+          "actual_raw": "Not Supported",
           "actual_norm": "Fail",
           "expected_raw": "Not Supported",
           "expected_norm": "Fail"
         },
         "2.4g": {
-          "actual_raw": "N/A",
+          "actual_raw": "Not Supported",
           "actual_norm": "Fail",
           "expected_raw": "Not Supported",
           "expected_norm": "Fail"
         }
       },
-      "mismatch_bands": [
-        "5g"
-      ],
-      "matches_answer": false,
+      "mismatch_bands": [],
+      "matches_answer": true,
       "workbook_test_steps_excerpt": "root@prplOS:/# ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.? | grep VhtCapabilities WiFi.AccessPoint.1.AssociatedDevice.1.VhtCapabilities=\"SGI80,SGI160,SU-BFR,SU-BFE,MU-BFR,MU-BFE\"",
       "workbook_command_output_excerpt": "",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D063-vhtcapabilities-accesspoint-associateddevice.json"
+      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T062615392940/wifi-llapi-D063-vhtcapabilities-accesspoint-associateddevice.json"
     },
     {
       "case_id": "wifi-llapi-D064-apbridgedisable",
@@ -19276,51 +19275,6 @@
       "workbook_test_steps_excerpt": "##Connect WiFi Station and send traffic then check TxUnicastPacketCount WiFi.AccessPoint.1.AssociatedDevice.1.TxUnicastPacketCount=0 WiFi.AccessPoint.3.AssociatedDevice.1.TxUnicastPacketCount=0 WiFi.AccessPoint.5.AssociatedDevice.1.TxUni...",
       "workbook_command_output_excerpt": "wl -i wl0 sta_info ${STA_MAC} TxUnicastPacketCount tx ucast pkts 90",
       "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D057-txunicastpacketcount.json"
-    },
-    {
-      "case_id": "wifi-llapi-D063-vhtcapabilities-accesspoint-associateddevice",
-      "case_file": "D063_vhtcapabilities_accesspoint_associateddevice.yaml",
-      "dnum": 63,
-      "source_row": 65,
-      "source_object": "WiFi.AccessPoint.{i}.AssociatedDevice.{i}.",
-      "source_api": "VhtCapabilities",
-      "answer_row": 63,
-      "answer_object": "WiFi.AccessPoint.{i}.AssociatedDevice.{i}.",
-      "answer_api": "VhtCapabilities",
-      "mapping_status": "exact",
-      "mapping_object_match": true,
-      "mapping_api_match": true,
-      "final_status": "Fail",
-      "evaluation_verdict": "Fail",
-      "attempts_used": 2,
-      "comment": "pass_criteria not satisfied (failed after 2/2 attempts)",
-      "bands": {
-        "5g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        },
-        "6g": {
-          "actual_raw": "N/A",
-          "actual_norm": "Fail",
-          "expected_raw": "Not Supported",
-          "expected_norm": "Fail"
-        },
-        "2.4g": {
-          "actual_raw": "N/A",
-          "actual_norm": "Fail",
-          "expected_raw": "Not Supported",
-          "expected_norm": "Fail"
-        }
-      },
-      "mismatch_bands": [
-        "5g"
-      ],
-      "matches_answer": false,
-      "workbook_test_steps_excerpt": "root@prplOS:/# ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.? | grep VhtCapabilities WiFi.AccessPoint.1.AssociatedDevice.1.VhtCapabilities=\"SGI80,SGI160,SU-BFR,SU-BFE,MU-BFR,MU-BFE\"",
-      "workbook_command_output_excerpt": "",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D063-vhtcapabilities-accesspoint-associateddevice.json"
     },
     {
       "case_id": "wifi-llapi-D070-enable-accesspoint",

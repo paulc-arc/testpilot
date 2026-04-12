@@ -4,7 +4,7 @@ version: '1.1'
 source:
   report: 0310-BGW720-300_LLAPI_Test_Report.xlsx
   sheet: Wifi_LLAPI
-  row: 65
+  row: 63
   object: WiFi.AccessPoint.{i}.AssociatedDevice.{i}.
   api: VhtCapabilities
   baseline: BCM v4.0.3
@@ -119,7 +119,7 @@ test_procedure: |
   1) Resolve COM1 wl0's live STA MAC and require AP1 AssociatedDevice.1 to point to that same station.
   2) Read WiFi.AccessPoint.1.AssociatedDevice.1.VhtCapabilities directly on DUT, then cross-check a full AssociatedDevice snapshot for both MACAddress and VhtCapabilities.
   3) Parse wl0 sta_info for the same STA and normalize the driver-side `VHT caps` line into a compact comma-separated capability list.
-  4) The current 5G retest is fail-shaped: VhtCapabilities stays empty through both the direct getter and the same-entry snapshot while wl0 sta_info still exposes a non-empty VHT capability list for that same STA.
+  4) Pass when the direct getter and the same-entry snapshot exact-close on a concrete non-empty VHT capability list, while wl0 sta_info confirms the same STA still exposes the expected VHT subset tokens.
 steps:
 - id: step1
   action: exec
@@ -167,8 +167,9 @@ pass_criteria:
   reference: sta_identity.StaMac
   description: AP1 AssociatedDevice.1 must correspond to the same COM1 wl0 station used for this manual checkpoint.
 - field: result.VhtCapabilities
-  operator: empty
-  description: The current 5G live retest still returns VhtCapabilities as an empty string through the direct getter.
+  operator: regex
+  value: ^[A-Z0-9-]+(,[A-Z0-9-]+)*$
+  description: The direct getter must expose a concrete comma-separated VHT capability list for the same STA.
 - field: assoc_snapshot.AssocMAC
   operator: equals
   reference: assoc_entry.MACAddress
@@ -197,10 +198,6 @@ pass_criteria:
   operator: contains
   value: SU-BFE
   description: wl0 sta_info must still expose SU-BFE in the VHT capability line for the same STA.
-- field: driver_capture.DriverVhtCapabilities
-  operator: not_equals
-  reference: result.VhtCapabilities
-  description: The non-empty driver-side VHT capability list must not collapse to the empty LLAPI VhtCapabilities value.
 verification_command:
   - 'cat /sys/class/net/wl0/address | tr ''A-F'' ''a-f'' | sed ''s/^/StaMac=/'''
   - 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.VhtCapabilities?"'
@@ -209,5 +206,5 @@ verification_command:
 results_reference:
   v4.0.3:
     5g: Pass
-    6g: Pass
-    2.4g: Pass
+    6g: Not Supported
+    2.4g: Not Supported

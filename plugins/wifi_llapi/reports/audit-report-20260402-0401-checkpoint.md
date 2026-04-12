@@ -1,5 +1,78 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-13 early-30)
+
+> This checkpoint records the `D063` VhtCapabilities row/oracle closure after `D062`.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D063 VhtCapabilities` is now aligned via official rerun `20260413T062615392940`
+- this was not a getter-missing gap: authoritative full-run evidence had already shown the same-STA direct getter and same-entry snapshot returning a concrete VHT capability list, but the committed case still carried stale workbook row `65` and an outdated fail-shaped contract that expected `VhtCapabilities=""`
+- the first confirmation rerun proved a second nuance: requiring exact equality against the human-readable `wl sta_info` `VHT caps` line was too strict for 0403, because LLAPI/snapshot exposed `SGI80,SGI160,SU-BFR,SU-BFE,MU-BFE` while the driver line only surfaced the same-STA subset `SGI80,SGI160,SU-BFR,SU-BFE`
+- source evidence (`wlu_common.c`, `local_wl_util.c`, `swl_staCap.h`) confirms these are related but not identical renderings, so the committed rewrite refreshes stale row `65` back to workbook row `63`, restores the pass-shaped non-empty same-STA getter/snapshot contract, and keeps `wl sta_info` as a same-STA subset sanity oracle
+- official rerun `20260413T062615392940` then exact-closed `VhtCapabilities=AssocVhtCapabilities=SGI80,SGI160,SU-BFR,SU-BFE,MU-BFE` with driver subset `DriverVhtCapabilities=SGI80,SGI160,SU-BFR,SU-BFE`
+- committed metadata is now workbook row `63` with `results_reference.v4.0.3 = Pass / Not Supported / Not Supported`
+- overlay compare is now `267 / 420 full matches`、`153 mismatches`、`58 metadata drifts`
+- next ready actionable workbook-Pass revisit is `D070`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D063` | 63 | `VhtCapabilities` | `Pass / Not Supported / Not Supported` | `20260413T062615392940_DUT.log L340-L387` | `20260413T062615392940_STA.log L63-L90` |
+
+#### D063 VhtCapabilities
+
+**STA 指令**
+
+```sh
+iw dev wl0 link
+wpa_cli -p /var/run/wpa_supplicant -i wl0 status
+cat /sys/class/net/wl0/address | tr 'A-F' 'a-f' | sed 's/^/StaMac=/'
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p' | tr 'A-F' 'a-f' | sed 's/^/MACAddress=/'
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.VhtCapabilities?"
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.?" | awk -F= '/^WiFi\.AccessPoint\.1\.AssociatedDevice\.1\.MACAddress=/ {gsub(/"/, "", $2); print "AssocMAC=" tolower($2)} /^WiFi\.AccessPoint\.1\.AssociatedDevice\.1\.VhtCapabilities=/ {gsub(/"/, "", $2); print "AssocVhtCapabilities=" $2}'
+STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p' | tr 'A-F' 'a-f'); [ -n "$STA_MAC" ] && echo DriverAssocMac="$STA_MAC" && wl -i wl0 sta_info "$STA_MAC" | awk '/^[[:space:]]*VHT caps / {line=substr($0, index($0, ":")+2); print "DriverVhtCapsLine=" line; for (i=1;i<=NF;i++) if ($i ~ /^(SGI80|SGI160|SU-BFR|SU-BFE|MU-BFR|MU-BFE)$/) caps[++n]=$i} END {if (n) {out=""; for (i=1;i<=n;i++) out = out (i>1 ? "," : "") caps[i]; print "DriverVhtCapabilities=" out}}'
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+20260413T062615392940_STA.log L63-L90
+Connected to 2c:59:17:00:19:95 (on wl0)
+SSID: testpilot5G
+wpa_state=COMPLETED
+StaMac=2c:59:17:00:04:85
+
+20260413T062615392940_DUT.log L340-L387
+MACAddress=2c:59:17:00:04:85
+WiFi.AccessPoint.1.AssociatedDevice.1.VhtCapabilities="SGI80,SGI160,SU-BFR,SU-BFE,MU-BFE"
+AssocVhtCapabilities=SGI80,SGI160,SU-BFR,SU-BFE,MU-BFE
+DriverAssocMac=2c:59:17:00:04:85
+DriverVhtCapsLine=LDPC SGI80 SGI160 SU-BFR SU-BFE
+DriverVhtCapabilities=SGI80,SGI160,SU-BFR,SU-BFE
+
+plugins/wifi_llapi/reports/agent_trace/20260413T062615392940/wifi-llapi-D063-vhtcapabilities-accesspoint-associateddevice.json L96-L108
+commands:
+  cat /sys/class/net/wl0/address | tr 'A-F' 'a-f' | sed 's/^/StaMac=/'
+  ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.VhtCapabilities?"
+  ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.?" | awk ...
+  STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | ...)
+outputs:
+  StaMac=2c:59:17:00:04:85
+  WiFi.AccessPoint.1.AssociatedDevice.1.VhtCapabilities="SGI80,SGI160,SU-BFR,SU-BFE,MU-BFE"
+  AssocVhtCapabilities=SGI80,SGI160,SU-BFR,SU-BFE,MU-BFE
+  DriverVhtCapabilities=SGI80,SGI160,SU-BFR,SU-BFE
+```
+
 ## Checkpoint summary (2026-04-13 early-29)
 
 > This checkpoint records the `D062` VendorOUI row/oracle closure after `D060`.

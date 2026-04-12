@@ -7601,7 +7601,7 @@ def test_d062_vendoroui_evaluate_live_examples():
     assert plugin.evaluate(d062, d062_wrong_assoc_results) is False
 
 
-def test_d063_vhtcapabilities_uses_same_sta_failure_contract():
+def test_d063_vhtcapabilities_uses_same_sta_pass_contract():
     cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
     plugin = _load_plugin()
     discoverable_ids = {case["id"] for case in plugin.discover_cases()}
@@ -7619,7 +7619,7 @@ def test_d063_vhtcapabilities_uses_same_sta_failure_contract():
     assert "aliases" not in d063_raw
     assert d063["id"] == "wifi-llapi-D063-vhtcapabilities-accesspoint-associateddevice"
     assert d063["source"]["report"] == "0310-BGW720-300_LLAPI_Test_Report.xlsx"
-    assert d063["source"]["row"] == 65
+    assert d063["source"]["row"] == 63
     assert d063["source"]["baseline"] == "BCM v4.0.3"
     assert d063["llapi_support"] == "Support"
     assert d063["bands"] == ["5g"]
@@ -7640,7 +7640,8 @@ def test_d063_vhtcapabilities_uses_same_sta_failure_contract():
     )
     assert any(
         criterion["field"] == "result.VhtCapabilities"
-        and criterion["operator"] == "empty"
+        and criterion["operator"] == "regex"
+        and criterion["value"] == "^[A-Z0-9-]+(,[A-Z0-9-]+)*$"
         for criterion in d063["pass_criteria"]
     )
     assert any(
@@ -7667,15 +7668,15 @@ def test_d063_vhtcapabilities_uses_same_sta_failure_contract():
         and criterion["value"] == "SU-BFE"
         for criterion in d063["pass_criteria"]
     )
-    assert any(
+    assert not any(
         criterion["field"] == "driver_capture.DriverVhtCapabilities"
-        and criterion["operator"] == "not_equals"
+        and criterion["operator"] == "equals"
         and criterion.get("reference") == "result.VhtCapabilities"
         for criterion in d063["pass_criteria"]
     )
     assert d063["results_reference"]["v4.0.3"]["5g"] == "Pass"
-    assert d063["results_reference"]["v4.0.3"]["6g"] == "Pass"
-    assert d063["results_reference"]["v4.0.3"]["2.4g"] == "Pass"
+    assert d063["results_reference"]["v4.0.3"]["6g"] == "Not Supported"
+    assert d063["results_reference"]["v4.0.3"]["2.4g"] == "Not Supported"
 
 
 def test_d063_vhtcapabilities_evaluate_live_examples():
@@ -7697,12 +7698,12 @@ def test_d063_vhtcapabilities_evaluate_live_examples():
             },
             "step3": {
                 "success": True,
-                "output": 'WiFi.AccessPoint.1.AssociatedDevice.1.VhtCapabilities=""',
+                "output": 'WiFi.AccessPoint.1.AssociatedDevice.1.VhtCapabilities="SGI80,SGI160,SU-BFR,SU-BFE"',
                 "timing": 0.01,
             },
             "step4": {
                 "success": True,
-                "output": "AssocMAC=2c:59:17:00:04:85\nAssocVhtCapabilities=",
+                "output": "AssocMAC=2c:59:17:00:04:85\nAssocVhtCapabilities=SGI80,SGI160,SU-BFR,SU-BFE",
                 "timing": 0.01,
             },
             "step5": {
@@ -7725,7 +7726,7 @@ def test_d063_vhtcapabilities_evaluate_live_examples():
             **d063_results["steps"],
             "step3": {
                 "success": True,
-                "output": 'WiFi.AccessPoint.1.AssociatedDevice.1.VhtCapabilities="SGI80,SGI160,SU-BFE"',
+                "output": 'WiFi.AccessPoint.1.AssociatedDevice.1.VhtCapabilities=""',
                 "timing": 0.01,
             },
         }
@@ -16297,7 +16298,7 @@ def test_d063_vhtcapabilities_macaddress_fragment_normalizes_case():
     assert proc.stdout.strip() == "MACAddress=2c:59:17:00:04:85"
 
 
-def test_d063_vhtcapabilities_snapshot_fragment_executes_with_empty_value():
+def test_d063_vhtcapabilities_snapshot_fragment_executes_with_concrete_value():
     cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
     d063 = load_case(cases_dir / "D063_vhtcapabilities_accesspoint_associateddevice.yaml")
     step4_command = d063["steps"][3]["command"]
@@ -16305,7 +16306,7 @@ def test_d063_vhtcapabilities_snapshot_fragment_executes_with_empty_value():
     sample_output = "\n".join(
         [
             'WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress="2C:59:17:00:04:85"',
-            'WiFi.AccessPoint.1.AssociatedDevice.1.VhtCapabilities=""',
+            'WiFi.AccessPoint.1.AssociatedDevice.1.VhtCapabilities="SGI80,SGI160,SU-BFR,SU-BFE"',
         ]
     )
 
@@ -16323,7 +16324,7 @@ def test_d063_vhtcapabilities_snapshot_fragment_executes_with_empty_value():
     assert proc.returncode == 0, proc.stderr
     assert proc.stdout.strip().splitlines() == [
         "AssocMAC=2c:59:17:00:04:85",
-        "AssocVhtCapabilities=",
+        "AssocVhtCapabilities=SGI80,SGI160,SU-BFR,SU-BFE",
     ]
 
 
