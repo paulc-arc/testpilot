@@ -5493,7 +5493,7 @@ def test_d060_uplinkmcs_uses_zero_valid_same_sta_contract():
     assert "wifi-llapi-D060-uplinkmcs" in {case["id"] for case in plugin.discover_cases()}
     assert "aliases" not in raw_case
     assert case_data["id"] == "wifi-llapi-D060-uplinkmcs"
-    assert case_data["source"]["row"] == 62
+    assert case_data["source"]["row"] == 60
     assert case_data["source"]["baseline"] == "BCM v4.0.3"
     assert case_data["bands"] == ["5g"]
     assert links == {"5g"}
@@ -5504,6 +5504,7 @@ def test_d060_uplinkmcs_uses_zero_valid_same_sta_contract():
     assert "AssocMacAfterTrigger=" in commands
     assert "DriverAssocMac=" in commands
     assert "DriverUplinkMCS=" in commands
+    assert "sed -n 's/.*MACAddress=\"\\([^\"]*\\)\".*/\\1/p' | head -n 1" in commands
     assert "sed -n '/rx nrate/{n;s/.*mcs \\([0-9][0-9]*\\).*/DriverUplinkMCS=\\1/p;}'" in commands
     assert any(
         criterion["field"] == "result.AssocMacAfterTrigger"

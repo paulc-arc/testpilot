@@ -32,7 +32,8 @@
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T044907394777",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T050318932313",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T052709875993",
-    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T055159421076"
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T055159421076",
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T060855269192"
   ],
   "answers_xlsx": "/home/paul_chen/prj_arc/testpilot/0401.xlsx",
   "cases_dir": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases",
@@ -40,20 +41,20 @@
   "missing_answer_count": 0,
   "missing_answer_rows": [],
   "metadata_drift_count": 58,
-  "full_match_count": 264,
-  "mismatch_case_count": 156,
+  "full_match_count": 265,
+  "mismatch_case_count": 155,
   "band_summary": {
     "5g": {
-      "matched": 270,
-      "mismatched": 150
+      "matched": 271,
+      "mismatched": 149
     },
     "6g": {
-      "matched": 273,
-      "mismatched": 147
+      "matched": 274,
+      "mismatched": 146
     },
     "2.4g": {
-      "matched": 270,
-      "mismatched": 150
+      "matched": 271,
+      "mismatched": 149
     }
   },
   "cases": [
@@ -2471,7 +2472,7 @@
       "case_id": "wifi-llapi-D060-uplinkmcs",
       "case_file": "D060_uplinkmcs.yaml",
       "dnum": 60,
-      "source_row": 62,
+      "source_row": 60,
       "source_object": "WiFi.AccessPoint.{i}.AssociatedDevice.{i}.",
       "source_api": "UplinkMCS",
       "answer_row": 60,
@@ -2480,39 +2481,35 @@
       "mapping_status": "exact",
       "mapping_object_match": true,
       "mapping_api_match": true,
-      "final_status": "Fail",
-      "evaluation_verdict": "Fail",
-      "attempts_used": 2,
-      "comment": "pass_criteria not satisfied (failed after 2/2 attempts)",
+      "final_status": "Pass",
+      "evaluation_verdict": "Pass",
+      "attempts_used": 1,
+      "comment": "",
       "bands": {
         "5g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         },
         "6g": {
-          "actual_raw": "N/A",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         },
         "2.4g": {
-          "actual_raw": "N/A",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         }
       },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
+      "mismatch_bands": [],
+      "matches_answer": true,
       "workbook_test_steps_excerpt": "##Connect WiFi Station and check Station UplinkMCS WiFi.AccessPoint.1.AssociatedDevice.1.UplinkMCS=0 WiFi.AccessPoint.3.AssociatedDevice.1.UplinkMCS=0 WiFi.AccessPoint.5.AssociatedDevice.1.UplinkMCS=0",
       "workbook_command_output_excerpt": "wl -i wl0 sta_info ${STA_MAC} rx nrate eht mcs 4 Nss 1 Tx Exp 0 bw20 ldpc 2xLTF GI 0.8us auto rx nrate = last packet received from the STA (uplink) eht mcs 4 → UplinkMCS = 4 Nss 1 → 1 spatial stream used for uplink bw20 → uplink channel ...",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D060-uplinkmcs.json"
+      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T060855269192/wifi-llapi-D060-uplinkmcs.json"
     },
     {
       "case_id": "wifi-llapi-D061-uplinkshortguard",
@@ -19282,53 +19279,6 @@
       "workbook_test_steps_excerpt": "##Connect WiFi Station and send traffic then check TxUnicastPacketCount WiFi.AccessPoint.1.AssociatedDevice.1.TxUnicastPacketCount=0 WiFi.AccessPoint.3.AssociatedDevice.1.TxUnicastPacketCount=0 WiFi.AccessPoint.5.AssociatedDevice.1.TxUni...",
       "workbook_command_output_excerpt": "wl -i wl0 sta_info ${STA_MAC} TxUnicastPacketCount tx ucast pkts 90",
       "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D057-txunicastpacketcount.json"
-    },
-    {
-      "case_id": "wifi-llapi-D060-uplinkmcs",
-      "case_file": "D060_uplinkmcs.yaml",
-      "dnum": 60,
-      "source_row": 62,
-      "source_object": "WiFi.AccessPoint.{i}.AssociatedDevice.{i}.",
-      "source_api": "UplinkMCS",
-      "answer_row": 60,
-      "answer_object": "WiFi.AccessPoint.{i}.AssociatedDevice.{i}.",
-      "answer_api": "UplinkMCS",
-      "mapping_status": "exact",
-      "mapping_object_match": true,
-      "mapping_api_match": true,
-      "final_status": "Fail",
-      "evaluation_verdict": "Fail",
-      "attempts_used": 2,
-      "comment": "pass_criteria not satisfied (failed after 2/2 attempts)",
-      "bands": {
-        "5g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        },
-        "6g": {
-          "actual_raw": "N/A",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        },
-        "2.4g": {
-          "actual_raw": "N/A",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        }
-      },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
-      "workbook_test_steps_excerpt": "##Connect WiFi Station and check Station UplinkMCS WiFi.AccessPoint.1.AssociatedDevice.1.UplinkMCS=0 WiFi.AccessPoint.3.AssociatedDevice.1.UplinkMCS=0 WiFi.AccessPoint.5.AssociatedDevice.1.UplinkMCS=0",
-      "workbook_command_output_excerpt": "wl -i wl0 sta_info ${STA_MAC} rx nrate eht mcs 4 Nss 1 Tx Exp 0 bw20 ldpc 2xLTF GI 0.8us auto rx nrate = last packet received from the STA (uplink) eht mcs 4 → UplinkMCS = 4 Nss 1 → 1 spatial stream used for uplink bw20 → uplink channel ...",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D060-uplinkmcs.json"
     },
     {
       "case_id": "wifi-llapi-D062-vendoroui",

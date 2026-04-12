@@ -103,6 +103,7 @@
   - `D188 DTIMPeriod` is now aligned via official rerun `20260413T050318932313`
   - `D034 Noise` is now aligned via official rerun `20260413T052709875993`
   - `D059 UplinkBandwidth` is now aligned via official rerun `20260413T055159421076`
+  - `D060 UplinkMCS` is now aligned via official rerun `20260413T060855269192`
   - `D047` / `D050` were pulled back from a drifted custom `TestPilot_BTM` / `WPA3-Personal` path to the authoritative generic `testpilot5G` / `WPA2-Personal` baseline seen in full run `20260412T113008433351`
   - live STA evidence exact-closed the generic WPA2 link (`SSID: testpilot5G`), and DUT evidence exact-closed the same AssociatedDevice entry against `error=4 / message=parameter not found` plus sibling Rx/Tx capability fields and `wl0 sta_info`
   - committed metadata is now workbook row `47` / `50`, with `results_reference.v4.0.3 = Not Supported / N/A / N/A` for both cases
@@ -135,6 +136,8 @@
   - `D059` closes as a source-backed baseline + trigger + oracle rewrite rather than a metadata-only refresh: the case still carried stale row `61`, a drifted custom `TestPilot_BTM` / `WPA3-Personal` baseline, and a weak driver reread path that sampled `rx nrate` before any deterministic STA uplink traffic
   - authoritative run `20260412T113008433351` had already shown the true D059 pass path on the generic `testpilot5G` / `WPA2-Personal` baseline, so the committed rewrite restores that baseline, refreshes stale row `61` to workbook row `59`, adds an explicit STA uplink trigger (`ifconfig wl0 192.168.1.3 ...` + `ping -I wl0 -c 8 -W 1 192.168.1.1`), and re-reads the same post-trigger `AssociatedDevice.1` slot against `wl sta_info ... rx nrate`
   - official rerun `20260413T055159421076` then exact-closed `UplinkBandwidth=20`, `AssocMacAfterTrigger=2C:59:17:00:04:85`, `DriverAssocMac=2C:59:17:00:04:85`, and `DriverUplinkBandwidth=20`, so `results_reference.v4.0.3` is now `Pass / Pass / Pass`
+  - `D060` closes as a row+parser correction rather than a semantic rewrite: the authoritative full-run trace had already exact-closed same-STA `UplinkMCS` against `wl sta_info ... rx nrate`, but the case still carried stale row `62` and a fragile step4 extractor that duplicated `AssocMacAfterTrigger` / `DriverAssocMac` because the `MACAddress` sed pipeline was missing `| head -n 1`
+  - official rerun `20260413T060855269192` with workbook row `60` and the hardened same-STA extractor exact-closed `UplinkMCS=10`, `AssocMacAfterTrigger=2C:59:17:00:04:85`, `DriverAssocMac=2C:59:17:00:04:85`, and `DriverUplinkMCS=10`, so `results_reference.v4.0.3` is now `Pass / Pass / Pass`
 - Latest investigated non-aligned case:
   - `D020 FrequencyCapabilities` remains the verified fail-shaped mismatch: workbook still expects `Pass`, but active 0403 runtime evidence remains `AP1/AP5 getter empty` plus `AP3 getter 6GHz`, while driver support still resolves as per-band single-frequency capability rather than workbook tri-band pass semantics
   - `D079 MACFiltering.Mode` official rerun `20260413T002418591720` no longer hits `step_command_failed`
@@ -150,12 +153,12 @@
     - the same STA verify-env log nevertheless showed `SSID: testpilot5G` / `wpa_state=COMPLETED`, so this was not a clean metadata-only closure
     - reconnect trial rerun `20260413T015210910141` removed the immediate 5G join failure but then got trapped in repeated 6G `ocv=0` / `ATTACH` recovery (`6G restart attempt=1 unstable`, `env: retry command after recovery_action=ATTACH`, `6G ocv=0 verify failed — BSS loop may persist`)
     - the local tri-band rewrite was reverted; blocker authority is now `plugins/wifi_llapi/reports/D035_block.md`
-  - next ready non-blocked workbook-Pass revisit is now `D060 UplinkMCS`
+  - next ready non-blocked workbook-Pass revisit is now `D062 VendorOUI`
 - Current authoritative full-run source remains `20260412T113008433351`
 - Latest recomputed overlay compare on top of authoritative full run `20260412T113008433351`
-  plus D024 / D025 / D022 / D072 / D047 / D050 / D088 / D460 / D494 / D461 / D462 / D463 / D465 / D467 / D045 / D046 / D061 / D028 / D065 / D081 / D094 / D095 / D098 / D099 / D114 / D115 / D174 / D176 / D188 / D034 / D059 reruns:
-  - `264 / 420 full matches`
-  - `156 mismatches`
+  plus D024 / D025 / D022 / D072 / D047 / D050 / D088 / D460 / D494 / D461 / D462 / D463 / D465 / D467 / D045 / D046 / D061 / D028 / D065 / D081 / D094 / D095 / D098 / D099 / D114 / D115 / D174 / D176 / D188 / D034 / D059 / D060 reruns:
+  - `265 / 420 full matches`
+  - `155 mismatches`
   - `58 metadata drifts`
 - Current focused step-command-failed workstream status:
   - closed in this loop: `D072`、`D047`、`D050`、`D088`、`D460`、`D494`
@@ -163,7 +166,7 @@
   - remaining open set: `none`
   - env-only bucket remains `D328`、`D336`
   - blocked bucket is now `D053` (`needs deterministic AP-to-STA unicast payload`) plus `D035` (`tri-band rewrite blocked by shared 6G OCV / ATTACH recovery loop`)
-- Next ready workbook-Pass revisit: `D060`
+- Next ready workbook-Pass revisit: `D062`
 
 ## Latest repo handoff snapshot（2026-04-11）
 
