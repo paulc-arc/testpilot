@@ -1,5 +1,72 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-13 early-21)
+
+> This checkpoint records the `D114` tri-band stale-scope closure after `D099`.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D114 getStationStats() AvgSignalStrengthByChain` is now aligned via official rerun `20260413T033856175894`
+- active 0403 still routes the field through `whm_brcm_ap_mlo_fillAssocDevInfo()` -> `wld_ad_getAvgSignalStrengthByChain(pAD)`
+- the ODL still exposes `AvgSignalStrengthByChain` as a volatile read-only int32 with no band-specific branch
+- the old case was a 5G-only artifact (`Fail / N/A / N/A`) even though workbook row `114` expects tri-band Pass
+- the committed rewrite restores tri-band sequential `getStationStats()` coverage on AP1 / AP3 / AP5
+- official rerun exact-closed `AvgSignalStrengthByChain=-33` (5G), `-85` (6G), `-23` (2.4G)
+- verify_env had to absorb transient 6G OCV/hostapd recovery noise, but the case itself still finished `Pass` in one attempt
+- committed metadata is now workbook row `114` with `results_reference.v4.0.3 = Pass / Pass / Pass`
+- overlay compare is now `258 / 420 full matches`、`162 mismatches`、`58 metadata drifts`
+- next ready workbook-Pass revisit is `D115`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D114` | 114 | `getStationStats() AvgSignalStrengthByChain` | `Pass / Pass / Pass` | `20260413T033856175894_DUT.log L502-L538, L892-L927` | `20260413T033856175894_STA.log L500-L533, L664-L694, L387-L398` |
+
+#### D114 getStationStats() AvgSignalStrengthByChain
+
+**STA 指令**
+
+```sh
+iw dev wl0 link
+wpa_cli -p /var/run/wpa_supplicant -i wl0 status
+iw dev wl1 link
+wpa_cli -p /var/run/wpa_supplicant -i wl1 status
+wl -i wl1 status
+iw dev wl2 link
+wpa_cli -p /var/run/wpa_supplicant -i wl2 status
+```
+
+**DUT 指令**
+
+```sh
+wl -i wl0 assoclist
+ubus-cli "WiFi.AccessPoint.1.getStationStats()"
+wl -i wl1 assoclist
+ubus-cli "WiFi.AccessPoint.3.getStationStats()"
+wl -i wl2 assoclist
+ubus-cli "WiFi.AccessPoint.5.getStationStats()"
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+20260413T033856175894_DUT.log L502-L538
+assoclist 2C:59:17:00:04:85
+AvgSignalStrengthByChain = -33
+
+20260413T033856175894_DUT.log L892-L927
+assoclist 2C:59:17:00:04:86
+AvgSignalStrengthByChain = -85
+
+plugins/wifi_llapi/reports/agent_trace/20260413T033856175894/wifi-llapi-D114-getstationstats-avgsignalstrengthbychain.json L114-L116
+assoclist 2C:59:17:00:04:97
+AvgSignalStrengthByChain = -23
+```
+
 ## Checkpoint summary (2026-04-13 early-20)
 
 > This checkpoint records the `D099` metadata/results_reference closure after `D098`.

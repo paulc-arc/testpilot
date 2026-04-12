@@ -28,6 +28,7 @@
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T030853360475`
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T031458311484`
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T032521733067`
+  - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T033856175894`
 - answer sheet: `/home/paul_chen/prj_arc/testpilot/0401.xlsx`
 - cases dir: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases`
 - compare rule: normalize both sides so only `Pass` stays `Pass`; all other values become `Fail`.
@@ -38,8 +39,8 @@
 | metric | value |
 | --- | ---: |
 | compared cases | 420 |
-| full matches | 257 |
-| mismatch cases | 163 |
+| full matches | 258 |
+| mismatch cases | 162 |
 | missing answer rows | 0 |
 | metadata drift rows | 58 |
 
@@ -47,9 +48,9 @@
 
 | band | matched | mismatched |
 | --- | ---: | ---: |
-| 5g | 263 | 157 |
-| 6g | 266 | 154 |
-| 2.4g | 263 | 157 |
+| 5g | 264 | 156 |
+| 6g | 267 | 153 |
+| 2.4g | 264 | 156 |
 
 ## Mismatch table
 
@@ -92,7 +93,6 @@
 | `wifi-llapi-D108-uuid` | 108 | exact | Pass / Pass / Pass | Pass / Not Supported / Pass | Pass / Pass / Pass | Pass / Fail / Pass | 6g |
 | `wifi-llapi-D109-getstationstats-accesspoint` | 109 | exact | Fail / N/A / N/A | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `wifi-llapi-D110-getstationstats-active` | 110 | exact | Fail / N/A / N/A | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
-| `wifi-llapi-D114-getstationstats-avgsignalstrengthbychain` | 114 | exact | Fail / N/A / N/A | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `wifi-llapi-D115-getstationstats-connectionduration` | 115 | exact | Fail / N/A / N/A | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d174-radio-activeantennactrl` | 174 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d176-radio-beaconperiod` | 176 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
@@ -944,25 +944,6 @@
 - 0401 G excerpt: 1. Connect WiFi Station to GW. 2. Verify connected Station state root@prplOS:/# ubus-cli "WiFi.AccessPoint.*.getStationStats()" | grep -E 'Activ e|MAC' Active = 1, MACAddress = "e6:60:17:eb:a9:86", Active = 1, MACAddress = "38:06:e6:92:b...
 - 0401 H excerpt: root@prplOS:/# wl -i wl0 sta_info e6:60:17:eb:a9:86 | grep state state: AUTHENTICATED ASSOCIATED AUTHORIZED root@prplOS:/# wl -i wl1 sta_info 38:06:e6:92:b0:4a | grep state state: AUTHENTICATED ASSOCIATED AUTHORIZED root@prplOS:/# wl -i ...
 - trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D110-getstationstats-active.json`
-
-### wifi-llapi-D114-getstationstats-avgsignalstrengthbychain
-
-- case file: `D114_getstationstats_avgsignalstrengthbychain.yaml`
-- answer row: `114`
-- mapping status: `exact`
-- source metadata: `WiFi.AccessPoint.{i}.` / `getStationStats()`
-- workbook metadata: `WiFi.AccessPoint.{i}.` / `getStationStats()`
-- final status: `Fail`
-- evaluation verdict: `Pass`
-- attempts used: `1`
-- actual raw: `Fail` / `N/A` / `N/A`
-- expected raw: `Pass` / `Pass` / `Pass`
-- actual normalized: `Fail` / `Fail` / `Fail`
-- expected normalized: `Pass` / `Pass` / `Pass`
-- mismatch bands: `5g, 6g, 2.4g`
-- 0401 G excerpt: 1. Connect WiFi Station to GW and make sure the Station is Active root@prplOS:/# ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.? | grep -E 'Active|MAC' WiFi.AccessPoint.1.AssociatedDevice.1.Active=1 WiFi.AccessPoint.1.AssociatedDevice.1...
-- 0401 H excerpt: root@prplOS:/# wl -i wl0 sta_info E6:D7:D3:EA:CF:15 | grep average per antenna average rssi of rx data frames: -43 -53 -46 -49 root@prplOS:/# wl -i wl1 sta_info 38:06:E6:92:B0:4A | grep average per antenna average rssi of rx data frames:...
-- trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D114-getstationstats-avgsignalstrengthbychain.json`
 
 ### wifi-llapi-D115-getstationstats-connectionduration
 

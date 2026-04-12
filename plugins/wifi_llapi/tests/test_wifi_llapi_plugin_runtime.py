@@ -13186,11 +13186,11 @@ def test_d114_getstationstats_avgsignalstrengthbychain_contract():
     """D114 YAML loads, discovers, and has correct metadata."""
     cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
     case = load_case(cases_dir / "D114_getstationstats_avgsignalstrengthbychain.yaml")
-    assert case["source"]["row"] == 116
+    assert case["source"]["row"] == 114
     assert case["llapi_support"] == "Support"
-    assert len(case["steps"]) == 2
-    assert len(case["pass_criteria"]) == 2
-    assert case["bands"] == ["5g"]
+    assert len(case["steps"]) == 9
+    assert len(case["pass_criteria"]) == 9
+    assert case["bands"] == ["5g", "6g", "2.4g"]
 
 
 def test_d114_getstationstats_avgsignalstrengthbychain_setup_env(monkeypatch):
@@ -13212,14 +13212,49 @@ def test_d114_getstationstats_avgsignalstrengthbychain_evaluate():
     case = load_case(cases_dir / "D114_getstationstats_avgsignalstrengthbychain.yaml")
     results = {
         "steps": {
-            "step1_assoc_precheck": {
+            "step1_5g_sta_join": {
+                "success": True,
+                "output": "Connected to testpilot5G",
+                "timing": 0.01,
+            },
+            "step2_5g_assoc": {
                 "success": True,
                 "output": "2C:59:17:00:04:85",
                 "timing": 0.01,
             },
-            "step2_getstationstats": {
+            "step3_5g_getstationstats": {
                 "success": True,
                 "output": "AvgSignalStrengthByChain=-34",
+                "timing": 0.01,
+            },
+            "step4_6g_sta_join": {
+                "success": True,
+                "output": "Connected to testpilot6G",
+                "timing": 0.01,
+            },
+            "step5_6g_assoc": {
+                "success": True,
+                "output": "2C:59:17:00:04:86",
+                "timing": 0.01,
+            },
+            "step6_6g_getstationstats": {
+                "success": True,
+                "output": "AvgSignalStrengthByChain=-57",
+                "timing": 0.01,
+            },
+            "step7_24g_sta_join": {
+                "success": True,
+                "output": "Connected to testpilot2G",
+                "timing": 0.01,
+            },
+            "step8_24g_assoc": {
+                "success": True,
+                "output": "2C:59:17:00:04:87",
+                "timing": 0.01,
+            },
+            "step9_24g_getstationstats": {
+                "success": True,
+                "output": "AvgSignalStrengthByChain=-16",
                 "timing": 0.01,
             },
         }
