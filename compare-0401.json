@@ -30,7 +30,8 @@
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T035856845825",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T042647797154",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T044907394777",
-    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T050318932313"
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T050318932313",
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T052709875993"
   ],
   "answers_xlsx": "/home/paul_chen/prj_arc/testpilot/0401.xlsx",
   "cases_dir": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases",
@@ -38,20 +39,20 @@
   "missing_answer_count": 0,
   "missing_answer_rows": [],
   "metadata_drift_count": 58,
-  "full_match_count": 262,
-  "mismatch_case_count": 158,
+  "full_match_count": 263,
+  "mismatch_case_count": 157,
   "band_summary": {
     "5g": {
-      "matched": 268,
-      "mismatched": 152
+      "matched": 269,
+      "mismatched": 151
     },
     "6g": {
-      "matched": 271,
-      "mismatched": 149
+      "matched": 272,
+      "mismatched": 148
     },
     "2.4g": {
-      "matched": 268,
-      "mismatched": 152
+      "matched": 269,
+      "mismatched": 151
     }
   },
   "cases": [
@@ -1330,7 +1331,7 @@
       "case_id": "wifi-llapi-D034-noise-accesspoint-associateddevice",
       "case_file": "D034_noise_accesspoint_associateddevice.yaml",
       "dnum": 34,
-      "source_row": 36,
+      "source_row": 34,
       "source_object": "WiFi.AccessPoint.{i}.AssociatedDevice.{i}.",
       "source_api": "Noise",
       "answer_row": 34,
@@ -1339,39 +1340,35 @@
       "mapping_status": "exact",
       "mapping_object_match": true,
       "mapping_api_match": true,
-      "final_status": "Fail",
-      "evaluation_verdict": "Fail",
-      "attempts_used": 2,
-      "comment": "pass_criteria not satisfied (failed after 2/2 attempts)",
+      "final_status": "Pass",
+      "evaluation_verdict": "Pass",
+      "attempts_used": 1,
+      "comment": "",
       "bands": {
         "5g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         },
         "6g": {
-          "actual_raw": "N/A",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         },
         "2.4g": {
-          "actual_raw": "N/A",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         }
       },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
+      "mismatch_bands": [],
+      "matches_answer": true,
       "workbook_test_steps_excerpt": "1. Connect WiFi Station to GW 2. Get the Noise by ubus command and record the result for reference root@prplOS:/# ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.Noise? > WiFi.AccessPoint.*.AssociatedDevice.*.Noise? WiFi.AccessPoint.1.Ass...",
       "workbook_command_output_excerpt": "wl -i wl0 sta_info ${STA_MAC} root@prplOS:/# wl -i wl0 sta_info 34:19:4d:a4:b5:09 | grep noise per antenna noise floor: -85 -87 -86 -86 root@prplOS:/# wl -i wl1 sta_info 38:06:E6:92:B0:4A | grep noise per antenna noise floor: -87 -87 -87...",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D034-noise-accesspoint-associateddevice.json"
+      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T052709875993/wifi-llapi-D034-noise-accesspoint-associateddevice.json"
     },
     {
       "case_id": "d035-assocdev-operatingstandard",
@@ -19009,53 +19006,6 @@
       "workbook_test_steps_excerpt": "\\\\Connect WiFi Station \\\\Run IPERF3 between Station's and GW at the same time \\\\Get station caps root@prplOS:/# wl -i wl0 sta_info 34:19:4d:a4:b5:09 | grep 'caps' HT caps 0x9ef: LDPC 40MHz SGI20 SGI40 STBC-Tx STBC-Rx VHT caps 0xff: LDPC ...",
       "workbook_command_output_excerpt": "wl -i wl0 sta_info ${STA_MAC}",
       "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D033-muuserpositionid.json"
-    },
-    {
-      "case_id": "wifi-llapi-D034-noise-accesspoint-associateddevice",
-      "case_file": "D034_noise_accesspoint_associateddevice.yaml",
-      "dnum": 34,
-      "source_row": 36,
-      "source_object": "WiFi.AccessPoint.{i}.AssociatedDevice.{i}.",
-      "source_api": "Noise",
-      "answer_row": 34,
-      "answer_object": "WiFi.AccessPoint.{i}.AssociatedDevice.{i}.",
-      "answer_api": "Noise",
-      "mapping_status": "exact",
-      "mapping_object_match": true,
-      "mapping_api_match": true,
-      "final_status": "Fail",
-      "evaluation_verdict": "Fail",
-      "attempts_used": 2,
-      "comment": "pass_criteria not satisfied (failed after 2/2 attempts)",
-      "bands": {
-        "5g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        },
-        "6g": {
-          "actual_raw": "N/A",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        },
-        "2.4g": {
-          "actual_raw": "N/A",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        }
-      },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
-      "workbook_test_steps_excerpt": "1. Connect WiFi Station to GW 2. Get the Noise by ubus command and record the result for reference root@prplOS:/# ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.Noise? > WiFi.AccessPoint.*.AssociatedDevice.*.Noise? WiFi.AccessPoint.1.Ass...",
-      "workbook_command_output_excerpt": "wl -i wl0 sta_info ${STA_MAC} root@prplOS:/# wl -i wl0 sta_info 34:19:4d:a4:b5:09 | grep noise per antenna noise floor: -85 -87 -86 -86 root@prplOS:/# wl -i wl1 sta_info 38:06:E6:92:B0:4A | grep noise per antenna noise floor: -87 -87 -87...",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D034-noise-accesspoint-associateddevice.json"
     },
     {
       "case_id": "d035-assocdev-operatingstandard",

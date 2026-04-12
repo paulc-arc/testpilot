@@ -1,5 +1,75 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-13 early-26)
+
+> This checkpoint records the `D034` Noise baseline/oracle closure after `D188`.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D034 Noise` is now aligned via official rerun `20260413T052709875993`
+- the first confirmation rerun `20260413T052117345208` failed in `setup_env` (`iw dev wl0 link -> Not connected.`), which exposed the real blocker: stale custom `TestPilot_BTM` / `WPA3-Personal` baseline drift rather than a semantic Noise mismatch
+- authoritative full run `20260412T113008433351` had already shown the real D034 pass path on the generic `testpilot5G` / `WPA2-Personal` baseline, so the committed rewrite restores that baseline, drops the custom `sta_env_setup`, refreshes stale row `36` to workbook row `34`, and replaces the stale `Noise=0` fail-shape with a same-STA live negative-noise compare
+- official rerun `20260413T052709875993` then exact-closed `WiFi.AccessPoint.1.AssociatedDevice.1.Noise=-100` against `DriverNoise=-100` for MAC `2C:59:17:00:04:85`
+- committed metadata is now workbook row `34` with `results_reference.v4.0.3 = Pass / Pass / Pass`
+- overlay compare is now `263 / 420 full matches`、`157 mismatches`、`58 metadata drifts`
+- next ready workbook-Pass revisit is `D059`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D034` | 34 | `Noise` | `Pass / Pass / Pass` | `20260413T052709875993_DUT.log L62-L100` | `20260413T052709875993_STA.log L82-L98` |
+
+#### D034 Noise
+
+**STA 指令**
+
+```sh
+iw dev wl0 link
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?"
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.Noise?"
+STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p'); STA_MAC_LOWER=$(echo "$STA_MAC" | tr 'A-F' 'a-f'); NOISE=$(wl -i wl0 sta_info $STA_MAC_LOWER | awk '/per antenna noise floor:/ {print $5; exit}'); [ -n "$STA_MAC" ]; echo DriverAssocMac=$STA_MAC; [ -n "$NOISE" ]; echo DriverNoise=$NOISE; [ -n "$NOISE" ]; echo DriverNoiseMin=$((NOISE - 2)); [ -n "$NOISE" ]; echo DriverNoiseMax=$((NOISE + 2))
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+20260413T052709875993_STA.log L82-L98
+Connected to 2c:59:17:00:19:95 (on wl0)
+SSID: testpilot5G
+freq: 5180
+signal: -35 dBm
+
+20260413T052709875993_DUT.log L62-L100
+WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress="2C:59:17:00:04:85"
+WiFi.AccessPoint.1.AssociatedDevice.1.Noise=-100
+DriverAssocMac=2C:59:17:00:04:85
+DriverNoise=-100
+DriverNoiseMin=-102
+DriverNoiseMax=-98
+
+plugins/wifi_llapi/reports/agent_trace/20260413T052709875993/wifi-llapi-D034-noise-accesspoint-associateddevice.json L96-L116
+commands:
+  ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?"
+  ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.Noise?"
+  STA_MAC=...; NOISE=...; echo DriverAssocMac=...; echo DriverNoise=...; echo DriverNoiseMin=...; echo DriverNoiseMax=...
+outputs:
+  WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress="2C:59:17:00:04:85"
+  WiFi.AccessPoint.1.AssociatedDevice.1.Noise=-100
+  DriverAssocMac=2C:59:17:00:04:85
+  DriverNoise=-100
+  DriverNoiseMin=-102
+  DriverNoiseMax=-98
+```
+
 ## Checkpoint summary (2026-04-13 early-25)
 
 > This checkpoint records the `D188` DTIMPeriod setter/readback closure after `D176`.

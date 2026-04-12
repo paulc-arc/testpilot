@@ -33,6 +33,7 @@
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T042647797154`
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T044907394777`
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T050318932313`
+  - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T052709875993`
 - answer sheet: `/home/paul_chen/prj_arc/testpilot/0401.xlsx`
 - cases dir: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases`
 - compare rule: normalize both sides so only `Pass` stays `Pass`; all other values become `Fail`.
@@ -43,8 +44,8 @@
 | metric | value |
 | --- | ---: |
 | compared cases | 420 |
-| full matches | 262 |
-| mismatch cases | 158 |
+| full matches | 263 |
+| mismatch cases | 157 |
 | missing answer rows | 0 |
 | metadata drift rows | 58 |
 
@@ -52,9 +53,9 @@
 
 | band | matched | mismatched |
 | --- | ---: | ---: |
-| 5g | 268 | 152 |
-| 6g | 271 | 149 |
-| 2.4g | 268 | 152 |
+| 5g | 269 | 151 |
+| 6g | 272 | 148 |
+| 2.4g | 269 | 151 |
 
 ## Mismatch table
 
@@ -66,7 +67,6 @@
 | `wifi-llapi-D030-mugroupid` | 30 | exact | Pass / Pass / Pass | Not Supported / Not Supported / Not Supported | Pass / Pass / Pass | Fail / Fail / Fail | 5g, 6g, 2.4g |
 | `wifi-llapi-D032-mumimotxpktspercentage` | 32 | exact | Pass / Pass / Pass | Not Supported / Not Supported / Not Supported | Pass / Pass / Pass | Fail / Fail / Fail | 5g, 6g, 2.4g |
 | `wifi-llapi-D033-muuserpositionid` | 33 | exact | Pass / Pass / Pass | Not Supported / Not Supported / Not Supported | Pass / Pass / Pass | Fail / Fail / Fail | 5g, 6g, 2.4g |
-| `wifi-llapi-D034-noise-accesspoint-associateddevice` | 34 | exact | Fail / N/A / N/A | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d035-assocdev-operatingstandard` | 35 | exact | Fail / N/A / N/A | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `wifi-llapi-D042-rxunicastpacketcount` | 42 | exact | Pass / Pass / Pass | Not Supported / Not Supported / Not Supported | Pass / Pass / Pass | Fail / Fail / Fail | 5g, 6g, 2.4g |
 | `wifi-llapi-D047-supportedhe160mcs` | 47 | exact | Not Supported / N/A / N/A | Pass / Pass / Not Supported | Fail / Fail / Fail | Pass / Pass / Fail | 5g, 6g |
@@ -335,26 +335,6 @@
 - 0401 G excerpt: \\Connect WiFi Station \\Run IPERF3 between Station's and GW at the same time \\Get station caps root@prplOS:/# wl -i wl0 sta_info 34:19:4d:a4:b5:09 | grep 'caps' HT caps 0x9ef: LDPC 40MHz SGI20 SGI40 STBC-Tx STBC-Rx VHT caps 0xff: LDPC ...
 - 0401 H excerpt: wl -i wl0 sta_info ${STA_MAC}
 - trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D033-muuserpositionid.json`
-
-### wifi-llapi-D034-noise-accesspoint-associateddevice
-
-- case file: `D034_noise_accesspoint_associateddevice.yaml`
-- answer row: `34`
-- mapping status: `exact`
-- source metadata: `WiFi.AccessPoint.{i}.AssociatedDevice.{i}.` / `Noise`
-- workbook metadata: `WiFi.AccessPoint.{i}.AssociatedDevice.{i}.` / `Noise`
-- final status: `Fail`
-- evaluation verdict: `Fail`
-- attempts used: `2`
-- runtime comment: pass_criteria not satisfied (failed after 2/2 attempts)
-- actual raw: `Fail` / `N/A` / `N/A`
-- expected raw: `Pass` / `Pass` / `Pass`
-- actual normalized: `Fail` / `Fail` / `Fail`
-- expected normalized: `Pass` / `Pass` / `Pass`
-- mismatch bands: `5g, 6g, 2.4g`
-- 0401 G excerpt: 1. Connect WiFi Station to GW 2. Get the Noise by ubus command and record the result for reference root@prplOS:/# ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.Noise? > WiFi.AccessPoint.*.AssociatedDevice.*.Noise? WiFi.AccessPoint.1.Ass...
-- 0401 H excerpt: wl -i wl0 sta_info ${STA_MAC} root@prplOS:/# wl -i wl0 sta_info 34:19:4d:a4:b5:09 | grep noise per antenna noise floor: -85 -87 -86 -86 root@prplOS:/# wl -i wl1 sta_info 38:06:E6:92:B0:4A | grep noise per antenna noise floor: -87 -87 -87...
-- trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D034-noise-accesspoint-associateddevice.json`
 
 ### d035-assocdev-operatingstandard
 

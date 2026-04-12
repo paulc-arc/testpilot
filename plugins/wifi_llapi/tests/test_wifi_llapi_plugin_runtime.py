@@ -4686,21 +4686,11 @@ def test_pending_failure_shaped_associateddevice_cases_use_supported_contracts()
     plugin = _load_plugin()
     discoverable_ids = {case["id"] for case in plugin.discover_cases()}
     assert {
-        "wifi-llapi-D034-noise-accesspoint-associateddevice",
         "wifi-llapi-D036-powersave",
         "wifi-llapi-D040-rxmulticastpacketcount",
     }.issubset(discoverable_ids)
 
     failure_cases = {
-        "D034_noise_accesspoint_associateddevice.yaml": {
-            "id": "wifi-llapi-D034-noise-accesspoint-associateddevice",
-            "row": 36,
-            "api": "Noise",
-            "driver_token": "DriverNoise=",
-            "driver_field": "driver_noise.DriverNoise",
-            "driver_operator": "<",
-            "driver_value": "0",
-        },
         "D036_powersave.yaml": {
             "id": "wifi-llapi-D036-powersave",
             "row": 38,
@@ -4772,52 +4762,6 @@ def test_pending_failure_shaped_associateddevice_cases_use_supported_contracts()
 def test_pending_failure_shaped_associateddevice_cases_evaluate_live_examples():
     plugin = _load_plugin()
     cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
-
-    d034 = load_case(cases_dir / "D034_noise_accesspoint_associateddevice.yaml")
-    d034_results = {
-        "steps": {
-            "step1": {
-                "success": True,
-                "output": 'WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress="2C:59:17:00:04:85"',
-                "timing": 0.01,
-            },
-            "step2": {
-                "success": True,
-                "output": "WiFi.AccessPoint.1.AssociatedDevice.1.Noise=0",
-                "timing": 0.01,
-            },
-            "step3": {
-                "success": True,
-                "output": "DriverAssocMac=2C:59:17:00:04:85\nDriverNoise=-85",
-                "timing": 0.01,
-            },
-        }
-    }
-    assert plugin.evaluate(d034, d034_results) is True
-
-    d034_fail_results = {
-        "steps": {
-            **d034_results["steps"],
-            "step3": {
-                "success": True,
-                "output": "DriverAssocMac=2C:59:17:00:04:85\nDriverNoise=0",
-                "timing": 0.01,
-            },
-        }
-    }
-    assert plugin.evaluate(d034, d034_fail_results) is False
-
-    d034_mismatch_results = {
-        "steps": {
-            **d034_results["steps"],
-            "step3": {
-                "success": True,
-                "output": "DriverAssocMac=AA:AA:AA:AA:AA:AA\nDriverNoise=-85",
-                "timing": 0.01,
-            },
-        }
-    }
-    assert plugin.evaluate(d034, d034_mismatch_results) is False
 
     d036 = load_case(cases_dir / "D036_powersave.yaml")
     d036_results = {
@@ -4920,6 +4864,160 @@ def test_pending_failure_shaped_associateddevice_cases_evaluate_live_examples():
         }
     }
     assert plugin.evaluate(d040, d040_mismatch_results) is False
+
+
+def test_d034_noise_associateddevice_uses_supported_contracts():
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+    plugin = _load_plugin()
+    discoverable_ids = {case["id"] for case in plugin.discover_cases()}
+    assert "wifi-llapi-D034-noise-accesspoint-associateddevice" in discoverable_ids
+
+    d034_raw = yaml.safe_load(
+        (cases_dir / "D034_noise_accesspoint_associateddevice.yaml").read_text(
+            encoding="utf-8"
+        )
+    )
+    d034 = load_case(cases_dir / "D034_noise_accesspoint_associateddevice.yaml")
+    d034_commands = "\n".join(str(step.get("command", "")) for step in d034["steps"])
+    d034_links = {link["band"] for link in d034["topology"]["links"]}
+    d034_sta_config = d034["topology"]["devices"]["STA"]["config"][0]
+
+    assert "aliases" not in d034_raw
+    assert d034["id"] == "wifi-llapi-D034-noise-accesspoint-associateddevice"
+    assert d034["source"]["row"] == 34
+    assert d034["source"]["baseline"] == "BCM v4.0.3"
+    assert d034["bands"] == ["5g"]
+    assert d034_links == {"5g"}
+    assert d034_sta_config["ssid"] == "testpilot5G"
+    assert d034_sta_config["key"] == "00000000"
+    assert "sta_env_setup" not in d034
+    assert d034["hlapi_command"] == 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.Noise?"'
+    assert "MACAddress?" in d034_commands
+    assert "DriverAssocMac=" in d034_commands
+    assert "DriverNoise=" in d034_commands
+    assert "DriverNoiseMin=" in d034_commands
+    assert "DriverNoiseMax=" in d034_commands
+    assert any(
+        criterion["field"] == "result.Noise"
+        and criterion["operator"] == "regex"
+        and criterion["value"] == "^-[0-9]+$"
+        for criterion in d034["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "result.Noise"
+        and criterion["operator"] == "<"
+        and str(criterion["value"]) == "0"
+        for criterion in d034["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "driver_noise.DriverAssocMac"
+        and criterion["operator"] == "equals"
+        and criterion["reference"] == "assoc_entry.MACAddress"
+        for criterion in d034["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "driver_noise.DriverNoise"
+        and criterion["operator"] == "regex"
+        and criterion["value"] == "^-[0-9]+$"
+        for criterion in d034["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "driver_noise.DriverNoise"
+        and criterion["operator"] == "<"
+        and str(criterion["value"]) == "0"
+        for criterion in d034["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "result.Noise"
+        and criterion["operator"] == ">="
+        and criterion["reference"] == "driver_noise.DriverNoiseMin"
+        for criterion in d034["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "result.Noise"
+        and criterion["operator"] == "<="
+        and criterion["reference"] == "driver_noise.DriverNoiseMax"
+        for criterion in d034["pass_criteria"]
+    )
+    assert d034["results_reference"]["v4.0.3"]["5g"] == "Pass"
+    assert d034["results_reference"]["v4.0.3"]["6g"] == "Pass"
+    assert d034["results_reference"]["v4.0.3"]["2.4g"] == "Pass"
+
+
+def test_d034_noise_associateddevice_evaluate_live_examples():
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+
+    d034 = load_case(cases_dir / "D034_noise_accesspoint_associateddevice.yaml")
+    d034_results = {
+        "steps": {
+            "step1": {
+                "success": True,
+                "output": 'WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress="2C:59:17:00:04:85"',
+                "timing": 0.01,
+            },
+            "step2": {
+                "success": True,
+                "output": "WiFi.AccessPoint.1.AssociatedDevice.1.Noise=-100",
+                "timing": 0.01,
+            },
+            "step3": {
+                "success": True,
+                "output": "DriverAssocMac=2C:59:17:00:04:85\nDriverNoise=-100\nDriverNoiseMin=-102\nDriverNoiseMax=-98",
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d034, d034_results) is True
+
+    d034_fail_results = {
+        "steps": {
+            **d034_results["steps"],
+            "step3": {
+                "success": True,
+                "output": "DriverAssocMac=2C:59:17:00:04:85\nDriverNoise=-95\nDriverNoiseMin=-97\nDriverNoiseMax=-93",
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d034, d034_fail_results) is False
+
+    d034_zero_results = {
+        "steps": {
+            **d034_results["steps"],
+            "step2": {
+                "success": True,
+                "output": "WiFi.AccessPoint.1.AssociatedDevice.1.Noise=0",
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d034, d034_zero_results) is False
+
+    d034_mismatch_results = {
+        "steps": {
+            **d034_results["steps"],
+            "step3": {
+                "success": True,
+                "output": "DriverAssocMac=AA:AA:AA:AA:AA:AA\nDriverNoise=-100\nDriverNoiseMin=-102\nDriverNoiseMax=-98",
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d034, d034_mismatch_results) is False
+
+    d034_missing_driver_range_results = {
+        "steps": {
+            **d034_results["steps"],
+            "step3": {
+                "success": True,
+                "output": "DriverAssocMac=2C:59:17:00:04:85\nDriverNoise=-100",
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d034, d034_missing_driver_range_results) is False
+
 
 def test_pending_counter_stub_associateddevice_cases_use_supported_contracts():
     cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
