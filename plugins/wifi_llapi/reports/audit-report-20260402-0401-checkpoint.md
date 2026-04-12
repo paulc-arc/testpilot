@@ -1,5 +1,53 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-13 early-7)
+
+> This checkpoint records the `D463` mapping/results_reference closure after `D462`.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D463 HESIGASpatialReuseValue15Allowed` is now aligned via official rerun `20260413T012358700786`
+- the authoritative full-run trace had already been `evaluation_verdict=Pass`; the remaining mismatch was stale metadata (`source.row=340`, object `WiFi.Radio.{i}.`, raw `Fail / Fail / Fail`)
+- committed metadata is now workbook row `463`, object `WiFi.Radio.{i}.IEEE80211ax.`, with `results_reference.v4.0.3 = Pass / Pass / Pass`
+- overlay compare recomputed on top of authoritative full run `20260412T113008433351`
+  plus D024 / D025 / D022 / D072 / D047 / D050 / D088 / D460 / D494 / D461 / D462 / D463 reruns is now
+  `245 / 420 full matches`、`175 mismatches`、`59 metadata drifts`
+- next ready phase-2 mapping/results_reference revisit is `D465`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D463` | 463 | `HESIGASpatialReuseValue15Allowed` | `Pass / Pass / Pass` | `20260413T012358700786_DUT.log L5-L21` | `N/A (AP-only case)` |
+
+#### D463 HESIGASpatialReuseValue15Allowed
+
+**STA 指令**
+
+```sh
+# N/A (AP-only case; no STA transport used)
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.Radio.1.IEEE80211ax.HESIGASpatialReuseValue15Allowed?"
+ubus-cli "WiFi.Radio.2.IEEE80211ax.HESIGASpatialReuseValue15Allowed?"
+ubus-cli "WiFi.Radio.3.IEEE80211ax.HESIGASpatialReuseValue15Allowed?"
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+20260413T012358700786_DUT.log L5-L21
+WiFi.Radio.1.IEEE80211ax.HESIGASpatialReuseValue15Allowed=0
+WiFi.Radio.2.IEEE80211ax.HESIGASpatialReuseValue15Allowed=0
+WiFi.Radio.3.IEEE80211ax.HESIGASpatialReuseValue15Allowed=0
+```
+
 ## Checkpoint summary (2026-04-13 early-6)
 
 > This checkpoint records the `D462` mapping/results_reference closure after `D461`.

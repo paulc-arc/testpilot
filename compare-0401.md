@@ -15,6 +15,7 @@
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T005633950804`
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T010944709855`
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T011655056430`
+  - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T012358700786`
 - answer sheet: `/home/paul_chen/prj_arc/testpilot/0401.xlsx`
 - cases dir: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases`
 - compare rule: normalize both sides so only `Pass` stays `Pass`; all other values become `Fail`.
@@ -25,18 +26,18 @@
 | metric | value |
 | --- | ---: |
 | compared cases | 420 |
-| full matches | 244 |
-| mismatch cases | 176 |
+| full matches | 245 |
+| mismatch cases | 175 |
 | missing answer rows | 0 |
-| metadata drift rows | 60 |
+| metadata drift rows | 59 |
 
 ## Per-band summary
 
 | band | matched | mismatched |
 | --- | ---: | ---: |
-| 5g | 254 | 166 |
-| 6g | 254 | 166 |
-| 2.4g | 252 | 168 |
+| 5g | 255 | 165 |
+| 6g | 255 | 165 |
+| 2.4g | 253 | 167 |
 
 ## Mismatch table
 
@@ -175,7 +176,6 @@
 | `d438-security-transitiondisable` | 438 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d454-getradiostats-failedretranscount` | 454 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d455-getradiostats-multipleretrycount` | 455 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
-| `d463-radio-hesigaspatialreusevalue15allowed` | 463 | drift | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d465-radio-srginformationvalid` | 465 | drift | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d467-radio-rxbeamformingcapsenabled` | 467 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d474-radio-channel` | 474 | drift | Pass / Pass / Pass | Not Supported / Not Supported / Not Supported | Pass / Pass / Pass | Fail / Fail / Fail | 5g, 6g, 2.4g |
@@ -2788,25 +2788,6 @@
 - 0401 G excerpt: (empty)
 - 0401 H excerpt: (empty)
 - trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d455-getradiostats-multipleretrycount.json`
-
-### d463-radio-hesigaspatialreusevalue15allowed
-
-- case file: `D463_hesigaspatialreusevalue15allowed.yaml`
-- answer row: `463`
-- mapping status: `drift`
-- source metadata: `WiFi.Radio.{i}.` / `HESIGASpatialReuseValue15Allowed`
-- workbook metadata: `WiFi.Radio.{i}.IEEE80211ax.` / `HESIGASpatialReuseValue15Allowed`
-- final status: `Fail`
-- evaluation verdict: `Pass`
-- attempts used: `1`
-- actual raw: `Fail` / `Fail` / `Fail`
-- expected raw: `Pass` / `Pass` / `Pass`
-- actual normalized: `Fail` / `Fail` / `Fail`
-- expected normalized: `Pass` / `Pass` / `Pass`
-- mismatch bands: `5g, 6g, 2.4g`
-- 0401 G excerpt: 1. Set this value to 1: ubus-cli WiFi.Radio.*.IEEE80211ax.HESIGASpatialReuseValue15Allowed=1 2. Check the beacon from Wireshark, there should be an IE recording this : IEEE 802.11 Wireless Management |_Tagged Parameters |_Ext Tag: Spatia...
-- 0401 H excerpt: (HESIGASpatialReuseValue15Allowed=0) root@prplOS:/# wl -i wl0 he sr HE Spatial Reuse Parameter Set element: <DISABLED> root@prplOS:/# wl -i wl1 he sr HE Spatial Reuse Parameter Set element: <DISABLED> root@prplOS:/# wl -i wl2 he sr HE Sp...
-- trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d463-radio-hesigaspatialreusevalue15allowed.json`
 
 ### d465-radio-srginformationvalid
 
