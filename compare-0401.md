@@ -26,6 +26,7 @@
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T025449283775`
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T030202219754`
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T030853360475`
+  - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T031458311484`
 - answer sheet: `/home/paul_chen/prj_arc/testpilot/0401.xlsx`
 - cases dir: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases`
 - compare rule: normalize both sides so only `Pass` stays `Pass`; all other values become `Fail`.
@@ -36,8 +37,8 @@
 | metric | value |
 | --- | ---: |
 | compared cases | 420 |
-| full matches | 255 |
-| mismatch cases | 165 |
+| full matches | 256 |
+| mismatch cases | 164 |
 | missing answer rows | 0 |
 | metadata drift rows | 58 |
 
@@ -45,9 +46,9 @@
 
 | band | matched | mismatched |
 | --- | ---: | ---: |
-| 5g | 262 | 158 |
-| 6g | 264 | 156 |
-| 2.4g | 262 | 158 |
+| 5g | 263 | 157 |
+| 6g | 265 | 155 |
+| 2.4g | 263 | 157 |
 
 ## Mismatch table
 
@@ -83,7 +84,6 @@
 | `wifi-llapi-D092-wepkey-accesspoint-security` | 92 | exact | Fail / Fail / Fail | Pass / Not Supported / Pass | Fail / Fail / Fail | Pass / Fail / Pass | 5g, 2.4g |
 | `wifi-llapi-D093-ssidadvertisementenabled` | 93 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `wifi-llapi-D096-uapsdenable` | 96 | exact | Pass / Pass / Pass | Not Supported / Not Supported / Not Supported | Pass / Pass / Pass | Fail / Fail / Fail | 5g, 6g, 2.4g |
-| `wifi-llapi-D098-wdsenable` | 98 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `wifi-llapi-D099-wmmcapability` | 99 | exact | Pass / Fail / Pass | Pass / Pass / Pass | Pass / Fail / Pass | Pass / Pass / Pass | 6g |
 | `wifi-llapi-D101-configmethodsenabled` | 101 | exact | Fail / Fail / Fail | Pass / Not Supported / Pass | Fail / Fail / Fail | Pass / Fail / Pass | 5g, 2.4g |
 | `wifi-llapi-D104-enable-accesspoint-wps` | 104 | exact | Fail / Not Supported / Fail | Pass / Not Supported / Pass | Fail / Fail / Fail | Pass / Fail / Pass | 5g, 2.4g |
@@ -807,25 +807,6 @@
 - 0401 G excerpt: \\Enable/Disable UPSD ubus-cli WiFi.AccessPoint.{i}.UAPSDEnable= 1=Enbale 0=Disable
 - 0401 H excerpt: cat /tmp/wl0_hapd.conf |grep apsd
 - trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D096-uapsdenable.json`
-
-### wifi-llapi-D098-wdsenable
-
-- case file: `D098_wdsenable.yaml`
-- answer row: `98`
-- mapping status: `exact`
-- source metadata: `WiFi.AccessPoint.{i}.` / `WDSEnable`
-- workbook metadata: `WiFi.AccessPoint.{i}.` / `WDSEnable`
-- final status: `Fail`
-- evaluation verdict: `Pass`
-- attempts used: `1`
-- actual raw: `Fail` / `Fail` / `Fail`
-- expected raw: `Pass` / `Pass` / `Pass`
-- actual normalized: `Fail` / `Fail` / `Fail`
-- expected normalized: `Pass` / `Pass` / `Pass`
-- mismatch bands: `5g, 6g, 2.4g`
-- 0401 G excerpt: 1. Enable WDS root@prplOS:/# ubus-cli WiFi.AccessPoint.*.WDSEnable=1 > WiFi.AccessPoint.*.WDSEnable=1 WiFi.AccessPoint.1.WDSEnable=1 WiFi.AccessPoint.3.WDSEnable=1 WiFi.AccessPoint.5.WDSEnable=1 root@prplOS:/# ubus-cli WiFi.AccessPoint.?...
-- 0401 H excerpt: wl -i wl0 dwds root@prplOS:/# wl -i wl0 dwds 1 root@prplOS:/# wl -i wl1 dwds 1 root@prplOS:/# wl -i wl2 dwds 1
-- trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D098-wdsenable.json`
 
 ### wifi-llapi-D099-wmmcapability
 

@@ -1,5 +1,95 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-13 early-19)
+
+> This checkpoint records the `D098` metadata/results_reference closure after `D095`.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D098 WDSEnable` is now aligned via official rerun `20260413T031458311484`
+- the authoritative full-run trace had already been `evaluation_verdict=Pass`
+- the rerun exact-closed tri-band setter round-trip `baseline=0 -> set=1 -> restore=0`
+- the same rerun exact-closed direct driver `dwds 0 -> 1 -> 0` on AP1 / AP3 / AP5
+- the only remaining defects were stale workbook row `100`, stale raw `Fail / Fail / Fail`, and an internal COM transport note mismatch
+- committed metadata is now workbook row `98` with `results_reference.v4.0.3 = Pass / Pass / Pass`
+- case notes now keep the DUT transport wording consistent at COM1
+- overlay compare is now `256 / 420 full matches`、`164 mismatches`、`58 metadata drifts`
+- next ready workbook-Pass revisit is `D099`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D098` | 98 | `WDSEnable` | `Pass / Pass / Pass` | `20260413T031458311484_DUT.log L8-L126` | `20260413T031458311484_STA.log (no STA transport used)` |
+
+#### D098 WDSEnable
+
+**STA 指令**
+
+```sh
+# none; AP-only case
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.WDSEnable?"
+wl -i wl0 dwds
+ubus-cli WiFi.AccessPoint.1.WDSEnable=1
+ubus-cli "WiFi.AccessPoint.1.WDSEnable?"
+wl -i wl0 dwds
+ubus-cli WiFi.AccessPoint.1.WDSEnable=0
+ubus-cli "WiFi.AccessPoint.1.WDSEnable?"
+wl -i wl0 dwds
+ubus-cli "WiFi.AccessPoint.3.WDSEnable?"
+wl -i wl1 dwds
+ubus-cli WiFi.AccessPoint.3.WDSEnable=1
+ubus-cli "WiFi.AccessPoint.3.WDSEnable?"
+wl -i wl1 dwds
+ubus-cli WiFi.AccessPoint.3.WDSEnable=0
+ubus-cli "WiFi.AccessPoint.3.WDSEnable?"
+wl -i wl1 dwds
+ubus-cli "WiFi.AccessPoint.5.WDSEnable?"
+wl -i wl2 dwds
+ubus-cli WiFi.AccessPoint.5.WDSEnable=1
+ubus-cli "WiFi.AccessPoint.5.WDSEnable?"
+wl -i wl2 dwds
+ubus-cli WiFi.AccessPoint.5.WDSEnable=0
+ubus-cli "WiFi.AccessPoint.5.WDSEnable?"
+wl -i wl2 dwds
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+20260413T031458311484_DUT.log L8-L43
+Baseline5g=0
+DriverBaseline5g=0
+AfterSet5g=1
+DriverAfterSet5g=1
+AfterRestore5g=0
+DriverAfterRestore5g=0
+
+20260413T031458311484_DUT.log L47-L82
+Baseline6g=0
+DriverBaseline6g=0
+AfterSet6g=1
+DriverAfterSet6g=1
+AfterRestore6g=0
+DriverAfterRestore6g=0
+
+20260413T031458311484_DUT.log L86-L126
+Baseline24g=0
+DriverBaseline24g=0
+AfterSet24g=1
+DriverAfterSet24g=1
+AfterRestore24g=0
+DriverAfterRestore24g=0
+```
+
 ## Checkpoint summary (2026-04-13 early-18)
 
 > This checkpoint records the `D095` metadata/results_reference closure after `D094`.

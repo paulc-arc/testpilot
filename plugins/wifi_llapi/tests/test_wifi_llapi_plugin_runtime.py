@@ -12435,12 +12435,12 @@ def test_d098_wdsenable_contract():
     """D098 YAML loads, discovers, and has correct metadata."""
     cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
     case = load_case(cases_dir / "D098_wdsenable.yaml")
-    assert case["source"]["row"] == 100
+    assert case["source"]["row"] == 98
     assert case["llapi_support"] == "Support"
     assert len(case["steps"]) == 3
     assert len(case["pass_criteria"]) == 18
     assert case["bands"] == ["5g", "6g", "2.4g"]
-    assert case["results_reference"]["v4.0.3"]["5g"] == "Fail"
+    assert case["results_reference"]["v4.0.3"]["5g"] == "Pass"
 
 
 def test_d098_wdsenable_setup_env(monkeypatch):

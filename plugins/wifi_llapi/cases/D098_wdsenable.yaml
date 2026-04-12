@@ -4,7 +4,7 @@ version: '1.0'
 source:
   report: 0310-BGW720-300_LLAPI_Test_Report.xlsx
   sheet: Wifi_LLAPI
-  row: 100
+  row: 98
   object: WiFi.AccessPoint.{i}.
   api: WDSEnable
   baseline: 0310-BGW720-300
@@ -31,7 +31,7 @@ test_environment: 'Topology:
 
   Transport:
 
-  - DUT via serialwrap COM0
+  - DUT via serialwrap COM1
 
   Baseline:
 
@@ -177,8 +177,8 @@ verification_command:
   - 'wl -i wl2 dwds   # 2.4G driver WDS flag'
 results_reference:
   v4.0.3:
-    5g: Fail
-    6g: Fail
-    2.4g: Fail
+    5g: Pass
+    6g: Pass
+    2.4g: Pass
     comment: 'All 3 bands: setter WDSEnable=1 accepted, getter reads 1, driver dwds=1; restore WDSEnable=0 returns to baseline
       0/dwds=0. BSS restart noise (wds0.x.1, dhd_flow_rings) is expected during toggle.'

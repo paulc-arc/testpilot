@@ -23,7 +23,8 @@
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T024240506323",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T025449283775",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T030202219754",
-    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T030853360475"
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T030853360475",
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T031458311484"
   ],
   "answers_xlsx": "/home/paul_chen/prj_arc/testpilot/0401.xlsx",
   "cases_dir": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases",
@@ -31,20 +32,20 @@
   "missing_answer_count": 0,
   "missing_answer_rows": [],
   "metadata_drift_count": 58,
-  "full_match_count": 255,
-  "mismatch_case_count": 165,
+  "full_match_count": 256,
+  "mismatch_case_count": 164,
   "band_summary": {
     "5g": {
-      "matched": 262,
-      "mismatched": 158
+      "matched": 263,
+      "mismatched": 157
     },
     "6g": {
-      "matched": 264,
-      "mismatched": 156
+      "matched": 265,
+      "mismatched": 155
     },
     "2.4g": {
-      "matched": 262,
-      "mismatched": 158
+      "matched": 263,
+      "mismatched": 157
     }
   },
   "cases": [
@@ -4036,7 +4037,7 @@
       "case_id": "wifi-llapi-D098-wdsenable",
       "case_file": "D098_wdsenable.yaml",
       "dnum": 98,
-      "source_row": 100,
+      "source_row": 98,
       "source_object": "WiFi.AccessPoint.{i}.",
       "source_api": "WDSEnable",
       "answer_row": 98,
@@ -4045,39 +4046,35 @@
       "mapping_status": "exact",
       "mapping_object_match": true,
       "mapping_api_match": true,
-      "final_status": "Fail",
+      "final_status": "Pass",
       "evaluation_verdict": "Pass",
       "attempts_used": 1,
       "comment": "",
       "bands": {
         "5g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         },
         "6g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         },
         "2.4g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         }
       },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
+      "mismatch_bands": [],
+      "matches_answer": true,
       "workbook_test_steps_excerpt": "1. Enable WDS root@prplOS:/# ubus-cli WiFi.AccessPoint.*.WDSEnable=1 > WiFi.AccessPoint.*.WDSEnable=1 WiFi.AccessPoint.1.WDSEnable=1 WiFi.AccessPoint.3.WDSEnable=1 WiFi.AccessPoint.5.WDSEnable=1 root@prplOS:/# ubus-cli WiFi.AccessPoint.?...",
       "workbook_command_output_excerpt": "wl -i wl0 dwds root@prplOS:/# wl -i wl0 dwds 1 root@prplOS:/# wl -i wl1 dwds 1 root@prplOS:/# wl -i wl2 dwds 1",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D098-wdsenable.json"
+      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T031458311484/wifi-llapi-D098-wdsenable.json"
     },
     {
       "case_id": "wifi-llapi-D099-wmmcapability",
@@ -20150,53 +20147,6 @@
       "workbook_test_steps_excerpt": "\\\\Enable/Disable UPSD ubus-cli WiFi.AccessPoint.{i}.UAPSDEnable= 1=Enbale 0=Disable",
       "workbook_command_output_excerpt": "cat /tmp/wl0_hapd.conf |grep apsd",
       "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D096-uapsdenable.json"
-    },
-    {
-      "case_id": "wifi-llapi-D098-wdsenable",
-      "case_file": "D098_wdsenable.yaml",
-      "dnum": 98,
-      "source_row": 100,
-      "source_object": "WiFi.AccessPoint.{i}.",
-      "source_api": "WDSEnable",
-      "answer_row": 98,
-      "answer_object": "WiFi.AccessPoint.{i}.",
-      "answer_api": "WDSEnable",
-      "mapping_status": "exact",
-      "mapping_object_match": true,
-      "mapping_api_match": true,
-      "final_status": "Fail",
-      "evaluation_verdict": "Pass",
-      "attempts_used": 1,
-      "comment": "",
-      "bands": {
-        "5g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        },
-        "6g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        },
-        "2.4g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        }
-      },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
-      "workbook_test_steps_excerpt": "1. Enable WDS root@prplOS:/# ubus-cli WiFi.AccessPoint.*.WDSEnable=1 > WiFi.AccessPoint.*.WDSEnable=1 WiFi.AccessPoint.1.WDSEnable=1 WiFi.AccessPoint.3.WDSEnable=1 WiFi.AccessPoint.5.WDSEnable=1 root@prplOS:/# ubus-cli WiFi.AccessPoint.?...",
-      "workbook_command_output_excerpt": "wl -i wl0 dwds root@prplOS:/# wl -i wl0 dwds 1 root@prplOS:/# wl -i wl1 dwds 1 root@prplOS:/# wl -i wl2 dwds 1",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D098-wdsenable.json"
     },
     {
       "case_id": "wifi-llapi-D099-wmmcapability",
