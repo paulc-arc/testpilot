@@ -1,5 +1,65 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-13 early-23)
+
+> This checkpoint records the `D174` metadata/results_reference closure after `D115`.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D174 ActiveAntennaCtrl` is now aligned via official rerun `20260413T042647797154`
+- active 0403 `wld_radio.odl` still declares `ActiveAntennaCtrl` as a persistent int32 with default `-1`, and the same radio model still keeps `actAntennaCtrl` / `txChainCtrl` / `rxChainCtrl`
+- the live vendor path (`whm_brcm_rad_antenna_map()` / `whm_brcm_rad_mod_chains()`) still uses `actAntennaCtrl` as the fallback when specific chain controls are unset
+- that means the northbound getter staying at `-1` is the driver-default sentinel, while workbook-era downstream `wl txchain` / `wl rxchain` masks remain compatible concrete realizations of the same path rather than a contradiction
+- the authoritative full-run trace had already exact-closed tri-band `ActiveAntennaCtrl=-1`, and the isolated rerun reproduced the same one-attempt Pass shape
+- the only remaining defects were stale workbook row `138` and stale raw `Fail / Fail / Fail`
+- committed metadata is now workbook row `174` with `results_reference.v4.0.3 = Pass / Pass / Pass`
+- overlay compare is now `260 / 420 full matches`、`160 mismatches`、`58 metadata drifts`
+- next ready workbook-Pass revisit is `D176`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D174` | 174 | `ActiveAntennaCtrl` | `Pass / Pass / Pass` | `20260413T042647797154_DUT.log L5-L18` | `20260413T042647797154_STA.log (no STA transport used)` |
+
+#### D174 ActiveAntennaCtrl
+
+**STA 指令**
+
+```sh
+# none; DUT-only case
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.Radio.1.ActiveAntennaCtrl?"
+ubus-cli "WiFi.Radio.2.ActiveAntennaCtrl?"
+ubus-cli "WiFi.Radio.3.ActiveAntennaCtrl?"
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+20260413T042647797154_DUT.log L5-L18
+WiFi.Radio.1.ActiveAntennaCtrl=-1
+WiFi.Radio.2.ActiveAntennaCtrl=-1
+WiFi.Radio.3.ActiveAntennaCtrl=-1
+
+plugins/wifi_llapi/reports/agent_trace/20260413T042647797154/d174-radio-activeantennactrl.json L96-L104
+commands:
+  ubus-cli "WiFi.Radio.1.ActiveAntennaCtrl?"
+  ubus-cli "WiFi.Radio.2.ActiveAntennaCtrl?"
+  ubus-cli "WiFi.Radio.3.ActiveAntennaCtrl?"
+outputs:
+  WiFi.Radio.1.ActiveAntennaCtrl=-1
+  WiFi.Radio.2.ActiveAntennaCtrl=-1
+  WiFi.Radio.3.ActiveAntennaCtrl=-1
+```
+
 ## Checkpoint summary (2026-04-13 early-22)
 
 > This checkpoint records the `D115` tri-band live-counter closure after `D114`.

@@ -17921,7 +17921,7 @@ def test_verify_sta_band_connectivity_falls_back_to_driver_status(monkeypatch):
 # Parametrized table: (yaml_file, row, live_5g, live_6g, live_24g, llapi_path_template)
 # llapi_path_template uses {r} for radio number (1=5g, 2=6g, 3=2.4g)
 _RADIO_GETTER_CASES = [
-    ("D174_activeantennactrl.yaml", 138, "-1", "-1", "-1", "WiFi.Radio.{r}.ActiveAntennaCtrl"),
+    ("D174_activeantennactrl.yaml", 174, "-1", "-1", "-1", "WiFi.Radio.{r}.ActiveAntennaCtrl"),
     ("D176_beaconperiod.yaml", 139, "100", "100", "100", "WiFi.Radio.{r}.BeaconPeriod"),
     ("D474_channel_radio_37.yaml", 179, "36", "1", "1", "WiFi.Radio.{r}.Channel"),
     ("D178_channelload.yaml", 141, "83", "61", "100", "WiFi.Radio.{r}.ChannelLoad"),
