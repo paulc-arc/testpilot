@@ -109,8 +109,11 @@
   - `D070 Enable` is now aligned via official rerun `20260413T063442091882`
   - `D071 FTOverDSEnable` is now aligned via official rerun `20260413T064002607672`
   - `D079 MACFiltering.Mode` is now aligned via official rerun `20260413T065809885285`
+  - `D080 MaxAssociatedDevices` is now aligned via official rerun `20260413T071746618166`
   - workbook row `79` expects deterministic AP-only MAC filter baseline reconstruction (`AP1=WhiteList`, `AP3/AP5=BlackList`) before verifying that `Mode=Off` is rejected with `invalid value` and does not change ACL state; the old all-Off fail shape was just stale row `73` / stale `results_reference`
   - first confirmation rerun `20260413T065611644145` only failed because `setup_env` still gated on `wl -i wl{0,1,2} bss` during transient hostapd restart noise (`--wlX FSM DONE--` / `down`); removing that non-authoritative gate let the committed rerun exact-close tri-band baseline/readback invariance
+  - `D080` followed with a case-local capture-shaping fix rather than a firmware semantic change: authoritative full-run evidence had already shown getter + hostapd `max_num_sta` converge `32 -> 31 -> 32` on AP1 / AP3 / AP5, but the case still carried stale row `74`, stale raw `Fail / Fail / Fail`, and a polluted setter capture where a bare ubus object line was glued into `RequestedTempMax*`
+  - refreshing `D080` to workbook row `80`, reshaping the setter steps to emit explicit `RequestedTempMax*` / `SetterEchoMax*`, and exact-closing temp + restore against both getter and hostapd `max_num_sta` removed that false fail cleanly; official rerun `20260413T071746618166` exact-closes tri-band `32 -> 31 -> 32`
   - `D047` / `D050` were pulled back from a drifted custom `TestPilot_BTM` / `WPA3-Personal` path to the authoritative generic `testpilot5G` / `WPA2-Personal` baseline seen in full run `20260412T113008433351`
   - live STA evidence exact-closed the generic WPA2 link (`SSID: testpilot5G`), and DUT evidence exact-closed the same AssociatedDevice entry against `error=4 / message=parameter not found` plus sibling Rx/Tx capability fields and `wl0 sta_info`
   - committed metadata is now workbook row `47` / `50`, with `results_reference.v4.0.3 = Not Supported / N/A / N/A` for both cases
@@ -158,12 +161,12 @@
     - reconnect trial rerun `20260413T015210910141` removed the immediate 5G join failure but then got trapped in repeated 6G `ocv=0` / `ATTACH` recovery (`6G restart attempt=1 unstable`, `env: retry command after recovery_action=ATTACH`, `6G ocv=0 verify failed — BSS loop may persist`)
     - the local tri-band rewrite was reverted; blocker authority is now `plugins/wifi_llapi/reports/D035_block.md`
   - `D053 txBytes` remains blocked because it still needs deterministic AP-to-STA unicast payload generation before any source-backed YAML rewrite can be justified
-  - next ready actionable open case is now `D080 MaxAssociatedDevices`; `D020` remains in the verified fail-shaped bucket, `D035` / `D053` remain blocked, and `D328` / `D336` remain env-only
+  - next ready actionable open case is now `D082 MultiAPType`; `D020` remains in the verified fail-shaped bucket, `D035` / `D053` remain blocked, and `D328` / `D336` remain env-only
 - Current authoritative full-run source remains `20260412T113008433351`
 - Latest recomputed overlay compare on top of authoritative full run `20260412T113008433351`
-  plus D024 / D025 / D022 / D072 / D047 / D050 / D088 / D460 / D494 / D461 / D462 / D463 / D465 / D467 / D045 / D046 / D061 / D028 / D065 / D081 / D094 / D095 / D098 / D099 / D114 / D115 / D174 / D176 / D188 / D034 / D059 / D060 / D062 / D063 / D070 / D071 / D079 reruns:
-  - `270 / 420 full matches`
-  - `150 mismatches`
+  plus D024 / D025 / D022 / D072 / D047 / D050 / D088 / D460 / D494 / D461 / D462 / D463 / D465 / D467 / D045 / D046 / D061 / D028 / D065 / D081 / D094 / D095 / D098 / D099 / D114 / D115 / D174 / D176 / D188 / D034 / D059 / D060 / D062 / D063 / D070 / D071 / D079 / D080 reruns:
+  - `271 / 420 full matches`
+  - `149 mismatches`
   - `58 metadata drifts`
 - Current focused step-command-failed workstream status:
   - closed in this loop: `D072`、`D047`、`D050`、`D088`、`D460`、`D494`、`D079`

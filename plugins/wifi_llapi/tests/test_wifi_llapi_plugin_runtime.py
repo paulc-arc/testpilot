@@ -10509,7 +10509,7 @@ def test_d080_maxassociateddevices_contract():
     assert "aliases" not in d080_raw
     assert d080["id"] == "wifi-llapi-D080-maxassociateddevices"
     assert d080["source"]["report"] == "0310-BGW720-300_LLAPI_Test_Report.xlsx"
-    assert d080["source"]["row"] == 74
+    assert d080["source"]["row"] == 80
     assert d080["source"]["baseline"] == "BCM v4.0.3"
     assert d080["llapi_support"] == "Support"
     assert d080["implemented_by"] == "Vendor Module"
@@ -10518,11 +10518,18 @@ def test_d080_maxassociateddevices_contract():
     assert d080["topology"]["links"] == []
     assert d080["hlapi_command"] == "ubus-cli WiFi.AccessPoint.1.MaxAssociatedDevices=32"
     assert "killall wpa_supplicant" not in d080.get("sta_env_setup", "")
+    assert "SetterEchoMax24g=" in d080_commands
     assert "AfterTempHostapdMax24g=" in d080_commands
     assert any(
         criterion["field"] == "max_after_temp_5g.AfterTempHostapdMax5g"
-        and criterion["operator"] == "not_equals"
-        and criterion["reference"] == "max_after_temp_5g.AfterTempGetterMax5g"
+        and criterion["operator"] == "equals"
+        and criterion.get("reference") == "max_after_temp_5g.AfterTempGetterMax5g"
+        for criterion in d080["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "set_temp_6g.SetterEchoMax6g"
+        and criterion["operator"] == "equals"
+        and criterion["value"] == "31"
         for criterion in d080["pass_criteria"]
     )
     assert any(
@@ -10531,9 +10538,9 @@ def test_d080_maxassociateddevices_contract():
         and criterion["value"] == "2"
         for criterion in d080["pass_criteria"]
     )
-    assert d080["results_reference"]["v4.0.3"]["5g"] == "Fail"
-    assert d080["results_reference"]["v4.0.3"]["6g"] == "Fail"
-    assert d080["results_reference"]["v4.0.3"]["2.4g"] == "Fail"
+    assert d080["results_reference"]["v4.0.3"]["5g"] == "Pass"
+    assert d080["results_reference"]["v4.0.3"]["6g"] == "Pass"
+    assert d080["results_reference"]["v4.0.3"]["2.4g"] == "Pass"
 
 
 def test_d080_maxassociateddevices_setup_env_uses_only_dut_transport(monkeypatch):
@@ -10574,8 +10581,18 @@ def test_d080_maxassociateddevices_evaluate_live_examples():
 
     def request_output(prefix: str, phase: str) -> str:
         if phase == "temp":
-            return f"RequestedTempMax{prefix}=31"
-        return f"RestoreMax{prefix}=32"
+            return "\n".join(
+                [
+                    f"RequestedTempMax{prefix}=31",
+                    f"SetterEchoMax{prefix}=31",
+                ]
+            )
+        return "\n".join(
+            [
+                f"RestoreMax{prefix}=32",
+                f"RestoreEchoMax{prefix}=32",
+            ]
+        )
 
     def after_temp_output(prefix: str, getter: str, hostapd: str, count: str) -> str:
         return "\n".join(
@@ -10601,7 +10618,7 @@ def test_d080_maxassociateddevices_evaluate_live_examples():
             "step2_set_temp_5g": {"success": True, "output": request_output("5g", "temp"), "timing": 0.01},
             "step3_max_after_temp_5g": {
                 "success": True,
-                "output": after_temp_output("5g", "31", "32", "2"),
+                "output": after_temp_output("5g", "31", "31", "2"),
                 "timing": 0.01,
             },
             "step4_restore_5g": {"success": True, "output": request_output("5g", "restore"), "timing": 0.01},
@@ -10614,7 +10631,7 @@ def test_d080_maxassociateddevices_evaluate_live_examples():
             "step7_set_temp_6g": {"success": True, "output": request_output("6g", "temp"), "timing": 0.01},
             "step8_max_after_temp_6g": {
                 "success": True,
-                "output": after_temp_output("6g", "31", "32", "2"),
+                "output": after_temp_output("6g", "31", "31", "2"),
                 "timing": 0.01,
             },
             "step9_restore_6g": {"success": True, "output": request_output("6g", "restore"), "timing": 0.01},
@@ -10627,7 +10644,7 @@ def test_d080_maxassociateddevices_evaluate_live_examples():
             "step12_set_temp_24g": {"success": True, "output": request_output("24g", "temp"), "timing": 0.01},
             "step13_max_after_temp_24g": {
                 "success": True,
-                "output": after_temp_output("24g", "31", "32", "2"),
+                "output": after_temp_output("24g", "31", "31", "2"),
                 "timing": 0.01,
             },
             "step14_restore_24g": {"success": True, "output": request_output("24g", "restore"), "timing": 0.01},
@@ -10652,17 +10669,29 @@ def test_d080_maxassociateddevices_evaluate_live_examples():
     }
     assert plugin.evaluate(d080, d080_wrong_6g_temp_getter) is False
 
-    d080_wrong_5g_hostapd_converged = {
+    d080_wrong_5g_hostapd_stale = {
         "steps": {
             **d080_results["steps"],
             "step3_max_after_temp_5g": {
                 "success": True,
-                "output": after_temp_output("5g", "31", "31", "2"),
+                "output": after_temp_output("5g", "31", "32", "2"),
                 "timing": 0.01,
             },
         }
     }
-    assert plugin.evaluate(d080, d080_wrong_5g_hostapd_converged) is False
+    assert plugin.evaluate(d080, d080_wrong_5g_hostapd_stale) is False
+
+    d080_missing_24g_setter_echo = {
+        "steps": {
+            **d080_results["steps"],
+            "step12_set_temp_24g": {
+                "success": True,
+                "output": "RequestedTempMax24g=31\nSetterEchoMax24g=EMPTY",
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d080, d080_missing_24g_setter_echo) is False
 
     d080_wrong_24g_restore = {
         "steps": {

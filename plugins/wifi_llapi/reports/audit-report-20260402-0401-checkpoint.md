@@ -1,5 +1,104 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-13 early-34)
+
+> This checkpoint records the `D080` MaxAssociatedDevices workbook row-80 closure after `D079`.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D080 MaxAssociatedDevices` is now aligned via official rerun `20260413T071746618166`
+- the case still carried stale workbook row `74`, stale `results_reference.v4.0.3 = Fail / Fail / Fail`, and a polluted setter capture where the bare ubus object line was glued into the requested-value field even though authoritative full-run evidence had already shown the true workbook row `80` pass path
+- live full-run and rerun evidence together prove that AP1 / AP3 / AP5 all converge `getter + hostapd max_num_sta` through the same `32 -> 31 -> 32` shape
+- the committed rewrite refreshes metadata back to workbook row `80`, reshapes setter steps to emit explicit `RequestedTempMax*` / `SetterEchoMax*` fields, and evaluates temp + restore against both the northbound getter and hostapd `max_num_sta`
+- official rerun `20260413T071746618166` then exact-closed tri-band temp `31` plus restored `32`, while hostapd kept two visible `max_num_sta=` lines per band throughout the case
+- overlay compare is now `271 / 420 full matches`、`149 mismatches`、`58 metadata drifts`
+- next ready actionable open case is `D082`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D080` | 80 | `MaxAssociatedDevices` | `Pass / Pass / Pass` | `20260413T071746618166_DUT.log L84-L464` | `n/a (AP-only)` |
+
+#### D080 MaxAssociatedDevices
+
+**STA 指令**
+
+```sh
+# AP-only case; no STA transport
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.MaxAssociatedDevices?"
+ubus-cli WiFi.AccessPoint.1.MaxAssociatedDevices=31
+grep -n 'max_num_sta=' /tmp/wl0_hapd.conf
+ubus-cli WiFi.AccessPoint.1.MaxAssociatedDevices=32
+grep -n 'max_num_sta=' /tmp/wl0_hapd.conf
+
+ubus-cli "WiFi.AccessPoint.3.MaxAssociatedDevices?"
+ubus-cli WiFi.AccessPoint.3.MaxAssociatedDevices=31
+grep -n 'max_num_sta=' /tmp/wl1_hapd.conf
+ubus-cli WiFi.AccessPoint.3.MaxAssociatedDevices=32
+grep -n 'max_num_sta=' /tmp/wl1_hapd.conf
+
+ubus-cli "WiFi.AccessPoint.5.MaxAssociatedDevices?"
+ubus-cli WiFi.AccessPoint.5.MaxAssociatedDevices=31
+grep -n 'max_num_sta=' /tmp/wl2_hapd.conf
+ubus-cli WiFi.AccessPoint.5.MaxAssociatedDevices=32
+grep -n 'max_num_sta=' /tmp/wl2_hapd.conf
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+20260413T071746618166_DUT.log L84-L174
+RequestedTempMax5g=31
+SetterEchoMax5g=31
+AfterTempGetterMax5g=31
+AfterTempHostapdMax5g=31
+RestoreEchoMax5g=32
+AfterRestoreGetterMax5g=32
+AfterRestoreHostapdMax5g=32
+
+20260413T071746618166_DUT.log L229-L319
+RequestedTempMax6g=31
+SetterEchoMax6g=31
+AfterTempGetterMax6g=31
+AfterTempHostapdMax6g=31
+RestoreEchoMax6g=32
+AfterRestoreGetterMax6g=32
+AfterRestoreHostapdMax6g=32
+
+20260413T071746618166_DUT.log L374-L464
+RequestedTempMax24g=31
+SetterEchoMax24g=31
+AfterTempGetterMax24g=31
+AfterTempHostapdMax24g=31
+RestoreEchoMax24g=32
+AfterRestoreGetterMax24g=32
+AfterRestoreHostapdMax24g=32
+
+plugins/wifi_llapi/reports/agent_trace/20260413T071746618166/wifi-llapi-D080-maxassociateddevices.json L115-L128
+outputs:
+  RequestedTempMax5g=31
+  AfterTempGetterMax5g=31
+  AfterTempHostapdMax5g=31
+  AfterRestoreGetterMax5g=32
+  RequestedTempMax6g=31
+  AfterTempGetterMax6g=31
+  AfterTempHostapdMax6g=31
+  AfterRestoreGetterMax6g=32
+  RequestedTempMax24g=31
+  AfterTempGetterMax24g=31
+  AfterTempHostapdMax24g=31
+  AfterRestoreGetterMax24g=32
+```
+
 ## Checkpoint summary (2026-04-13 early-33)
 
 > This checkpoint records the `D079` MACFiltering.Mode workbook row-79 closure after `D071`.
