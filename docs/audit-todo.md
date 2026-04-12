@@ -87,9 +87,11 @@
 - Latest aligned cases:
   - `D047 SupportedHe160MCS` is now aligned via official rerun `20260412T235952361188`
   - `D050 SupportedVhtMCS` is now aligned via official rerun `20260413T000249620932`
+  - `D088 ModesSupported` is now aligned via official rerun `20260413T003340845889`
   - both cases were pulled back from a drifted custom `TestPilot_BTM` / `WPA3-Personal` path to the authoritative generic `testpilot5G` / `WPA2-Personal` baseline seen in full run `20260412T113008433351`
   - live STA evidence exact-closed the generic WPA2 link (`SSID: testpilot5G`), and DUT evidence exact-closed the same AssociatedDevice entry against `error=4 / message=parameter not found` plus sibling Rx/Tx capability fields and `wl0 sta_info`
   - committed metadata is now workbook row `47` / `50`, with `results_reference.v4.0.3 = Not Supported / N/A / N/A` for both cases
+  - `D088` now preserves the real read-only setter path, emits parsable `error=15` / `message=is read only` for AP1 / AP3 / AP5, and its metadata is refreshed to workbook row `88`
 - Latest investigated non-aligned case:
   - `D079 MACFiltering.Mode` official rerun `20260413T002418591720` no longer hits `step_command_failed`
   - both attempts executed the full AP1 / AP3 / AP5 setter/getter sequence and converged to the same live shape:
@@ -101,18 +103,19 @@
   - current `D079` YAML still expects 5G `BlackList` / `deny`, so the case is now reclassified from `step_command_failed` to semantic `pass_criteria_not_satisfied` / workbook-authority review
 - Current authoritative full-run source remains `20260412T113008433351`
 - Latest recomputed overlay compare on top of authoritative full run `20260412T113008433351`
-  plus D024 / D025 / D022 / D072 / D047 / D050 reruns:
-  - `239 / 420 full matches`
-  - `181 mismatches`
+  plus D024 / D025 / D022 / D072 / D047 / D050 / D088 reruns:
+  - `240 / 420 full matches`
+  - `180 mismatches`
   - `62 metadata drifts`
-- actionable workbook-Pass gaps stay `152` because workbook rows `47` / `50` are non-pass (`Not Support`) semantics
+- actionable workbook-Pass gaps are now `151`
 - Current focused step-command-failed workstream status:
   - closed in this loop: `D072`、`D047`、`D050`
   - reclassified after runtime fix: `D079 -> pass_criteria_not_satisfied`
-  - remaining open set: `D088`、`D460`、`D494`
+  - newly aligned after output-shape fix: `D088`
+  - remaining open set: `D460`、`D494`
   - env-only bucket remains `D328`、`D336`
   - blocked bucket remains `D053` (`needs deterministic AP-to-STA unicast payload`)
-- Next ready single-case revisit: `D088`
+- Next ready single-case revisit: `D460`
 
 ## Latest repo handoff snapshot（2026-04-11）
 

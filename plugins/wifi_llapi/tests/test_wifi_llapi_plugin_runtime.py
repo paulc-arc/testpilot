@@ -11721,7 +11721,7 @@ def test_d088_modessupported_contract():
     cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
     d088 = load_case(cases_dir / "D088_modessupported.yaml")
     assert d088["id"] == "wifi-llapi-D088-modessupported"
-    assert d088["source"]["row"] == 82
+    assert d088["source"]["row"] == 88
     assert d088["source"]["api"] == "ModesSupported"
     assert d088["bands"] == ["5g", "6g", "2.4g"]
     assert len(d088["steps"]) == 6
@@ -11757,8 +11757,62 @@ def test_d088_modessupported_setter_step_keeps_original_command():
         _FakeTopology(),
     )
 
-    assert commands == ["ubus-cli WiFi.AccessPoint.1.Security.ModesSupported=WPA3-Personal"]
+    assert len(commands) == 1
+    assert commands[0] == d088["steps"][1]["command"]
+    assert "error=" in commands[0]
+    assert "message=" in commands[0]
     assert reason == ""
+
+
+def test_d088_modessupported_evaluate_live_examples():
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+    d088 = load_case(cases_dir / "D088_modessupported.yaml")
+
+    def setter_output(ap: int) -> str:
+        return "\n".join(
+            [
+                f"ERROR: set WiFi.AccessPoint.{ap}.Security.ModesSupported failed (15 - is read only)",
+                "error=15",
+                "message=is read only",
+            ]
+        )
+
+    d088_results = {
+        "steps": {
+            "step1": {
+                "success": True,
+                "output": 'WiFi.AccessPoint.1.Security.ModesSupported="None,WEP-64,WEP-128,WEP-128iv,WPA-Personal,WPA2-Personal,WPA-WPA2-Personal,WPA3-Personal,WPA2-WPA3-Personal,WPA-Enterprise,WPA2-Enterprise,WPA-WPA2-Enterprise,OWE"',
+                "timing": 0.01,
+            },
+            "step2": {"success": True, "output": setter_output(1), "timing": 0.01},
+            "step3": {
+                "success": True,
+                "output": 'WiFi.AccessPoint.3.Security.ModesSupported="None,WPA3-Personal,OWE"',
+                "timing": 0.01,
+            },
+            "step4": {"success": True, "output": setter_output(3), "timing": 0.01},
+            "step5": {
+                "success": True,
+                "output": 'WiFi.AccessPoint.5.Security.ModesSupported="None,WEP-64,WEP-128,WEP-128iv,WPA-Personal,WPA2-Personal,WPA-WPA2-Personal,WPA3-Personal,WPA2-WPA3-Personal,WPA-Enterprise,WPA2-Enterprise,WPA-WPA2-Enterprise,OWE"',
+                "timing": 0.01,
+            },
+            "step6": {"success": True, "output": setter_output(5), "timing": 0.01},
+        }
+    }
+    assert plugin.evaluate(d088, d088_results) is True
+
+    wrong_6g_results = {
+        "steps": {
+            **d088_results["steps"],
+            "step3": {
+                "success": True,
+                "output": 'WiFi.AccessPoint.3.Security.ModesSupported="None,WPA2-Personal,WPA3-Personal,OWE"',
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d088, wrong_6g_results) is False
 
 
 def test_d089_presharedkey_accesspoint_security_contract():

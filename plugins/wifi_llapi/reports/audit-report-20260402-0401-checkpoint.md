@@ -1,5 +1,78 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-13 early-3)
+
+> This checkpoint records the `D088` alignment closure on top of the D079 runtime de-truncation fix.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D088 ModesSupported` is now aligned via official rerun `20260413T003340845889`
+- the shared setter-capture runtime fix was already enough to remove the old `step_command_failed`; the remaining missing piece was output shaping
+- step2 / step4 / step6 now preserve the real read-only setter path and emit parsable `error=15` / `message=is read only` lines for AP1 / AP3 / AP5
+- live DUT evidence exact-closed workbook-pass semantics in one attempt:
+  - AP1 / AP5 getter keep the full mode list including `WPA-Personal`, `WPA2-Personal`, `WPA3-Personal`, `WPA-Enterprise`
+  - AP3 getter stays restricted to `None,WPA3-Personal,OWE`
+  - all three setter attempts return `error=15` / `message=is read only`
+- committed metadata is now workbook row `88`
+- overlay compare recomputed on top of authoritative full run `20260412T113008433351`
+  plus D024 / D025 / D022 / D072 / D047 / D050 / D088 reruns is now
+  `240 / 420 full matches`、`180 mismatches`、`62 metadata drifts`
+- actionable workbook-Pass gaps are now `151`
+- next ready `step_command_failed` revisit is `D460`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D088` | 88 | `ModesSupported` | `Pass / Pass / Pass` | `20260413T003340845889_DUT.log L5-L73` | `N/A (AP-only case)` |
+
+#### D088 ModesSupported
+
+**STA 指令**
+
+```sh
+# N/A (AP-only case; no STA transport used)
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.Security.ModesSupported?"
+OUT=$(ubus-cli WiFi.AccessPoint.1.Security.ModesSupported=WPA3-Personal 2>&1 || true)
+printf '%s\n' "$OUT"
+printf '%s\n' "$OUT" | sed -n 's/.*failed (\([0-9][0-9]*\) - \(.*\))/error=\1/p'
+printf '%s\n' "$OUT" | sed -n 's/.*failed (\([0-9][0-9]*\) - \(.*\))/message=\2/p'
+ubus-cli "WiFi.AccessPoint.3.Security.ModesSupported?"
+OUT=$(ubus-cli WiFi.AccessPoint.3.Security.ModesSupported=WPA3-Personal 2>&1 || true)
+ubus-cli "WiFi.AccessPoint.5.Security.ModesSupported?"
+OUT=$(ubus-cli WiFi.AccessPoint.5.Security.ModesSupported=WPA3-Personal 2>&1 || true)
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+20260413T003340845889_DUT.log L5-L27
+WiFi.AccessPoint.1.Security.ModesSupported="None,WEP-64,WEP-128,WEP-128iv,WPA-Personal,WPA2-Personal,WPA-WPA2-Personal,WPA3-Personal,WPA2-WPA3-Personal,WPA-Enterprise,WPA2-Enterprise,WPA-WPA2-Enterprise,OWE"
+ERROR: set WiFi.AccessPoint.1.Security.ModesSupported failed (15 - is read only)
+error=15
+message=is read only
+
+20260413T003340845889_DUT.log L28-L50
+WiFi.AccessPoint.3.Security.ModesSupported="None,WPA3-Personal,OWE"
+ERROR: set WiFi.AccessPoint.3.Security.ModesSupported failed (15 - is read only)
+error=15
+message=is read only
+
+20260413T003340845889_DUT.log L51-L73
+WiFi.AccessPoint.5.Security.ModesSupported="None,WEP-64,WEP-128,WEP-128iv,WPA-Personal,WPA2-Personal,WPA-WPA2-Personal,WPA3-Personal,WPA2-WPA3-Personal,WPA-Enterprise,WPA2-Enterprise,WPA-WPA2-Enterprise,OWE"
+ERROR: set WiFi.AccessPoint.5.Security.ModesSupported failed (15 - is read only)
+error=15
+message=is read only
+```
+
 ## Checkpoint summary (2026-04-13 early-2)
 
 > This checkpoint records the `D079` runtime de-truncation fix. No new aligned case landed in this checkpoint.
