@@ -2826,11 +2826,15 @@ def test_pre_skip_aligned_manual_cases_avoid_stale_sample_values():
     )
     d025_commands = "\n".join(str(step.get("command", "")) for step in d025["steps"])
     assert d025["source"]["report"] == "0310-BGW720-300_LLAPI_Test_Report.xlsx"
-    assert d025["source"]["row"] == 22
+    assert d025["source"]["row"] == 25
+    assert "aliases" not in d025
     assert d025["hlapi_command"] == 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.LastDataUplinkRate?"'
     assert "LastDataUplinkRate=1733333" not in d025["hlapi_command"]
     assert 'WiFi.SSID.4.BSSID?' in d025_commands
     assert "DriverLastUplinkRateRounded=" in d025_commands
+    assert d025["results_reference"]["v4.0.3"]["5g"] == "Pass"
+    assert d025["results_reference"]["v4.0.3"]["6g"] == "Pass"
+    assert d025["results_reference"]["v4.0.3"]["2.4g"] == "Pass"
     assert any(
         criterion["field"] == "result.LastDataUplinkRate"
         and criterion["operator"] == "equals"

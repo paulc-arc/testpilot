@@ -1,5 +1,70 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-12 late-3)
+
+> This checkpoint records the D025 alignment closure on top of the authoritative full run + D024 overlay.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D025 LastDataUplinkRate` is now aligned via official rerun `20260412T174551843336`
+  - stale alias metadata is removed
+  - `source.row` is refreshed from `22` to workbook row `25`
+  - live evidence exact-closed `LastDataUplinkRate=6000` with
+    `DriverLastUplinkRateRounded=6000`
+  - workbook `H`, public HAL comments, and repeated runtime replays continue to support
+    driver `rate of last rx pkt` as the STA -> AP truth source
+- targeted D025 guardrails stayed `3 passed`
+- overlay compare after applying the D024 and D025 reruns is now
+  `237 / 420 full matches`、`183 mismatches`、`62 metadata drifts`
+- actionable workbook-Pass gaps are now `154`
+- `D020` remains a verified fail-shaped mismatch, so the next ready case after this
+  checkpoint is `D022`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D025` | 25 | `LastDataUplinkRate` | `Pass / Pass / Pass` | `20260412T174551843336_DUT.log L336-L366` | `20260412T174551843336_STA.log L64-L89` |
+
+#### D025 LastDataUplinkRate
+
+**STA 指令**
+
+```sh
+wpa_supplicant -B -D nl80211 -i wl0 -c /tmp/wpa_wl0.conf -C /var/run/wpa_supplicant
+wpa_cli -p /var/run/wpa_supplicant -i wl0 reconnect
+iw dev wl0 link
+wpa_cli -p /var/run/wpa_supplicant -i wl0 status
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?"
+ubus-cli "WiFi.SSID.4.BSSID?"
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.LastDataUplinkRate?"
+STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p'); RATE=$(wl -i wl0 sta_info $STA_MAC | sed -n 's/.*rate of last rx pkt: \([0-9][0-9]*\) kbps.*/\1/p' | head -n1); [ -n "$RATE" ] && echo DriverLastUplinkRateRounded=$((RATE/100*100))
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+STA L64-L89:
+Connected to 2c:59:17:00:19:95 (on wl0)
+SSID: TestPilot_BTM
+tx bitrate: 541.6 MBit/s
+wpa_state=COMPLETED
+
+DUT L336-L366:
+WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress="2C:59:17:00:04:85"
+WiFi.SSID.4.BSSID="2c:59:17:00:19:95"
+WiFi.AccessPoint.1.AssociatedDevice.1.LastDataUplinkRate=6000
+DriverLastUplinkRateRounded=6000
+```
+
 ## Checkpoint summary (2026-04-12 late-2)
 
 > This checkpoint records the first authoritative post-recovery full run and the D024 alignment closure.

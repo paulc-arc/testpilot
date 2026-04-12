@@ -5,6 +5,7 @@
 - trace dirs (overlay order; later directories override earlier case results):
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351`
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T172957084134`
+  - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T174551843336`
 - answer sheet: `/home/paul_chen/prj_arc/testpilot/0401.xlsx`
 - cases dir: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases`
 - compare rule: normalize both sides so only `Pass` stays `Pass`; all other values become `Fail`.
@@ -15,8 +16,8 @@
 | metric | value |
 | --- | ---: |
 | compared cases | 420 |
-| full matches | 236 |
-| mismatch cases | 184 |
+| full matches | 237 |
+| mismatch cases | 183 |
 | missing answer rows | 0 |
 | metadata drift rows | 62 |
 
@@ -25,7 +26,7 @@
 | band | matched | mismatched |
 | --- | ---: | ---: |
 | 5g | 247 | 173 |
-| 6g | 248 | 172 |
+| 6g | 249 | 171 |
 | 2.4g | 246 | 174 |
 
 ## Mismatch table
@@ -36,7 +37,6 @@
 | `wifi-llapi-D019-encryptionmode-accesspoint-associateddevice` | 19 | exact | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | 5g, 6g, 2.4g |
 | `wifi-llapi-D020-frequencycapabilities` | 20 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `wifi-llapi-D022-htcapabilities-accesspoint-associateddevice` | 22 | exact | Fail / Fail / Fail | Pass / Not Supported / Pass | Fail / Fail / Fail | Pass / Fail / Pass | 5g, 2.4g |
-| `wifi-llapi-D025-lastdatauplinkrate` | 25 | exact | Pass / Fail / Pass | Pass / Pass / Pass | Pass / Fail / Pass | Pass / Pass / Pass | 6g |
 | `wifi-llapi-D028-maxbandwidthsupported` | 28 | exact | Pass / Pass / Pass | Pass / Fail / Pass | Pass / Pass / Pass | Pass / Fail / Pass | 6g |
 | `wifi-llapi-D030-mugroupid` | 30 | exact | Pass / Pass / Pass | Not Supported / Not Supported / Not Supported | Pass / Pass / Pass | Fail / Fail / Fail | 5g, 6g, 2.4g |
 | `wifi-llapi-D032-mumimotxpktspercentage` | 32 | exact | Pass / Pass / Pass | Not Supported / Not Supported / Not Supported | Pass / Pass / Pass | Fail / Fail / Fail | 5g, 6g, 2.4g |
@@ -296,25 +296,6 @@
 - 0401 G excerpt: ##Connect WiFi Station and check Station HtCapabilities WiFi.AccessPoint.1.AssociatedDevice.1.HtCapabilities="40MHz,SGI20,SGI40" WiFi.AccessPoint.3.AssociatedDevice.1.HtCapabilities="" WiFi.AccessPoint.5.AssociatedDevice.1.HtCapabilities...
 - 0401 H excerpt: wl -i wl0 sta_info ${STA_MAC} HT caps 0x2d: LDPC SGI20
 - trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D022-htcapabilities-accesspoint-associateddevice.json`
-
-### wifi-llapi-D025-lastdatauplinkrate
-
-- case file: `D025_lastdatauplinkrate.yaml`
-- answer row: `25`
-- mapping status: `exact`
-- source metadata: `WiFi.AccessPoint.{i}.AssociatedDevice.{i}.` / `LastDataUplinkRate`
-- workbook metadata: `WiFi.AccessPoint.{i}.AssociatedDevice.{i}.` / `LastDataUplinkRate`
-- final status: `Fail`
-- evaluation verdict: `Pass`
-- attempts used: `1`
-- actual raw: `Pass` / `Fail` / `Pass`
-- expected raw: `Pass` / `Pass` / `Pass`
-- actual normalized: `Pass` / `Fail` / `Pass`
-- expected normalized: `Pass` / `Pass` / `Pass`
-- mismatch bands: `6g`
-- 0401 G excerpt: ##Connect WiFi Station and check Station LastDataUplinkRate WiFi.AccessPoint.1.AssociatedDevice.1.LastDataUplinkRate=292400 WiFi.AccessPoint.3.AssociatedDevice.1.LastDataUplinkRate=146200 WiFi.AccessPoint.5.AssociatedDevice.1.LastDataUpl...
-- 0401 H excerpt: wl -i wl0 sta_info ${STA_MAC} LastDataUplinkRate (STA → AP) = rate of last rx pkt: 51610 kbps
-- trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D025-lastdatauplinkrate.json`
 
 ### wifi-llapi-D028-maxbandwidthsupported
 

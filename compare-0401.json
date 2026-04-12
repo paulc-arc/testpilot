@@ -2,7 +2,8 @@
   "trace_dir": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351",
   "trace_dirs": [
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351",
-    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T172957084134"
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T172957084134",
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T174551843336"
   ],
   "answers_xlsx": "/home/paul_chen/prj_arc/testpilot/0401.xlsx",
   "cases_dir": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases",
@@ -10,16 +11,16 @@
   "missing_answer_count": 0,
   "missing_answer_rows": [],
   "metadata_drift_count": 62,
-  "full_match_count": 236,
-  "mismatch_case_count": 184,
+  "full_match_count": 237,
+  "mismatch_case_count": 183,
   "band_summary": {
     "5g": {
       "matched": 247,
       "mismatched": 173
     },
     "6g": {
-      "matched": 248,
-      "mismatched": 172
+      "matched": 249,
+      "mismatched": 171
     },
     "2.4g": {
       "matched": 246,
@@ -906,7 +907,7 @@
       "case_id": "wifi-llapi-D025-lastdatauplinkrate",
       "case_file": "D025_lastdatauplinkrate.yaml",
       "dnum": 25,
-      "source_row": 22,
+      "source_row": 25,
       "source_object": "WiFi.AccessPoint.{i}.AssociatedDevice.{i}.",
       "source_api": "LastDataUplinkRate",
       "answer_row": 25,
@@ -915,7 +916,7 @@
       "mapping_status": "exact",
       "mapping_object_match": true,
       "mapping_api_match": true,
-      "final_status": "Fail",
+      "final_status": "Pass",
       "evaluation_verdict": "Pass",
       "attempts_used": 1,
       "comment": "",
@@ -927,8 +928,8 @@
           "expected_norm": "Pass"
         },
         "6g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         },
@@ -939,13 +940,11 @@
           "expected_norm": "Pass"
         }
       },
-      "mismatch_bands": [
-        "6g"
-      ],
-      "matches_answer": false,
+      "mismatch_bands": [],
+      "matches_answer": true,
       "workbook_test_steps_excerpt": "##Connect WiFi Station and check Station LastDataUplinkRate WiFi.AccessPoint.1.AssociatedDevice.1.LastDataUplinkRate=292400 WiFi.AccessPoint.3.AssociatedDevice.1.LastDataUplinkRate=146200 WiFi.AccessPoint.5.AssociatedDevice.1.LastDataUpl...",
       "workbook_command_output_excerpt": "wl -i wl0 sta_info ${STA_MAC} LastDataUplinkRate (STA → AP) = rate of last rx pkt: 51610 kbps",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D025-lastdatauplinkrate.json"
+      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T174551843336/wifi-llapi-D025-lastdatauplinkrate.json"
     },
     {
       "case_id": "wifi-llapi-D026-linkbandwidth",
@@ -18978,51 +18977,6 @@
       "workbook_test_steps_excerpt": "##Connect WiFi Station and check Station HtCapabilities WiFi.AccessPoint.1.AssociatedDevice.1.HtCapabilities=\"40MHz,SGI20,SGI40\" WiFi.AccessPoint.3.AssociatedDevice.1.HtCapabilities=\"\" WiFi.AccessPoint.5.AssociatedDevice.1.HtCapabilities...",
       "workbook_command_output_excerpt": "wl -i wl0 sta_info ${STA_MAC} HT caps 0x2d: LDPC SGI20",
       "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D022-htcapabilities-accesspoint-associateddevice.json"
-    },
-    {
-      "case_id": "wifi-llapi-D025-lastdatauplinkrate",
-      "case_file": "D025_lastdatauplinkrate.yaml",
-      "dnum": 25,
-      "source_row": 22,
-      "source_object": "WiFi.AccessPoint.{i}.AssociatedDevice.{i}.",
-      "source_api": "LastDataUplinkRate",
-      "answer_row": 25,
-      "answer_object": "WiFi.AccessPoint.{i}.AssociatedDevice.{i}.",
-      "answer_api": "LastDataUplinkRate",
-      "mapping_status": "exact",
-      "mapping_object_match": true,
-      "mapping_api_match": true,
-      "final_status": "Fail",
-      "evaluation_verdict": "Pass",
-      "attempts_used": 1,
-      "comment": "",
-      "bands": {
-        "5g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        },
-        "6g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        },
-        "2.4g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        }
-      },
-      "mismatch_bands": [
-        "6g"
-      ],
-      "matches_answer": false,
-      "workbook_test_steps_excerpt": "##Connect WiFi Station and check Station LastDataUplinkRate WiFi.AccessPoint.1.AssociatedDevice.1.LastDataUplinkRate=292400 WiFi.AccessPoint.3.AssociatedDevice.1.LastDataUplinkRate=146200 WiFi.AccessPoint.5.AssociatedDevice.1.LastDataUpl...",
-      "workbook_command_output_excerpt": "wl -i wl0 sta_info ${STA_MAC} LastDataUplinkRate (STA → AP) = rate of last rx pkt: 51610 kbps",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D025-lastdatauplinkrate.json"
     },
     {
       "case_id": "wifi-llapi-D028-maxbandwidthsupported",
