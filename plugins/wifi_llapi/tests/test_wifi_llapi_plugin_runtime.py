@@ -2795,11 +2795,13 @@ def test_pre_skip_aligned_manual_cases_avoid_stale_sample_values():
     )
     d024_commands = "\n".join(str(step.get("command", "")) for step in d024["steps"])
     assert d024["source"]["report"] == "0310-BGW720-300_LLAPI_Test_Report.xlsx"
-    assert d024["source"]["row"] == 21
+    assert d024["source"]["row"] == 24
     assert d024["hlapi_command"] == 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.LastDataDownlinkRate?"'
     assert "LastDataDownlinkRate=1733333" not in d024["hlapi_command"]
     assert 'WiFi.SSID.4.BSSID?' in d024_commands
-    assert "DriverLastDownlinkRateRounded=" in d024_commands
+    assert "DriverLastDownlinkRateLower=" in d024_commands
+    assert "DriverLastDownlinkRateUpper=" in d024_commands
+    assert "rate of last tx pkt" in d024_commands
     assert any(
         criterion["field"] == "ap_bssid.BSSID"
         and criterion["operator"] == "not_equals"
@@ -2808,8 +2810,14 @@ def test_pre_skip_aligned_manual_cases_avoid_stale_sample_values():
     )
     assert any(
         criterion["field"] == "result.LastDataDownlinkRate"
-        and criterion["operator"] == "equals"
-        and criterion["reference"] == "driver_rate.DriverLastDownlinkRateRounded"
+        and criterion["operator"] == ">="
+        and criterion["reference"] == "driver_rate.DriverLastDownlinkRateLower"
+        for criterion in d024["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "result.LastDataDownlinkRate"
+        and criterion["operator"] == "<="
+        and criterion["reference"] == "driver_rate.DriverLastDownlinkRateUpper"
         for criterion in d024["pass_criteria"]
     )
 

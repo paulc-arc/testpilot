@@ -45,9 +45,13 @@ def test_execute_step_accepts_d024_driver_rate_shell_pipeline() -> None:
         '| sed -n \'s/.*MACAddress="\\([^"]*\\)".*/\\1/p\'); '
         "RATE=$(wl -i wl0 sta_info $STA_MAC | sed -n "
         '\'s/.*rate of last tx pkt: \\([0-9][0-9]*\\) kbps.*/\\1/p\' | head -n1); '
-        '[ -n "$RATE" ] && echo DriverLastDownlinkRateRounded=$((RATE/100*100))'
+        'if [ -n "$RATE" ]; then UPPER=$((RATE/100*100)); LOWER=$UPPER; '
+        '[ "$LOWER" -ge 100 ] && LOWER=$((LOWER-100)); '
+        'printf "DriverLastDownlinkRateLower=%s\\nDriverLastDownlinkRateUpper=%s\\n" "$LOWER" "$UPPER"; fi'
     )
-    transport = _ScriptTransport("DriverLastDownlinkRateRounded=541600")
+    transport = _ScriptTransport(
+        "DriverLastDownlinkRateLower=541500\nDriverLastDownlinkRateUpper=541600"
+    )
     plugin._transports["DUT"] = transport
     case = {
         "id": "wifi-llapi-runtime-d024-driver-rate",
@@ -66,7 +70,8 @@ def test_execute_step_accepts_d024_driver_rate_shell_pipeline() -> None:
 
     assert result["success"] is True
     assert result["returncode"] == 0
-    assert result["captured"]["DriverLastDownlinkRateRounded"] == "541600"
+    assert result["captured"]["DriverLastDownlinkRateLower"] == "541500"
+    assert result["captured"]["DriverLastDownlinkRateUpper"] == "541600"
     assert result["command"] == command
     assert transport.executed_commands == [command]
 

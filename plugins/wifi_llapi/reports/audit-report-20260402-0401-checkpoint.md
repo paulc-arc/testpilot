@@ -1,5 +1,80 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-12 late-2)
+
+> This checkpoint records the first authoritative post-recovery full run and the D024 alignment closure.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- guarded 6G recovery commit `338891b7115e5c41d04f45bd79c70ce4b117cebc` is now pushed
+- authoritative full run `20260412T113008433351` completed all `420` cases with `195` pass /
+  `225` fail counts and did not reintroduce the old early baseline collapse
+  - `D004`~`D013` all stayed plain `Pass`
+  - the old invalid prefix (`D007 Fail` / `D009 FailEnv` / `D010 FailEnv` / `D011 FailTest`)
+    did not recur
+- `compare-0401` on the authoritative full run raised the repo snapshot to
+  `235 / 420 full matches`、`185 mismatches`、`62 metadata drifts`
+- actionable workbook-Pass gaps on that authoritative full run were `156`
+- `D024 LastDataDownlinkRate` is now aligned via official rerun `20260412T172957084134`
+  - stale alias metadata is removed
+  - `source.row` is refreshed from `21` to workbook row `24`
+  - the durable oracle is now the driver last-tx 100-kbps bucket window
+  - live evidence exact-closed `LastDataDownlinkRate=487400` with
+    `DriverLastDownlinkRateLower=487400` and `DriverLastDownlinkRateUpper=487500`
+- regression after the D024 rewrite:
+  - targeted D024 guardrails: `6 passed`
+  - full repo suite: `1645 passed`
+- overlay compare after applying the D024 rerun is now
+  `236 / 420 full matches`、`184 mismatches`、`62 metadata drifts`
+- actionable workbook-Pass gaps are now `155`
+- next ready case after this checkpoint: `D025 LastDataUplinkRate`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D024` | 24 | `LastDataDownlinkRate` | `Pass / Pass / Pass` | `20260412T172957084134_DUT.log L367-L404` | `20260412T172957084134_STA.log L64-L89` |
+
+#### D024 LastDataDownlinkRate
+
+**STA 指令**
+
+```sh
+wpa_supplicant -B -D nl80211 -i wl0 -c /tmp/wpa_wl0.conf -C /var/run/wpa_supplicant
+wpa_cli -p /var/run/wpa_supplicant -i wl0 reconnect
+iw dev wl0 link
+wpa_cli -p /var/run/wpa_supplicant -i wl0 status
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?"
+ubus-cli "WiFi.SSID.4.BSSID?"
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.LastDataDownlinkRate?"
+STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p'); RATE=$(wl -i wl0 sta_info $STA_MAC | sed -n 's/.*rate of last tx pkt: \([0-9][0-9]*\) kbps.*/\1/p' | head -n1); if [ -n "$RATE" ]; then UPPER=$((RATE/100*100)); LOWER=$UPPER; [ "$LOWER" -ge 100 ] && LOWER=$((LOWER-100)); printf "DriverLastDownlinkRateLower=%s\nDriverLastDownlinkRateUpper=%s\n" "$LOWER" "$UPPER"; fi
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+STA L64-L89:
+Connected to 2c:59:17:00:19:95 (on wl0)
+SSID: TestPilot_BTM
+tx bitrate: 541.6 MBit/s
+wpa_state=COMPLETED
+
+DUT L367-L404:
+WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress="2C:59:17:00:04:85"
+WiFi.SSID.4.BSSID="2c:59:17:00:19:95"
+WiFi.AccessPoint.1.AssociatedDevice.1.LastDataDownlinkRate=487400
+DriverLastDownlinkRateLower=487400
+DriverLastDownlinkRateUpper=487500
+```
+
 ## Checkpoint summary (2026-04-12)
 
 > This checkpoint records the guarded 6G recovery patch and the post-fix live revalidation after the invalid full run was stopped.
