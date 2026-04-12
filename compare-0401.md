@@ -17,6 +17,7 @@
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T011655056430`
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T012358700786`
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T013010016650`
+  - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T013545364055`
 - answer sheet: `/home/paul_chen/prj_arc/testpilot/0401.xlsx`
 - cases dir: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases`
 - compare rule: normalize both sides so only `Pass` stays `Pass`; all other values become `Fail`.
@@ -27,8 +28,8 @@
 | metric | value |
 | --- | ---: |
 | compared cases | 420 |
-| full matches | 246 |
-| mismatch cases | 174 |
+| full matches | 247 |
+| mismatch cases | 173 |
 | missing answer rows | 0 |
 | metadata drift rows | 58 |
 
@@ -36,9 +37,9 @@
 
 | band | matched | mismatched |
 | --- | ---: | ---: |
-| 5g | 256 | 164 |
-| 6g | 256 | 164 |
-| 2.4g | 254 | 166 |
+| 5g | 257 | 163 |
+| 6g | 257 | 163 |
+| 2.4g | 255 | 165 |
 
 ## Mismatch table
 
@@ -177,7 +178,6 @@
 | `d438-security-transitiondisable` | 438 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d454-getradiostats-failedretranscount` | 454 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d455-getradiostats-multipleretrycount` | 455 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
-| `d467-radio-rxbeamformingcapsenabled` | 467 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d474-radio-channel` | 474 | drift | Pass / Pass / Pass | Not Supported / Not Supported / Not Supported | Pass / Pass / Pass | Fail / Fail / Fail | 5g, 6g, 2.4g |
 | `d477-getradiostats-unknownprotopacketsreceived` | 477 | drift | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d478-getradiostats-wmm-bytesreceived-ac_be` | 478 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
@@ -2788,25 +2788,6 @@
 - 0401 G excerpt: (empty)
 - 0401 H excerpt: (empty)
 - trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d455-getradiostats-multipleretrycount.json`
-
-### d467-radio-rxbeamformingcapsenabled
-
-- case file: `D467_rxbeamformingcapsenabled.yaml`
-- answer row: `467`
-- mapping status: `exact`
-- source metadata: `WiFi.Radio.{i}.` / `RxBeamformingCapsEnabled`
-- workbook metadata: `WiFi.Radio.{i}.` / `RxBeamformingCapsEnabled`
-- final status: `Fail`
-- evaluation verdict: `Pass`
-- attempts used: `1`
-- actual raw: `Fail` / `Fail` / `Fail`
-- expected raw: `Pass` / `Pass` / `Pass`
-- actual normalized: `Fail` / `Fail` / `Fail`
-- expected normalized: `Pass` / `Pass` / `Pass`
-- mismatch bands: `5g, 6g, 2.4g`
-- 0401 G excerpt: (empty)
-- 0401 H excerpt: (empty)
-- trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d467-radio-rxbeamformingcapsenabled.json`
 
 ### d474-radio-channel
 
