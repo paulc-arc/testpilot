@@ -12231,15 +12231,15 @@ def test_d095_uapsdcapability_contract():
     """D095 YAML loads, discovers, and has correct metadata."""
     cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
     d095 = load_case(cases_dir / "D095_uapsdcapability.yaml")
-    assert d095["source"]["row"] == 97
+    assert d095["source"]["row"] == 95
     assert d095["source"]["api"] == "UAPSDCapability"
     assert len(d095["steps"]) == 3
     assert len(d095["pass_criteria"]) == 3
     assert d095["bands"] == ["5g", "6g", "2.4g"]
     ref = d095["results_reference"]["v4.0.3"]
-    assert ref["5g"] == "Fail"
-    assert ref["6g"] == "Fail"
-    assert ref["2.4g"] == "Fail"
+    assert ref["5g"] == "Pass"
+    assert ref["6g"] == "Pass"
+    assert ref["2.4g"] == "Pass"
 
 
 def test_d095_uapsdcapability_setup_env(monkeypatch):

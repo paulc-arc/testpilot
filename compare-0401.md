@@ -25,6 +25,7 @@
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T024240506323`
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T025449283775`
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T030202219754`
+  - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T030853360475`
 - answer sheet: `/home/paul_chen/prj_arc/testpilot/0401.xlsx`
 - cases dir: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases`
 - compare rule: normalize both sides so only `Pass` stays `Pass`; all other values become `Fail`.
@@ -35,8 +36,8 @@
 | metric | value |
 | --- | ---: |
 | compared cases | 420 |
-| full matches | 254 |
-| mismatch cases | 166 |
+| full matches | 255 |
+| mismatch cases | 165 |
 | missing answer rows | 0 |
 | metadata drift rows | 58 |
 
@@ -44,9 +45,9 @@
 
 | band | matched | mismatched |
 | --- | ---: | ---: |
-| 5g | 261 | 159 |
-| 6g | 263 | 157 |
-| 2.4g | 261 | 159 |
+| 5g | 262 | 158 |
+| 6g | 264 | 156 |
+| 2.4g | 262 | 158 |
 
 ## Mismatch table
 
@@ -81,7 +82,6 @@
 | `wifi-llapi-D090-rekeyinginterval` | 90 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `wifi-llapi-D092-wepkey-accesspoint-security` | 92 | exact | Fail / Fail / Fail | Pass / Not Supported / Pass | Fail / Fail / Fail | Pass / Fail / Pass | 5g, 2.4g |
 | `wifi-llapi-D093-ssidadvertisementenabled` | 93 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
-| `wifi-llapi-D095-uapsdcapability` | 95 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `wifi-llapi-D096-uapsdenable` | 96 | exact | Pass / Pass / Pass | Not Supported / Not Supported / Not Supported | Pass / Pass / Pass | Fail / Fail / Fail | 5g, 6g, 2.4g |
 | `wifi-llapi-D098-wdsenable` | 98 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `wifi-llapi-D099-wmmcapability` | 99 | exact | Pass / Fail / Pass | Pass / Pass / Pass | Pass / Fail / Pass | Pass / Pass / Pass | 6g |
@@ -788,25 +788,6 @@
 - 0401 G excerpt: 1. Get SSIDAdvertisementEnabled value root@prplOS:/# ubus-cli WiFi.AccessPoint.? | grep SSIDAdvertisementEnabled WiFi.AccessPoint.1.SSIDAdvertisementEnabled=1 WiFi.AccessPoint.3.SSIDAdvertisementEnabled=1 WiFi.AccessPoint.5.SSIDAdvertise...
 - 0401 H excerpt: root@prplOS:/# cat /tmp/wl0_hapd.conf | grep -E 'broadcast|ssid' bssid=6C:15:DB:74:C0:B5 ssid=5G_Primary-BE ignore_broadcast_ssid=2 ignore_broadcast_ssid=0 => "SSID not Hidden" ignore_broadcast_ssid=2 => "SSID Hidden"
 - trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D093-ssidadvertisementenabled.json`
-
-### wifi-llapi-D095-uapsdcapability
-
-- case file: `D095_uapsdcapability.yaml`
-- answer row: `95`
-- mapping status: `exact`
-- source metadata: `WiFi.AccessPoint.{i}.` / `UAPSDCapability`
-- workbook metadata: `WiFi.AccessPoint.{i}.` / `UAPSDCapability`
-- final status: `Fail`
-- evaluation verdict: `Pass`
-- attempts used: `1`
-- actual raw: `Fail` / `Fail` / `Fail`
-- expected raw: `Pass` / `Pass` / `Pass`
-- actual normalized: `Fail` / `Fail` / `Fail`
-- expected normalized: `Pass` / `Pass` / `Pass`
-- mismatch bands: `5g, 6g, 2.4g`
-- 0401 G excerpt: 1. Get GW UAPSDCapability root@prplOS:/# ubus-cli WiFi.AccessPoint.? | grep .UAPSDCapability WiFi.AccessPoint.1.UAPSDCapability=1 WiFi.AccessPoint.3.UAPSDCapability=1 WiFi.AccessPoint.5.UAPSDCapability=1 2. Check Beacon packet if it incl...
-- 0401 H excerpt: Note: U-APSD is part of WME root@prplOS:/# wl -i wl0 cap ap sta wet led wme 802.11d 802.11h rm cac mbss8 ampdu ampdu_tx ampdu_rx amsdurx amsdutx rxchain_pwrsave wds dwds vht-prop-rates multi-user-beamformer single-user-beamformer multi-u...
-- trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D095-uapsdcapability.json`
 
 ### wifi-llapi-D096-uapsdenable
 

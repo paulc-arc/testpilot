@@ -1,5 +1,71 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-13 early-18)
+
+> This checkpoint records the `D095` metadata/results_reference closure after `D094`.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D095 UAPSDCapability` is now aligned via official rerun `20260413T030853360475`
+- the authoritative full-run trace had already been `evaluation_verdict=Pass`
+- the rerun exact-closed tri-band read-only `UAPSDCapability=1`
+- the same rerun also showed `HapdUapsd=0` and `DriverWmeApsd=0`, which indicate the feature is not currently active but do not contradict the capability getter
+- the only remaining defects were stale workbook row `97`, stale raw `Fail / Fail / Fail`, and an internal COM transport note mismatch
+- committed metadata is now workbook row `95` with `results_reference.v4.0.3 = Pass / Pass / Pass`
+- case notes now keep the DUT transport wording consistent at COM1
+- overlay compare is now `255 / 420 full matches`、`165 mismatches`、`58 metadata drifts`
+- next ready workbook-Pass revisit is `D098`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D095` | 95 | `UAPSDCapability` | `Pass / Pass / Pass` | `20260413T030853360475_DUT.log L13-L52` | `20260413T030853360475_STA.log (no STA transport used)` |
+
+#### D095 UAPSDCapability
+
+**STA 指令**
+
+```sh
+# none; AP-only case
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.UAPSDCapability?"
+grep 'uapsd_advertisement_enabled=' /tmp/wl0_hapd.conf
+wl -i wl0 wme_apsd
+ubus-cli "WiFi.AccessPoint.3.UAPSDCapability?"
+grep 'uapsd_advertisement_enabled=' /tmp/wl1_hapd.conf
+wl -i wl1 wme_apsd
+ubus-cli "WiFi.AccessPoint.5.UAPSDCapability?"
+grep 'uapsd_advertisement_enabled=' /tmp/wl2_hapd.conf
+wl -i wl2 wme_apsd
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+20260413T030853360475_DUT.log L13-L20
+UAPSDCapability5g=1
+HapdUapsd5g=0
+DriverWmeApsd5g=0
+
+20260413T030853360475_DUT.log L29-L36
+UAPSDCapability6g=1
+HapdUapsd6g=0
+DriverWmeApsd6g=0
+
+20260413T030853360475_DUT.log L45-L52
+UAPSDCapability24g=1
+HapdUapsd24g=0
+DriverWmeApsd24g=0
+```
+
 ## Checkpoint summary (2026-04-13 early-17)
 
 > This checkpoint records the `D094` metadata/results_reference closure after `D081`.

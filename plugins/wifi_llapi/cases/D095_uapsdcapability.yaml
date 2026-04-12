@@ -4,7 +4,7 @@ version: '1.0'
 source:
   report: "0310-BGW720-300_LLAPI_Test_Report.xlsx"
   sheet: Wifi_LLAPI
-  row: 97
+  row: 95
   object: "WiFi.AccessPoint.{i}."
   api: "UAPSDCapability"
 platform:
@@ -28,7 +28,7 @@ test_environment: |
   Topology:
   - DUT: COM1 (B0, AP role)
   Transport:
-  - DUT via serialwrap COM0
+  - DUT via serialwrap COM1
   Baseline:
   - 5G  = AP1 / wl0 / testpilot5G / WPA2-Personal
   - 6G  = AP3 / wl1 / testpilot6G / WPA3-Personal / SAE
@@ -99,10 +99,11 @@ results_reference:
     6g: Pass
     2.4g: Pass
   v4.0.3:
-    5g: Fail
-    6g: Fail
-    2.4g: Fail
+    5g: Pass
+    6g: Pass
+    2.4g: Pass
     comment: >-
-      All 3 bands: read-only UAPSDCapability=1 (capable). Setter returns error 15.
-      hostapd uapsd_advertisement_enabled=0 and driver wme_apsd=0 indicate the feature
-      is not currently active, but LLAPI correctly reports hardware capability.
+      Active reruns show AP1/AP3/AP5 all return read-only `UAPSDCapability=1`
+      while hostapd `uapsd_advertisement_enabled=0` and driver `wme_apsd=0`
+      simply indicate the feature is not currently active. The LLAPI getter
+      still correctly reports tri-band hardware capability.
