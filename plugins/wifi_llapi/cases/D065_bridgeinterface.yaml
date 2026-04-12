@@ -4,7 +4,7 @@ version: '1.1'
 source:
   report: 0310-BGW720-300_LLAPI_Test_Report.xlsx
   sheet: Wifi_LLAPI
-  row: 67
+  row: 65
   object: WiFi.AccessPoint.{i}.
   api: BridgeInterface
   baseline: BCM v4.0.3
@@ -177,7 +177,7 @@ verification_command:
   - 'cat /sys/class/net/wl2/master/uevent | sed -n ''s/^INTERFACE=/BridgeMaster24g=/p'''
 results_reference:
   v4.0.3:
-    5g: Fail
-    6g: Fail
-    2.4g: Fail
+    5g: Pass
+    6g: Pass
+    2.4g: Pass
     comment: '5G/6G/2.4G serialwrap readback all returned BridgeInterface="br-lan"; /tmp/wl0_hapd.conf, /tmp/wl1_hapd.conf, and /tmp/wl2_hapd.conf each exposed two bridge=br-lan lines; and wl0/wl1/wl2 all resolved to Linux bridge master br-lan via /sys/class/net/*/master/uevent. This case is calibrated as Pass across all three executed bands.'

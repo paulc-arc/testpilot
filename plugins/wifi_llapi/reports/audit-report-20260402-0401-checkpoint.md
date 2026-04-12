@@ -1,5 +1,79 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-13 early-15)
+
+> This checkpoint records the `D065` metadata/results_reference closure after `D028`.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D065 BridgeInterface` is now aligned via official rerun `20260413T024240506323`
+- the authoritative trace had already been `evaluation_verdict=Pass`
+- live AP-only evidence exact-closed AP1 / AP3 / AP5 `BridgeInterface="br-lan"`
+- hostapd `bridge=br-lan` config lines and live Linux bridge masters `BridgeMaster5g/6g/24g=br-lan` all matched the getter outputs
+- committed metadata is now workbook row `65` with `results_reference.v4.0.3 = Pass / Pass / Pass`
+- overlay compare is now `252 / 420 full matches`、`168 mismatches`、`58 metadata drifts`
+- next ready workbook-Pass revisit is `D081`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D065` | 65 | `BridgeInterface` | `Pass / Pass / Pass` | `20260413T024240506323_DUT.log L14-L88` | `20260413T024240506323_STA.log (no STA transport used)` |
+
+#### D065 BridgeInterface
+
+**STA 指令**
+
+```sh
+# none; AP-only case
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.BridgeInterface?"
+ubus-cli "WiFi.AccessPoint.3.BridgeInterface?"
+ubus-cli "WiFi.AccessPoint.5.BridgeInterface?"
+grep '^bridge=' /tmp/wl0_hapd.conf | awk -F= '/^bridge=/ {if (count == 0) first=$2; if ($2 != first) mismatch=1; count++} END {print "BridgeConfig5g=" first; print "BridgeConfig5gCount=" count+0; print "BridgeConfig5gMismatch=" mismatch+0}'
+grep '^bridge=' /tmp/wl1_hapd.conf | awk -F= '/^bridge=/ {if (count == 0) first=$2; if ($2 != first) mismatch=1; count++} END {print "BridgeConfig6g=" first; print "BridgeConfig6gCount=" count+0; print "BridgeConfig6gMismatch=" mismatch+0}'
+grep '^bridge=' /tmp/wl2_hapd.conf | awk -F= '/^bridge=/ {if (count == 0) first=$2; if ($2 != first) mismatch=1; count++} END {print "BridgeConfig24g=" first; print "BridgeConfig24gCount=" count+0; print "BridgeConfig24gMismatch=" mismatch+0}'
+cat /sys/class/net/wl0/master/uevent | sed -n 's/^INTERFACE=/BridgeMaster5g=/p'
+cat /sys/class/net/wl1/master/uevent | sed -n 's/^INTERFACE=/BridgeMaster6g=/p'
+cat /sys/class/net/wl2/master/uevent | sed -n 's/^INTERFACE=/BridgeMaster24g=/p'
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+20260413T024240506323_DUT.log L14-L27
+WiFi.AccessPoint.1.BridgeInterface="br-lan"
+WiFi.AccessPoint.3.BridgeInterface="br-lan"
+WiFi.AccessPoint.5.BridgeInterface="br-lan"
+
+20260413T024240506323_DUT.log L42-L44
+BridgeConfig5g=br-lan
+BridgeConfig5gCount=2
+BridgeConfig5gMismatch=0
+
+20260413T024240506323_DUT.log L58-L60
+BridgeConfig6g=br-lan
+BridgeConfig6gCount=2
+BridgeConfig6gMismatch=0
+
+20260413T024240506323_DUT.log L74-L76
+BridgeConfig24g=br-lan
+BridgeConfig24gCount=2
+BridgeConfig24gMismatch=0
+
+20260413T024240506323_DUT.log L80-L88
+BridgeMaster5g=br-lan
+BridgeMaster6g=br-lan
+BridgeMaster24g=br-lan
+```
+
 ## Checkpoint summary (2026-04-13 early-14)
 
 > This checkpoint records the `D028` mixed-verdict workbook closure after `D061`.

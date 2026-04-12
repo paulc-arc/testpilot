@@ -19,7 +19,8 @@
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T020657288045",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T021655844208",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T022541033440",
-    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T023259417785"
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T023259417785",
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T024240506323"
   ],
   "answers_xlsx": "/home/paul_chen/prj_arc/testpilot/0401.xlsx",
   "cases_dir": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases",
@@ -27,20 +28,20 @@
   "missing_answer_count": 0,
   "missing_answer_rows": [],
   "metadata_drift_count": 58,
-  "full_match_count": 251,
-  "mismatch_case_count": 169,
+  "full_match_count": 252,
+  "mismatch_case_count": 168,
   "band_summary": {
     "5g": {
-      "matched": 258,
-      "mismatched": 162
+      "matched": 259,
+      "mismatched": 161
     },
     "6g": {
-      "matched": 260,
-      "mismatched": 160
+      "matched": 261,
+      "mismatched": 159
     },
     "2.4g": {
-      "matched": 258,
-      "mismatched": 162
+      "matched": 259,
+      "mismatched": 161
     }
   },
   "cases": [
@@ -2691,7 +2692,7 @@
       "case_id": "wifi-llapi-D065-bridgeinterface",
       "case_file": "D065_bridgeinterface.yaml",
       "dnum": 65,
-      "source_row": 67,
+      "source_row": 65,
       "source_object": "WiFi.AccessPoint.{i}.",
       "source_api": "BridgeInterface",
       "answer_row": 65,
@@ -2700,39 +2701,35 @@
       "mapping_status": "exact",
       "mapping_object_match": true,
       "mapping_api_match": true,
-      "final_status": "Fail",
+      "final_status": "Pass",
       "evaluation_verdict": "Pass",
       "attempts_used": 1,
       "comment": "",
       "bands": {
         "5g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         },
         "6g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         },
         "2.4g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         }
       },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
+      "mismatch_bands": [],
+      "matches_answer": true,
       "workbook_test_steps_excerpt": "root@prplOS:/# ubus-cli WiFi.AccessPoint.? | grep BridgeInterface WiFi.AccessPoint.1.BridgeInterface=\"br-lan\" WiFi.AccessPoint.3.BridgeInterface=\"br-lan\" WiFi.AccessPoint.5.BridgeInterface=\"br-lan\"",
       "workbook_command_output_excerpt": "cat /tmp/wl0_hapd.conf |grep bridge root@prplOS:/# brctl show bridge name bridge id STP enabled interfaces br-lcm 8000.6c15db74c0b3 no br-lan 8000.6c15db74c0b1 no wl0.1 eth3 wl1 eth1 wl2.1 wl2 eth2 wl0 wl1.1 br-guest 8000.6c15db74c0b2 no",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D065-bridgeinterface.json"
+      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T024240506323/wifi-llapi-D065-bridgeinterface.json"
     },
     {
       "case_id": "wifi-llapi-D066-discoverymethodenabled-accesspoint-fils",
@@ -19552,53 +19549,6 @@
       "workbook_test_steps_excerpt": "root@prplOS:/# ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.? | grep VhtCapabilities WiFi.AccessPoint.1.AssociatedDevice.1.VhtCapabilities=\"SGI80,SGI160,SU-BFR,SU-BFE,MU-BFR,MU-BFE\"",
       "workbook_command_output_excerpt": "",
       "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D063-vhtcapabilities-accesspoint-associateddevice.json"
-    },
-    {
-      "case_id": "wifi-llapi-D065-bridgeinterface",
-      "case_file": "D065_bridgeinterface.yaml",
-      "dnum": 65,
-      "source_row": 67,
-      "source_object": "WiFi.AccessPoint.{i}.",
-      "source_api": "BridgeInterface",
-      "answer_row": 65,
-      "answer_object": "WiFi.AccessPoint.{i}.",
-      "answer_api": "BridgeInterface",
-      "mapping_status": "exact",
-      "mapping_object_match": true,
-      "mapping_api_match": true,
-      "final_status": "Fail",
-      "evaluation_verdict": "Pass",
-      "attempts_used": 1,
-      "comment": "",
-      "bands": {
-        "5g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        },
-        "6g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        },
-        "2.4g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        }
-      },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
-      "workbook_test_steps_excerpt": "root@prplOS:/# ubus-cli WiFi.AccessPoint.? | grep BridgeInterface WiFi.AccessPoint.1.BridgeInterface=\"br-lan\" WiFi.AccessPoint.3.BridgeInterface=\"br-lan\" WiFi.AccessPoint.5.BridgeInterface=\"br-lan\"",
-      "workbook_command_output_excerpt": "cat /tmp/wl0_hapd.conf |grep bridge root@prplOS:/# brctl show bridge name bridge id STP enabled interfaces br-lcm 8000.6c15db74c0b3 no br-lan 8000.6c15db74c0b1 no wl0.1 eth3 wl1 eth1 wl2.1 wl2 eth2 wl0 wl1.1 br-guest 8000.6c15db74c0b2 no",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D065-bridgeinterface.json"
     },
     {
       "case_id": "wifi-llapi-D070-enable-accesspoint",

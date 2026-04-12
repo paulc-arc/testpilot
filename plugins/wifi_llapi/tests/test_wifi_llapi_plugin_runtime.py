@@ -7745,7 +7745,7 @@ def test_d065_bridgeinterface_uses_ap_only_multiband_pass_contract():
     assert "aliases" not in d065_raw
     assert d065["id"] == "wifi-llapi-D065-bridgeinterface"
     assert d065["source"]["report"] == "0310-BGW720-300_LLAPI_Test_Report.xlsx"
-    assert d065["source"]["row"] == 67
+    assert d065["source"]["row"] == 65
     assert d065["source"]["baseline"] == "BCM v4.0.3"
     assert d065["llapi_support"] == "Support"
     assert d065["bands"] == ["5g", "6g", "2.4g"]
@@ -7791,9 +7791,9 @@ def test_d065_bridgeinterface_uses_ap_only_multiband_pass_contract():
         and criterion.get("reference") == "result_24g.BridgeInterface"
         for criterion in d065["pass_criteria"]
     )
-    assert d065["results_reference"]["v4.0.3"]["5g"] == "Fail"
-    assert d065["results_reference"]["v4.0.3"]["6g"] == "Fail"
-    assert d065["results_reference"]["v4.0.3"]["2.4g"] == "Fail"
+    assert d065["results_reference"]["v4.0.3"]["5g"] == "Pass"
+    assert d065["results_reference"]["v4.0.3"]["6g"] == "Pass"
+    assert d065["results_reference"]["v4.0.3"]["2.4g"] == "Pass"
 
 
 def test_d065_bridgeinterface_setup_env_uses_only_dut_transport(monkeypatch):

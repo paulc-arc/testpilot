@@ -22,6 +22,7 @@
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T021655844208`
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T022541033440`
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T023259417785`
+  - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T024240506323`
 - answer sheet: `/home/paul_chen/prj_arc/testpilot/0401.xlsx`
 - cases dir: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases`
 - compare rule: normalize both sides so only `Pass` stays `Pass`; all other values become `Fail`.
@@ -32,8 +33,8 @@
 | metric | value |
 | --- | ---: |
 | compared cases | 420 |
-| full matches | 251 |
-| mismatch cases | 169 |
+| full matches | 252 |
+| mismatch cases | 168 |
 | missing answer rows | 0 |
 | metadata drift rows | 58 |
 
@@ -41,9 +42,9 @@
 
 | band | matched | mismatched |
 | --- | ---: | ---: |
-| 5g | 258 | 162 |
-| 6g | 260 | 160 |
-| 2.4g | 258 | 162 |
+| 5g | 259 | 161 |
+| 6g | 261 | 159 |
+| 2.4g | 259 | 161 |
 
 ## Mismatch table
 
@@ -66,7 +67,6 @@
 | `wifi-llapi-D060-uplinkmcs` | 60 | exact | Fail / N/A / N/A | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `wifi-llapi-D062-vendoroui` | 62 | exact | Fail / N/A / N/A | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `wifi-llapi-D063-vhtcapabilities-accesspoint-associateddevice` | 63 | exact | Fail / N/A / N/A | Pass / Not Supported / Not Supported | Fail / Fail / Fail | Pass / Fail / Fail | 5g |
-| `wifi-llapi-D065-bridgeinterface` | 65 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `wifi-llapi-D070-enable-accesspoint` | 70 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `wifi-llapi-D071-ftoverdsenable-accesspoint` | 71 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `wifi-llapi-D079-mode-accesspoint-macfiltering` | 79 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
@@ -550,25 +550,6 @@
 - 0401 G excerpt: root@prplOS:/# ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.? | grep VhtCapabilities WiFi.AccessPoint.1.AssociatedDevice.1.VhtCapabilities="SGI80,SGI160,SU-BFR,SU-BFE,MU-BFR,MU-BFE"
 - 0401 H excerpt: (empty)
 - trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D063-vhtcapabilities-accesspoint-associateddevice.json`
-
-### wifi-llapi-D065-bridgeinterface
-
-- case file: `D065_bridgeinterface.yaml`
-- answer row: `65`
-- mapping status: `exact`
-- source metadata: `WiFi.AccessPoint.{i}.` / `BridgeInterface`
-- workbook metadata: `WiFi.AccessPoint.{i}.` / `BridgeInterface`
-- final status: `Fail`
-- evaluation verdict: `Pass`
-- attempts used: `1`
-- actual raw: `Fail` / `Fail` / `Fail`
-- expected raw: `Pass` / `Pass` / `Pass`
-- actual normalized: `Fail` / `Fail` / `Fail`
-- expected normalized: `Pass` / `Pass` / `Pass`
-- mismatch bands: `5g, 6g, 2.4g`
-- 0401 G excerpt: root@prplOS:/# ubus-cli WiFi.AccessPoint.? | grep BridgeInterface WiFi.AccessPoint.1.BridgeInterface="br-lan" WiFi.AccessPoint.3.BridgeInterface="br-lan" WiFi.AccessPoint.5.BridgeInterface="br-lan"
-- 0401 H excerpt: cat /tmp/wl0_hapd.conf |grep bridge root@prplOS:/# brctl show bridge name bridge id STP enabled interfaces br-lcm 8000.6c15db74c0b3 no br-lan 8000.6c15db74c0b1 no wl0.1 eth3 wl1 eth1 wl2.1 wl2 eth2 wl0 wl1.1 br-guest 8000.6c15db74c0b2 no
-- trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D065-bridgeinterface.json`
 
 ### wifi-llapi-D070-enable-accesspoint
 
