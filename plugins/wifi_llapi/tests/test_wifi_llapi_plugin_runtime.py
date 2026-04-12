@@ -13266,11 +13266,31 @@ def test_d115_getstationstats_connectionduration_contract():
     """D115 YAML loads, discovers, and has correct metadata."""
     cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
     case = load_case(cases_dir / "D115_getstationstats_connectionduration.yaml")
-    assert case["source"]["row"] == 117
+    assert case["source"]["row"] == 115
     assert case["llapi_support"] == "Support"
-    assert len(case["steps"]) == 2
-    assert len(case["pass_criteria"]) == 2
-    assert case["bands"] == ["5g"]
+    assert len(case["steps"]) == 15
+    assert len(case["pass_criteria"]) == 12
+    assert case["bands"] == ["5g", "6g", "2.4g"]
+    d115_links = {link["band"] for link in case["topology"]["links"]}
+    assert d115_links == {"5g", "6g", "2.4g"}
+    d115_commands = "\n".join(str(step.get("command", "")) for step in case["steps"])
+    assert 'WiFi.AccessPoint.3.getStationStats()' in d115_commands
+    assert "DriverConnectionSeconds5g=" in d115_commands
+    assert any(
+        criterion["field"] == "result_after_wait_5g.ConnectionDuration"
+        and criterion["reference"] == "result_5g.ConnectionDuration"
+        for criterion in case["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "driver_duration_6g.DriverConnectionSeconds6g"
+        and criterion["reference"] == "result_after_wait_6g.ConnectionDuration"
+        for criterion in case["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "driver_duration_24g.DriverConnectionSeconds24g"
+        and criterion["reference"] == "result_after_wait_24g.ConnectionDuration"
+        for criterion in case["pass_criteria"]
+    )
 
 
 def test_d115_getstationstats_connectionduration_setup_env(monkeypatch):
@@ -13292,14 +13312,88 @@ def test_d115_getstationstats_connectionduration_evaluate():
     case = load_case(cases_dir / "D115_getstationstats_connectionduration.yaml")
     results = {
         "steps": {
-            "step1_assoc_precheck": {
+            "step1_5g_sta_join": {
                 "success": True,
-                "output": "2C:59:17:00:04:85",
+                "output": "Connected to testpilot5G",
                 "timing": 0.01,
             },
-            "step2_getstationstats": {
+            "step2_5g_assoc": {
                 "success": True,
-                "output": "ConnectionDuration=2985",
+                "output": "assoclist 2C:59:17:00:04:85",
+                "timing": 0.01,
+            },
+            "step3_5g_getstationstats": {
+                "success": True,
+                "output": 'MACAddress="2C:59:17:00:04:85"\nActive=1\nConnectionDuration=13',
+                "captured": {"ConnectionDuration": "13"},
+                "timing": 0.01,
+            },
+            "step4_5g_getstationstats_after_wait": {
+                "success": True,
+                "output": "ConnectionDuration=17",
+                "captured": {"ConnectionDuration": "17"},
+                "timing": 0.01,
+            },
+            "step5_5g_driver_age": {
+                "success": True,
+                "output": "DriverConnectionSeconds5g=18",
+                "captured": {"DriverConnectionSeconds5g": "18"},
+                "timing": 0.01,
+            },
+            "step6_6g_sta_join": {
+                "success": True,
+                "output": "Connected to testpilot6G",
+                "timing": 0.01,
+            },
+            "step7_6g_assoc": {
+                "success": True,
+                "output": "assoclist 2C:59:17:00:04:86",
+                "timing": 0.01,
+            },
+            "step8_6g_getstationstats": {
+                "success": True,
+                "output": "ConnectionDuration=11",
+                "captured": {"ConnectionDuration": "11"},
+                "timing": 0.01,
+            },
+            "step9_6g_getstationstats_after_wait": {
+                "success": True,
+                "output": "ConnectionDuration=15",
+                "captured": {"ConnectionDuration": "15"},
+                "timing": 0.01,
+            },
+            "step10_6g_driver_age": {
+                "success": True,
+                "output": "DriverConnectionSeconds6g=16",
+                "captured": {"DriverConnectionSeconds6g": "16"},
+                "timing": 0.01,
+            },
+            "step11_24g_sta_join": {
+                "success": True,
+                "output": "Connected to testpilot2G",
+                "timing": 0.01,
+            },
+            "step12_24g_assoc": {
+                "success": True,
+                "output": "assoclist 2C:59:17:00:04:97",
+                "timing": 0.01,
+            },
+            "step13_24g_getstationstats": {
+                "success": True,
+                "output": "ConnectionDuration=20",
+                "captured": {"ConnectionDuration": "20"},
+                "timing": 0.01,
+            },
+            "step14_24g_getstationstats_after_wait": {
+                "success": True,
+                "output": "ConnectionDuration=24",
+                "captured": {"ConnectionDuration": "24"},
+                "timing": 0.01,
+            },
+            "step15_24g_driver_age": {
+                "success": True,
+                "output": "DriverConnectionSeconds24g=25",
+                "captured": {"DriverConnectionSeconds24g": "25"},
                 "timing": 0.01,
             },
         }

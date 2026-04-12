@@ -120,6 +120,7 @@
   - `D098` also returns to the low-risk metadata/results_reference family: the rerun exact-closes tri-band setter round-trip `baseline=0 -> set=1 -> restore=0` against direct driver `dwds 0 -> 1 -> 0`, so the only remaining defects were stale row `100`, stale raw `Fail / Fail / Fail`, and an internal COM transport note mismatch; refreshing it to workbook row `98`, raw `Pass / Pass / Pass`, and consistent COM1 transport removes the mismatch cleanly
   - `D099` also returns to the low-risk metadata/results_reference family after source review: active 0403 still routes `wifi_getApWMMCapability()` through `wldm_AccessPoint_WMMCapability()`, which probes driver iovar `wme` and returns `TRUE` on successful read, with no 6G-specific branch in the getter path. The rerun exact-closes tri-band `WMMCapability=1` and `hostapd wmm_enabled=1`, so the only remaining defects were stale row `101`, stale raw `Pass / Fail / Pass`, and an internal COM transport note mismatch; refreshing it to workbook row `99`, raw `Pass / Pass / Pass`, and consistent COM1 transport removes the mismatch cleanly
   - `D114` closes as a source-backed stale-scope rewrite: active 0403 `whm_brcm_ap_mlo_fillAssocDevInfo()` still fills `pAD->AvgSignalStrengthByChain = wld_ad_getAvgSignalStrengthByChain(pAD)`, and the ODL still exposes it as a volatile read-only int32 with no band-specific branch. The old case had been left as a 5G-only `Fail / N/A / N/A` artifact, so the committed rewrite restores tri-band sequential `getStationStats()` coverage and the rerun exact-closes `AvgSignalStrengthByChain=-33` (5G), `-85` (6G), and `-23` (2.4G). verify_env had to absorb transient 6G OCV/hostapd recovery noise, but the case itself still finished `Pass` in one attempt
+  - `D115` closes as a source-backed stale-scope rewrite for a live counter: the ODL still exposes `ConnectionDuration` as a volatile read-only uint32, `wlgetStationInfo()` still parses driver `wl sta_info ... in network` into `connectTime`, and `local_wl_util.c` still copies `staInfo.connectTime` into the higher-level station structure with no band-specific branch. The old case had been left as a 5G-only `Fail / N/A / N/A` artifact, so the committed rewrite restores tri-band sequential `getStationStats()` coverage and proves the counter is live by reading it twice per band and cross-checking against driver age. Official rerun `20260413T035856845825` exact-closes `7 -> 10 <= 12` on 5G, `11 -> 14 <= 16` on 6G, and `9 -> 13 <= 15` on 2.4G; verify_env again had to absorb transient 6G OCV and wl0 supplicant recovery noise, but the case still finished `Pass` in one attempt
 - Latest investigated non-aligned case:
   - `D079 MACFiltering.Mode` official rerun `20260413T002418591720` no longer hits `step_command_failed`
   - both attempts executed the full AP1 / AP3 / AP5 setter/getter sequence and converged to the same live shape:
@@ -136,9 +137,9 @@
     - the local tri-band rewrite was reverted; blocker authority is now `plugins/wifi_llapi/reports/D035_block.md`
 - Current authoritative full-run source remains `20260412T113008433351`
 - Latest recomputed overlay compare on top of authoritative full run `20260412T113008433351`
-  plus D024 / D025 / D022 / D072 / D047 / D050 / D088 / D460 / D494 / D461 / D462 / D463 / D465 / D467 / D045 / D046 / D061 / D028 / D065 / D081 / D094 / D095 / D098 / D099 / D114 reruns:
-  - `258 / 420 full matches`
-  - `162 mismatches`
+  plus D024 / D025 / D022 / D072 / D047 / D050 / D088 / D460 / D494 / D461 / D462 / D463 / D465 / D467 / D045 / D046 / D061 / D028 / D065 / D081 / D094 / D095 / D098 / D099 / D114 / D115 reruns:
+  - `259 / 420 full matches`
+  - `161 mismatches`
   - `58 metadata drifts`
 - Current focused step-command-failed workstream status:
   - closed in this loop: `D072`、`D047`、`D050`、`D088`、`D460`、`D494`
@@ -146,7 +147,7 @@
   - remaining open set: `none`
   - env-only bucket remains `D328`、`D336`
   - blocked bucket is now `D053` (`needs deterministic AP-to-STA unicast payload`) plus `D035` (`tri-band rewrite blocked by shared 6G OCV / ATTACH recovery loop`)
-- Next ready workbook-Pass revisit: `D115`
+- Next ready workbook-Pass revisit: `D174`
 
 ## Latest repo handoff snapshot（2026-04-11）
 

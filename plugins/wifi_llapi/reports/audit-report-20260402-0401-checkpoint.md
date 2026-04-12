@@ -1,5 +1,87 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-13 early-22)
+
+> This checkpoint records the `D115` tri-band live-counter closure after `D114`.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D115 getStationStats() ConnectionDuration` is now aligned via official rerun `20260413T035856845825`
+- active 0403 still exposes `ConnectionDuration` as a volatile read-only uint32 in the AccessPoint ODL
+- `wlgetStationInfo()` still parses driver `wl sta_info ... in network` into `connectTime`, and `local_wl_util.c` still copies `staInfo.connectTime` into the higher-level station structure
+- no band-specific branch was found in the live counter path, so the old 5G-only `Fail / N/A / N/A` shape was stale authored scope rather than a semantic restriction
+- the committed rewrite restores tri-band sequential `getStationStats()` coverage and proves the counter is live by reading it twice per band and cross-checking the same STA against driver age
+- official rerun exact-closed `7 -> 10 <= 12` on 5G, `11 -> 14 <= 16` on 6G, and `9 -> 13 <= 15` on 2.4G
+- verify_env again had to absorb transient 6G OCV and wl0 supplicant recovery noise, but the case itself still finished `Pass` in one attempt
+- committed metadata is now workbook row `115` with `results_reference.v4.0.3 = Pass / Pass / Pass`
+- overlay compare is now `259 / 420 full matches`、`161 mismatches`、`58 metadata drifts`
+- next ready workbook-Pass revisit is `D174`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D115` | 115 | `getStationStats() ConnectionDuration` | `Pass / Pass / Pass` | `20260413T035856845825_DUT.log L427-L679, L886-L1138; agent trace JSON L125-L128` | `20260413T035856845825_STA.log L84-L111, L210-L255, L389-L416` |
+
+#### D115 getStationStats() ConnectionDuration
+
+**STA 指令**
+
+```sh
+iw dev wl0 link
+wpa_cli -p /var/run/wpa_supplicant -i wl0 status
+iw dev wl1 link
+wpa_cli -p /var/run/wpa_supplicant -i wl1 status
+wl -i wl1 status
+iw dev wl2 link
+wpa_cli -p /var/run/wpa_supplicant -i wl2 status
+```
+
+**DUT 指令**
+
+```sh
+wl -i wl0 assoclist
+ubus-cli "WiFi.AccessPoint.1.getStationStats()"
+sleep 3
+ubus-cli "WiFi.AccessPoint.1.getStationStats()"
+STA_MAC=$(wl -i wl0 assoclist | awk 'NR==1{print $NF}'); [ -n "$STA_MAC" ] && wl -i wl0 sta_info $STA_MAC | sed -n 's/.*in network \([0-9][0-9]*\) seconds.*/DriverConnectionSeconds5g=\1/p'
+wl -i wl1 assoclist
+ubus-cli "WiFi.AccessPoint.3.getStationStats()"
+sleep 3
+ubus-cli "WiFi.AccessPoint.3.getStationStats()"
+STA_MAC=$(wl -i wl1 assoclist | awk 'NR==1{print $NF}'); [ -n "$STA_MAC" ] && wl -i wl1 sta_info $STA_MAC | sed -n 's/.*in network \([0-9][0-9]*\) seconds.*/DriverConnectionSeconds6g=\1/p'
+wl -i wl2 assoclist
+ubus-cli "WiFi.AccessPoint.5.getStationStats()"
+sleep 3
+ubus-cli "WiFi.AccessPoint.5.getStationStats()"
+STA_MAC=$(wl -i wl2 assoclist | awk 'NR==1{print $NF}'); [ -n "$STA_MAC" ] && wl -i wl2 sta_info $STA_MAC | sed -n 's/.*in network \([0-9][0-9]*\) seconds.*/DriverConnectionSeconds24g=\1/p'
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+20260413T035856845825_DUT.log L427, L464, L585, L679
+assoclist 2C:59:17:00:04:85
+ConnectionDuration = 7
+ConnectionDuration = 10
+DriverConnectionSeconds5g=12
+
+20260413T035856845825_DUT.log L886, L923, L1044, L1138
+assoclist 2C:59:17:00:04:86
+ConnectionDuration = 11
+ConnectionDuration = 14
+DriverConnectionSeconds6g=16
+
+plugins/wifi_llapi/reports/agent_trace/20260413T035856845825/wifi-llapi-D115-getstationstats-connectionduration.json L125-L128
+assoclist 2C:59:17:00:04:97
+ConnectionDuration = 9
+ConnectionDuration = 13
+DriverConnectionSeconds24g=15
+```
+
 ## Checkpoint summary (2026-04-13 early-21)
 
 > This checkpoint records the `D114` tri-band stale-scope closure after `D099`.
