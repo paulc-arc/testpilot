@@ -1,5 +1,68 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-12 late-4)
+
+> This checkpoint records the D022 alignment closure on top of the authoritative full run + D024/D025 overlays.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D022 HtCapabilities` is now aligned via official rerun `20260412T175538121906`
+  - stale alias metadata is removed
+  - `source.row` is refreshed from `19` to workbook row `22`
+  - the durable driver oracle is now the parsed `wl sta_info` `HT caps 0x...` bitmask
+    rather than a brittle token scrape
+  - live evidence exact-closed `HtCapabilities="40MHz,SGI20,SGI40"` with
+    `DriverHt40MHz=1`, `DriverHtSgi20=1`, and `DriverHtSgi40=1`
+- targeted D022 guardrails stayed `1 passed`
+- overlay compare after applying the D024, D025, and D022 reruns is now
+  `238 / 420 full matches`、`182 mismatches`、`62 metadata drifts`
+- actionable workbook-Pass gaps are now `153`
+- `D020` remains a verified fail-shaped mismatch, so the next ready case after this
+  checkpoint is `D034`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D022` | 22 | `HtCapabilities` | `Pass / Not Supported / Pass` | `20260412T175538121906_DUT.log L336-L368` | `20260412T175538121906_STA.log L64-L89` |
+
+#### D022 HtCapabilities
+
+**STA 指令**
+
+```sh
+wpa_supplicant -B -D nl80211 -i wl0 -c /tmp/wpa_wl0.conf -C /var/run/wpa_supplicant
+wpa_cli -p /var/run/wpa_supplicant -i wl0 reconnect
+iw dev wl0 link
+wpa_cli -p /var/run/wpa_supplicant -i wl0 status
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?"
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.HtCapabilities?"
+STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p'); HT_HEX=$([ -n "$STA_MAC" ] && wl -i wl0 sta_info $STA_MAC | sed -n 's/.*HT caps 0x\([0-9A-Fa-f][0-9A-Fa-f]*\):.*/\1/p' | head -n1); if [ -n "$HT_HEX" ]; then HT_VAL=$((0x$HT_HEX)); [ $((HT_VAL & 0x0002)) -ne 0 ] && echo DriverHt40MHz=1; [ $((HT_VAL & 0x0020)) -ne 0 ] && echo DriverHtSgi20=1; [ $((HT_VAL & 0x0040)) -ne 0 ] && echo DriverHtSgi40=1; fi
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+STA L64-L89:
+Connected to 2c:59:17:00:19:95 (on wl0)
+SSID: TestPilot_BTM
+wpa_state=COMPLETED
+
+DUT L336-L368:
+WiFi.AccessPoint.1.AssociatedDevice.1.HtCapabilities="40MHz,SGI20,SGI40"
+DriverHt40MHz=1
+DriverHtSgi20=1
+DriverHtSgi40=1
+```
+
 ## Checkpoint summary (2026-04-12 late-3)
 
 > This checkpoint records the D025 alignment closure on top of the authoritative full run + D024 overlay.

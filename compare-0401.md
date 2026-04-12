@@ -6,6 +6,7 @@
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351`
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T172957084134`
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T174551843336`
+  - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T175538121906`
 - answer sheet: `/home/paul_chen/prj_arc/testpilot/0401.xlsx`
 - cases dir: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases`
 - compare rule: normalize both sides so only `Pass` stays `Pass`; all other values become `Fail`.
@@ -16,8 +17,8 @@
 | metric | value |
 | --- | ---: |
 | compared cases | 420 |
-| full matches | 237 |
-| mismatch cases | 183 |
+| full matches | 238 |
+| mismatch cases | 182 |
 | missing answer rows | 0 |
 | metadata drift rows | 62 |
 
@@ -25,9 +26,9 @@
 
 | band | matched | mismatched |
 | --- | ---: | ---: |
-| 5g | 247 | 173 |
+| 5g | 248 | 172 |
 | 6g | 249 | 171 |
-| 2.4g | 246 | 174 |
+| 2.4g | 247 | 173 |
 
 ## Mismatch table
 
@@ -36,7 +37,6 @@
 | `d014-assocdev-chargeableuserid` | 14 | exact | Pass / Pass / Pass | Skip / Skip / Skip | Pass / Pass / Pass | Fail / Fail / Fail | 5g, 6g, 2.4g |
 | `wifi-llapi-D019-encryptionmode-accesspoint-associateddevice` | 19 | exact | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | 5g, 6g, 2.4g |
 | `wifi-llapi-D020-frequencycapabilities` | 20 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
-| `wifi-llapi-D022-htcapabilities-accesspoint-associateddevice` | 22 | exact | Fail / Fail / Fail | Pass / Not Supported / Pass | Fail / Fail / Fail | Pass / Fail / Pass | 5g, 2.4g |
 | `wifi-llapi-D028-maxbandwidthsupported` | 28 | exact | Pass / Pass / Pass | Pass / Fail / Pass | Pass / Pass / Pass | Pass / Fail / Pass | 6g |
 | `wifi-llapi-D030-mugroupid` | 30 | exact | Pass / Pass / Pass | Not Supported / Not Supported / Not Supported | Pass / Pass / Pass | Fail / Fail / Fail | 5g, 6g, 2.4g |
 | `wifi-llapi-D032-mumimotxpktspercentage` | 32 | exact | Pass / Pass / Pass | Not Supported / Not Supported / Not Supported | Pass / Pass / Pass | Fail / Fail / Fail | 5g, 6g, 2.4g |
@@ -276,26 +276,6 @@
 - 0401 G excerpt: 1. Connect WiFi Station to GW. 2. Verify Associated Station FrequencyCapabilities: root@prplOS:~# ubus-cli WiFi.? | grep FrequencyCapabilities= WiFi.AccessPoint.1.AssociatedDevice.1.FrequencyCapabilities="2.4GHz,5GHz,6GHz" WiFi.AccessPoi...
 - 0401 H excerpt: wl -i wl0 sta_info ${STA_MAC} Frequency Bands Supported: 2.4G 5G 6G
 - trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D020-frequencycapabilities.json`
-
-### wifi-llapi-D022-htcapabilities-accesspoint-associateddevice
-
-- case file: `D022_htcapabilities_accesspoint_associateddevice.yaml`
-- answer row: `22`
-- mapping status: `exact`
-- source metadata: `WiFi.AccessPoint.{i}.AssociatedDevice.{i}.` / `HtCapabilities`
-- workbook metadata: `WiFi.AccessPoint.{i}.AssociatedDevice.{i}.` / `HtCapabilities`
-- final status: `Fail`
-- evaluation verdict: `Fail`
-- attempts used: `2`
-- runtime comment: pass_criteria not satisfied (failed after 2/2 attempts)
-- actual raw: `Fail` / `Fail` / `Fail`
-- expected raw: `Pass` / `Not Supported` / `Pass`
-- actual normalized: `Fail` / `Fail` / `Fail`
-- expected normalized: `Pass` / `Fail` / `Pass`
-- mismatch bands: `5g, 2.4g`
-- 0401 G excerpt: ##Connect WiFi Station and check Station HtCapabilities WiFi.AccessPoint.1.AssociatedDevice.1.HtCapabilities="40MHz,SGI20,SGI40" WiFi.AccessPoint.3.AssociatedDevice.1.HtCapabilities="" WiFi.AccessPoint.5.AssociatedDevice.1.HtCapabilities...
-- 0401 H excerpt: wl -i wl0 sta_info ${STA_MAC} HT caps 0x2d: LDPC SGI20
-- trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D022-htcapabilities-accesspoint-associateddevice.json`
 
 ### wifi-llapi-D028-maxbandwidthsupported
 

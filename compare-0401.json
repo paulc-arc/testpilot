@@ -3,7 +3,8 @@
   "trace_dirs": [
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T172957084134",
-    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T174551843336"
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T174551843336",
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T175538121906"
   ],
   "answers_xlsx": "/home/paul_chen/prj_arc/testpilot/0401.xlsx",
   "cases_dir": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases",
@@ -11,20 +12,20 @@
   "missing_answer_count": 0,
   "missing_answer_rows": [],
   "metadata_drift_count": 62,
-  "full_match_count": 237,
-  "mismatch_case_count": 183,
+  "full_match_count": 238,
+  "mismatch_case_count": 182,
   "band_summary": {
     "5g": {
-      "matched": 247,
-      "mismatched": 173
+      "matched": 248,
+      "mismatched": 172
     },
     "6g": {
       "matched": 249,
       "mismatched": 171
     },
     "2.4g": {
-      "matched": 246,
-      "mismatched": 174
+      "matched": 247,
+      "mismatched": 173
     }
   },
   "cases": [
@@ -775,7 +776,7 @@
       "case_id": "wifi-llapi-D022-htcapabilities-accesspoint-associateddevice",
       "case_file": "D022_htcapabilities_accesspoint_associateddevice.yaml",
       "dnum": 22,
-      "source_row": 19,
+      "source_row": 22,
       "source_object": "WiFi.AccessPoint.{i}.AssociatedDevice.{i}.",
       "source_api": "HtCapabilities",
       "answer_row": 22,
@@ -784,38 +785,35 @@
       "mapping_status": "exact",
       "mapping_object_match": true,
       "mapping_api_match": true,
-      "final_status": "Fail",
-      "evaluation_verdict": "Fail",
-      "attempts_used": 2,
-      "comment": "pass_criteria not satisfied (failed after 2/2 attempts)",
+      "final_status": "Pass",
+      "evaluation_verdict": "Pass",
+      "attempts_used": 1,
+      "comment": "",
       "bands": {
         "5g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         },
         "6g": {
-          "actual_raw": "Fail",
+          "actual_raw": "Not Supported",
           "actual_norm": "Fail",
           "expected_raw": "Not Supported",
           "expected_norm": "Fail"
         },
         "2.4g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         }
       },
-      "mismatch_bands": [
-        "5g",
-        "2.4g"
-      ],
-      "matches_answer": false,
+      "mismatch_bands": [],
+      "matches_answer": true,
       "workbook_test_steps_excerpt": "##Connect WiFi Station and check Station HtCapabilities WiFi.AccessPoint.1.AssociatedDevice.1.HtCapabilities=\"40MHz,SGI20,SGI40\" WiFi.AccessPoint.3.AssociatedDevice.1.HtCapabilities=\"\" WiFi.AccessPoint.5.AssociatedDevice.1.HtCapabilities...",
       "workbook_command_output_excerpt": "wl -i wl0 sta_info ${STA_MAC} HT caps 0x2d: LDPC SGI20",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D022-htcapabilities-accesspoint-associateddevice.json"
+      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T175538121906/wifi-llapi-D022-htcapabilities-accesspoint-associateddevice.json"
     },
     {
       "case_id": "wifi-llapi-D023-inactive",
@@ -18931,52 +18929,6 @@
       "workbook_test_steps_excerpt": "1. Connect WiFi Station to GW. 2. Verify Associated Station FrequencyCapabilities: root@prplOS:~# ubus-cli WiFi.? | grep FrequencyCapabilities= WiFi.AccessPoint.1.AssociatedDevice.1.FrequencyCapabilities=\"2.4GHz,5GHz,6GHz\" WiFi.AccessPoi...",
       "workbook_command_output_excerpt": "wl -i wl0 sta_info ${STA_MAC} Frequency Bands Supported: 2.4G 5G 6G",
       "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D020-frequencycapabilities.json"
-    },
-    {
-      "case_id": "wifi-llapi-D022-htcapabilities-accesspoint-associateddevice",
-      "case_file": "D022_htcapabilities_accesspoint_associateddevice.yaml",
-      "dnum": 22,
-      "source_row": 19,
-      "source_object": "WiFi.AccessPoint.{i}.AssociatedDevice.{i}.",
-      "source_api": "HtCapabilities",
-      "answer_row": 22,
-      "answer_object": "WiFi.AccessPoint.{i}.AssociatedDevice.{i}.",
-      "answer_api": "HtCapabilities",
-      "mapping_status": "exact",
-      "mapping_object_match": true,
-      "mapping_api_match": true,
-      "final_status": "Fail",
-      "evaluation_verdict": "Fail",
-      "attempts_used": 2,
-      "comment": "pass_criteria not satisfied (failed after 2/2 attempts)",
-      "bands": {
-        "5g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        },
-        "6g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Not Supported",
-          "expected_norm": "Fail"
-        },
-        "2.4g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        }
-      },
-      "mismatch_bands": [
-        "5g",
-        "2.4g"
-      ],
-      "matches_answer": false,
-      "workbook_test_steps_excerpt": "##Connect WiFi Station and check Station HtCapabilities WiFi.AccessPoint.1.AssociatedDevice.1.HtCapabilities=\"40MHz,SGI20,SGI40\" WiFi.AccessPoint.3.AssociatedDevice.1.HtCapabilities=\"\" WiFi.AccessPoint.5.AssociatedDevice.1.HtCapabilities...",
-      "workbook_command_output_excerpt": "wl -i wl0 sta_info ${STA_MAC} HT caps 0x2d: LDPC SGI20",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D022-htcapabilities-accesspoint-associateddevice.json"
     },
     {
       "case_id": "wifi-llapi-D028-maxbandwidthsupported",

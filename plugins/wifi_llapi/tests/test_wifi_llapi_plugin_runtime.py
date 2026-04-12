@@ -2777,12 +2777,20 @@ def test_pre_skip_aligned_manual_cases_avoid_stale_sample_values():
     )
     d022_commands = "\n".join(str(step.get("command", "")) for step in d022["steps"])
     assert d022["source"]["report"] == "0310-BGW720-300_LLAPI_Test_Report.xlsx"
-    assert d022["source"]["row"] == 19
+    assert d022["source"]["row"] == 22
+    assert "aliases" not in d022
     assert d022["hlapi_command"] == 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.HtCapabilities?"'
     assert "HtCapabilities=40MHz,SGI20,SGI40" not in d022["hlapi_command"]
     assert "DriverHt40MHz=1" in d022_commands
     assert "DriverHtSgi20=1" in d022_commands
     assert "DriverHtSgi40=1" in d022_commands
+    assert "HT caps 0x" in d022_commands
+    assert "0x0002" in d022_commands
+    assert "0x0020" in d022_commands
+    assert "0x0040" in d022_commands
+    assert d022["results_reference"]["v4.0.3"]["5g"] == "Pass"
+    assert d022["results_reference"]["v4.0.3"]["6g"] == "Not Supported"
+    assert d022["results_reference"]["v4.0.3"]["2.4g"] == "Pass"
     assert any(
         criterion["field"] == "result.HtCapabilities"
         and criterion["operator"] == "equals"
