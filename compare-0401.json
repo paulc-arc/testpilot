@@ -17,7 +17,8 @@
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T013010016650",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T013545364055",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T020657288045",
-    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T021655844208"
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T021655844208",
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T022541033440"
   ],
   "answers_xlsx": "/home/paul_chen/prj_arc/testpilot/0401.xlsx",
   "cases_dir": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases",
@@ -25,20 +26,20 @@
   "missing_answer_count": 0,
   "missing_answer_rows": [],
   "metadata_drift_count": 58,
-  "full_match_count": 249,
-  "mismatch_case_count": 171,
+  "full_match_count": 250,
+  "mismatch_case_count": 170,
   "band_summary": {
     "5g": {
       "matched": 258,
       "mismatched": 162
     },
     "6g": {
-      "matched": 258,
-      "mismatched": 162
+      "matched": 259,
+      "mismatched": 161
     },
     "2.4g": {
-      "matched": 257,
-      "mismatched": 163
+      "matched": 258,
+      "mismatched": 162
     }
   },
   "cases": [
@@ -2513,7 +2514,7 @@
       "case_id": "wifi-llapi-D061-uplinkshortguard",
       "case_file": "D061_uplinkshortguard.yaml",
       "dnum": 61,
-      "source_row": 63,
+      "source_row": 61,
       "source_object": "WiFi.AccessPoint.{i}.AssociatedDevice.{i}.",
       "source_api": "UplinkShortGuard",
       "answer_row": 61,
@@ -2534,26 +2535,23 @@
           "expected_norm": "Pass"
         },
         "6g": {
-          "actual_raw": "N/A",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         },
         "2.4g": {
-          "actual_raw": "N/A",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         }
       },
-      "mismatch_bands": [
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
+      "mismatch_bands": [],
+      "matches_answer": true,
       "workbook_test_steps_excerpt": "##Connect WiFi Station and check Station UplinkShortGuard WiFi.AccessPoint.1.AssociatedDevice.1.UplinkShortGuard=0 WiFi.AccessPoint.3.AssociatedDevice.1.UplinkShortGuard=0 WiFi.AccessPoint.5.AssociatedDevice.1.UplinkShortGuard=0",
       "workbook_command_output_excerpt": "wl -i wl0 sta_info ${STA_MAC} rx nrate eht mcs 4 Nss 1 Tx Exp 0 bw20 ldpc 2xLTF GI 0.8us auto rx nrate = last packet received from the STA (uplink) GI 0.8us → short guard interval So UplinkShortGuard = true / yes",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D061-uplinkshortguard.json"
+      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T022541033440/wifi-llapi-D061-uplinkshortguard.json"
     },
     {
       "case_id": "wifi-llapi-D062-vendoroui",
@@ -19508,52 +19506,6 @@
       "workbook_test_steps_excerpt": "##Connect WiFi Station and check Station UplinkMCS WiFi.AccessPoint.1.AssociatedDevice.1.UplinkMCS=0 WiFi.AccessPoint.3.AssociatedDevice.1.UplinkMCS=0 WiFi.AccessPoint.5.AssociatedDevice.1.UplinkMCS=0",
       "workbook_command_output_excerpt": "wl -i wl0 sta_info ${STA_MAC} rx nrate eht mcs 4 Nss 1 Tx Exp 0 bw20 ldpc 2xLTF GI 0.8us auto rx nrate = last packet received from the STA (uplink) eht mcs 4 → UplinkMCS = 4 Nss 1 → 1 spatial stream used for uplink bw20 → uplink channel ...",
       "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D060-uplinkmcs.json"
-    },
-    {
-      "case_id": "wifi-llapi-D061-uplinkshortguard",
-      "case_file": "D061_uplinkshortguard.yaml",
-      "dnum": 61,
-      "source_row": 63,
-      "source_object": "WiFi.AccessPoint.{i}.AssociatedDevice.{i}.",
-      "source_api": "UplinkShortGuard",
-      "answer_row": 61,
-      "answer_object": "WiFi.AccessPoint.{i}.AssociatedDevice.{i}.",
-      "answer_api": "UplinkShortGuard",
-      "mapping_status": "exact",
-      "mapping_object_match": true,
-      "mapping_api_match": true,
-      "final_status": "Pass",
-      "evaluation_verdict": "Pass",
-      "attempts_used": 1,
-      "comment": "",
-      "bands": {
-        "5g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        },
-        "6g": {
-          "actual_raw": "N/A",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        },
-        "2.4g": {
-          "actual_raw": "N/A",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        }
-      },
-      "mismatch_bands": [
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
-      "workbook_test_steps_excerpt": "##Connect WiFi Station and check Station UplinkShortGuard WiFi.AccessPoint.1.AssociatedDevice.1.UplinkShortGuard=0 WiFi.AccessPoint.3.AssociatedDevice.1.UplinkShortGuard=0 WiFi.AccessPoint.5.AssociatedDevice.1.UplinkShortGuard=0",
-      "workbook_command_output_excerpt": "wl -i wl0 sta_info ${STA_MAC} rx nrate eht mcs 4 Nss 1 Tx Exp 0 bw20 ldpc 2xLTF GI 0.8us auto rx nrate = last packet received from the STA (uplink) GI 0.8us → short guard interval So UplinkShortGuard = true / yes",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D061-uplinkshortguard.json"
     },
     {
       "case_id": "wifi-llapi-D062-vendoroui",

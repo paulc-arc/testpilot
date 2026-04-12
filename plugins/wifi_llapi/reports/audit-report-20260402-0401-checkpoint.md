@@ -1,5 +1,76 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-13 early-13)
+
+> This checkpoint records the `D061` metadata/results_reference closure after `D046`.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D061 UplinkShortGuard` is now aligned via official rerun `20260413T022541033440`
+- the authoritative trace had already been `evaluation_verdict=Pass`
+- live 5G evidence exact-closed the post-trigger `UplinkShortGuard=1` snapshot against the same-STA driver GI token `1.6us` and derived boolean `DriverUplinkShortGuard=1`
+- the only remaining defects were stale workbook row `63` plus stale raw `Pass / N/A / N/A`
+- committed metadata is now workbook row `61` with `results_reference.v4.0.3 = Pass / Pass / Pass`
+- overlay compare is now `250 / 420 full matches`、`170 mismatches`、`58 metadata drifts`
+- next ready mixed-verdict workbook revisit is `D028`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D061` | 61 | `UplinkShortGuard` | `Pass / Pass / Pass` | `20260413T022541033440_DUT.log L349-L381` | `20260413T022541033440_STA.log L63-L104` |
+
+#### D061 UplinkShortGuard
+
+**STA 指令**
+
+```sh
+wpa_cli -p /var/run/wpa_supplicant -i wl0 reconnect
+sleep 10
+iw dev wl0 link
+wpa_cli -p /var/run/wpa_supplicant -i wl0 status
+ifconfig wl0 192.168.1.3 netmask 255.255.255.0 up && ip route get 192.168.1.1
+ping -I wl0 -c 8 -W 1 192.168.1.1
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?"
+OUT=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.?"); printf '%s\n' "$OUT" | sed -n 's/.*MACAddress="\([^"]*\)".*/AssocMacAfterTrigger=\1/p; s/.*UplinkShortGuard=\([^[:space:]]*\).*/UplinkShortGuard=\1/p'
+STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p')
+STA_MAC_LOWER=$(echo "$STA_MAC" | tr 'A-F' 'a-f')
+NRATE=$(wl -i wl0 sta_info $STA_MAC_LOWER | sed -n '/rx nrate/,+1p')
+GI=$(echo "$NRATE" | sed -n '2s/.*GI \([^ ]*\).*/\1/p')
+echo DriverAssocMac=$STA_MAC
+echo "$NRATE"
+echo DriverUplinkShortGuardGI=$GI
+case "$GI" in 0.4us|0.8us|1.6us) echo DriverUplinkShortGuard=1 ;; 3.2us) echo DriverUplinkShortGuard=0 ;; *) echo DriverUplinkShortGuard=UNKNOWN_GI:$GI ;; esac
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+20260413T022541033440_STA.log L63-L104
+iw dev wl0 link
+Connected to 2c:59:17:00:19:95 (on wl0)
+        SSID: testpilot5G
+...
+ping -I wl0 -c 8 -W 1 192.168.1.1
+8 packets transmitted, 8 received, 0% packet loss
+
+20260413T022541033440_DUT.log L349-L381
+AssocMacAfterTrigger=2C:59:17:00:04:85
+UplinkShortGuard=1
+DriverAssocMac=2C:59:17:00:04:85
+he mcs 10 Nss 4 Tx Exp 0 bw20 ldpc 2xLTF GI 1.6us auto
+DriverUplinkShortGuardGI=1.6us
+DriverUplinkShortGuard=1
+```
+
 ## Checkpoint summary (2026-04-13 early-12)
 
 > This checkpoint records the `D046` metadata/results_reference closure after `D045`.

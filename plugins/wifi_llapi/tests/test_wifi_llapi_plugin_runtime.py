@@ -5386,7 +5386,7 @@ def test_d061_uplinkshortguard_uses_same_sta_gi_contract():
     assert "wifi-llapi-D061-uplinkshortguard" in {case["id"] for case in plugin.discover_cases()}
     assert "aliases" not in raw_case
     assert case_data["id"] == "wifi-llapi-D061-uplinkshortguard"
-    assert case_data["source"]["row"] == 63
+    assert case_data["source"]["row"] == 61
     assert case_data["source"]["baseline"] == "BCM v4.0.3"
     assert case_data["bands"] == ["5g"]
     assert links == {"5g"}
@@ -5434,7 +5434,8 @@ def test_d061_uplinkshortguard_uses_same_sta_gi_contract():
         for criterion in case_data["pass_criteria"]
     )
     assert case_data["results_reference"]["v4.0.3"]["5g"] == "Pass"
-    assert case_data["results_reference"]["v4.0.3"]["6g"] == case_data["results_reference"]["v4.0.3"]["6g"]
+    assert case_data["results_reference"]["v4.0.3"]["6g"] == "Pass"
+    assert case_data["results_reference"]["v4.0.3"]["2.4g"] == "Pass"
     
 
 
