@@ -122,8 +122,9 @@ class CommandResolver:
             )
         ):
             return synthesized
-        if candidate_commands and all("=" in command and "?" not in command for command in candidate_commands):
-            return synthesized
+        # Explicit executable setter commands must still run; replacing them
+        # with synthesized readback skips the write entirely and can turn valid
+        # set/get workflows into false negatives.
         return None
 
     def sanitize_cli_fragment(self, fragment: str) -> str:

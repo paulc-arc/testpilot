@@ -1,5 +1,89 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-12 late-5)
+
+> This checkpoint records the shared setter-capture runtime fix and the D072 alignment closure on top of the authoritative full run.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- shared runtime root cause is now fixed:
+  - single-line executable setter steps with `capture` were being replaced by synthesized readback queries before execution
+  - `plugins/wifi_llapi/command_resolver.py` now preserves the authored setter path for this shape
+- `D072 MobilityDomain` is now aligned via official reruns `20260412T231545173827` and `20260412T231709014359`
+  - the first rerun proved the real setter path and closed as `pass after retry (2/2)`
+  - the repeat rerun then passed on attempt 1
+  - live DUT evidence exact-closed AP1 / AP3 / AP5 with `IEEE80211r.Enabled=1`, northbound `MobilityDomain=27476`, hostapd `mobility_domain=546B`, and exactly one `ft_over_ds=0` line per band
+  - committed metadata is now workbook row `72`
+  - `results_reference.v4.0.3` is now `Pass / Pass / Pass`
+- overlay compare recomputed on top of authoritative full run `20260412T113008433351`
+  plus D024 / D025 / D022 / D072 reruns is now
+  `239 / 420 full matches`、`181 mismatches`、`62 metadata drifts`
+- actionable workbook-Pass gaps are now `152`
+- next ready `step_command_failed` revisit is the tight-coupled `D047` / `D050` pair
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D072` | 72 | `MobilityDomain` | `Pass / Pass / Pass` | `20260412T231709014359_DUT.log L32-L207` | `N/A (AP-only case)` |
+
+#### D072 MobilityDomain
+
+**STA 指令**
+
+```sh
+# N/A (AP-only case; no STA transport used)
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli WiFi.AccessPoint.1.IEEE80211r.Enabled=1
+ubus-cli "WiFi.AccessPoint.1.IEEE80211r.Enabled?" | sed -n "/Enabled=/s/.*=/Enabled5g=/p"
+ubus-cli "WiFi.AccessPoint.1.IEEE80211r.MobilityDomain?" | sed -n "/MobilityDomain=/s/.*=/MobilityDomain5g=/p"
+ubus-cli WiFi.AccessPoint.1.IEEE80211r.MobilityDomain=27476
+grep -m1 '^mobility_domain=' /tmp/wl0_hapd.conf | sed 's/^mobility_domain=/MobilityDomainCfg5g=/'
+grep -c '^ft_over_ds=0$' /tmp/wl0_hapd.conf | sed 's/^/FtOverDs5gZeroCount=/'
+ubus-cli WiFi.AccessPoint.3.IEEE80211r.Enabled=1
+ubus-cli WiFi.AccessPoint.3.IEEE80211r.MobilityDomain=27476
+grep -m1 '^mobility_domain=' /tmp/wl1_hapd.conf | sed 's/^mobility_domain=/MobilityDomainCfg6g=/'
+grep -c '^ft_over_ds=0$' /tmp/wl1_hapd.conf | sed 's/^/FtOverDs6gZeroCount=/'
+ubus-cli WiFi.AccessPoint.5.IEEE80211r.Enabled=1
+ubus-cli WiFi.AccessPoint.5.IEEE80211r.MobilityDomain=27476
+grep -m1 '^mobility_domain=' /tmp/wl2_hapd.conf | sed 's/^mobility_domain=/MobilityDomainCfg24g=/'
+grep -c '^ft_over_ds=0$' /tmp/wl2_hapd.conf | sed 's/^/FtOverDs24gZeroCount=/'
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+DUT L32-L68:
+WiFi.AccessPoint.1.IEEE80211r.Enabled=1
+Enabled5g=1
+MobilityDomain5g=0
+WiFi.AccessPoint.1.IEEE80211r.MobilityDomain=27476
+MobilityDomain5g=27476
+MobilityDomainCfg5g=546B
+FtOverDs5gZeroCount=1
+
+DUT L116-L137:
+WiFi.AccessPoint.3.IEEE80211r.MobilityDomain=27476
+Enabled6g=1
+MobilityDomain6g=27476
+MobilityDomainCfg6g=546B
+FtOverDs6gZeroCount=1
+
+DUT L186-L207:
+WiFi.AccessPoint.5.IEEE80211r.MobilityDomain=27476
+Enabled24g=1
+MobilityDomain24g=27476
+MobilityDomainCfg24g=546B
+FtOverDs24gZeroCount=1
+```
+
 ## Checkpoint summary (2026-04-12 late-4)
 
 > This checkpoint records the D022 alignment closure on top of the authoritative full run + D024/D025 overlays.

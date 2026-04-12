@@ -79,6 +79,31 @@
   - do not create ad-hoc acceleration tools/scripts to skip the manual evidence loop
 - I will update YAML and regression tests directly in this repo after a case is proven live.
 
+## Latest repo handoff snapshot（2026-04-12）
+
+- Shared runtime root cause closure:
+  - single-line executable setter steps with `capture` were being rewritten into synthesized readback queries before execution
+  - `plugins/wifi_llapi/command_resolver.py` now preserves the authored setter command for this shape instead of skipping the write
+- Latest aligned case:
+  - `D072 MobilityDomain` is now aligned via official reruns `20260412T231545173827` and `20260412T231709014359`
+  - first rerun proved the real setter path and closed as `pass after retry (2/2)`
+  - repeat rerun `20260412T231709014359` then passed on attempt 1
+  - live DUT evidence exact-closed AP1/AP3/AP5 with `IEEE80211r.Enabled=1`, northbound `MobilityDomain=27476`, hostapd `mobility_domain=546B`, and one `ft_over_ds=0` line per band
+  - committed metadata is now workbook row `72` with `results_reference.v4.0.3 = Pass / Pass / Pass`
+- Current authoritative full-run source remains `20260412T113008433351`
+- Latest recomputed overlay compare on top of authoritative full run `20260412T113008433351`
+  plus D024 / D025 / D022 / D072 reruns:
+  - `239 / 420 full matches`
+  - `181 mismatches`
+  - `62 metadata drifts`
+  - actionable workbook-Pass gaps are now `152`
+- Current focused step-command-failed workstream status:
+  - closed in this loop: `D072`
+  - remaining open set: `D047`、`D050`、`D079`、`D088`、`D460`、`D494`
+  - env-only bucket remains `D328`、`D336`
+  - blocked bucket remains `D053` (`needs deterministic AP-to-STA unicast payload`)
+- Next ready single-case revisit: tight-coupled `D047` / `D050`
+
 ## Latest repo handoff snapshot（2026-04-11）
 
 - Current detached full-run compare baseline: `20260411T074146043202`

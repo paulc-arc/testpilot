@@ -9229,7 +9229,7 @@ def test_d072_mobilitydomain_accesspoint_contract():
     assert "aliases" not in d072_raw
     assert d072["id"] == "wifi-llapi-D072-mobilitydomain-accesspoint"
     assert d072["source"]["report"] == "0310-BGW720-300_LLAPI_Test_Report.xlsx"
-    assert d072["source"]["row"] == 74
+    assert d072["source"]["row"] == 72
     assert d072["source"]["baseline"] == "BCM v4.0.3"
     assert d072["llapi_support"] == "Support"
     assert d072["implemented_by"] == "pWHM"
@@ -9255,9 +9255,9 @@ def test_d072_mobilitydomain_accesspoint_contract():
         and criterion["value"] == "0"
         for criterion in d072["pass_criteria"]
     )
-    assert d072["results_reference"]["v4.0.3"]["5g"] == "To be tested"
-    assert d072["results_reference"]["v4.0.3"]["6g"] == "To be tested"
-    assert d072["results_reference"]["v4.0.3"]["2.4g"] == "To be tested"
+    assert d072["results_reference"]["v4.0.3"]["5g"] == "Pass"
+    assert d072["results_reference"]["v4.0.3"]["6g"] == "Pass"
+    assert d072["results_reference"]["v4.0.3"]["2.4g"] == "Pass"
 
 
 def test_d072_mobilitydomain_accesspoint_setup_env_uses_only_dut_transport(monkeypatch):
@@ -9281,6 +9281,21 @@ def test_d072_mobilitydomain_accesspoint_setup_env_uses_only_dut_transport(monke
     assert all("IEEE80211r.Enabled=1" not in command for command in executed_commands)
     assert all("IEEE80211r.MobilityDomain=27476" not in command for command in executed_commands)
     plugin.teardown(d072, topology)
+
+
+def test_d072_mobilitydomain_setter_step_keeps_original_command():
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+    d072 = load_case(cases_dir / "D072_mobilitydomain.yaml")
+
+    commands, reason = plugin._command_resolver.resolve(
+        d072,
+        d072["steps"][0],
+        _FakeTopology(),
+    )
+
+    assert commands == ["ubus-cli WiFi.AccessPoint.1.IEEE80211r.Enabled=1"]
+    assert reason == ""
 
 
 def test_d072_mobilitydomain_accesspoint_evaluate_live_examples():
@@ -11710,6 +11725,21 @@ def test_d088_modessupported_setup_env_uses_only_dut_transport(monkeypatch):
     executed_commands = recorder.transports[0].executed_commands
     assert all("STA" not in command for command in executed_commands)
     plugin.teardown(d088, topology)
+
+
+def test_d088_modessupported_setter_step_keeps_original_command():
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+    d088 = load_case(cases_dir / "D088_modessupported.yaml")
+
+    commands, reason = plugin._command_resolver.resolve(
+        d088,
+        d088["steps"][1],
+        _FakeTopology(),
+    )
+
+    assert commands == ["ubus-cli WiFi.AccessPoint.1.Security.ModesSupported=WPA3-Personal"]
+    assert reason == ""
 
 
 def test_d089_presharedkey_accesspoint_security_contract():
