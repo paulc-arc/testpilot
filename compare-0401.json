@@ -10,7 +10,8 @@
     "plugins/wifi_llapi/reports/agent_trace/20260413T000249620932",
     "plugins/wifi_llapi/reports/agent_trace/20260413T003340845889",
     "plugins/wifi_llapi/reports/agent_trace/20260413T005520941756",
-    "plugins/wifi_llapi/reports/agent_trace/20260413T005633950804"
+    "plugins/wifi_llapi/reports/agent_trace/20260413T005633950804",
+    "plugins/wifi_llapi/reports/agent_trace/20260413T010944709855"
   ],
   "answers_xlsx": "0401.xlsx",
   "cases_dir": "plugins/wifi_llapi/cases",
@@ -18,20 +19,20 @@
   "missing_answer_count": 0,
   "missing_answer_rows": [],
   "metadata_drift_count": 61,
-  "full_match_count": 242,
-  "mismatch_case_count": 178,
+  "full_match_count": 243,
+  "mismatch_case_count": 177,
   "band_summary": {
     "5g": {
-      "matched": 252,
-      "mismatched": 168
+      "matched": 253,
+      "mismatched": 167
     },
     "6g": {
-      "matched": 252,
-      "mismatched": 168
+      "matched": 253,
+      "mismatched": 167
     },
     "2.4g": {
-      "matched": 250,
-      "mismatched": 170
+      "matched": 251,
+      "mismatched": 169
     }
   },
   "cases": [
@@ -15166,7 +15167,7 @@
       "case_id": "d461-radio-htcapabilities",
       "case_file": "D461_htcapabilities_radio.yaml",
       "dnum": 461,
-      "source_row": 338,
+      "source_row": 461,
       "source_object": "WiFi.Radio.{i}.",
       "source_api": "HTCapabilities",
       "answer_row": 461,
@@ -15175,39 +15176,35 @@
       "mapping_status": "exact",
       "mapping_object_match": true,
       "mapping_api_match": true,
-      "final_status": "Fail",
+      "final_status": "Pass",
       "evaluation_verdict": "Pass",
       "attempts_used": 1,
       "comment": "",
       "bands": {
         "5g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         },
         "6g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         },
         "2.4g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         }
       },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
+      "mismatch_bands": [],
+      "matches_answer": true,
       "workbook_test_steps_excerpt": "",
       "workbook_command_output_excerpt": "",
-      "trace_path": "plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d461-radio-htcapabilities.json"
+      "trace_path": "plugins/wifi_llapi/reports/agent_trace/20260413T010944709855/d461-radio-htcapabilities.json"
     },
     {
       "case_id": "d462-radio-bsscolor",
@@ -25006,53 +25003,6 @@
       "workbook_test_steps_excerpt": "",
       "workbook_command_output_excerpt": "",
       "trace_path": "plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d455-getradiostats-multipleretrycount.json"
-    },
-    {
-      "case_id": "d461-radio-htcapabilities",
-      "case_file": "D461_htcapabilities_radio.yaml",
-      "dnum": 461,
-      "source_row": 338,
-      "source_object": "WiFi.Radio.{i}.",
-      "source_api": "HTCapabilities",
-      "answer_row": 461,
-      "answer_object": "WiFi.Radio.{i}.",
-      "answer_api": "HTCapabilities",
-      "mapping_status": "exact",
-      "mapping_object_match": true,
-      "mapping_api_match": true,
-      "final_status": "Fail",
-      "evaluation_verdict": "Pass",
-      "attempts_used": 1,
-      "comment": "",
-      "bands": {
-        "5g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        },
-        "6g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        },
-        "2.4g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        }
-      },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
-      "workbook_test_steps_excerpt": "",
-      "workbook_command_output_excerpt": "",
-      "trace_path": "plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d461-radio-htcapabilities.json"
     },
     {
       "case_id": "d462-radio-bsscolor",

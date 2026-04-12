@@ -17846,7 +17846,7 @@ _RADIO_GETTER_CASES = [
     ("D404_txbeamformingcapsavailable.yaml", 299, "VHT_SU_BF,HE_SU_BF,HE_MU_BF,EHT_SU_BF,EHT_MU_80_BF,EHT_MU_160_BF,EHT_MU_320_BF", "HE_SU_BF,HE_MU_BF,EHT_SU_BF,EHT_MU_80_BF,EHT_MU_160_BF,EHT_MU_320_BF", "HE_SU_BF,HE_MU_BF,EHT_SU_BF,EHT_MU_80_BF,EHT_MU_160_BF,EHT_MU_320_BF", "WiFi.Radio.{r}.TxBeamformingCapsAvailable"),
     ("D405_txbeamformingcapsenabled.yaml", 300, "DEFAULT", "DEFAULT", "DEFAULT", "WiFi.Radio.{r}.TxBeamformingCapsEnabled"),
     ("D460_hecapabilities_radio.yaml", 460, "TCBCwAIbFQAAjAA=", "TCBCwAIbFQAAjAA=", "IiBCwAIDFQAAjAA=", "WiFi.Radio.{r}.HePhyCapabilities"),
-    ("D461_htcapabilities_radio.yaml", 338, "YhA=", "AAA=", "YhA=", "WiFi.Radio.{r}.HTCapabilities"),
+    ("D461_htcapabilities_radio.yaml", 461, "YhA=", "AAA=", "YhA=", "WiFi.Radio.{r}.HTCapabilities"),
     ("D467_rxbeamformingcapsenabled.yaml", 343, "DEFAULT", "DEFAULT", "DEFAULT", "WiFi.Radio.{r}.RxBeamformingCapsEnabled"),
     # --- Batch 5b: IEEE80211ax property getters ---
     ("D365_psrdisallowed.yaml", 272, "0", "0", "0", "WiFi.Radio.{r}.IEEE80211ax.PSRDisallowed"),

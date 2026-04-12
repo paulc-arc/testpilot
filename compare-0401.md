@@ -13,6 +13,7 @@
   - `plugins/wifi_llapi/reports/agent_trace/20260413T003340845889`
   - `plugins/wifi_llapi/reports/agent_trace/20260413T005520941756`
   - `plugins/wifi_llapi/reports/agent_trace/20260413T005633950804`
+  - `plugins/wifi_llapi/reports/agent_trace/20260413T010944709855`
 - answer sheet: `0401.xlsx`
 - cases dir: `plugins/wifi_llapi/cases`
 - compare rule: normalize both sides so only `Pass` stays `Pass`; all other values become `Fail`.
@@ -23,8 +24,8 @@
 | metric | value |
 | --- | ---: |
 | compared cases | 420 |
-| full matches | 242 |
-| mismatch cases | 178 |
+| full matches | 243 |
+| mismatch cases | 177 |
 | missing answer rows | 0 |
 | metadata drift rows | 61 |
 
@@ -32,9 +33,9 @@
 
 | band | matched | mismatched |
 | --- | ---: | ---: |
-| 5g | 252 | 168 |
-| 6g | 252 | 168 |
-| 2.4g | 250 | 170 |
+| 5g | 253 | 167 |
+| 6g | 253 | 167 |
+| 2.4g | 251 | 169 |
 
 ## Mismatch table
 
@@ -173,7 +174,6 @@
 | `d438-security-transitiondisable` | 438 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d454-getradiostats-failedretranscount` | 454 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d455-getradiostats-multipleretrycount` | 455 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
-| `d461-radio-htcapabilities` | 461 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d462-radio-bsscolor` | 462 | drift | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d463-radio-hesigaspatialreusevalue15allowed` | 463 | drift | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d465-radio-srginformationvalid` | 465 | drift | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
@@ -2788,25 +2788,6 @@
 - 0401 G excerpt: (empty)
 - 0401 H excerpt: (empty)
 - trace: `plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d455-getradiostats-multipleretrycount.json`
-
-### d461-radio-htcapabilities
-
-- case file: `D461_htcapabilities_radio.yaml`
-- answer row: `461`
-- mapping status: `exact`
-- source metadata: `WiFi.Radio.{i}.` / `HTCapabilities`
-- workbook metadata: `WiFi.Radio.{i}.` / `HTCapabilities`
-- final status: `Fail`
-- evaluation verdict: `Pass`
-- attempts used: `1`
-- actual raw: `Fail` / `Fail` / `Fail`
-- expected raw: `Pass` / `Pass` / `Pass`
-- actual normalized: `Fail` / `Fail` / `Fail`
-- expected normalized: `Pass` / `Pass` / `Pass`
-- mismatch bands: `5g, 6g, 2.4g`
-- 0401 G excerpt: (empty)
-- 0401 H excerpt: (empty)
-- trace: `plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d461-radio-htcapabilities.json`
 
 ### d462-radio-bsscolor
 

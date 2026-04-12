@@ -1,5 +1,53 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-13 early-5)
+
+> This checkpoint records the `D461` mapping/results_reference closure after the D460/D494 step-command bucket was cleared.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D461 HTCapabilities` is now aligned via official rerun `20260413T010944709855`
+- the authoritative full-run trace had already been `evaluation_verdict=Pass`; the remaining mismatch was only stale metadata (`source.row=338`, raw `Fail / Fail / Fail`)
+- committed metadata is now workbook row `461` with `results_reference.v4.0.3 = Pass / Pass / Pass`
+- overlay compare recomputed on top of authoritative full run `20260412T113008433351`
+  plus D024 / D025 / D022 / D072 / D047 / D050 / D088 / D460 / D494 / D461 reruns is now
+  `243 / 420 full matches`、`177 mismatches`、`61 metadata drifts`
+- next ready phase-2 mapping/results_reference revisit is `D462`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D461` | 461 | `HTCapabilities` | `Pass / Pass / Pass` | `20260413T010944709855_DUT.log L5-L18` | `N/A (AP-only case)` |
+
+#### D461 HTCapabilities
+
+**STA 指令**
+
+```sh
+# N/A (AP-only case; no STA transport used)
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.Radio.1.HTCapabilities?"
+ubus-cli "WiFi.Radio.2.HTCapabilities?"
+ubus-cli "WiFi.Radio.3.HTCapabilities?"
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+20260413T010944709855_DUT.log L5-L18
+WiFi.Radio.1.HTCapabilities="YhA="
+WiFi.Radio.2.HTCapabilities="AAA="
+WiFi.Radio.3.HTCapabilities="YhA="
+```
+
 ## Checkpoint summary (2026-04-13 early-4)
 
 > This checkpoint records the `D460` / `D494` closure on top of the earlier D088 step-command work.
