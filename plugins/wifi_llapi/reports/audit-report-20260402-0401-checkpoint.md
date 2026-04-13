@@ -1,5 +1,71 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-13 early-45)
+
+> This checkpoint records the `D101` ConfigMethodsEnabled workbook row-101 closure after `D096`.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D101 ConfigMethodsEnabled` is now aligned via official rerun `20260413T103130805176`
+- workbook row `101` is a getter + hostapd projection case; the stale authored case had drifted to old workbook row `103` (`Configured`) and rewritten it into a `ConfigMethodsEnabled=PushButton` setter replay
+- reading row `101` directly re-established the real authority: 5G / 2.4G must exact-close `PhysicalPushButton,VirtualPushButton` together with hostapd `config_methods=physical_push_button virtual_push_button`, while the workbook note explicitly keeps 6G `Not Supported` under WPA3
+- the official rerun exact-closes that shape on current 0403 runtime: AP1 / AP5 return `CfgEnabled=PhysicalPushButton,VirtualPushButton`, AP3 / 6G returns `CfgEnabled6g=None`, and `/tmp/wl1_hapd.conf` emits no `config_methods` line
+- targeted D101 tests remain `4 passed`, and final full repo regression is `1657 passed`
+- overlay compare is now `281 / 420 full matches`、`139 mismatches`、`58 metadata drifts`
+- next ready actionable open case is `D104 Enable / AccessPoint.WPS`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D101` | 101 | `ConfigMethodsEnabled` | `Pass / Not Supported / Pass` | `20260413T103130805176_DUT.log L13-L49` | `n/a (AP-only)` |
+
+#### D101 ConfigMethodsEnabled
+
+**STA 指令**
+
+```sh
+# AP-only case; no STA transport
+```
+
+**DUT 指令**
+
+```sh
+echo "CfgEnabled5g=$(ubus-cli 'WiFi.AccessPoint.1.WPS.ConfigMethodsEnabled?' 2>/dev/null | grep 'ConfigMethodsEnabled=' | head -1 | tr -d '\"' | cut -d= -f2)"
+echo "HapdCfg5g=$(grep 'config_methods=' /tmp/wl0_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+
+echo "CfgEnabled6g=$(ubus-cli 'WiFi.AccessPoint.3.WPS.ConfigMethodsEnabled?' 2>/dev/null | grep 'ConfigMethodsEnabled=' | head -1 | tr -d '\"' | cut -d= -f2)"
+echo "HapdCfg6g=$(grep 'config_methods=' /tmp/wl1_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+
+echo "CfgEnabled24g=$(ubus-cli 'WiFi.AccessPoint.5.WPS.ConfigMethodsEnabled?' 2>/dev/null | grep 'ConfigMethodsEnabled=' | head -1 | tr -d '\"' | cut -d= -f2)"
+echo "HapdCfg24g=$(grep 'config_methods=' /tmp/wl2_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+20260413T103130805176_DUT.log L13-L19
+CfgEnabled5g=PhysicalPushButton,VirtualPushButton
+HapdCfg5g=physical_push_button virtual_push_button
+
+20260413T103130805176_DUT.log L28-L34
+CfgEnabled6g=None
+HapdCfg6g=
+
+20260413T103130805176_DUT.log L43-L49
+CfgEnabled24g=PhysicalPushButton,VirtualPushButton
+HapdCfg24g=physical_push_button virtual_push_button
+
+plugins/wifi_llapi/reports/agent_trace/20260413T103130805176/wifi-llapi-D101-configmethodsenabled.json L96-L104
+outputs:
+  CfgEnabled5g=PhysicalPushButton,VirtualPushButton / HapdCfg5g=physical_push_button virtual_push_button
+  CfgEnabled6g=None / HapdCfg6g=
+  CfgEnabled24g=PhysicalPushButton,VirtualPushButton / HapdCfg24g=physical_push_button virtual_push_button
+```
+
 ## Checkpoint summary (2026-04-13 early-44)
 
 > This checkpoint records the `D096` UAPSDEnable workbook row-96 closure after `D093`.

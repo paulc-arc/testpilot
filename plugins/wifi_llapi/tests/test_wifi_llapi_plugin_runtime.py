@@ -12855,11 +12855,13 @@ def test_d101_configmethodsenabled_contract():
     """D101 YAML loads, discovers, and has correct metadata."""
     cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
     case = load_case(cases_dir / "D101_configmethodsenabled.yaml")
-    assert case["source"]["row"] == 103
+    assert case["source"]["row"] == 101
     assert case["llapi_support"] == "Support"
     assert len(case["steps"]) == 3
-    assert len(case["pass_criteria"]) == 3
-    assert case["results_reference"]["v4.0.3"]["6g"] == "Fail"
+    assert len(case["pass_criteria"]) == 6
+    assert case["results_reference"]["v4.0.3"]["5g"] == "Pass"
+    assert case["results_reference"]["v4.0.3"]["6g"] == "Not Supported"
+    assert case["results_reference"]["v4.0.3"]["2.4g"] == "Pass"
 
 
 def test_d101_configmethodsenabled_setup_env(monkeypatch):
@@ -12874,6 +12876,36 @@ def test_d101_configmethodsenabled_setup_env(monkeypatch):
     plugin.teardown(d101, topo)
 
 
+def test_d101_configmethodsenabled_stays_getter_only():
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+    d101 = load_case(cases_dir / "D101_configmethodsenabled.yaml")
+
+    commands, reason = plugin._command_resolver.resolve(d101, d101["steps"][0], None)
+    assert reason == ""
+    joined = "\n".join(commands)
+    assert "WiFi.AccessPoint.1.WPS.ConfigMethodsEnabled?" in joined
+    assert "WiFi.AccessPoint.1.WPS.ConfigMethodsEnabled=PushButton" not in joined
+    assert "grep 'ConfigMethodsEnabled='" in joined
+    assert "tr -d" in joined
+
+    commands, reason = plugin._command_resolver.resolve(d101, d101["steps"][1], None)
+    assert reason == ""
+    joined = "\n".join(commands)
+    assert "WiFi.AccessPoint.3.WPS.ConfigMethodsEnabled?" in joined
+    assert "WiFi.AccessPoint.3.WPS.ConfigMethodsEnabled=PushButton" not in joined
+    assert "grep 'ConfigMethodsEnabled='" in joined
+    assert "tr -d" in joined
+
+    commands, reason = plugin._command_resolver.resolve(d101, d101["steps"][2], None)
+    assert reason == ""
+    joined = "\n".join(commands)
+    assert "WiFi.AccessPoint.5.WPS.ConfigMethodsEnabled?" in joined
+    assert "WiFi.AccessPoint.5.WPS.ConfigMethodsEnabled=PushButton" not in joined
+    assert "grep 'ConfigMethodsEnabled='" in joined
+    assert "tr -d" in joined
+
+
 def test_d101_configmethodsenabled_evaluate():
     """D101 all-pass criteria met with live-shaped synthetic output."""
     plugin = _load_plugin()
@@ -12881,24 +12913,42 @@ def test_d101_configmethodsenabled_evaluate():
     d101 = load_case(cases_dir / "D101_configmethodsenabled.yaml")
     results = {
         "steps": {
-            "step_5g_setter": {
+            "step_5g_getter": {
                 "success": True,
-                "output": "Baseline5g=PhysicalPushButton,VirtualPushButton\nAfterSet5g=PushButton\nHapdCfg5g=physical_push_button virtual_push_button",
+                "output": (
+                    "CfgEnabled5g=PhysicalPushButton,VirtualPushButton\n"
+                    "HapdCfg5g=physical_push_button virtual_push_button"
+                ),
                 "timing": 0.01,
             },
-            "step_6g_setter": {
+            "step_6g_getter": {
                 "success": True,
-                "output": "Baseline6g=PhysicalPushButton,VirtualPushButton\nAfterSet6g=PushButton\nHapdCfg6g=",
+                "output": "CfgEnabled6g=None\nHapdCfg6g=",
                 "timing": 0.01,
             },
-            "step_24g_setter": {
+            "step_24g_getter": {
                 "success": True,
-                "output": "Baseline24g=PhysicalPushButton,VirtualPushButton\nAfterSet24g=PushButton\nHapdCfg24g=push_button",
+                "output": (
+                    "CfgEnabled24g=PhysicalPushButton,VirtualPushButton\n"
+                    "HapdCfg24g=physical_push_button virtual_push_button"
+                ),
                 "timing": 0.01,
             },
         }
     }
     assert plugin.evaluate(d101, results) is True
+
+    d101_bad = {
+        "steps": {
+            **results["steps"],
+            "step_6g_getter": {
+                "success": True,
+                "output": "CfgEnabled6g=None\nHapdCfg6g=physical_push_button virtual_push_button",
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d101, d101_bad) is False
 
 
 def test_d102_configmethodssupported_contract():

@@ -49,28 +49,29 @@
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T090437438519",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T092400687838",
     "plugins/wifi_llapi/reports/agent_trace/20260413T094515864676",
-    "plugins/wifi_llapi/reports/agent_trace/20260413T095836613095"
+    "plugins/wifi_llapi/reports/agent_trace/20260413T095836613095",
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T103130805176"
   ],
-  "answers_xlsx": "0401.xlsx",
-  "cases_dir": "plugins/wifi_llapi/cases",
+  "answers_xlsx": "/home/paul_chen/prj_arc/testpilot/0401.xlsx",
+  "cases_dir": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases",
   "compared_case_count": 420,
   "missing_answer_count": 0,
   "missing_answer_rows": [],
   "metadata_drift_count": 58,
-  "full_match_count": 280,
-  "mismatch_case_count": 140,
+  "full_match_count": 281,
+  "mismatch_case_count": 139,
   "band_summary": {
     "5g": {
-      "matched": 286,
-      "mismatched": 134
+      "matched": 287,
+      "mismatched": 133
     },
     "6g": {
       "matched": 287,
       "mismatched": 133
     },
     "2.4g": {
-      "matched": 285,
-      "mismatched": 135
+      "matched": 286,
+      "mismatched": 134
     }
   },
   "cases": [
@@ -4122,7 +4123,7 @@
       "case_id": "wifi-llapi-D101-configmethodsenabled",
       "case_file": "D101_configmethodsenabled.yaml",
       "dnum": 101,
-      "source_row": 103,
+      "source_row": 101,
       "source_object": "WiFi.AccessPoint.{i}.WPS.",
       "source_api": "ConfigMethodsEnabled",
       "answer_row": 101,
@@ -4131,38 +4132,35 @@
       "mapping_status": "exact",
       "mapping_object_match": true,
       "mapping_api_match": true,
-      "final_status": "Fail",
-      "evaluation_verdict": "Fail",
-      "attempts_used": 2,
-      "comment": "pass_criteria not satisfied (failed after 2/2 attempts)",
+      "final_status": "Pass",
+      "evaluation_verdict": "Pass",
+      "attempts_used": 1,
+      "comment": "",
       "bands": {
         "5g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         },
         "6g": {
-          "actual_raw": "Fail",
+          "actual_raw": "Not Supported",
           "actual_norm": "Fail",
           "expected_raw": "Not Supported",
           "expected_norm": "Fail"
         },
         "2.4g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         }
       },
-      "mismatch_bands": [
-        "5g",
-        "2.4g"
-      ],
-      "matches_answer": false,
+      "mismatch_bands": [],
+      "matches_answer": true,
       "workbook_test_steps_excerpt": "1. Get WPS ConfigMethodsEnabled root@prplOS:/# ubus-cli WiFi.AccessPoint.? |grep .WPS.ConfigMethodsEnabled WiFi.AccessPoint.1.WPS.ConfigMethodsEnabled=\"PhysicalPushButton,VirtualPushButton\" WiFi.AccessPoint.3.WPS.ConfigMethodsEnabled=\"Ph...",
       "workbook_command_output_excerpt": "cat /tmp/wl0_hapd.conf |grep config_methods root@prplOS:/# cat /tmp/wl0_hapd.conf |grep config_methods config_methods=physical_push_button virtual_push_button root@prplOS:/# cat /tmp/wl1_hapd.conf |grep config_methods root@prplOS:/# cat ...",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D101-configmethodsenabled.json"
+      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T103130805176/wifi-llapi-D101-configmethodsenabled.json"
     },
     {
       "case_id": "wifi-llapi-D102-configmethodssupported",
@@ -19238,52 +19236,6 @@
       "workbook_test_steps_excerpt": "##Connect WiFi Station and send traffic then check TxUnicastPacketCount WiFi.AccessPoint.1.AssociatedDevice.1.TxUnicastPacketCount=0 WiFi.AccessPoint.3.AssociatedDevice.1.TxUnicastPacketCount=0 WiFi.AccessPoint.5.AssociatedDevice.1.TxUni...",
       "workbook_command_output_excerpt": "wl -i wl0 sta_info ${STA_MAC} TxUnicastPacketCount tx ucast pkts 90",
       "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D057-txunicastpacketcount.json"
-    },
-    {
-      "case_id": "wifi-llapi-D101-configmethodsenabled",
-      "case_file": "D101_configmethodsenabled.yaml",
-      "dnum": 101,
-      "source_row": 103,
-      "source_object": "WiFi.AccessPoint.{i}.WPS.",
-      "source_api": "ConfigMethodsEnabled",
-      "answer_row": 101,
-      "answer_object": "WiFi.AccessPoint.{i}.WPS.",
-      "answer_api": "ConfigMethodsEnabled",
-      "mapping_status": "exact",
-      "mapping_object_match": true,
-      "mapping_api_match": true,
-      "final_status": "Fail",
-      "evaluation_verdict": "Fail",
-      "attempts_used": 2,
-      "comment": "pass_criteria not satisfied (failed after 2/2 attempts)",
-      "bands": {
-        "5g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        },
-        "6g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Not Supported",
-          "expected_norm": "Fail"
-        },
-        "2.4g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        }
-      },
-      "mismatch_bands": [
-        "5g",
-        "2.4g"
-      ],
-      "matches_answer": false,
-      "workbook_test_steps_excerpt": "1. Get WPS ConfigMethodsEnabled root@prplOS:/# ubus-cli WiFi.AccessPoint.? |grep .WPS.ConfigMethodsEnabled WiFi.AccessPoint.1.WPS.ConfigMethodsEnabled=\"PhysicalPushButton,VirtualPushButton\" WiFi.AccessPoint.3.WPS.ConfigMethodsEnabled=\"Ph...",
-      "workbook_command_output_excerpt": "cat /tmp/wl0_hapd.conf |grep config_methods root@prplOS:/# cat /tmp/wl0_hapd.conf |grep config_methods config_methods=physical_push_button virtual_push_button root@prplOS:/# cat /tmp/wl1_hapd.conf |grep config_methods root@prplOS:/# cat ...",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D101-configmethodsenabled.json"
     },
     {
       "case_id": "wifi-llapi-D104-enable-accesspoint-wps",
