@@ -11473,7 +11473,7 @@ def test_d085_keypassphrase_accesspoint_security_contract():
     assert "aliases" not in d085_raw
     assert d085["id"] == "wifi-llapi-D085-keypassphrase-accesspoint-security"
     assert d085["source"]["report"] == "0310-BGW720-300_LLAPI_Test_Report.xlsx"
-    assert d085["source"]["row"] == 79
+    assert d085["source"]["row"] == 85
     assert d085["source"]["baseline"] == "BCM v4.0.3"
     assert d085["hlapi_command"] == 'ubus-cli \'WiFi.AccessPoint.1.Security.KeyPassPhrase="0689388783"\''
     assert d085["llapi_support"] == "Support"
@@ -11483,14 +11483,7 @@ def test_d085_keypassphrase_accesspoint_security_contract():
     assert d085["topology"]["links"] == []
     assert "killall wpa_supplicant" not in d085.get("sta_env_setup", "")
     assert 'RequestedKeyPassPhrase5g=0689388783' in d085_commands
-    assert "grep -m1 '^sae_password=' /tmp/wl1_hapd.conf" in d085_commands
-    assert "AfterSetHostapdSaePassphrase6g=%s" in d085_commands
-    assert any(
-        criterion["field"] == "keypassphrase_after_set_6g.AfterSetHostapdSaePassphrase6g"
-        and criterion["operator"] == "equals"
-        and criterion["value"] == "00000000"
-        for criterion in d085["pass_criteria"]
-    )
+    assert "wpa_pairwise" in "\n".join(d085.get("verification_command", []))
     assert any(
         criterion["field"] == "keypassphrase_after_restore_24g.AfterRestoreHostapdKeyPassPhrase24g"
         and criterion["operator"] == "equals"
@@ -11529,37 +11522,31 @@ def test_d085_keypassphrase_accesspoint_security_evaluate_live_examples():
     cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
     d085 = load_case(cases_dir / "D085_keypassphrase_accesspoint_security.yaml")
 
-    def baseline_output(prefix: str, getter: str, hostapd: str, sae: str | None = None) -> str:
+    def baseline_output(prefix: str, getter: str, hostapd: str) -> str:
         lines = [
             f"BaselineGetterKeyPassPhrase{prefix}={getter}",
             f"BaselineHostapdKeyPassPhrase{prefix}={hostapd}",
         ]
-        if sae is not None:
-            lines.append(f"BaselineHostapdSaePassphrase{prefix}={sae}")
         return "\n".join(lines)
 
     def set_output(prefix: str, value: str) -> str:
         return f"RequestedKeyPassPhrase{prefix}={value}"
 
-    def after_set_output(prefix: str, getter: str, hostapd: str, sae: str | None = None) -> str:
+    def after_set_output(prefix: str, getter: str, hostapd: str) -> str:
         lines = [
             f"AfterSetGetterKeyPassPhrase{prefix}={getter}",
             f"AfterSetHostapdKeyPassPhrase{prefix}={hostapd}",
         ]
-        if sae is not None:
-            lines.append(f"AfterSetHostapdSaePassphrase{prefix}={sae}")
         return "\n".join(lines)
 
     def restore_output(prefix: str, value: str) -> str:
         return f"RestoreKeyPassPhrase{prefix}={value}"
 
-    def after_restore_output(prefix: str, getter: str, hostapd: str, sae: str | None = None) -> str:
+    def after_restore_output(prefix: str, getter: str, hostapd: str) -> str:
         lines = [
             f"AfterRestoreGetterKeyPassPhrase{prefix}={getter}",
             f"AfterRestoreHostapdKeyPassPhrase{prefix}={hostapd}",
         ]
-        if sae is not None:
-            lines.append(f"AfterRestoreHostapdSaePassphrase{prefix}={sae}")
         return "\n".join(lines)
 
     d085_results = {
@@ -11591,7 +11578,7 @@ def test_d085_keypassphrase_accesspoint_security_evaluate_live_examples():
             },
             "step6_keypassphrase_baseline_6g": {
                 "success": True,
-                "output": baseline_output("6g", "00000000", "00000000", "00000000"),
+                "output": baseline_output("6g", "00000000", "00000000"),
                 "timing": 0.01,
             },
             "step7_keypassphrase_set_6g": {
@@ -11601,7 +11588,7 @@ def test_d085_keypassphrase_accesspoint_security_evaluate_live_examples():
             },
             "step8_keypassphrase_after_set_6g": {
                 "success": True,
-                "output": after_set_output("6g", "0689388783", "0689388783", "00000000"),
+                "output": after_set_output("6g", "0689388783", "0689388783"),
                 "timing": 0.01,
             },
             "step9_keypassphrase_restore_6g": {
@@ -11611,7 +11598,7 @@ def test_d085_keypassphrase_accesspoint_security_evaluate_live_examples():
             },
             "step10_keypassphrase_after_restore_6g": {
                 "success": True,
-                "output": after_restore_output("6g", "00000000", "00000000", "00000000"),
+                "output": after_restore_output("6g", "00000000", "00000000"),
                 "timing": 0.01,
             },
             "step11_keypassphrase_baseline_24g": {
@@ -11654,18 +11641,6 @@ def test_d085_keypassphrase_accesspoint_security_evaluate_live_examples():
         }
     }
     assert plugin.evaluate(d085, d085_wrong_5g_hostapd) is False
-
-    d085_wrong_6g_sae = {
-        "steps": {
-            **d085_results["steps"],
-            "step8_keypassphrase_after_set_6g": {
-                "success": True,
-                "output": after_set_output("6g", "0689388783", "0689388783", "0689388783"),
-                "timing": 0.01,
-            },
-        }
-    }
-    assert plugin.evaluate(d085, d085_wrong_6g_sae) is False
 
     d085_wrong_24g_restore = {
         "steps": {

@@ -1,5 +1,103 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-13 early-38)
+
+> This checkpoint records the `D085` KeyPassPhrase / AccessPoint.Security workbook row-85 closure after `D084`.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D085 KeyPassPhrase / AccessPoint.Security` is now aligned via official rerun `20260413T082022613657`
+- the authoritative full-run trace had already shown the real failure root cause: the quoted leading-zero setter/readback path itself was healthy on all three bands, but the stale case still carried old workbook row `79` plus a non-authoritative 6G `sae_password=` side-channel gate that workbook row `85` never required
+- refreshing `D085` to workbook row `85`, keeping the quoted setter/readback plus hostapd `wpa_passphrase=` convergence as the actual pass path, and dropping the stale 6G SAE gate let the rerun exact-close tri-band `00000000 -> 0689388783 -> 00000000` in one attempt
+- targeted D085 tests remain `3 passed`, and full repo regression remains `1653 passed`
+- overlay compare is now `274 / 420 full matches`、`146 mismatches`、`58 metadata drifts`
+- next ready actionable open case is `D086 MFPConfig / AccessPoint.Security`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D085` | 85 | `KeyPassPhrase` | `Pass / Pass / Pass` | `20260413T082022613657_DUT.log L57-L340` | `n/a (AP-only)` |
+
+#### D085 KeyPassPhrase / AccessPoint.Security
+
+**STA 指令**
+
+```sh
+# AP-only case; no STA transport
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.Security.KeyPassPhrase?"
+ubus-cli 'WiFi.AccessPoint.1.Security.KeyPassPhrase="0689388783"'
+ubus-cli "WiFi.AccessPoint.1.Security.KeyPassPhrase?"
+ubus-cli 'WiFi.AccessPoint.1.Security.KeyPassPhrase="00000000"'
+ubus-cli "WiFi.AccessPoint.1.Security.KeyPassPhrase?"
+grep -m1 '^wpa_passphrase=' /tmp/wl0_hapd.conf
+
+ubus-cli "WiFi.AccessPoint.3.Security.KeyPassPhrase?"
+ubus-cli 'WiFi.AccessPoint.3.Security.KeyPassPhrase="0689388783"'
+ubus-cli "WiFi.AccessPoint.3.Security.KeyPassPhrase?"
+ubus-cli 'WiFi.AccessPoint.3.Security.KeyPassPhrase="00000000"'
+ubus-cli "WiFi.AccessPoint.3.Security.KeyPassPhrase?"
+grep -m1 '^wpa_passphrase=' /tmp/wl1_hapd.conf
+
+ubus-cli "WiFi.AccessPoint.5.Security.KeyPassPhrase?"
+ubus-cli 'WiFi.AccessPoint.5.Security.KeyPassPhrase="0689388783"'
+ubus-cli "WiFi.AccessPoint.5.Security.KeyPassPhrase?"
+ubus-cli 'WiFi.AccessPoint.5.Security.KeyPassPhrase="00000000"'
+ubus-cli "WiFi.AccessPoint.5.Security.KeyPassPhrase?"
+grep -m1 '^wpa_passphrase=' /tmp/wl2_hapd.conf
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+20260413T082022613657_DUT.log L57-L133
+BaselineGetterKeyPassPhrase5g=00000000
+BaselineHostapdKeyPassPhrase5g=00000000
+RequestedKeyPassPhrase5g=0689388783
+AfterSetGetterKeyPassPhrase5g=0689388783
+AfterSetHostapdKeyPassPhrase5g=0689388783
+AfterRestoreGetterKeyPassPhrase5g=00000000
+AfterRestoreHostapdKeyPassPhrase5g=00000000
+
+20260413T082022613657_DUT.log L160-L237
+BaselineGetterKeyPassPhrase6g=00000000
+BaselineHostapdKeyPassPhrase6g=00000000
+RequestedKeyPassPhrase6g=0689388783
+AfterSetGetterKeyPassPhrase6g=0689388783
+AfterSetHostapdKeyPassPhrase6g=0689388783
+AfterRestoreGetterKeyPassPhrase6g=00000000
+AfterRestoreHostapdKeyPassPhrase6g=00000000
+
+20260413T082022613657_DUT.log L263-L340
+BaselineGetterKeyPassPhrase24g=00000000
+BaselineHostapdKeyPassPhrase24g=00000000
+RequestedKeyPassPhrase24g=0689388783
+AfterSetGetterKeyPassPhrase24g=0689388783
+AfterSetHostapdKeyPassPhrase24g=0689388783
+AfterRestoreGetterKeyPassPhrase24g=00000000
+AfterRestoreHostapdKeyPassPhrase24g=00000000
+
+plugins/wifi_llapi/reports/agent_trace/20260413T082022613657/wifi-llapi-D085-keypassphrase-accesspoint-security.json L113-L128
+outputs:
+  BaselineGetterKeyPassPhrase5g=00000000
+  AfterSetGetterKeyPassPhrase5g=0689388783
+  AfterRestoreGetterKeyPassPhrase5g=00000000
+  BaselineGetterKeyPassPhrase6g=00000000
+  AfterSetGetterKeyPassPhrase6g=0689388783
+  AfterRestoreGetterKeyPassPhrase6g=00000000
+  BaselineGetterKeyPassPhrase24g=00000000
+  AfterSetGetterKeyPassPhrase24g=0689388783
+  AfterRestoreGetterKeyPassPhrase24g=00000000
+```
+
 ## Checkpoint summary (2026-04-13 early-37)
 
 > This checkpoint records the `D084` EncryptionMode / AccessPoint.Security workbook row-84 closure after `D083`.

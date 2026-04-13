@@ -42,7 +42,8 @@
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T071746618166",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T075200621380",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T080405422245",
-    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T081301178883"
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T081301178883",
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T082022613657"
   ],
   "answers_xlsx": "/home/paul_chen/prj_arc/testpilot/0401.xlsx",
   "cases_dir": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases",
@@ -50,20 +51,20 @@
   "missing_answer_count": 0,
   "missing_answer_rows": [],
   "metadata_drift_count": 58,
-  "full_match_count": 273,
-  "mismatch_case_count": 147,
+  "full_match_count": 274,
+  "mismatch_case_count": 146,
   "band_summary": {
     "5g": {
-      "matched": 279,
-      "mismatched": 141
+      "matched": 280,
+      "mismatched": 140
     },
     "6g": {
-      "matched": 281,
-      "mismatched": 139
+      "matched": 282,
+      "mismatched": 138
     },
     "2.4g": {
-      "matched": 278,
-      "mismatched": 142
+      "matched": 279,
+      "mismatched": 141
     }
   },
   "cases": [
@@ -3427,7 +3428,7 @@
       "case_id": "wifi-llapi-D085-keypassphrase-accesspoint-security",
       "case_file": "D085_keypassphrase_accesspoint_security.yaml",
       "dnum": 85,
-      "source_row": 79,
+      "source_row": 85,
       "source_object": "WiFi.AccessPoint.{i}.Security",
       "source_api": "KeyPassPhrase",
       "answer_row": 85,
@@ -3436,39 +3437,35 @@
       "mapping_status": "exact",
       "mapping_object_match": true,
       "mapping_api_match": true,
-      "final_status": "Fail",
-      "evaluation_verdict": "Fail",
-      "attempts_used": 2,
-      "comment": "pass_criteria not satisfied (failed after 2/2 attempts)",
+      "final_status": "Pass",
+      "evaluation_verdict": "Pass",
+      "attempts_used": 1,
+      "comment": "",
       "bands": {
         "5g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         },
         "6g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         },
         "2.4g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         }
       },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
+      "mismatch_bands": [],
+      "matches_answer": true,
       "workbook_test_steps_excerpt": "root@prplOS:/# ubus-cli WiFi.AccessPoint.? | grep .Security.KeyPassPhrase WiFi.AccessPoint.1.Security.KeyPassPhrase=\"87654321\" WiFi.AccessPoint.3.Security.KeyPassPhrase=\"87654321\" WiFi.AccessPoint.5.Security.KeyPassPhrase=\"87654321\"",
       "workbook_command_output_excerpt": "cat /tmp/wl0_hapd.conf |grep wpa_pairwise cat /tmp/wl0_hapd.conf |grep wpa_passphrase root@prplOS:/# cat /tmp/wl0_hapd.conf |grep wpa_passphrase wpa_passphrase=87654321 root@prplOS:/# cat /tmp/wl1_hapd.conf |grep wpa_passphrase wpa_passp...",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D085-keypassphrase-accesspoint-security.json"
+      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T082022613657/wifi-llapi-D085-keypassphrase-accesspoint-security.json"
     },
     {
       "case_id": "wifi-llapi-D086-mfpconfig-accesspoint-security",
@@ -19258,53 +19255,6 @@
       "workbook_test_steps_excerpt": "##Connect WiFi Station and send traffic then check TxUnicastPacketCount WiFi.AccessPoint.1.AssociatedDevice.1.TxUnicastPacketCount=0 WiFi.AccessPoint.3.AssociatedDevice.1.TxUnicastPacketCount=0 WiFi.AccessPoint.5.AssociatedDevice.1.TxUni...",
       "workbook_command_output_excerpt": "wl -i wl0 sta_info ${STA_MAC} TxUnicastPacketCount tx ucast pkts 90",
       "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D057-txunicastpacketcount.json"
-    },
-    {
-      "case_id": "wifi-llapi-D085-keypassphrase-accesspoint-security",
-      "case_file": "D085_keypassphrase_accesspoint_security.yaml",
-      "dnum": 85,
-      "source_row": 79,
-      "source_object": "WiFi.AccessPoint.{i}.Security",
-      "source_api": "KeyPassPhrase",
-      "answer_row": 85,
-      "answer_object": "WiFi.AccessPoint.{i}.Security.",
-      "answer_api": "KeyPassPhrase",
-      "mapping_status": "exact",
-      "mapping_object_match": true,
-      "mapping_api_match": true,
-      "final_status": "Fail",
-      "evaluation_verdict": "Fail",
-      "attempts_used": 2,
-      "comment": "pass_criteria not satisfied (failed after 2/2 attempts)",
-      "bands": {
-        "5g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        },
-        "6g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        },
-        "2.4g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        }
-      },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
-      "workbook_test_steps_excerpt": "root@prplOS:/# ubus-cli WiFi.AccessPoint.? | grep .Security.KeyPassPhrase WiFi.AccessPoint.1.Security.KeyPassPhrase=\"87654321\" WiFi.AccessPoint.3.Security.KeyPassPhrase=\"87654321\" WiFi.AccessPoint.5.Security.KeyPassPhrase=\"87654321\"",
-      "workbook_command_output_excerpt": "cat /tmp/wl0_hapd.conf |grep wpa_pairwise cat /tmp/wl0_hapd.conf |grep wpa_passphrase root@prplOS:/# cat /tmp/wl0_hapd.conf |grep wpa_passphrase wpa_passphrase=87654321 root@prplOS:/# cat /tmp/wl1_hapd.conf |grep wpa_passphrase wpa_passp...",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D085-keypassphrase-accesspoint-security.json"
     },
     {
       "case_id": "wifi-llapi-D086-mfpconfig-accesspoint-security",
