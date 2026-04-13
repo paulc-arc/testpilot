@@ -52,7 +52,8 @@
     "plugins/wifi_llapi/reports/agent_trace/20260413T095836613095",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T103130805176",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T105418577078",
-    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T111530183752"
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T111530183752",
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T112544193230"
   ],
   "answers_xlsx": "/home/paul_chen/prj_arc/testpilot/0401.xlsx",
   "cases_dir": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases",
@@ -60,20 +61,20 @@
   "missing_answer_count": 0,
   "missing_answer_rows": [],
   "metadata_drift_count": 58,
-  "full_match_count": 283,
-  "mismatch_case_count": 137,
+  "full_match_count": 284,
+  "mismatch_case_count": 136,
   "band_summary": {
     "5g": {
-      "matched": 289,
-      "mismatched": 131
+      "matched": 290,
+      "mismatched": 130
     },
     "6g": {
       "matched": 287,
       "mismatched": 133
     },
     "2.4g": {
-      "matched": 288,
-      "mismatched": 132
+      "matched": 289,
+      "mismatched": 131
     }
   },
   "cases": [
@@ -4340,7 +4341,7 @@
       "case_id": "wifi-llapi-D106-relaycredentialsenable",
       "case_file": "D106_relaycredentialsenable.yaml",
       "dnum": 106,
-      "source_row": 108,
+      "source_row": 106,
       "source_object": "WiFi.AccessPoint.{i}.WPS.",
       "source_api": "RelayCredentialsEnable",
       "answer_row": 106,
@@ -4349,38 +4350,35 @@
       "mapping_status": "exact",
       "mapping_object_match": true,
       "mapping_api_match": true,
-      "final_status": "Fail",
+      "final_status": "Pass",
       "evaluation_verdict": "Pass",
       "attempts_used": 1,
       "comment": "",
       "bands": {
         "5g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
+          "actual_raw": "Not Supported",
+          "actual_norm": "Fail",
           "expected_raw": "Not Supported",
           "expected_norm": "Fail"
         },
         "6g": {
-          "actual_raw": "Fail",
+          "actual_raw": "Not Supported",
           "actual_norm": "Fail",
           "expected_raw": "Not Supported",
           "expected_norm": "Fail"
         },
         "2.4g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
+          "actual_raw": "Not Supported",
+          "actual_norm": "Fail",
           "expected_raw": "Not Supported",
           "expected_norm": "Fail"
         }
       },
-      "mismatch_bands": [
-        "5g",
-        "2.4g"
-      ],
-      "matches_answer": false,
+      "mismatch_bands": [],
+      "matches_answer": true,
       "workbook_test_steps_excerpt": "",
       "workbook_command_output_excerpt": "cat /tmp/wl0_hapd.conf |grep wps_cred_processing",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D106-relaycredentialsenable.json"
+      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T112544193230/wifi-llapi-D106-relaycredentialsenable.json"
     },
     {
       "case_id": "wifi-llapi-D107-selfpin",
@@ -19232,52 +19230,6 @@
       "workbook_test_steps_excerpt": "##Connect WiFi Station and send traffic then check TxUnicastPacketCount WiFi.AccessPoint.1.AssociatedDevice.1.TxUnicastPacketCount=0 WiFi.AccessPoint.3.AssociatedDevice.1.TxUnicastPacketCount=0 WiFi.AccessPoint.5.AssociatedDevice.1.TxUni...",
       "workbook_command_output_excerpt": "wl -i wl0 sta_info ${STA_MAC} TxUnicastPacketCount tx ucast pkts 90",
       "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D057-txunicastpacketcount.json"
-    },
-    {
-      "case_id": "wifi-llapi-D106-relaycredentialsenable",
-      "case_file": "D106_relaycredentialsenable.yaml",
-      "dnum": 106,
-      "source_row": 108,
-      "source_object": "WiFi.AccessPoint.{i}.WPS.",
-      "source_api": "RelayCredentialsEnable",
-      "answer_row": 106,
-      "answer_object": "WiFi.AccessPoint.{i}.WPS.",
-      "answer_api": "RelayCredentialsEnable",
-      "mapping_status": "exact",
-      "mapping_object_match": true,
-      "mapping_api_match": true,
-      "final_status": "Fail",
-      "evaluation_verdict": "Pass",
-      "attempts_used": 1,
-      "comment": "",
-      "bands": {
-        "5g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
-          "expected_raw": "Not Supported",
-          "expected_norm": "Fail"
-        },
-        "6g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Not Supported",
-          "expected_norm": "Fail"
-        },
-        "2.4g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
-          "expected_raw": "Not Supported",
-          "expected_norm": "Fail"
-        }
-      },
-      "mismatch_bands": [
-        "5g",
-        "2.4g"
-      ],
-      "matches_answer": false,
-      "workbook_test_steps_excerpt": "",
-      "workbook_command_output_excerpt": "cat /tmp/wl0_hapd.conf |grep wps_cred_processing",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D106-relaycredentialsenable.json"
     },
     {
       "case_id": "wifi-llapi-D108-uuid",

@@ -13127,10 +13127,13 @@ def test_d106_relaycredentialsenable_contract():
     """D106 YAML loads, discovers, and has correct metadata."""
     cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
     case = load_case(cases_dir / "D106_relaycredentialsenable.yaml")
-    assert case["source"]["row"] == 108
+    assert case["source"]["row"] == 106
     assert case["llapi_support"] == "Not Support"
     assert len(case["steps"]) == 3
     assert len(case["pass_criteria"]) == 3
+    assert case["results_reference"]["v4.0.3"]["5g"] == "Not Supported"
+    assert case["results_reference"]["v4.0.3"]["6g"] == "Not Supported"
+    assert case["results_reference"]["v4.0.3"]["2.4g"] == "Not Supported"
 
 
 def test_d106_relaycredentialsenable_evaluate():

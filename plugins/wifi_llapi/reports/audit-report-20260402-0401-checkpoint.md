@@ -1,5 +1,63 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-13 early-48)
+
+> This checkpoint records the `D106` RelayCredentialsEnable workbook row-106 closure after `D105`.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D106 RelayCredentialsEnable / AccessPoint.WPS` is now aligned via official rerun `20260413T112544193230`
+- workbook row `106` is RelayCredentialsEnable, not UUID; the stale authored case had drifted to old row `108` and kept a synthetic `Pass / Fail / Pass` verdict even though the live getter already exact-closed `RelayCredentialsEnable=0` on all three bands
+- current 0403 source survey only finds `RelayCredentialsEnable` as a persistent default-false bool in `wld_accesspoint.odl`, with no active `wps_cred_processing` backing, so the calibrated closure now keeps the tri-band getter evidence while aligning `results_reference` back to workbook `Not Supported / Not Supported / Not Supported`
+- official rerun exact-closed the same tri-band getter evidence in one attempt
+- targeted D106 tests remain `2 passed`, command budget remains `1 passed`, and final full repo regression remains `1657 passed`
+- overlay compare is now `284 / 420 full matches`、`136 mismatches`、`58 metadata drifts`
+- next ready actionable open case is `D108 UUID`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D106` | 106 | `RelayCredentialsEnable` | `Not Supported / Not Supported / Not Supported` | `20260413T112544193230_DUT.log L5-L31` | `n/a (AP-only)` |
+
+#### D106 RelayCredentialsEnable / AccessPoint.WPS
+
+**STA 指令**
+
+```sh
+# AP-only case; no STA transport
+```
+
+**DUT 指令**
+
+```sh
+echo "RelayCred5g=$(ubus-cli 'WiFi.AccessPoint.1.WPS.RelayCredentialsEnable?' 2>/dev/null | grep -o 'RelayCredentialsEnable=[0-9]*' | cut -d= -f2)"
+echo "RelayCred6g=$(ubus-cli 'WiFi.AccessPoint.3.WPS.RelayCredentialsEnable?' 2>/dev/null | grep -o 'RelayCredentialsEnable=[0-9]*' | cut -d= -f2)"
+echo "RelayCred24g=$(ubus-cli 'WiFi.AccessPoint.5.WPS.RelayCredentialsEnable?' 2>/dev/null | grep -o 'RelayCredentialsEnable=[0-9]*' | cut -d= -f2)"
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+20260413T112544193230_DUT.log L5-L13
+RelayCred5g=0
+
+20260413T112544193230_DUT.log L14-L22
+RelayCred6g=0
+
+20260413T112544193230_DUT.log L23-L31
+RelayCred24g=0
+
+plugins/wifi_llapi/reports/agent_trace/20260413T112544193230/wifi-llapi-D106-relaycredentialsenable.json L111-L116
+final:
+  status=Pass
+  evaluation_verdict=Pass
+  attempts_used=1
+```
+
 ## Checkpoint summary (2026-04-13 early-47)
 
 > This checkpoint records the `D105` PairingInProgress workbook row-105 closure after `D104`.
