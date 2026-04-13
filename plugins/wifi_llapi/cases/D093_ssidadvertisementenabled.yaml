@@ -4,13 +4,13 @@ version: '1.0'
 source:
   report: "0310-BGW720-300_LLAPI_Test_Report.xlsx"
   sheet: Wifi_LLAPI
-  row: 95
+  row: 93
   object: "WiFi.AccessPoint.{i}."
   api: "SSIDAdvertisementEnabled"
 platform:
   prplos: 4.0.3
   bdk: 6.3.1
-hlapi_command: ubus-cli WiFi.AccessPoint.{i}.SSIDAdvertisementEnabled=0
+hlapi_command: ubus-cli WiFi.AccessPoint.{i}.SSIDAdvertisementEnabled=1
 llapi_support: Support
 implemented_by: pWHM
 bands:
@@ -34,9 +34,10 @@ test_environment: |
   - 6G  = AP3 / wl1 / testpilot6G / WPA3-Personal / SAE
   - 2.4G = AP5 / wl2 / testpilot2G / WPA2-Personal
   Notes:
-  - SSIDAdvertisementEnabled=1 maps to hostapd ignore_broadcast_ssid=0 (advertised)
-  - SSIDAdvertisementEnabled=0 maps to hostapd ignore_broadcast_ssid=2 (hidden)
-  - Dual-BSS config: each wlX_hapd.conf has two ignore_broadcast_ssid lines; setter toggles first BSS only
+  - workbook row 93 is the advertised-state case (`SSIDAdvertisementEnabled=1`)
+  - active 0403 source maps `SSIDAdvertisementEnabled` through bool-reverse `wlHide`, so `1 -> wlHide=0 -> hostapd ignore_broadcast_ssid=0`
+  - the raw workbook H cell still contains one stale `ignore_broadcast_ssid=2` example, but live 0403 source/runtime keep the authoritative pass path at `getter=1` with `ignore_broadcast_ssid=0`
+  - Dual-BSS config: each wlX_hapd.conf has two ignore_broadcast_ssid lines; this case inspects the first BSS only
 steps:
   # ---------- 5G ----------
   - id: step1_baseline_5g
@@ -51,7 +52,7 @@ steps:
     action: exec
     target: DUT
     depends_on: step1_baseline_5g
-    command: 'ubus-cli WiFi.AccessPoint.1.SSIDAdvertisementEnabled=0'
+    command: 'ubus-cli WiFi.AccessPoint.1.SSIDAdvertisementEnabled=1'
     capture: set_5g
 
   - id: step3_readback_5g
@@ -89,7 +90,7 @@ steps:
     action: exec
     target: DUT
     depends_on: step5_baseline_6g
-    command: 'ubus-cli WiFi.AccessPoint.3.SSIDAdvertisementEnabled=0'
+    command: 'ubus-cli WiFi.AccessPoint.3.SSIDAdvertisementEnabled=1'
     capture: set_6g
 
   - id: step7_readback_6g
@@ -127,7 +128,7 @@ steps:
     action: exec
     target: DUT
     depends_on: step9_baseline_24g
-    command: 'ubus-cli WiFi.AccessPoint.5.SSIDAdvertisementEnabled=0'
+    command: 'ubus-cli WiFi.AccessPoint.5.SSIDAdvertisementEnabled=1'
     capture: set_24g
 
   - id: step11_readback_24g
@@ -158,12 +159,12 @@ pass_criteria:
     description: '5G baseline SSIDAdvertisementEnabled should be 1'
   - field: readback_5g.GetterAdv5g
     operator: equals
-    value: '0'
-    description: '5G getter reads back 0 after setter'
+    value: '1'
+    description: '5G getter reads back 1 after setter'
   - field: readback_5g.HapdAfterSet5g
     operator: equals
-    value: '2'
-    description: '5G hostapd ignore_broadcast_ssid changes to 2 (hidden)'
+    value: '0'
+    description: '5G hostapd ignore_broadcast_ssid stays at 0 (advertised)'
   - field: restore_5g.RestoredAdv5g
     operator: equals
     value: '1'
@@ -178,12 +179,12 @@ pass_criteria:
     description: '6G baseline SSIDAdvertisementEnabled should be 1'
   - field: readback_6g.GetterAdv6g
     operator: equals
-    value: '0'
-    description: '6G getter reads back 0 after setter'
+    value: '1'
+    description: '6G getter reads back 1 after setter'
   - field: readback_6g.HapdAfterSet6g
     operator: equals
-    value: '2'
-    description: '6G hostapd ignore_broadcast_ssid changes to 2 (hidden)'
+    value: '0'
+    description: '6G hostapd ignore_broadcast_ssid stays at 0 (advertised)'
   - field: restore_6g.RestoredAdv6g
     operator: equals
     value: '1'
@@ -198,12 +199,12 @@ pass_criteria:
     description: '2.4G baseline SSIDAdvertisementEnabled should be 1'
   - field: readback_24g.GetterAdv24g
     operator: equals
-    value: '0'
-    description: '2.4G getter reads back 0 after setter'
+    value: '1'
+    description: '2.4G getter reads back 1 after setter'
   - field: readback_24g.HapdAfterSet24g
     operator: equals
-    value: '2'
-    description: '2.4G hostapd ignore_broadcast_ssid changes to 2 (hidden)'
+    value: '0'
+    description: '2.4G hostapd ignore_broadcast_ssid stays at 0 (advertised)'
   - field: restore_24g.RestoredAdv24g
     operator: equals
     value: '1'
@@ -228,6 +229,6 @@ results_reference:
     6g: Pass
     2.4g: Pass
     comment: >-
-      All 3 bands: setter=0 causes hostapd ignore_broadcast_ssid to flip 0->2 (hidden),
-      getter reads back 0; restore=1 causes ignore_broadcast_ssid back to 0, getter
-      reads back 1. Full round-trip convergence on all bands.
+      workbook row 93 is the advertised-state case: all 3 bands keep
+      `SSIDAdvertisementEnabled=1`, getter reads back `1`, and hostapd
+      `ignore_broadcast_ssid` remains `0` on AP1 / AP3 / AP5.

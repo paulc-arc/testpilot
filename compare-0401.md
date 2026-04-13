@@ -50,8 +50,9 @@
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T085025879532`
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T090437438519`
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T092400687838`
-- answer sheet: `/home/paul_chen/prj_arc/testpilot/0401.xlsx`
-- cases dir: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases`
+  - `plugins/wifi_llapi/reports/agent_trace/20260413T094515864676`
+- answer sheet: `0401.xlsx`
+- cases dir: `plugins/wifi_llapi/cases`
 - compare rule: normalize both sides so only `Pass` stays `Pass`; all other values become `Fail`.
 - row mapping rule: use case `D###` number to match `0401.xlsx` worksheet row `###`.
 
@@ -60,8 +61,8 @@
 | metric | value |
 | --- | ---: |
 | compared cases | 420 |
-| full matches | 278 |
-| mismatch cases | 142 |
+| full matches | 279 |
+| mismatch cases | 141 |
 | missing answer rows | 0 |
 | metadata drift rows | 58 |
 
@@ -69,9 +70,9 @@
 
 | band | matched | mismatched |
 | --- | ---: | ---: |
-| 5g | 284 | 136 |
-| 6g | 285 | 135 |
-| 2.4g | 283 | 137 |
+| 5g | 285 | 135 |
+| 6g | 286 | 134 |
+| 2.4g | 284 | 136 |
 
 ## Mismatch table
 
@@ -89,7 +90,6 @@
 | `wifi-llapi-D050-supportedvhtmcs` | 50 | exact | Not Supported / N/A / N/A | Pass / Not Supported / Not Supported | Fail / Fail / Fail | Pass / Fail / Fail | 5g |
 | `d053-blocked-txbytes` | 53 | exact | Fail / N/A / N/A | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `wifi-llapi-D057-txunicastpacketcount` | 57 | exact | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | 5g, 6g, 2.4g |
-| `wifi-llapi-D093-ssidadvertisementenabled` | 93 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `wifi-llapi-D096-uapsdenable` | 96 | exact | Pass / Pass / Pass | Not Supported / Not Supported / Not Supported | Pass / Pass / Pass | Fail / Fail / Fail | 5g, 6g, 2.4g |
 | `wifi-llapi-D101-configmethodsenabled` | 101 | exact | Fail / Fail / Fail | Pass / Not Supported / Pass | Fail / Fail / Fail | Pass / Fail / Pass | 5g, 2.4g |
 | `wifi-llapi-D104-enable-accesspoint-wps` | 104 | exact | Fail / Not Supported / Fail | Pass / Not Supported / Pass | Fail / Fail / Fail | Pass / Fail / Pass | 5g, 2.4g |
@@ -451,26 +451,6 @@
 - 0401 G excerpt: ##Connect WiFi Station and send traffic then check TxUnicastPacketCount WiFi.AccessPoint.1.AssociatedDevice.1.TxUnicastPacketCount=0 WiFi.AccessPoint.3.AssociatedDevice.1.TxUnicastPacketCount=0 WiFi.AccessPoint.5.AssociatedDevice.1.TxUni...
 - 0401 H excerpt: wl -i wl0 sta_info ${STA_MAC} TxUnicastPacketCount tx ucast pkts 90
 - trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D057-txunicastpacketcount.json`
-
-### wifi-llapi-D093-ssidadvertisementenabled
-
-- case file: `D093_ssidadvertisementenabled.yaml`
-- answer row: `93`
-- mapping status: `exact`
-- source metadata: `WiFi.AccessPoint.{i}.` / `SSIDAdvertisementEnabled`
-- workbook metadata: `WiFi.AccessPoint.{i}.` / `SSIDAdvertisementEnabled`
-- final status: `Fail`
-- evaluation verdict: `Fail`
-- attempts used: `2`
-- runtime comment: pass_criteria not satisfied (failed after 2/2 attempts)
-- actual raw: `Fail` / `Fail` / `Fail`
-- expected raw: `Pass` / `Pass` / `Pass`
-- actual normalized: `Fail` / `Fail` / `Fail`
-- expected normalized: `Pass` / `Pass` / `Pass`
-- mismatch bands: `5g, 6g, 2.4g`
-- 0401 G excerpt: 1. Get SSIDAdvertisementEnabled value root@prplOS:/# ubus-cli WiFi.AccessPoint.? | grep SSIDAdvertisementEnabled WiFi.AccessPoint.1.SSIDAdvertisementEnabled=1 WiFi.AccessPoint.3.SSIDAdvertisementEnabled=1 WiFi.AccessPoint.5.SSIDAdvertise...
-- 0401 H excerpt: root@prplOS:/# cat /tmp/wl0_hapd.conf | grep -E 'broadcast|ssid' bssid=6C:15:DB:74:C0:B5 ssid=5G_Primary-BE ignore_broadcast_ssid=2 ignore_broadcast_ssid=0 => "SSID not Hidden" ignore_broadcast_ssid=2 => "SSID Hidden"
-- trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D093-ssidadvertisementenabled.json`
 
 ### wifi-llapi-D096-uapsdenable
 

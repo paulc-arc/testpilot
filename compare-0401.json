@@ -47,28 +47,29 @@
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T083419287730",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T085025879532",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T090437438519",
-    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T092400687838"
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T092400687838",
+    "plugins/wifi_llapi/reports/agent_trace/20260413T094515864676"
   ],
-  "answers_xlsx": "/home/paul_chen/prj_arc/testpilot/0401.xlsx",
-  "cases_dir": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases",
+  "answers_xlsx": "0401.xlsx",
+  "cases_dir": "plugins/wifi_llapi/cases",
   "compared_case_count": 420,
   "missing_answer_count": 0,
   "missing_answer_rows": [],
   "metadata_drift_count": 58,
-  "full_match_count": 278,
-  "mismatch_case_count": 142,
+  "full_match_count": 279,
+  "mismatch_case_count": 141,
   "band_summary": {
     "5g": {
-      "matched": 284,
-      "mismatched": 136
-    },
-    "6g": {
       "matched": 285,
       "mismatched": 135
     },
+    "6g": {
+      "matched": 286,
+      "mismatched": 134
+    },
     "2.4g": {
-      "matched": 283,
-      "mismatched": 137
+      "matched": 284,
+      "mismatched": 136
     }
   },
   "cases": [
@@ -3776,7 +3777,7 @@
       "case_id": "wifi-llapi-D093-ssidadvertisementenabled",
       "case_file": "D093_ssidadvertisementenabled.yaml",
       "dnum": 93,
-      "source_row": 95,
+      "source_row": 93,
       "source_object": "WiFi.AccessPoint.{i}.",
       "source_api": "SSIDAdvertisementEnabled",
       "answer_row": 93,
@@ -3785,39 +3786,35 @@
       "mapping_status": "exact",
       "mapping_object_match": true,
       "mapping_api_match": true,
-      "final_status": "Fail",
-      "evaluation_verdict": "Fail",
-      "attempts_used": 2,
-      "comment": "pass_criteria not satisfied (failed after 2/2 attempts)",
+      "final_status": "Pass",
+      "evaluation_verdict": "Pass",
+      "attempts_used": 1,
+      "comment": "",
       "bands": {
         "5g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         },
         "6g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         },
         "2.4g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         }
       },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
+      "mismatch_bands": [],
+      "matches_answer": true,
       "workbook_test_steps_excerpt": "1. Get SSIDAdvertisementEnabled value root@prplOS:/# ubus-cli WiFi.AccessPoint.? | grep SSIDAdvertisementEnabled WiFi.AccessPoint.1.SSIDAdvertisementEnabled=1 WiFi.AccessPoint.3.SSIDAdvertisementEnabled=1 WiFi.AccessPoint.5.SSIDAdvertise...",
       "workbook_command_output_excerpt": "root@prplOS:/# cat /tmp/wl0_hapd.conf | grep -E 'broadcast|ssid' bssid=6C:15:DB:74:C0:B5 ssid=5G_Primary-BE ignore_broadcast_ssid=2 ignore_broadcast_ssid=0 => \"SSID not Hidden\" ignore_broadcast_ssid=2 => \"SSID Hidden\"",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D093-ssidadvertisementenabled.json"
+      "trace_path": "plugins/wifi_llapi/reports/agent_trace/20260413T094515864676/wifi-llapi-D093-ssidadvertisementenabled.json"
     },
     {
       "case_id": "wifi-llapi-D094-status-accesspoint",
@@ -19244,53 +19241,6 @@
       "workbook_test_steps_excerpt": "##Connect WiFi Station and send traffic then check TxUnicastPacketCount WiFi.AccessPoint.1.AssociatedDevice.1.TxUnicastPacketCount=0 WiFi.AccessPoint.3.AssociatedDevice.1.TxUnicastPacketCount=0 WiFi.AccessPoint.5.AssociatedDevice.1.TxUni...",
       "workbook_command_output_excerpt": "wl -i wl0 sta_info ${STA_MAC} TxUnicastPacketCount tx ucast pkts 90",
       "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D057-txunicastpacketcount.json"
-    },
-    {
-      "case_id": "wifi-llapi-D093-ssidadvertisementenabled",
-      "case_file": "D093_ssidadvertisementenabled.yaml",
-      "dnum": 93,
-      "source_row": 95,
-      "source_object": "WiFi.AccessPoint.{i}.",
-      "source_api": "SSIDAdvertisementEnabled",
-      "answer_row": 93,
-      "answer_object": "WiFi.AccessPoint.{i}.",
-      "answer_api": "SSIDAdvertisementEnabled",
-      "mapping_status": "exact",
-      "mapping_object_match": true,
-      "mapping_api_match": true,
-      "final_status": "Fail",
-      "evaluation_verdict": "Fail",
-      "attempts_used": 2,
-      "comment": "pass_criteria not satisfied (failed after 2/2 attempts)",
-      "bands": {
-        "5g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        },
-        "6g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        },
-        "2.4g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        }
-      },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
-      "workbook_test_steps_excerpt": "1. Get SSIDAdvertisementEnabled value root@prplOS:/# ubus-cli WiFi.AccessPoint.? | grep SSIDAdvertisementEnabled WiFi.AccessPoint.1.SSIDAdvertisementEnabled=1 WiFi.AccessPoint.3.SSIDAdvertisementEnabled=1 WiFi.AccessPoint.5.SSIDAdvertise...",
-      "workbook_command_output_excerpt": "root@prplOS:/# cat /tmp/wl0_hapd.conf | grep -E 'broadcast|ssid' bssid=6C:15:DB:74:C0:B5 ssid=5G_Primary-BE ignore_broadcast_ssid=2 ignore_broadcast_ssid=0 => \"SSID not Hidden\" ignore_broadcast_ssid=2 => \"SSID Hidden\"",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D093-ssidadvertisementenabled.json"
     },
     {
       "case_id": "wifi-llapi-D096-uapsdenable",

@@ -12344,7 +12344,7 @@ def test_d093_ssidadvertisementenabled_contract():
     """D093 YAML loads, discovers, and has correct metadata."""
     cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
     d093 = load_case(cases_dir / "D093_ssidadvertisementenabled.yaml")
-    assert d093["source"]["row"] == 95
+    assert d093["source"]["row"] == 93
     assert d093["source"]["api"] == "SSIDAdvertisementEnabled"
     assert len(d093["steps"]) == 12
     assert len(d093["pass_criteria"]) == 15
@@ -12369,6 +12369,24 @@ def test_d093_ssidadvertisementenabled_setup_env_uses_only_dut_transport(monkeyp
     plugin.teardown(d093, topo)
 
 
+def test_d093_ssidadvertisementenabled_setter_steps_keep_original_commands():
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+    d093 = load_case(cases_dir / "D093_ssidadvertisementenabled.yaml")
+
+    commands, reason = plugin._command_resolver.resolve(d093, d093["steps"][1], None)
+    assert commands == ["ubus-cli WiFi.AccessPoint.1.SSIDAdvertisementEnabled=1"]
+    assert reason == ""
+
+    commands, reason = plugin._command_resolver.resolve(d093, d093["steps"][5], None)
+    assert commands == ["ubus-cli WiFi.AccessPoint.3.SSIDAdvertisementEnabled=1"]
+    assert reason == ""
+
+    commands, reason = plugin._command_resolver.resolve(d093, d093["steps"][9], None)
+    assert commands == ["ubus-cli WiFi.AccessPoint.5.SSIDAdvertisementEnabled=1"]
+    assert reason == ""
+
+
 def test_d093_ssidadvertisementenabled_evaluate_live_examples():
     """D093 all-pass criteria met with live-shaped synthetic output."""
     plugin = _load_plugin()
@@ -12379,25 +12397,25 @@ def test_d093_ssidadvertisementenabled_evaluate_live_examples():
         "steps": {
             "step1_baseline_5g": {"success": True, "output": "BaselineAdv5g=1\nBaselineHapd5g=0", "timing": 0.01},
             "step2_set_5g": {"success": True, "output": "", "timing": 0.01},
-            "step3_readback_5g": {"success": True, "output": "GetterAdv5g=0\nHapdAfterSet5g=2", "timing": 0.01},
+            "step3_readback_5g": {"success": True, "output": "GetterAdv5g=1\nHapdAfterSet5g=0", "timing": 0.01},
             "step4_restore_5g": {"success": True, "output": "RestoredAdv5g=1\nRestoredHapd5g=0", "timing": 0.01},
             "step5_baseline_6g": {"success": True, "output": "BaselineAdv6g=1\nBaselineHapd6g=0", "timing": 0.01},
             "step6_set_6g": {"success": True, "output": "", "timing": 0.01},
-            "step7_readback_6g": {"success": True, "output": "GetterAdv6g=0\nHapdAfterSet6g=2", "timing": 0.01},
+            "step7_readback_6g": {"success": True, "output": "GetterAdv6g=1\nHapdAfterSet6g=0", "timing": 0.01},
             "step8_restore_6g": {"success": True, "output": "RestoredAdv6g=1\nRestoredHapd6g=0", "timing": 0.01},
             "step9_baseline_24g": {"success": True, "output": "BaselineAdv24g=1\nBaselineHapd24g=0", "timing": 0.01},
             "step10_set_24g": {"success": True, "output": "", "timing": 0.01},
-            "step11_readback_24g": {"success": True, "output": "GetterAdv24g=0\nHapdAfterSet24g=2", "timing": 0.01},
+            "step11_readback_24g": {"success": True, "output": "GetterAdv24g=1\nHapdAfterSet24g=0", "timing": 0.01},
             "step12_restore_24g": {"success": True, "output": "RestoredAdv24g=1\nRestoredHapd24g=0", "timing": 0.01},
         }
     }
     assert plugin.evaluate(d093, d093_results) is True
 
-    # Negative: if hostapd stays 0 after set (no convergence), should fail
+    # Negative: if setter unexpectedly hides the SSID, evaluation should fail
     d093_bad = {
         "steps": {
             **d093_results["steps"],
-            "step3_readback_5g": {"success": True, "output": "GetterAdv5g=0\nHapdAfterSet5g=0", "timing": 0.01},
+            "step3_readback_5g": {"success": True, "output": "GetterAdv5g=0\nHapdAfterSet5g=2", "timing": 0.01},
         }
     }
     assert plugin.evaluate(d093, d093_bad) is False

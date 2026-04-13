@@ -1,5 +1,108 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-13 early-43)
+
+> This checkpoint records the `D093` SSIDAdvertisementEnabled workbook row-93 closure after `D092`.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D093 SSIDAdvertisementEnabled` is now aligned via official rerun `20260413T094515864676`
+- workbook row `93` is the advertised-state case: active 0403 source still declares `SSIDAdvertisementEnabled` default `true`, maps it through bool-reverse `wlHide`, and enforces `SSIDAdvertisementEnabled ? wlHide=0 : wlHide=1`
+- the stale authored case was still pinned to old workbook row `95` and inverted into a hidden-state `set 0 -> expect ignore_broadcast_ssid=2` story, while the old full-run mismatch still reflected the historical setter-to-getter substitution bug
+- the raw workbook `H` cell still contains one stale `ignore_broadcast_ssid=2` example, but live 0403 source/runtime plus the rerun keep the authoritative pass path at advertised state: getter `1` and hostapd `ignore_broadcast_ssid=0` on AP1 / AP3 / AP5
+- targeted D093 tests remain `4 passed`, and full repo regression is now `1656 passed`
+- overlay compare is now `279 / 420 full matches`、`141 mismatches`、`58 metadata drifts`
+- next ready actionable open case is `D096 UAPSDEnable`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D093` | 93 | `SSIDAdvertisementEnabled` | `Pass / Pass / Pass` | `20260413T094515864676_DUT.log L13-L183` | `n/a (AP-only)` |
+
+#### D093 SSIDAdvertisementEnabled
+
+**STA 指令**
+
+```sh
+# AP-only case; no STA transport
+```
+
+**DUT 指令**
+
+```sh
+echo "BaselineAdv5g=$(ubus-cli 'WiFi.AccessPoint.1.SSIDAdvertisementEnabled?' 2>/dev/null | grep -o 'SSIDAdvertisementEnabled=[0-9]*' | cut -d= -f2)"
+echo "BaselineHapd5g=$(grep 'ignore_broadcast_ssid=' /tmp/wl0_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+ubus-cli WiFi.AccessPoint.1.SSIDAdvertisementEnabled=1
+echo "GetterAdv5g=$(ubus-cli 'WiFi.AccessPoint.1.SSIDAdvertisementEnabled?' 2>/dev/null | grep -o 'SSIDAdvertisementEnabled=[0-9]*' | cut -d= -f2)"
+echo "HapdAfterSet5g=$(grep 'ignore_broadcast_ssid=' /tmp/wl0_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+ubus-cli WiFi.AccessPoint.1.SSIDAdvertisementEnabled=1
+echo "RestoredAdv5g=$(ubus-cli 'WiFi.AccessPoint.1.SSIDAdvertisementEnabled?' 2>/dev/null | grep -o 'SSIDAdvertisementEnabled=[0-9]*' | cut -d= -f2)"
+echo "RestoredHapd5g=$(grep 'ignore_broadcast_ssid=' /tmp/wl0_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+
+echo "BaselineAdv6g=$(ubus-cli 'WiFi.AccessPoint.3.SSIDAdvertisementEnabled?' 2>/dev/null | grep -o 'SSIDAdvertisementEnabled=[0-9]*' | cut -d= -f2)"
+echo "BaselineHapd6g=$(grep 'ignore_broadcast_ssid=' /tmp/wl1_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+ubus-cli WiFi.AccessPoint.3.SSIDAdvertisementEnabled=1
+echo "GetterAdv6g=$(ubus-cli 'WiFi.AccessPoint.3.SSIDAdvertisementEnabled?' 2>/dev/null | grep -o 'SSIDAdvertisementEnabled=[0-9]*' | cut -d= -f2)"
+echo "HapdAfterSet6g=$(grep 'ignore_broadcast_ssid=' /tmp/wl1_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+ubus-cli WiFi.AccessPoint.3.SSIDAdvertisementEnabled=1
+echo "RestoredAdv6g=$(ubus-cli 'WiFi.AccessPoint.3.SSIDAdvertisementEnabled?' 2>/dev/null | grep -o 'SSIDAdvertisementEnabled=[0-9]*' | cut -d= -f2)"
+echo "RestoredHapd6g=$(grep 'ignore_broadcast_ssid=' /tmp/wl1_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+
+echo "BaselineAdv24g=$(ubus-cli 'WiFi.AccessPoint.5.SSIDAdvertisementEnabled?' 2>/dev/null | grep -o 'SSIDAdvertisementEnabled=[0-9]*' | cut -d= -f2)"
+echo "BaselineHapd24g=$(grep 'ignore_broadcast_ssid=' /tmp/wl2_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+ubus-cli WiFi.AccessPoint.5.SSIDAdvertisementEnabled=1
+echo "GetterAdv24g=$(ubus-cli 'WiFi.AccessPoint.5.SSIDAdvertisementEnabled?' 2>/dev/null | grep -o 'SSIDAdvertisementEnabled=[0-9]*' | cut -d= -f2)"
+echo "HapdAfterSet24g=$(grep 'ignore_broadcast_ssid=' /tmp/wl2_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+ubus-cli WiFi.AccessPoint.5.SSIDAdvertisementEnabled=1
+echo "RestoredAdv24g=$(ubus-cli 'WiFi.AccessPoint.5.SSIDAdvertisementEnabled?' 2>/dev/null | grep -o 'SSIDAdvertisementEnabled=[0-9]*' | cut -d= -f2)"
+echo "RestoredHapd24g=$(grep 'ignore_broadcast_ssid=' /tmp/wl2_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+20260413T094515864676_DUT.log L13-L63
+BaselineAdv5g=1
+BaselineHapd5g=0
+WiFi.AccessPoint.1.SSIDAdvertisementEnabled=1
+GetterAdv5g=1
+HapdAfterSet5g=0
+RestoredAdv5g=1
+RestoredHapd5g=0
+
+20260413T094515864676_DUT.log L74-L122
+BaselineAdv6g=1
+BaselineHapd6g=0
+WiFi.AccessPoint.3.SSIDAdvertisementEnabled=1
+GetterAdv6g=1
+HapdAfterSet6g=0
+RestoredAdv6g=1
+RestoredHapd6g=0
+
+20260413T094515864676_DUT.log L133-L183
+BaselineAdv24g=1
+BaselineHapd24g=0
+WiFi.AccessPoint.5.SSIDAdvertisementEnabled=1
+GetterAdv24g=1
+HapdAfterSet24g=0
+RestoredAdv24g=1
+RestoredHapd24g=0
+
+plugins/wifi_llapi/reports/agent_trace/20260413T094515864676/wifi-llapi-D093-ssidadvertisementenabled.json L93-L123
+commands:
+  WiFi.AccessPoint.1.SSIDAdvertisementEnabled=1
+  WiFi.AccessPoint.3.SSIDAdvertisementEnabled=1
+  WiFi.AccessPoint.5.SSIDAdvertisementEnabled=1
+outputs:
+  BaselineAdv5g=1 / BaselineHapd5g=0 / GetterAdv5g=1 / HapdAfterSet5g=0 / RestoredAdv5g=1 / RestoredHapd5g=0
+  BaselineAdv6g=1 / BaselineHapd6g=0 / GetterAdv6g=1 / HapdAfterSet6g=0 / RestoredAdv6g=1 / RestoredHapd6g=0
+  BaselineAdv24g=1 / BaselineHapd24g=0 / GetterAdv24g=1 / HapdAfterSet24g=0 / RestoredAdv24g=1 / RestoredHapd24g=0
+```
+
 ## Checkpoint summary (2026-04-13 early-42)
 
 > This checkpoint records the `D092` WEPKey / AccessPoint.Security workbook row-92 closure after `D090`.
