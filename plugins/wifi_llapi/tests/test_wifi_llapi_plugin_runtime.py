@@ -19902,7 +19902,7 @@ def test_spectrum_evaluate(yaml_file, row, field, sample_value):
 # ---------------------------------------------------------------------------
 _ASSOCDEV_GETTER_CASES = [
     ("D014_chargeableuserid.yaml", 14, "ChargeableUserId"),
-    ("D035_operatingstandard.yaml", 37, "OperatingStandard"),
+    ("D035_operatingstandard.yaml", 35, "OperatingStandard"),
     ("D370_active.yaml", 372, "Active"),
     ("D371_disassociationtime.yaml", 373, "DisassociationTime"),
     ("D408_downlinkratespec.yaml", 410, "DownlinkRateSpec"),
@@ -19977,6 +19977,21 @@ def test_d014_chargeableuserid_evaluate_empty_string():
         }
     }
     assert plugin.evaluate(case, results) is True
+
+
+def test_d035_operatingstandard_contract():
+    """D035 is a workbook-pass assocdev getter with tri-band projected results."""
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / "D035_operatingstandard.yaml")
+    assert case["source"]["row"] == 35
+    ref = case["results_reference"]["v4.0.3"]
+    assert ref["5g"] == "Pass"
+    assert ref["6g"] == "Pass"
+    assert ref["2.4g"] == "Pass"
+    assert 'OperatingStandard="ax"' in ref["comment"]
+    assert case_band_results(case, True) == ("Pass", "Pass", "Pass")
+    assert case["pass_criteria"][1]["operator"] == "regex"
+    assert case["pass_criteria"][1]["value"] == "^[a-z]+$"
 
 
 @pytest.mark.parametrize(

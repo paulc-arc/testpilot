@@ -1,5 +1,56 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-13 early-59)
+
+> This checkpoint records the `D035 OperatingStandard` workbook-authoritative pass closure after the `D033` not-supported closure.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D035 OperatingStandard` is now aligned via official rerun `20260413T144105373183`
+- workbook authority is row `35`, not stale row `37` (`EncryptionMode`); workbook v4.0.3 remains `Pass / Pass / Pass`
+- current 0403 source still exposes the read-only AccessPoint AssociatedDevice `OperatingStandard` getter
+- the rerun exact-closes the associated STA path on the current lab baseline: DUT `assoclist 2C:59:17:00:04:85` and `OperatingStandard="ax"` with STA still linked to `testpilot5G`
+- this is an authoritative pass closure: rerun `evaluation_verdict=Pass`, final raw `Pass / Pass / Pass`, and compare now exact-matches workbook row `35`
+- overlay compare is now `294 / 420 full matches`、`126 mismatches`、`58 metadata drifts`
+- targeted assocdev getter guardrails are `40 passed`, and final full repo regression is now `1660 passed`
+- `D020` remains the verified fail-shaped mismatch, and the next ready actionable compare-open case is `D042 RxUnicastPacketCount`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D035` | 35 | `OperatingStandard` | `Pass / Pass / Pass` | `20260413T144105373183_DUT.log L67-L74` | `20260413T144105373183_STA.log L84-L94` |
+
+#### D035 OperatingStandard
+
+**STA 指令**
+
+```sh
+iw dev wl0 link
+```
+
+**DUT 指令**
+
+```sh
+wl -i wl0 assoclist | head -1
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.OperatingStandard?"
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+STA (20260413T144105373183_STA.log L84-L94)
+Connected to 2c:59:17:00:19:95 (on wl0)
+SSID: testpilot5G
+
+DUT (20260413T144105373183_DUT.log L67-L74)
+assoclist 2C:59:17:00:04:85
+WiFi.AccessPoint.1.AssociatedDevice.1.OperatingStandard="ax"
+```
+
 ## Checkpoint summary (2026-04-13 early-58)
 
 > This checkpoint records the `D033 MUUserPositionId` workbook-authoritative not-supported closure after the `D032` not-supported closure.

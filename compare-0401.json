@@ -63,7 +63,8 @@
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T133308180539",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T135928729951",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T141305083695",
-    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T142616419984"
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T142616419984",
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T144105373183"
   ],
   "answers_xlsx": "/home/paul_chen/prj_arc/testpilot/0401.xlsx",
   "cases_dir": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases",
@@ -71,20 +72,20 @@
   "missing_answer_count": 0,
   "missing_answer_rows": [],
   "metadata_drift_count": 58,
-  "full_match_count": 293,
-  "mismatch_case_count": 127,
+  "full_match_count": 294,
+  "mismatch_case_count": 126,
   "band_summary": {
     "5g": {
-      "matched": 298,
-      "mismatched": 122
+      "matched": 299,
+      "mismatched": 121
     },
     "6g": {
-      "matched": 296,
-      "mismatched": 124
-    },
-    "2.4g": {
       "matched": 297,
       "mismatched": 123
+    },
+    "2.4g": {
+      "matched": 298,
+      "mismatched": 122
     }
   },
   "cases": [
@@ -1386,7 +1387,7 @@
       "case_id": "d035-assocdev-operatingstandard",
       "case_file": "D035_operatingstandard.yaml",
       "dnum": 35,
-      "source_row": 37,
+      "source_row": 35,
       "source_object": "WiFi.AccessPoint.{i}.AssociatedDevice.{i}.",
       "source_api": "OperatingStandard",
       "answer_row": 35,
@@ -1395,39 +1396,35 @@
       "mapping_status": "exact",
       "mapping_object_match": true,
       "mapping_api_match": true,
-      "final_status": "Fail",
+      "final_status": "Pass",
       "evaluation_verdict": "Pass",
       "attempts_used": 1,
       "comment": "",
       "bands": {
         "5g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         },
         "6g": {
-          "actual_raw": "N/A",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         },
         "2.4g": {
-          "actual_raw": "N/A",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         }
       },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
+      "mismatch_bands": [],
+      "matches_answer": true,
       "workbook_test_steps_excerpt": "##Connect WiFi Station and check Station OperatingStandard ubus-cli WiFi.AccessPoint.? | grep \\.OperatingStandard= WiFi.AccessPoint.1.AssociatedDevice.{i}.OperatingStandard=\"a\" WiFi.AccessPoint.2.AssociatedDevice.{i}.OperatingStandard=\"U...",
       "workbook_command_output_excerpt": "wl -i wl0 sta_info ${STA_MAC}",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d035-assocdev-operatingstandard.json"
+      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T144105373183/d035-assocdev-operatingstandard.json"
     },
     {
       "case_id": "wifi-llapi-D036-powersave",
@@ -18692,53 +18689,6 @@
       "workbook_test_steps_excerpt": "1. Connect WiFi Station to GW. 2. Verify Associated Station FrequencyCapabilities: root@prplOS:~# ubus-cli WiFi.? | grep FrequencyCapabilities= WiFi.AccessPoint.1.AssociatedDevice.1.FrequencyCapabilities=\"2.4GHz,5GHz,6GHz\" WiFi.AccessPoi...",
       "workbook_command_output_excerpt": "wl -i wl0 sta_info ${STA_MAC} Frequency Bands Supported: 2.4G 5G 6G",
       "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D020-frequencycapabilities.json"
-    },
-    {
-      "case_id": "d035-assocdev-operatingstandard",
-      "case_file": "D035_operatingstandard.yaml",
-      "dnum": 35,
-      "source_row": 37,
-      "source_object": "WiFi.AccessPoint.{i}.AssociatedDevice.{i}.",
-      "source_api": "OperatingStandard",
-      "answer_row": 35,
-      "answer_object": "WiFi.AccessPoint.{i}.AssociatedDevice.{i}.",
-      "answer_api": "OperatingStandard",
-      "mapping_status": "exact",
-      "mapping_object_match": true,
-      "mapping_api_match": true,
-      "final_status": "Fail",
-      "evaluation_verdict": "Pass",
-      "attempts_used": 1,
-      "comment": "",
-      "bands": {
-        "5g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        },
-        "6g": {
-          "actual_raw": "N/A",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        },
-        "2.4g": {
-          "actual_raw": "N/A",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        }
-      },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
-      "workbook_test_steps_excerpt": "##Connect WiFi Station and check Station OperatingStandard ubus-cli WiFi.AccessPoint.? | grep \\.OperatingStandard= WiFi.AccessPoint.1.AssociatedDevice.{i}.OperatingStandard=\"a\" WiFi.AccessPoint.2.AssociatedDevice.{i}.OperatingStandard=\"U...",
-      "workbook_command_output_excerpt": "wl -i wl0 sta_info ${STA_MAC}",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d035-assocdev-operatingstandard.json"
     },
     {
       "case_id": "wifi-llapi-D042-rxunicastpacketcount",

@@ -66,6 +66,7 @@
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T135928729951`
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T141305083695`
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T142616419984`
+  - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T144105373183`
 - answer sheet: `/home/paul_chen/prj_arc/testpilot/0401.xlsx`
 - cases dir: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases`
 - compare rule: normalize both sides so only `Pass` stays `Pass`; all other values become `Fail`.
@@ -76,8 +77,8 @@
 | metric | value |
 | --- | ---: |
 | compared cases | 420 |
-| full matches | 293 |
-| mismatch cases | 127 |
+| full matches | 294 |
+| mismatch cases | 126 |
 | missing answer rows | 0 |
 | metadata drift rows | 58 |
 
@@ -85,16 +86,15 @@
 
 | band | matched | mismatched |
 | --- | ---: | ---: |
-| 5g | 298 | 122 |
-| 6g | 296 | 124 |
-| 2.4g | 297 | 123 |
+| 5g | 299 | 121 |
+| 6g | 297 | 123 |
+| 2.4g | 298 | 122 |
 
 ## Mismatch table
 
 | case_id | D-row | mapping | actual raw (5/6/2.4) | expected raw (R/S/T) | actual norm | expected norm | mismatch bands |
 | --- | ---: | --- | --- | --- | --- | --- | --- |
 | `wifi-llapi-D020-frequencycapabilities` | 20 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
-| `d035-assocdev-operatingstandard` | 35 | exact | Fail / N/A / N/A | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `wifi-llapi-D042-rxunicastpacketcount` | 42 | exact | Pass / Pass / Pass | Not Supported / Not Supported / Not Supported | Pass / Pass / Pass | Fail / Fail / Fail | 5g, 6g, 2.4g |
 | `wifi-llapi-D047-supportedhe160mcs` | 47 | exact | Not Supported / N/A / N/A | Pass / Pass / Not Supported | Fail / Fail / Fail | Pass / Pass / Fail | 5g, 6g |
 | `wifi-llapi-D050-supportedvhtmcs` | 50 | exact | Not Supported / N/A / N/A | Pass / Not Supported / Not Supported | Fail / Fail / Fail | Pass / Fail / Fail | 5g |
@@ -242,25 +242,6 @@
 - 0401 G excerpt: 1. Connect WiFi Station to GW. 2. Verify Associated Station FrequencyCapabilities: root@prplOS:~# ubus-cli WiFi.? | grep FrequencyCapabilities= WiFi.AccessPoint.1.AssociatedDevice.1.FrequencyCapabilities="2.4GHz,5GHz,6GHz" WiFi.AccessPoi...
 - 0401 H excerpt: wl -i wl0 sta_info ${STA_MAC} Frequency Bands Supported: 2.4G 5G 6G
 - trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D020-frequencycapabilities.json`
-
-### d035-assocdev-operatingstandard
-
-- case file: `D035_operatingstandard.yaml`
-- answer row: `35`
-- mapping status: `exact`
-- source metadata: `WiFi.AccessPoint.{i}.AssociatedDevice.{i}.` / `OperatingStandard`
-- workbook metadata: `WiFi.AccessPoint.{i}.AssociatedDevice.{i}.` / `OperatingStandard`
-- final status: `Fail`
-- evaluation verdict: `Pass`
-- attempts used: `1`
-- actual raw: `Fail` / `N/A` / `N/A`
-- expected raw: `Pass` / `Pass` / `Pass`
-- actual normalized: `Fail` / `Fail` / `Fail`
-- expected normalized: `Pass` / `Pass` / `Pass`
-- mismatch bands: `5g, 6g, 2.4g`
-- 0401 G excerpt: ##Connect WiFi Station and check Station OperatingStandard ubus-cli WiFi.AccessPoint.? | grep \.OperatingStandard= WiFi.AccessPoint.1.AssociatedDevice.{i}.OperatingStandard="a" WiFi.AccessPoint.2.AssociatedDevice.{i}.OperatingStandard="U...
-- 0401 H excerpt: wl -i wl0 sta_info ${STA_MAC}
-- trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d035-assocdev-operatingstandard.json`
 
 ### wifi-llapi-D042-rxunicastpacketcount
 
