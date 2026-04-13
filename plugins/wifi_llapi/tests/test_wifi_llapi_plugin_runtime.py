@@ -4484,6 +4484,7 @@ def test_pending_not_supported_associateddevice_cases_use_supported_contracts():
     d030 = load_case(cases_dir / "D030_mugroupid.yaml")
     d030_commands = "\n".join(str(step.get("command", "")) for step in d030["steps"])
     d030_links = {link["band"] for link in d030["topology"]["links"]}
+    assert d030["source"]["row"] == 30
     assert d030_links == {"5g", "2.4g"}
     assert "wl -i wl0 assoclist" in d030_commands
     assert "wl -i wl2 assoclist" in d030_commands
@@ -4494,8 +4495,10 @@ def test_pending_not_supported_associateddevice_cases_use_supported_contracts():
         for criterion in d030["pass_criteria"]
     )
     assert _has_assoc_mac_regex(d030, "assoc_24g.AssocMac24g")
-    assert d030["results_reference"]["v4.0.3"]["5g"] == "Pass"
-    assert d030["results_reference"]["v4.0.3"]["2.4g"] == "Pass"
+    assert d030["results_reference"]["v4.0.3"]["5g"] == "Not Supported"
+    assert d030["results_reference"]["v4.0.3"]["6g"] == "Not Supported"
+    assert d030["results_reference"]["v4.0.3"]["2.4g"] == "Not Supported"
+    assert case_band_results(d030, True) == ("Not Supported", "Not Supported", "Not Supported")
 
 
 def test_pending_not_supported_associateddevice_cases_evaluate_live_examples():

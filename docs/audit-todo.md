@@ -86,6 +86,10 @@
   - `_env_command_succeeded()` no longer treats valid getter payload `error=4 / message=parameter not found` as a shell failure, while direct `AssociatedDevice.*.MACAddress?` probes still require a concrete MAC
   - `hostapd_cli` is now treated as an executable token, so hostapd-based shell steps no longer silently fall back to `verification_command`
 - Latest aligned cases:
+  - `D030 MUGroupId` is now aligned via official rerun `20260413T135928729951`
+  - workbook authority is row `30`, not stale row `27` (`Capabilities`); current 0403 source survey only finds the read-only ODL declaration for `MUGroupId` and no active tr181-wifi implementation
+  - rerun exact-closes the supported-band stub evidence: 5G `AssocMac5g=2c:59:17:00:04:85` with `MUGroupId=0`, 2.4G `AssocMac24g=2c:59:17:00:04:97` with `MUGroupId=0`, and 6G stays skipped in the current lab
+  - the landed case now projects workbook-consistent `Not Supported / Not Supported / Not Supported`, final full repo regression remains `1659 passed`, overlay compare is `291 / 420 full matches` / `129 mismatches` / `58 metadata drifts`, `D020` remains the verified fail-shaped mismatch, and the next ready actionable compare-open case is `D032 MUMimoTxPktsPercentage`
   - `D019 EncryptionMode / AssociatedDevice` is now aligned via official rerun `20260413T133308180539`
   - workbook authority is row `19`, not stale row `16` (`DownlinkBandwidth`), and the older `Pass / Pass / Pass` claim is now confirmed to have come from stale row-16 metadata rather than workbook authority
   - rerun exact-closes the intended fail-shaped security context on 6G: STA `SSID=TestPilot_BTM`, `pairwise_cipher=CCMP`, `key_mgmt=SAE`; DUT `AssocMAC=2C:59:17:00:04:86`; getter `EncryptionMode="Default"`

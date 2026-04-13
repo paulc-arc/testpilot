@@ -1,5 +1,63 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-13 early-56)
+
+> This checkpoint records the `D030 MUGroupId` workbook-authoritative not-supported closure after the `D019` fail-shaped closure.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D030 MUGroupId` is now aligned via official rerun `20260413T135928729951`
+- workbook authority is row `30`, not stale row `27` (`Capabilities`); workbook v4.0.3 remains `Not Supported / Not Supported / Not Supported`
+- current 0403 source survey only finds the read-only ODL declaration for `MUGroupId` and no active tr181-wifi implementation
+- the rerun exact-closes same-station stub evidence on the supported bands: 5G `AssocMac5g=2c:59:17:00:04:85`, `MUGroupId=0`; 2.4G `AssocMac24g=2c:59:17:00:04:97`, `MUGroupId=0`; 6G stays skipped in the current lab
+- this is an authoritative not-supported closure: rerun `evaluation_verdict=Pass`, final raw `Not Supported / Not Supported / Not Supported`, and compare now exact-matches workbook row `30`
+- overlay compare is now `291 / 420 full matches`、`129 mismatches`、`58 metadata drifts`
+- targeted D029/D030 not-supported guardrails are `2 passed`, and final full repo regression remains `1659 passed`
+- `D020` remains the verified fail-shaped mismatch, and the next ready actionable compare-open case is `D032 MUMimoTxPktsPercentage`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D030` | 30 | `MUGroupId` | `Not Supported / Not Supported / Not Supported` | `20260413T135928729951_DUT.log L191-L198, L262-L269` | `20260413T135928729951_STA.log L82-L95, L172-L186` |
+
+#### D030 MUGroupId
+
+**STA 指令**
+
+```sh
+iw dev wl0 link
+iw dev wl2 link
+```
+
+**DUT 指令**
+
+```sh
+wl -i wl0 assoclist | tr 'A-F' 'a-f' | sed -n 's/^assoclist \([^ ]*\).*$/AssocMac5g=\1/p'
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MUGroupId?"
+wl -i wl2 assoclist | tr 'A-F' 'a-f' | sed -n 's/^assoclist \([^ ]*\).*$/AssocMac24g=\1/p'
+ubus-cli "WiFi.AccessPoint.5.AssociatedDevice.1.MUGroupId?"
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+STA (20260413T135928729951_STA.log L82-L95, L172-L186)
+Connected to 2c:59:17:00:19:95 (on wl0)
+SSID: testpilot5G
+Connected to 2c:59:17:00:19:a7 (on wl2)
+SSID: testpilot2G
+
+DUT (20260413T135928729951_DUT.log L191-L198, L262-L269)
+AssocMac5g=2c:59:17:00:04:85
+WiFi.AccessPoint.1.AssociatedDevice.1.MUGroupId=0
+AssocMac24g=2c:59:17:00:04:97
+WiFi.AccessPoint.5.AssociatedDevice.1.MUGroupId=0
+```
+
 ## Checkpoint summary (2026-04-13 early-55)
 
 > This checkpoint records the `D019 EncryptionMode / AssociatedDevice` workbook-authoritative fail-shaped closure after the `D014` skip-shaped closure.
