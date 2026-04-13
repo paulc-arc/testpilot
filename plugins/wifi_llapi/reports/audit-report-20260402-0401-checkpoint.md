@@ -1,5 +1,59 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-13 early-54)
+
+> This checkpoint records the `D014 ChargeableUserId` workbook-gated skip closure after the `D057` fail-shaped closure.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D014 ChargeableUserId` is now aligned via official rerun `20260413T132144592128`
+- workbook authority is row `14`, not stale row `16` (`DownlinkBandwidth`); workbook v4.0.3 remains `To be tested` / skip-shaped rather than plain pass
+- current 0403 source only declares read-only `ChargeableUserId` together with Enterprise-only `RadiusChargeableUserId`, so the validated non-Enterprise `testpilot5G` / `WPA2-Personal` baseline legitimately exact-closes the live associated STA `2C:59:17:00:04:85` with `ChargeableUserId=""`
+- the landed case now keeps that same-STA empty-string proof and projects workbook-consistent `Skip / Skip / Skip` without inventing a RADIUS path
+- overlay compare is now `289 / 420 full matches`、`131 mismatches`、`58 metadata drifts`
+- targeted D014 / assocdev-getter guardrails are `41 passed`, and final full repo regression is now `1659 passed`
+- next ready actionable compare-open case is `D019 EncryptionMode / AssociatedDevice`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D014` | 14 | `ChargeableUserId` | `Skip / Skip / Skip` | `20260413T132144592128_DUT.log L67-L74` | `20260413T132144592128_STA.log L63-L99` |
+
+#### D014 ChargeableUserId
+
+**STA 指令**
+
+```sh
+wpa_cli -p /var/run/wpa_supplicant -i wl0 enable_network 0
+wpa_cli -p /var/run/wpa_supplicant -i wl0 select_network 0
+iw dev wl0 link
+```
+
+**DUT 指令**
+
+```sh
+wl -i wl0 assoclist | head -1
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.ChargeableUserId?"
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+STA (20260413T132144592128_STA.log L63-L99)
+OK
+OK
+Connected to 2c:59:17:00:19:95 (on wl0)
+SSID: testpilot5G
+
+DUT (20260413T132144592128_DUT.log L67-L74)
+assoclist 2C:59:17:00:04:85
+WiFi.AccessPoint.1.AssociatedDevice.1.ChargeableUserId=""
+```
+
 ## Checkpoint summary (2026-04-13 early-53)
 
 > This checkpoint records the `D057 TxUnicastPacketCount` workbook-authoritative fail-shaped closure after the `D111-D113` metadata-drift cleanup.

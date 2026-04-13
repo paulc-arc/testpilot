@@ -58,7 +58,8 @@
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T115620062809",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T121358780961",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T122417812289",
-    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T130448459477"
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T130448459477",
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T132144592128"
   ],
   "answers_xlsx": "/home/paul_chen/prj_arc/testpilot/0401.xlsx",
   "cases_dir": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases",
@@ -66,20 +67,20 @@
   "missing_answer_count": 0,
   "missing_answer_rows": [],
   "metadata_drift_count": 58,
-  "full_match_count": 288,
-  "mismatch_case_count": 132,
+  "full_match_count": 289,
+  "mismatch_case_count": 131,
   "band_summary": {
     "5g": {
-      "matched": 293,
-      "mismatched": 127
+      "matched": 294,
+      "mismatched": 126
     },
     "6g": {
-      "matched": 291,
-      "mismatched": 129
-    },
-    "2.4g": {
       "matched": 292,
       "mismatched": 128
+    },
+    "2.4g": {
+      "matched": 293,
+      "mismatched": 127
     }
   },
   "cases": [
@@ -474,7 +475,7 @@
       "case_id": "d014-assocdev-chargeableuserid",
       "case_file": "D014_chargeableuserid.yaml",
       "dnum": 14,
-      "source_row": 16,
+      "source_row": 14,
       "source_object": "WiFi.AccessPoint.{i}.AssociatedDevice.{i}.",
       "source_api": "ChargeableUserId",
       "answer_row": 14,
@@ -489,33 +490,29 @@
       "comment": "",
       "bands": {
         "5g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
+          "actual_raw": "Skip",
+          "actual_norm": "Fail",
           "expected_raw": "Skip",
           "expected_norm": "Fail"
         },
         "6g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
+          "actual_raw": "Skip",
+          "actual_norm": "Fail",
           "expected_raw": "Skip",
           "expected_norm": "Fail"
         },
         "2.4g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
+          "actual_raw": "Skip",
+          "actual_norm": "Fail",
           "expected_raw": "Skip",
           "expected_norm": "Fail"
         }
       },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
+      "mismatch_bands": [],
+      "matches_answer": true,
       "workbook_test_steps_excerpt": "##Connect WiFi Station and check Station ChargeableUserId WiFi.AccessPoint.1.AssociatedDevice.1.ChargeableUserId=\"\" WiFi.AccessPoint.3.AssociatedDevice.1.ChargeableUserId=\"\" WiFi.AccessPoint.5.AssociatedDevice.1.ChargeableUserId=\"\"",
       "workbook_command_output_excerpt": "wl -i wl0 sta_info ${STA_MAC}",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d014-assocdev-chargeableuserid.json"
+      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T132144592128/d014-assocdev-chargeableuserid.json"
     },
     {
       "case_id": "wifi-llapi-D015-connectionduration",
@@ -18661,53 +18658,6 @@
     }
   ],
   "mismatches": [
-    {
-      "case_id": "d014-assocdev-chargeableuserid",
-      "case_file": "D014_chargeableuserid.yaml",
-      "dnum": 14,
-      "source_row": 16,
-      "source_object": "WiFi.AccessPoint.{i}.AssociatedDevice.{i}.",
-      "source_api": "ChargeableUserId",
-      "answer_row": 14,
-      "answer_object": "WiFi.AccessPoint.{i}.AssociatedDevice.{i}.",
-      "answer_api": "ChargeableUserId",
-      "mapping_status": "exact",
-      "mapping_object_match": true,
-      "mapping_api_match": true,
-      "final_status": "Pass",
-      "evaluation_verdict": "Pass",
-      "attempts_used": 1,
-      "comment": "",
-      "bands": {
-        "5g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
-          "expected_raw": "Skip",
-          "expected_norm": "Fail"
-        },
-        "6g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
-          "expected_raw": "Skip",
-          "expected_norm": "Fail"
-        },
-        "2.4g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
-          "expected_raw": "Skip",
-          "expected_norm": "Fail"
-        }
-      },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
-      "workbook_test_steps_excerpt": "##Connect WiFi Station and check Station ChargeableUserId WiFi.AccessPoint.1.AssociatedDevice.1.ChargeableUserId=\"\" WiFi.AccessPoint.3.AssociatedDevice.1.ChargeableUserId=\"\" WiFi.AccessPoint.5.AssociatedDevice.1.ChargeableUserId=\"\"",
-      "workbook_command_output_excerpt": "wl -i wl0 sta_info ${STA_MAC}",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d014-assocdev-chargeableuserid.json"
-    },
     {
       "case_id": "wifi-llapi-D019-encryptionmode-accesspoint-associateddevice",
       "case_file": "D019_encryptionmode_accesspoint_associateddevice.yaml",

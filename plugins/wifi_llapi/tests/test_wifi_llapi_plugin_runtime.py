@@ -13,6 +13,7 @@ from typing import Any
 import pytest
 import yaml
 
+from testpilot.core.case_utils import case_band_results
 from testpilot.core.plugin_loader import PluginLoader
 from testpilot.schema.case_schema import load_case
 
@@ -19895,7 +19896,7 @@ def test_spectrum_evaluate(yaml_file, row, field, sample_value):
 # Batch 6 — AssocDev getters (D014,D035,D370-D371,D408-D415,D426): 5G-only
 # ---------------------------------------------------------------------------
 _ASSOCDEV_GETTER_CASES = [
-    ("D014_chargeableuserid.yaml", 16, "ChargeableUserId"),
+    ("D014_chargeableuserid.yaml", 14, "ChargeableUserId"),
     ("D035_operatingstandard.yaml", 37, "OperatingStandard"),
     ("D370_active.yaml", 372, "Active"),
     ("D371_disassociationtime.yaml", 373, "DisassociationTime"),
@@ -19936,6 +19937,43 @@ def test_assocdev_getter_discover(yaml_file, row, api_field):
     assert case["id"] in discoverable, f"{case['id']} not discoverable"
 
 
+def test_d014_chargeableuserid_contract():
+    """D014 stays workbook-gated Skip under non-Enterprise baseline."""
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / "D014_chargeableuserid.yaml")
+    assert case["source"]["row"] == 14
+    ref = case["results_reference"]["v4.0.3"]
+    assert ref["5g"] == "Skip"
+    assert ref["6g"] == "Skip"
+    assert ref["2.4g"] == "Skip"
+    assert "RadiusChargeableUserId" in ref["comment"]
+    assert case_band_results(case, True) == ("Skip", "Skip", "Skip")
+    assert case["pass_criteria"][1]["operator"] == "contains"
+    assert case["pass_criteria"][1]["value"] == 'ChargeableUserId=""'
+
+
+def test_d014_chargeableuserid_evaluate_empty_string():
+    """D014 evaluates on the empty-string getter shape seen on the current lab baseline."""
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / "D014_chargeableuserid.yaml")
+    results = {
+        "steps": {
+            "step_5g_assoc_check": {
+                "success": True,
+                "output": "assoclist 2C:59:17:00:04:85",
+                "timing": 0.01,
+            },
+            "step_5g_getter": {
+                "success": True,
+                "output": 'WiFi.AccessPoint.1.AssociatedDevice.1.ChargeableUserId=""',
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(case, results) is True
+
+
 @pytest.mark.parametrize(
     "yaml_file,row,api_field",
     _ASSOCDEV_GETTER_CASES,
@@ -19951,6 +19989,7 @@ def test_assocdev_getter_evaluate(yaml_file, row, api_field):
         return
     # Build synthetic values that satisfy regex criteria
     _assocdev_synth = {
+        "ChargeableUserId": '""',
         "OperatingStandard": "ax",
         "DisassociationTime": "2025-01-01T00:00:00Z",
     }
