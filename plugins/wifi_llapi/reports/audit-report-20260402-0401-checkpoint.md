@@ -1,5 +1,38 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-13 early-62)
+
+> This checkpoint records the `D050 SupportedVhtMCS` workbook-authoritative closure after the `D047` blocker triage.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D050 SupportedVhtMCS` 已透過 official rerun `20260413T000249620932` 完成 closure
+- 這案不是 `D047` 式的 authority conflict：workbook row `50` 的 answer columns `R/S/T`、`G/H` 與 note `V50` 本來就一致地把 5G 視為 sibling `RxSupportedVhtMCS` / `TxSupportedVhtMCS` pass path，並把 `6G/2.4G` 留在 `Not Supported`
+- current rerun exact-close generic 5G baseline 上的同站證據：`SupportedVhtMCS? -> error=4 / parameter not found`，但 sibling `DriverRxSupportedVhtMCS=9,9,9,9` / `DriverTxSupportedVhtMCS=9,9,9,9` 與 `wl0 sta_info` 的 `VHT caps` / `MCS SET` / `VHT SET` lines 都存在
+- 因此 landed case 現在投影 workbook-consistent `Pass / Not Supported / Not Supported`
+- targeted D050 guardrails=`5 passed`
+- final full repo regression 維持 `1660 passed`
+- overlay compare 已提升到 `296 / 420 full matches`、`124 mismatches`、`58 metadata drifts`
+- `D020` 仍保留在 verified fail-shaped mismatch bucket，而 `D047` 仍維持 authority blocker；next ready actionable compare-open case 改為 `D053 TxBytes`
+
+</details>
+
+**關鍵 evidence**
+
+```text
+Workbook row 50:
+- answer columns R/S/T = Pass / Not Supported / Not Supported
+- note V50 says 6GHz and 2.4GHz do not support 11ac VHT
+- workbook G/H treat SupportedVhtMCS as equivalent to sibling RxSupportedVhtMCS / TxSupportedVhtMCS evidence
+
+Official rerun 20260413T000249620932:
+- DUT log L86-L89 => SupportedVhtMCS? -> error=4 / parameter not found
+- DUT log L107-L109 => DriverRxSupportedVhtMCS=9,9,9,9 / DriverTxSupportedVhtMCS=9,9,9,9
+- agent trace outputs => DriverVhtCapsPresent=1 / DriverMCSSetPresent=1 / DriverVhtSetPresent=1
+- STA log L84-L99 => STA remains connected to SSID testpilot5G
+```
+
 ## Checkpoint summary (2026-04-13 early-61)
 
 > This checkpoint records the `D047 SupportedHe160MCS` workbook/source authority-conflict blocker after the `D042` closure.

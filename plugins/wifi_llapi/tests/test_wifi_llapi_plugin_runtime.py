@@ -6805,9 +6805,9 @@ def test_d050_supportedvhtmcs_uses_supported_contracts():
         and str(criterion["value"]) == "1"
         for criterion in d050["pass_criteria"]
     )
-    assert d050["results_reference"]["v4.0.3"]["5g"] == "Not Supported"
-    assert d050["results_reference"]["v4.0.3"]["6g"] == "N/A"
-    assert d050["results_reference"]["v4.0.3"]["2.4g"] == "N/A"
+    assert d050["results_reference"]["v4.0.3"]["5g"] == "Pass"
+    assert d050["results_reference"]["v4.0.3"]["6g"] == "Not Supported"
+    assert d050["results_reference"]["v4.0.3"]["2.4g"] == "Not Supported"
 
 
 def test_d050_supportedvhtmcs_evaluate_live_examples():

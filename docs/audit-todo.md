@@ -93,8 +93,13 @@
   - official rerun `20260412T235952361188` exact-closes the conflict on the current generic 5G baseline: `SupportedHe160MCS? -> error=4 / parameter not found`, but sibling Rx/Tx fields and HE capability lines are present for the same STA
   - blocker handoff: `plugins/wifi_llapi/reports/D047_block.md`
   - current YAML remains source/runtime-correct and must not be rewritten to workbook-pass semantics until the workbook authority itself is resolved
-  - next ready actionable compare-open case: `D050 SupportedVhtMCS`
+  - next ready actionable compare-open case: `D053 TxBytes`
 - Latest aligned cases:
+  - `D050 SupportedVhtMCS` is now aligned via official rerun `20260413T000249620932`
+  - workbook authority remains row `50`; workbook v4.0.3 is `Pass / Not Supported / Not Supported`
+  - workbook `G/H` already treat standalone `SupportedVhtMCS` as equivalent to the sibling `RxSupportedVhtMCS` / `TxSupportedVhtMCS` evidence on the same `AssociatedDevice` entry, while note `V50` keeps `6G/2.4G` on `Not Supported`
+  - rerun exact-closes the 5G pass path on the current generic baseline: `MACAddress="2C:59:17:00:04:85"`, `SupportedVhtMCS? -> error=4 / parameter not found`, sibling `DriverRxSupportedVhtMCS=9,9,9,9`, sibling `DriverTxSupportedVhtMCS=9,9,9,9`, and matching `wl0 sta_info` `VHT caps` / `MCS SET` / `VHT SET` lines
+  - the landed case now projects workbook-consistent `Pass / Not Supported / Not Supported`, targeted D050 guardrails are `5 passed`, final full repo regression remains `1660 passed`, overlay compare is `296 / 420 full matches` / `124 mismatches` / `58 metadata drifts`, `D020` remains the verified fail-shaped mismatch, `D047` remains blocked, and the next ready actionable compare-open case is `D053 TxBytes`
   - `D042 RxUnicastPacketCount` is now aligned via official rerun `20260413T145000666925`
   - workbook authority is row `42`, not stale row `44`; workbook v4.0.3 remains `Not Supported / Not Supported / Not Supported`
   - rerun exact-closes the supported-band same-station counter divergence on the current lab baseline: DUT `MACAddress="2C:59:17:00:04:85"`, `RxUnicastPacketCount=0`, driver `DriverRxUnicastPacketCount=8`, and STA still linked to `TestPilot_BTM`
