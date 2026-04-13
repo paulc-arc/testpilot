@@ -40,7 +40,8 @@
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T064002607672",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T065809885285",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T071746618166",
-    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T075200621380"
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T075200621380",
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T080405422245"
   ],
   "answers_xlsx": "/home/paul_chen/prj_arc/testpilot/0401.xlsx",
   "cases_dir": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases",
@@ -3339,7 +3340,7 @@
       "case_id": "wifi-llapi-D083-neighbour",
       "case_file": "D083_neighbour.yaml",
       "dnum": 83,
-      "source_row": 77,
+      "source_row": 83,
       "source_object": "WiFi.AccessPoint.{i}.",
       "source_api": "Neighbour",
       "answer_row": 83,
@@ -3376,7 +3377,7 @@
       "matches_answer": true,
       "workbook_test_steps_excerpt": "\\\\Add Neighbour AP root@prplOS:/# ubus-cli \"WiFi.AccessPoint.1.setNeighbourAP(BSSID=11:22:33:44:55: 66,Channel=36)\" > WiFi.AccessPoint.1.setNeighbourAP(BSSID=11:22:33:44:55:66,Channel=36) WiFi.AccessPoint.1.setNeighbourAP() returned [ \"\"...",
       "workbook_command_output_excerpt": "",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D083-neighbour.json"
+      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T080405422245/wifi-llapi-D083-neighbour.json"
     },
     {
       "case_id": "wifi-llapi-D084-encryptionmode-accesspoint-security",

@@ -11103,7 +11103,7 @@ def test_d083_neighbour_contract():
     assert "aliases" not in d083_raw
     assert d083["id"] == "wifi-llapi-D083-neighbour"
     assert d083["source"]["report"] == "0310-BGW720-300_LLAPI_Test_Report.xlsx"
-    assert d083["source"]["row"] == 77
+    assert d083["source"]["row"] == 83
     assert d083["source"]["baseline"] == "BCM v4.0.3"
     assert d083["llapi_support"] == "Support"
     assert d083["implemented_by"] == "pWHM"

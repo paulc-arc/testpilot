@@ -1,5 +1,118 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-13 early-36)
+
+> This checkpoint records the `D083` Neighbour workbook row-83 metadata closure after `D082`.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D083 Neighbour` is now aligned via official rerun `20260413T080405422245`
+- this is a metadata-only closure: authoritative full-run trace `20260412T113008433351` had already exact-closed workbook row `83` as tri-band AP-only add/delete lifecycle `empty -> single entry -> empty`, but the case still carried stale workbook row `77`
+- refreshing `source.row` to `83` and replaying the official rerun re-proved the same workbook pass path on AP1 / AP3 / AP5: 5G exact-closes `11:22:33:44:55:66 / 36`, 6G exact-closes `11:22:33:44:55:77 / 1`, and 2.4G exact-closes `11:22:33:44:55:88 / 11`
+- all three bands also re-close the delete-after-empty state (`AfterDeleteBssidCount*=0`, `AfterDeleteChannelCount*=0`, `AfterDeleteBssid*=ABSENT`, `AfterDeleteChannel*=ABSENT`)
+- overlay compare remains `272 / 420 full matches`、`148 mismatches`、`58 metadata drifts`
+- next ready actionable open case is `D084 EncryptionMode / AccessPoint.Security`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D083` | 83 | `Neighbour` | `Pass / Pass / Pass` | `20260413T080405422245_DUT.log L32-L469` | `n/a (AP-only)` |
+
+#### D083 Neighbour
+
+**STA 指令**
+
+```sh
+# AP-only case; no STA transport
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli WiFi.AccessPoint.1.?
+ubus-cli "WiFi.AccessPoint.1.setNeighbourAP(BSSID=11:22:33:44:55:66,Channel=36)"
+ubus-cli WiFi.AccessPoint.1.?
+ubus-cli "WiFi.AccessPoint.1.delNeighbourAP(BSSID=11:22:33:44:55:66)"
+ubus-cli WiFi.AccessPoint.1.?
+
+ubus-cli WiFi.AccessPoint.3.?
+ubus-cli "WiFi.AccessPoint.3.setNeighbourAP(BSSID=11:22:33:44:55:77,Channel=1)"
+ubus-cli WiFi.AccessPoint.3.?
+ubus-cli "WiFi.AccessPoint.3.delNeighbourAP(BSSID=11:22:33:44:55:77)"
+ubus-cli WiFi.AccessPoint.3.?
+
+ubus-cli WiFi.AccessPoint.5.?
+ubus-cli "WiFi.AccessPoint.5.setNeighbourAP(BSSID=11:22:33:44:55:88,Channel=11)"
+ubus-cli WiFi.AccessPoint.5.?
+ubus-cli "WiFi.AccessPoint.5.delNeighbourAP(BSSID=11:22:33:44:55:88)"
+ubus-cli WiFi.AccessPoint.5.?
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+20260413T080405422245_DUT.log L32-L177
+BaselineBssidCount5g=0
+BaselineChannelCount5g=0
+BaselineBssid5g=ABSENT
+BaselineChannel5g=ABSENT
+RequestedBssid5g=11:22:33:44:55:66
+RequestedChannel5g=36
+AfterAddBssidCount5g=1
+AfterAddChannelCount5g=1
+AfterAddBssid5g=11:22:33:44:55:66
+AfterAddChannel5g=36
+AfterDeleteBssidCount5g=0
+AfterDeleteChannelCount5g=0
+AfterDeleteBssid5g=ABSENT
+AfterDeleteChannel5g=ABSENT
+
+20260413T080405422245_DUT.log L178-L323
+BaselineBssidCount6g=0
+BaselineChannelCount6g=0
+BaselineBssid6g=ABSENT
+BaselineChannel6g=ABSENT
+RequestedBssid6g=11:22:33:44:55:77
+RequestedChannel6g=1
+AfterAddBssidCount6g=1
+AfterAddChannelCount6g=1
+AfterAddBssid6g=11:22:33:44:55:77
+AfterAddChannel6g=1
+AfterDeleteBssidCount6g=0
+AfterDeleteChannelCount6g=0
+AfterDeleteBssid6g=ABSENT
+AfterDeleteChannel6g=ABSENT
+
+20260413T080405422245_DUT.log L324-L469
+BaselineBssidCount24g=0
+BaselineChannelCount24g=0
+BaselineBssid24g=ABSENT
+BaselineChannel24g=ABSENT
+RequestedBssid24g=11:22:33:44:55:88
+RequestedChannel24g=11
+AfterAddBssidCount24g=1
+AfterAddChannelCount24g=1
+AfterAddBssid24g=11:22:33:44:55:88
+AfterAddChannel24g=11
+AfterDeleteBssidCount24g=0
+AfterDeleteChannelCount24g=0
+AfterDeleteBssid24g=ABSENT
+AfterDeleteChannel24g=ABSENT
+
+plugins/wifi_llapi/reports/agent_trace/20260413T080405422245/wifi-llapi-D083-neighbour.json L113-L128
+outputs:
+  AfterAddBssid5g=11:22:33:44:55:66
+  AfterAddBssid6g=11:22:33:44:55:77
+  AfterAddBssid24g=11:22:33:44:55:88
+  AfterDeleteBssid5g=ABSENT
+  AfterDeleteBssid6g=ABSENT
+  AfterDeleteBssid24g=ABSENT
+```
+
 ## Checkpoint summary (2026-04-13 early-35)
 
 > This checkpoint records the `D082` MultiAPType workbook row-82 closure after `D080`.

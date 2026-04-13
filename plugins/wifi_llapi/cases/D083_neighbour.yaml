@@ -4,7 +4,7 @@ version: '1.1'
 source:
   report: 0310-BGW720-300_LLAPI_Test_Report.xlsx
   sheet: Wifi_LLAPI
-  row: 77
+  row: 83
   object: WiFi.AccessPoint.{i}.
   api: Neighbour
   baseline: BCM v4.0.3

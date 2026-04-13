@@ -118,6 +118,9 @@
   - workbook row `82` is broader than the stale case shape: workbook `G/H` uses `WiFi.AccessPoint.*.MultiAPType=FronthaulBSS`, so each radio pair (`AP1/AP2`, `AP3/AP4`, `AP5/AP6`) must move together before `/tmp/wlX_hapd.conf` can legitimately converge to two `multi_ap=2` lines
   - the first D082 confirmation rerun `20260413T074153982674` exposed both stale authored gaps directly: only toggling `AP1/AP3/AP5` left each band split as `multi_ap=2/3`, and the driver-map normalizer `sed 's/ */ /g'` exploded `0x3` / `0x1` into character-spaced output
   - refreshing `D082` to workbook row `82`, reconstructing dual-role baseline on all six APs in setup, pairing the setter/restore per radio, replacing driver-map normalization with `tr -s ' ' | xargs`, and extending setup settle removed both false fail sources; official rerun `20260413T075200621380` exact-closes tri-band dual-role baseline `0x3`, fronthaul-only `multi_ap=2/2` + `0x1`, and dual-role restore `0x3`
+  - `D083 Neighbour` is now aligned via official rerun `20260413T080405422245`
+  - this one closes as a metadata-only refresh: authoritative full-run trace `20260412T113008433351` had already exact-closed workbook row `83` as tri-band AP-only add/delete lifecycle `empty -> single entry -> empty`, but the case still carried stale workbook row `77`
+  - refreshing `D083` to workbook row `83` and replaying the official rerun re-proved the same workbook pass path cleanly on AP1 / AP3 / AP5: 5G exact-closes `11:22:33:44:55:66 / 36`, 6G exact-closes `11:22:33:44:55:77 / 1`, 2.4G exact-closes `11:22:33:44:55:88 / 11`, and all three bands return to `ABSENT` after delete
   - `D047` / `D050` were pulled back from a drifted custom `TestPilot_BTM` / `WPA3-Personal` path to the authoritative generic `testpilot5G` / `WPA2-Personal` baseline seen in full run `20260412T113008433351`
   - live STA evidence exact-closed the generic WPA2 link (`SSID: testpilot5G`), and DUT evidence exact-closed the same AssociatedDevice entry against `error=4 / message=parameter not found` plus sibling Rx/Tx capability fields and `wl0 sta_info`
   - committed metadata is now workbook row `47` / `50`, with `results_reference.v4.0.3 = Not Supported / N/A / N/A` for both cases
@@ -165,10 +168,10 @@
     - reconnect trial rerun `20260413T015210910141` removed the immediate 5G join failure but then got trapped in repeated 6G `ocv=0` / `ATTACH` recovery (`6G restart attempt=1 unstable`, `env: retry command after recovery_action=ATTACH`, `6G ocv=0 verify failed — BSS loop may persist`)
     - the local tri-band rewrite was reverted; blocker authority is now `plugins/wifi_llapi/reports/D035_block.md`
   - `D053 txBytes` remains blocked because it still needs deterministic AP-to-STA unicast payload generation before any source-backed YAML rewrite can be justified
-  - next ready actionable open case is now `D083 Neighbour` metadata-drift refresh (`source.row 77 -> workbook row 83`); `D020` remains in the verified fail-shaped bucket, `D035` / `D053` remain blocked, and `D328` / `D336` remain env-only
+  - next ready actionable open case is now `D084 EncryptionMode / AccessPoint.Security`; `D020` remains in the verified fail-shaped bucket, `D035` / `D053` remain blocked, and `D328` / `D336` remain env-only
 - Current authoritative full-run source remains `20260412T113008433351`
 - Latest recomputed overlay compare on top of authoritative full run `20260412T113008433351`
-  plus D024 / D025 / D022 / D072 / D047 / D050 / D088 / D460 / D494 / D461 / D462 / D463 / D465 / D467 / D045 / D046 / D061 / D028 / D065 / D081 / D094 / D095 / D098 / D099 / D114 / D115 / D174 / D176 / D188 / D034 / D059 / D060 / D062 / D063 / D070 / D071 / D079 / D080 / D082 reruns:
+  plus D024 / D025 / D022 / D072 / D047 / D050 / D088 / D460 / D494 / D461 / D462 / D463 / D465 / D467 / D045 / D046 / D061 / D028 / D065 / D081 / D094 / D095 / D098 / D099 / D114 / D115 / D174 / D176 / D188 / D034 / D059 / D060 / D062 / D063 / D070 / D071 / D079 / D080 / D082 / D083 reruns:
   - `272 / 420 full matches`
   - `148 mismatches`
   - `58 metadata drifts`
@@ -177,7 +180,7 @@
   - remaining open set: `none`
   - env-only bucket remains `D328`、`D336`
   - blocked bucket is now `D053` (`needs deterministic AP-to-STA unicast payload`) plus `D035` (`tri-band rewrite blocked by shared 6G OCV / ATTACH recovery loop`)
-- Next ready workbook-Pass / metadata revisit: `D083`
+- Next ready workbook-Pass / metadata revisit: `D084`
 
 ## Latest repo handoff snapshot（2026-04-11）
 
