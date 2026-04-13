@@ -1,5 +1,119 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-13 early-35)
+
+> This checkpoint records the `D082` MultiAPType workbook row-82 closure after `D080`.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D082 MultiAPType` is now aligned via official rerun `20260413T075200621380`
+- the stale case still carried workbook row `76`, only toggled `AP1/AP3/AP5`, and normalized `wl -i wlX map` with a broken `sed 's/ */ /g'` shape that exploded `0x3` / `0x1` into character-spaced output
+- workbook row `82` uses wildcard `WiFi.AccessPoint.*.MultiAPType=FronthaulBSS`, so each radio pair (`AP1/AP2`, `AP3/AP4`, `AP5/AP6`) must move together before `/tmp/wlX_hapd.conf` can legitimately converge to two `multi_ap=2` lines
+- the committed rewrite refreshes metadata back to workbook row `82`, reconstructs the dual-role baseline on all six AccessPoints in setup, switches each band to paired setter/restore, replaces driver-map normalization with `tr -s ' ' | xargs`, and lengthens the setup settle to absorb transient 6G hostapd restart noise
+- official rerun `20260413T075200621380` then exact-closes tri-band `FronthaulBSS,BackhaulBSS -> FronthaulBSS -> FronthaulBSS,BackhaulBSS` together with hostapd `multi_ap=3/3 -> 2/2 -> 3/3` and driver `0x3 -> 0x1 -> 0x3`
+- overlay compare is now `272 / 420 full matches`、`148 mismatches`、`58 metadata drifts`
+- next ready actionable open case is `D083` metadata-drift refresh
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D082` | 82 | `MultiAPType` | `Pass / Pass / Pass` | `20260413T075200621380_DUT.log L135-L604` | `n/a (AP-only)` |
+
+#### D082 MultiAPType
+
+**STA 指令**
+
+```sh
+# AP-only case; no STA transport
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli 'WiFi.AccessPoint.1.MultiAPType="FronthaulBSS,BackhaulBSS"'
+ubus-cli 'WiFi.AccessPoint.2.MultiAPType="FronthaulBSS,BackhaulBSS"'
+ubus-cli "WiFi.AccessPoint.1.MultiAPType?"
+grep -n '^multi_ap=' /tmp/wl0_hapd.conf
+wl -i wl0 map
+ubus-cli WiFi.AccessPoint.1.MultiAPType=FronthaulBSS
+ubus-cli WiFi.AccessPoint.2.MultiAPType=FronthaulBSS
+grep -n '^multi_ap=' /tmp/wl0_hapd.conf
+wl -i wl0 map
+ubus-cli 'WiFi.AccessPoint.1.MultiAPType="FronthaulBSS,BackhaulBSS"'
+ubus-cli 'WiFi.AccessPoint.2.MultiAPType="FronthaulBSS,BackhaulBSS"'
+
+ubus-cli 'WiFi.AccessPoint.3.MultiAPType="FronthaulBSS,BackhaulBSS"'
+ubus-cli 'WiFi.AccessPoint.4.MultiAPType="FronthaulBSS,BackhaulBSS"'
+ubus-cli "WiFi.AccessPoint.3.MultiAPType?"
+grep -n '^multi_ap=' /tmp/wl1_hapd.conf
+wl -i wl1 map
+ubus-cli WiFi.AccessPoint.3.MultiAPType=FronthaulBSS
+ubus-cli WiFi.AccessPoint.4.MultiAPType=FronthaulBSS
+grep -n '^multi_ap=' /tmp/wl1_hapd.conf
+wl -i wl1 map
+ubus-cli 'WiFi.AccessPoint.3.MultiAPType="FronthaulBSS,BackhaulBSS"'
+ubus-cli 'WiFi.AccessPoint.4.MultiAPType="FronthaulBSS,BackhaulBSS"'
+
+ubus-cli 'WiFi.AccessPoint.5.MultiAPType="FronthaulBSS,BackhaulBSS"'
+ubus-cli 'WiFi.AccessPoint.6.MultiAPType="FronthaulBSS,BackhaulBSS"'
+ubus-cli "WiFi.AccessPoint.5.MultiAPType?"
+grep -n '^multi_ap=' /tmp/wl2_hapd.conf
+wl -i wl2 map
+ubus-cli WiFi.AccessPoint.5.MultiAPType=FronthaulBSS
+ubus-cli WiFi.AccessPoint.6.MultiAPType=FronthaulBSS
+grep -n '^multi_ap=' /tmp/wl2_hapd.conf
+wl -i wl2 map
+ubus-cli 'WiFi.AccessPoint.5.MultiAPType="FronthaulBSS,BackhaulBSS"'
+ubus-cli 'WiFi.AccessPoint.6.MultiAPType="FronthaulBSS,BackhaulBSS"'
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+20260413T075200621380_DUT.log L135-L264
+BaselineGetterMultiAp5g=FronthaulBSS,BackhaulBSS
+BaselineDriverMap5g=0x3: Fronthaul-BSS Backhaul-BSS
+AfterSetGetterMultiAp5g=FronthaulBSS
+AfterSetHostapdFronthaulCount5g=2
+AfterSetHostapdBothCount5g=0
+AfterSetDriverMap5g=0x1: Fronthaul-BSS
+AfterRestoreGetterMultiAp5g=FronthaulBSS,BackhaulBSS
+AfterRestoreDriverMap5g=0x3: Fronthaul-BSS Backhaul-BSS
+
+20260413T075200621380_DUT.log L305-L434
+BaselineGetterMultiAp6g=FronthaulBSS,BackhaulBSS
+BaselineDriverMap6g=0x3: Fronthaul-BSS Backhaul-BSS
+AfterSetGetterMultiAp6g=FronthaulBSS
+AfterSetHostapdFronthaulCount6g=2
+AfterSetHostapdBothCount6g=0
+AfterSetDriverMap6g=0x1: Fronthaul-BSS
+AfterRestoreGetterMultiAp6g=FronthaulBSS,BackhaulBSS
+AfterRestoreDriverMap6g=0x3: Fronthaul-BSS Backhaul-BSS
+
+20260413T075200621380_DUT.log L475-L604
+BaselineGetterMultiAp24g=FronthaulBSS,BackhaulBSS
+BaselineDriverMap24g=0x3: Fronthaul-BSS Backhaul-BSS
+AfterSetGetterMultiAp24g=FronthaulBSS
+AfterSetHostapdFronthaulCount24g=2
+AfterSetHostapdBothCount24g=0
+AfterSetDriverMap24g=0x1: Fronthaul-BSS
+AfterRestoreGetterMultiAp24g=FronthaulBSS,BackhaulBSS
+AfterRestoreDriverMap24g=0x3: Fronthaul-BSS Backhaul-BSS
+
+plugins/wifi_llapi/reports/agent_trace/20260413T075200621380/wifi-llapi-D082-multiaptype.json L113-L128
+outputs:
+  AfterSetHostapdFronthaulCount5g=2
+  AfterSetDriverMap5g=0x1: Fronthaul-BSS
+  AfterSetHostapdFronthaulCount6g=2
+  AfterSetDriverMap6g=0x1: Fronthaul-BSS
+  AfterSetHostapdFronthaulCount24g=2
+  AfterSetDriverMap24g=0x1: Fronthaul-BSS
+```
+
 ## Checkpoint summary (2026-04-13 early-34)
 
 > This checkpoint records the `D080` MaxAssociatedDevices workbook row-80 closure after `D079`.
