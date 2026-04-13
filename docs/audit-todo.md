@@ -86,6 +86,10 @@
   - `_env_command_succeeded()` no longer treats valid getter payload `error=4 / message=parameter not found` as a shell failure, while direct `AssociatedDevice.*.MACAddress?` probes still require a concrete MAC
   - `hostapd_cli` is now treated as an executable token, so hostapd-based shell steps no longer silently fall back to `verification_command`
 - Latest aligned cases:
+  - `D042 RxUnicastPacketCount` is now aligned via official rerun `20260413T145000666925`
+  - workbook authority is row `42`, not stale row `44`; workbook v4.0.3 remains `Not Supported / Not Supported / Not Supported`
+  - rerun exact-closes the supported-band same-station counter divergence on the current lab baseline: DUT `MACAddress="2C:59:17:00:04:85"`, `RxUnicastPacketCount=0`, driver `DriverRxUnicastPacketCount=8`, and STA still linked to `TestPilot_BTM`
+  - the landed case now projects workbook-consistent `Not Supported / Not Supported / Not Supported`, final full repo regression remains `1660 passed`, overlay compare is `295 / 420 full matches` / `125 mismatches` / `58 metadata drifts`, `D020` remains the verified fail-shaped mismatch, and the next ready actionable compare-open case is `D047 SupportedHe160MCS`
   - `D035 OperatingStandard` is now aligned via official rerun `20260413T144105373183`
   - workbook authority is row `35`, not stale row `37` (`EncryptionMode`); current 0403 source still exposes the read-only AccessPoint AssociatedDevice `OperatingStandard` getter
   - rerun exact-closes the associated STA path on the current lab baseline: DUT `assoclist 2C:59:17:00:04:85` and `OperatingStandard="ax"` with STA still linked to `testpilot5G`

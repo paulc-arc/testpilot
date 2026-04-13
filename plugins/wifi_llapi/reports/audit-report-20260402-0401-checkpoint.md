@@ -1,5 +1,60 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-13 early-60)
+
+> This checkpoint records the `D042 RxUnicastPacketCount` workbook-authoritative not-supported closure after the `D035` pass closure.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D042 RxUnicastPacketCount` is now aligned via official rerun `20260413T145000666925`
+- workbook authority is row `42`, not stale row `44`; workbook v4.0.3 remains `Not Supported / Not Supported / Not Supported`
+- the rerun exact-closes the supported-band same-station counter divergence on the current lab baseline: DUT `MACAddress="2C:59:17:00:04:85"` + `RxUnicastPacketCount=0`, driver `DriverRxUnicastPacketCount=8`, and STA still linked to `TestPilot_BTM`
+- this is an authoritative not-supported closure: rerun `evaluation_verdict=Pass`, final raw `Not Supported / Not Supported / Not Supported`, and compare now exact-matches workbook row `42`
+- overlay compare is now `295 / 420 full matches`、`125 mismatches`、`58 metadata drifts`
+- targeted counter-stub guardrails are `2 passed`, and final full repo regression remains `1660 passed`
+- `D020` remains the verified fail-shaped mismatch, and the next ready actionable compare-open case is `D047 SupportedHe160MCS`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D042` | 42 | `RxUnicastPacketCount` | `Not Supported / Not Supported / Not Supported` | `20260413T145000666925_DUT.log L373-L399` | `20260413T145000666925_STA.log L64-L68` |
+
+#### D042 RxUnicastPacketCount
+
+**STA 指令**
+
+```sh
+iw dev wl0 link
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?"
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.RxUnicastPacketCount?"
+STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p')
+echo "DriverAssocMac=$STA_MAC"
+wl -i wl0 sta_info "$STA_MAC" | sed -n 's/.*rx ucast pkts: *\([0-9][0-9]*\).*/DriverRxUnicastPacketCount=\1/p'
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+STA (20260413T145000666925_STA.log L64-L68)
+Connected to 2c:59:17:00:19:95 (on wl0)
+SSID: TestPilot_BTM
+
+DUT (20260413T145000666925_DUT.log L373-L399)
+WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress="2C:59:17:00:04:85"
+WiFi.AccessPoint.1.AssociatedDevice.1.RxUnicastPacketCount=0
+DriverAssocMac=2C:59:17:00:04:85
+DriverRxUnicastPacketCount=8
+```
+
 ## Checkpoint summary (2026-04-13 early-59)
 
 > This checkpoint records the `D035 OperatingStandard` workbook-authoritative pass closure after the `D033` not-supported closure.

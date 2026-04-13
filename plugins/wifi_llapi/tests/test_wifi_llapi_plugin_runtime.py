@@ -5052,7 +5052,7 @@ def test_pending_counter_stub_associateddevice_cases_use_supported_contracts():
         },
         "D042_rxunicastpacketcount.yaml": {
             "id": "wifi-llapi-D042-rxunicastpacketcount",
-            "row": 44,
+            "row": 42,
             "api": "RxUnicastPacketCount",
             "driver_token": "DriverRxUnicastPacketCount=",
             "driver_field": "driver_counter.DriverRxUnicastPacketCount",
@@ -5096,7 +5096,7 @@ def test_pending_counter_stub_associateddevice_cases_use_supported_contracts():
         _cstub_rr = {
             "D037_retransmissions.yaml": ("Pass", "Pass", "Pass"),
             "D038_rx_retransmissions.yaml": ("Fail", "N/A", "N/A"),
-            "D042_rxunicastpacketcount.yaml": ("Pass", "Pass", "Pass"),
+            "D042_rxunicastpacketcount.yaml": ("Not Supported", "Not Supported", "Not Supported"),
         }
         exp5, exp6, exp24 = _cstub_rr[filename]
         assert case_data["results_reference"]["v4.0.3"]["5g"] == exp5
