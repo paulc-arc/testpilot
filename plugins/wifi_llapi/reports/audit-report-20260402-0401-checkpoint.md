@@ -1,5 +1,70 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-13 early-53)
+
+> This checkpoint records the `D057 TxUnicastPacketCount` workbook-authoritative fail-shaped closure after the `D111-D113` metadata-drift cleanup.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D057 TxUnicastPacketCount` is now aligned via official rerun `20260413T130448459477`
+- workbook authority is row `57`, not stale row `59` (`UplinkBandwidth`); workbook row `57` itself remains fail-shaped
+- the old custom `TestPilot_BTM` / `WPA3-Personal` / `SAE` clean-start replay was revalidated and rejected because COM0 still hit `wpaie set error (-7)` with `wpa_state=DISCONNECTED`, so the landed case now uses the validated generic `testpilot5G` / `WPA2-Personal` baseline
+- current 0403 rerun exact-closes same-STA evidence: `StaMac=AssocMAC=DriverAssocMac=2C:59:17:00:04:85`, `AssocTxPacketCount=DriverTxPacketCount=7`, `TxUnicastPacketCount=AssocTxUnicastPacketCount=0`, and `DriverTxUnicastPacketCount=7`
+- this is an authoritative fail-shaped closure: rerun `evaluation_verdict=Pass`, final raw `Fail / Fail / Fail`, and compare now exact-matches workbook row `57`
+- overlay compare is now `288 / 420 full matches`、`132 mismatches`、`58 metadata drifts`
+- targeted D057 runtime tests remain `5 passed`, and final full repo regression is now `1657 passed`
+- next ready actionable compare-open case is `D014 ChargeableUserId`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D057` | 57 | `TxUnicastPacketCount` | `Fail / Fail / Fail` | `20260413T130448459477_DUT.log L62-L131` | `20260413T130448459477_STA.log L64-L104` |
+
+#### D057 TxUnicastPacketCount
+
+**STA 指令**
+
+```sh
+wpa_cli -p /var/run/wpa_supplicant -i wl0 enable_network 0
+wpa_cli -p /var/run/wpa_supplicant -i wl0 select_network 0
+iw dev wl0 link
+cat /sys/class/net/wl0/address | tr 'A-F' 'a-f' | sed 's/^/StaMac=/'
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p' | tr 'A-F' 'a-f' | sed 's/^/MACAddress=/'
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.TxUnicastPacketCount?"
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.?" | awk -F= '/^WiFi\.AccessPoint\.1\.AssociatedDevice\.1\.MACAddress=/ {gsub(/"/, "", $2); print "AssocMAC=" tolower($2)} /^WiFi\.AccessPoint\.1\.AssociatedDevice\.1\.TxUnicastPacketCount=/ {print "AssocTxUnicastPacketCount=" $2} /^WiFi\.AccessPoint\.1\.AssociatedDevice\.1\.TxPacketCount=/ {print "AssocTxPacketCount=" $2}'
+STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p' | tr 'A-F' 'a-f'); [ -n "$STA_MAC" ] && echo DriverAssocMac=$STA_MAC && wl -i wl0 sta_info $STA_MAC | sed -n 's/^[[:space:]]*tx total pkts: \([0-9][0-9]*\).*/DriverTxPacketCount=\1/p; s/^[[:space:]]*tx ucast pkts: \([0-9][0-9]*\).*/DriverTxUnicastPacketCount=\1/p; s/^[[:space:]]*tx total bytes: \([0-9][0-9]*\).*/DriverTxBytes=\1/p; s/^[[:space:]]*tx ucast bytes: \([0-9][0-9]*\).*/DriverTxUnicastBytes=\1/p'
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+STA (20260413T130448459477_STA.log L64-L104)
+OK
+OK
+Connected to 2c:59:17:00:19:95 (on wl0)
+SSID: testpilot5G
+StaMac=2c:59:17:00:04:85
+
+DUT (20260413T130448459477_DUT.log L62-L131)
+MACAddress=2c:59:17:00:04:85
+WiFi.AccessPoint.1.AssociatedDevice.1.TxUnicastPacketCount=0
+AssocMAC=2c:59:17:00:04:85
+AssocTxPacketCount=7
+AssocTxUnicastPacketCount=0
+DriverAssocMac=2c:59:17:00:04:85
+DriverTxPacketCount=7
+DriverTxUnicastPacketCount=7
+```
+
 ## Checkpoint summary (2026-04-13 early-52)
 
 > This checkpoint records the `D111-D113` getStationStats() metadata-drift trio cleanup after `D110`.
