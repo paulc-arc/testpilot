@@ -13029,11 +13029,19 @@ def test_d104_wps_enable_contract():
     """D104 YAML loads, discovers, and has correct metadata."""
     cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
     case = load_case(cases_dir / "D104_enable_accesspoint_wps.yaml")
-    assert case["source"]["row"] == 106
+    assert case["source"]["row"] == 104
     assert case["llapi_support"] == "Support"
     assert len(case["steps"]) == 3
-    assert len(case["pass_criteria"]) == 11
+    assert len(case["pass_criteria"]) == 12
     assert case["results_reference"]["v4.0.3"]["6g"] == "Not Supported"
+    assert case["results_reference"]["v4.0.3"]["5g"] == "Pass"
+    assert case["results_reference"]["v4.0.3"]["2.4g"] == "Pass"
+    step_24g = "\n".join(case["steps"][2]["command"])
+    assert 'WiFi.AccessPoint.5.WPS.Enable=1' in step_24g
+    assert any(
+        criterion["field"] == "wps_24g.AfterSet24g" and criterion["value"] == "1"
+        for criterion in case["pass_criteria"]
+    )
 
 
 def test_d104_wps_enable_setup_env(monkeypatch):
@@ -13062,12 +13070,12 @@ def test_d104_wps_enable_evaluate():
             },
             "step_6g_setter": {
                 "success": True,
-                "output": "Baseline6g=0\nWpsState6gBaseline=0\nAfterSet6g=1\nWpsState6gAfter=0",
+                "output": "Baseline6g=0\nWpsState6gBaseline=0\nAfterSet6g=1\nWpsState6gAfter=0\nRestore6g=0\nWpsState6gRestore=0",
                 "timing": 0.01,
             },
             "step_24g_setter": {
                 "success": True,
-                "output": "Baseline24g=1\nWpsState24gBaseline=2\nAfterSet24g=0\nWpsState24gAfter=0\nRestore24g=1\nWpsState24gRestore=2",
+                "output": "Baseline24g=0\nWpsState24gBaseline=0\nAfterSet24g=1\nWpsState24gAfter=2\nRestore24g=0\nWpsState24gRestore=0",
                 "timing": 0.01,
             },
         }

@@ -1,5 +1,101 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-13 early-46)
+
+> This checkpoint records the `D104` Enable workbook row-104 closure after `D101`.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D104 Enable / AccessPoint.WPS` is now aligned via official rerun `20260413T105418577078`
+- workbook row `104` is a setter/readback + hostapd `wps_state` projection case; the stale authored case had drifted into baseline-gated fail semantics even though current 0403 source still keeps `WPS.Enable` persistent, `WPS.Configured=true`, and button-triggered WPS actions gated on `[WPS.Enable==1]`
+- the calibrated closure now normalizes each band to `Enable=0` before replay, then exact-closes deterministic `0 -> 1 -> 0`: AP1 / AP5 project `wps_state=2`, while AP3 / 6G under WPA3 / SAE keeps `wps_state=0`
+- official rerun attempt 1 hit a transient `step_6g_setter` serialwrap timeout; attempt 2 exact-closed `Pass / Not Supported / Pass`
+- targeted D104 tests remain `3 passed`, and final full repo regression remains `1657 passed`
+- overlay compare is now `282 / 420 full matches`、`138 mismatches`、`58 metadata drifts`
+- next ready actionable open case is `D105 PairingInProgress / AccessPoint.WPS`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D104` | 104 | `Enable` | `Pass / Not Supported / Pass` | `20260413T105418577078_DUT.log L131-L288` | `n/a (AP-only)` |
+
+#### D104 Enable / AccessPoint.WPS
+
+**STA 指令**
+
+```sh
+# AP-only case; no STA transport
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.WPS.Enable=0" 2>/dev/null
+sleep 3
+echo "Baseline5g=$(ubus-cli 'WiFi.AccessPoint.1.WPS.Enable?' 2>/dev/null | grep -o 'Enable=[0-9]*' | cut -d= -f2)"
+echo "WpsState5gBaseline=$(grep 'wps_state=' /tmp/wl0_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+ubus-cli "WiFi.AccessPoint.1.WPS.Enable=1" 2>/dev/null
+sleep 3
+echo "AfterSet5g=$(ubus-cli 'WiFi.AccessPoint.1.WPS.Enable?' 2>/dev/null | grep -o 'Enable=[0-9]*' | cut -d= -f2)"
+echo "WpsState5gAfter=$(grep 'wps_state=' /tmp/wl0_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+ubus-cli "WiFi.AccessPoint.1.WPS.Enable=0" 2>/dev/null
+sleep 3
+echo "Restore5g=$(ubus-cli 'WiFi.AccessPoint.1.WPS.Enable?' 2>/dev/null | grep -o 'Enable=[0-9]*' | cut -d= -f2)"
+
+ubus-cli "WiFi.AccessPoint.3.WPS.Enable=0" 2>/dev/null
+sleep 3
+echo "Baseline6g=$(ubus-cli 'WiFi.AccessPoint.3.WPS.Enable?' 2>/dev/null | grep -o 'Enable=[0-9]*' | cut -d= -f2)"
+echo "WpsState6gBaseline=$(grep 'wps_state=' /tmp/wl1_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+ubus-cli "WiFi.AccessPoint.3.WPS.Enable=1" 2>/dev/null
+sleep 3
+echo "AfterSet6g=$(ubus-cli 'WiFi.AccessPoint.3.WPS.Enable?' 2>/dev/null | grep -o 'Enable=[0-9]*' | cut -d= -f2)"
+echo "WpsState6gAfter=$(grep 'wps_state=' /tmp/wl1_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+ubus-cli "WiFi.AccessPoint.3.WPS.Enable=0" 2>/dev/null
+sleep 3
+echo "Restore6g=$(ubus-cli 'WiFi.AccessPoint.3.WPS.Enable?' 2>/dev/null | grep -o 'Enable=[0-9]*' | cut -d= -f2)"
+
+ubus-cli "WiFi.AccessPoint.5.WPS.Enable=0" 2>/dev/null
+sleep 3
+echo "Baseline24g=$(ubus-cli 'WiFi.AccessPoint.5.WPS.Enable?' 2>/dev/null | grep -o 'Enable=[0-9]*' | cut -d= -f2)"
+echo "WpsState24gBaseline=$(grep 'wps_state=' /tmp/wl2_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+ubus-cli "WiFi.AccessPoint.5.WPS.Enable=1" 2>/dev/null
+sleep 3
+echo "AfterSet24g=$(ubus-cli 'WiFi.AccessPoint.5.WPS.Enable?' 2>/dev/null | grep -o 'Enable=[0-9]*' | cut -d= -f2)"
+echo "WpsState24gAfter=$(grep 'wps_state=' /tmp/wl2_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+ubus-cli "WiFi.AccessPoint.5.WPS.Enable=0" 2>/dev/null
+sleep 3
+echo "Restore24g=$(ubus-cli 'WiFi.AccessPoint.5.WPS.Enable?' 2>/dev/null | grep -o 'Enable=[0-9]*' | cut -d= -f2)"
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+20260413T105418577078_DUT.log L131-L174
+Baseline5g=0
+WpsState5gAfter=2
+Restore5g=0
+
+20260413T105418577078_DUT.log L188-L230
+Baseline6g=0
+WpsState6gAfter=0
+Restore6g=0
+
+20260413T105418577078_DUT.log L245-L288
+Baseline24g=0
+WpsState24gAfter=2
+Restore24g=0
+
+plugins/wifi_llapi/reports/agent_trace/20260413T105418577078/wifi-llapi-D104-enable-accesspoint-wps.json L137-L157
+final:
+  status=Pass
+  evaluation_verdict=Pass
+  attempts_used=2
+```
+
 ## Checkpoint summary (2026-04-13 early-45)
 
 > This checkpoint records the `D101` ConfigMethodsEnabled workbook row-101 closure after `D096`.
