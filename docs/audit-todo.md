@@ -190,19 +190,22 @@
   - `D093 SSIDAdvertisementEnabled` is now aligned via official rerun `20260413T094515864676`
   - workbook row `93` is the advertised-state case: active 0403 source still maps `SSIDAdvertisementEnabled` through bool-reverse `wlHide`, so the authoritative pass path is tri-band `set 1 -> getter 1 -> hostapd ignore_broadcast_ssid 0`
   - the stale authored case had inverted that into a hidden-state `set 0 -> expect 2` story, while the old full-run mismatch still reflected the historical setter-to-getter substitution bug; the isolated rerun exact-closed AP1 / AP3 / AP5 on the restored row-93 semantics in one attempt
-  - next ready actionable open case is now `D096 UAPSDEnable`; `D020` remains in the verified fail-shaped bucket, `D035` / `D053` remain blocked, and `D328` / `D336` remain env-only
+  - `D096 UAPSDEnable` is now aligned via official rerun `20260413T095836613095`
+  - workbook row `96` is a `Not Supported / Not Supported / Not Supported` row, even though active 0403 source still exposes a real tri-band setter path (`UAPSDEnable` persistent bool + Broadcom `wl wme_apsd` apply hook)
+  - the stale authored case had drifted to old row `98` (`WDSEnable`); refreshing it back to row `96` and aligning `results_reference` back to workbook authority closes the mismatch while preserving the live `0 -> 1 -> 0` round-trip evidence
+  - next ready actionable open case is now `D101 ConfigMethodsEnabled`; `D020` remains in the verified fail-shaped bucket, `D035` / `D053` remain blocked, and `D328` / `D336` remain env-only
 - Current authoritative full-run source remains `20260412T113008433351`
 - Latest recomputed overlay compare on top of authoritative full run `20260412T113008433351`
-  plus D024 / D025 / D022 / D072 / D047 / D050 / D088 / D460 / D494 / D461 / D462 / D463 / D465 / D467 / D045 / D046 / D061 / D028 / D065 / D081 / D094 / D095 / D098 / D099 / D114 / D115 / D174 / D176 / D188 / D034 / D059 / D060 / D062 / D063 / D070 / D071 / D079 / D080 / D082 / D083 / D084 / D085 / D086 / D087 / D090 / D092 / D093 reruns:
-  - `279 / 420 full matches`
-  - `141 mismatches`
+  plus D024 / D025 / D022 / D072 / D047 / D050 / D088 / D460 / D494 / D461 / D462 / D463 / D465 / D467 / D045 / D046 / D061 / D028 / D065 / D081 / D094 / D095 / D098 / D099 / D114 / D115 / D174 / D176 / D188 / D034 / D059 / D060 / D062 / D063 / D070 / D071 / D079 / D080 / D082 / D083 / D084 / D085 / D086 / D087 / D090 / D092 / D093 / D096 reruns:
+  - `280 / 420 full matches`
+  - `140 mismatches`
   - `58 metadata drifts`
 - Current focused step-command-failed workstream status:
   - closed in this loop: `D072`、`D047`、`D050`、`D088`、`D460`、`D494`、`D079`
   - remaining open set: `none`
   - env-only bucket remains `D328`、`D336`
   - blocked bucket is now `D053` (`needs deterministic AP-to-STA unicast payload`) plus `D035` (`tri-band rewrite blocked by shared 6G OCV / ATTACH recovery loop`)
-- Next ready workbook-Pass / metadata revisit: `D096`
+- Next ready workbook-Pass / metadata revisit: `D101`
 
 ## Latest repo handoff snapshot（2026-04-11）
 

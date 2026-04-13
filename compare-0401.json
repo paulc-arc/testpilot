@@ -48,7 +48,8 @@
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T085025879532",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T090437438519",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T092400687838",
-    "plugins/wifi_llapi/reports/agent_trace/20260413T094515864676"
+    "plugins/wifi_llapi/reports/agent_trace/20260413T094515864676",
+    "plugins/wifi_llapi/reports/agent_trace/20260413T095836613095"
   ],
   "answers_xlsx": "0401.xlsx",
   "cases_dir": "plugins/wifi_llapi/cases",
@@ -56,20 +57,20 @@
   "missing_answer_count": 0,
   "missing_answer_rows": [],
   "metadata_drift_count": 58,
-  "full_match_count": 279,
-  "mismatch_case_count": 141,
+  "full_match_count": 280,
+  "mismatch_case_count": 140,
   "band_summary": {
     "5g": {
-      "matched": 285,
-      "mismatched": 135
-    },
-    "6g": {
       "matched": 286,
       "mismatched": 134
     },
+    "6g": {
+      "matched": 287,
+      "mismatched": 133
+    },
     "2.4g": {
-      "matched": 284,
-      "mismatched": 136
+      "matched": 285,
+      "mismatched": 135
     }
   },
   "cases": [
@@ -3906,7 +3907,7 @@
       "case_id": "wifi-llapi-D096-uapsdenable",
       "case_file": "D096_uapsdenable.yaml",
       "dnum": 96,
-      "source_row": 98,
+      "source_row": 96,
       "source_object": "WiFi.AccessPoint.{i}.",
       "source_api": "UAPSDEnable",
       "answer_row": 96,
@@ -3921,33 +3922,29 @@
       "comment": "",
       "bands": {
         "5g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
+          "actual_raw": "Not Supported",
+          "actual_norm": "Fail",
           "expected_raw": "Not Supported",
           "expected_norm": "Fail"
         },
         "6g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
+          "actual_raw": "Not Supported",
+          "actual_norm": "Fail",
           "expected_raw": "Not Supported",
           "expected_norm": "Fail"
         },
         "2.4g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
+          "actual_raw": "Not Supported",
+          "actual_norm": "Fail",
           "expected_raw": "Not Supported",
           "expected_norm": "Fail"
         }
       },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
+      "mismatch_bands": [],
+      "matches_answer": true,
       "workbook_test_steps_excerpt": "\\\\Enable/Disable UPSD ubus-cli WiFi.AccessPoint.{i}.UAPSDEnable= 1=Enbale 0=Disable",
       "workbook_command_output_excerpt": "cat /tmp/wl0_hapd.conf |grep apsd",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D096-uapsdenable.json"
+      "trace_path": "plugins/wifi_llapi/reports/agent_trace/20260413T095836613095/wifi-llapi-D096-uapsdenable.json"
     },
     {
       "case_id": "wifi-llapi-D097-vendorie",
@@ -19241,53 +19238,6 @@
       "workbook_test_steps_excerpt": "##Connect WiFi Station and send traffic then check TxUnicastPacketCount WiFi.AccessPoint.1.AssociatedDevice.1.TxUnicastPacketCount=0 WiFi.AccessPoint.3.AssociatedDevice.1.TxUnicastPacketCount=0 WiFi.AccessPoint.5.AssociatedDevice.1.TxUni...",
       "workbook_command_output_excerpt": "wl -i wl0 sta_info ${STA_MAC} TxUnicastPacketCount tx ucast pkts 90",
       "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D057-txunicastpacketcount.json"
-    },
-    {
-      "case_id": "wifi-llapi-D096-uapsdenable",
-      "case_file": "D096_uapsdenable.yaml",
-      "dnum": 96,
-      "source_row": 98,
-      "source_object": "WiFi.AccessPoint.{i}.",
-      "source_api": "UAPSDEnable",
-      "answer_row": 96,
-      "answer_object": "WiFi.AccessPoint.{i}.",
-      "answer_api": "UAPSDEnable",
-      "mapping_status": "exact",
-      "mapping_object_match": true,
-      "mapping_api_match": true,
-      "final_status": "Pass",
-      "evaluation_verdict": "Pass",
-      "attempts_used": 1,
-      "comment": "",
-      "bands": {
-        "5g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
-          "expected_raw": "Not Supported",
-          "expected_norm": "Fail"
-        },
-        "6g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
-          "expected_raw": "Not Supported",
-          "expected_norm": "Fail"
-        },
-        "2.4g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
-          "expected_raw": "Not Supported",
-          "expected_norm": "Fail"
-        }
-      },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
-      "workbook_test_steps_excerpt": "\\\\Enable/Disable UPSD ubus-cli WiFi.AccessPoint.{i}.UAPSDEnable= 1=Enbale 0=Disable",
-      "workbook_command_output_excerpt": "cat /tmp/wl0_hapd.conf |grep apsd",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D096-uapsdenable.json"
     },
     {
       "case_id": "wifi-llapi-D101-configmethodsenabled",

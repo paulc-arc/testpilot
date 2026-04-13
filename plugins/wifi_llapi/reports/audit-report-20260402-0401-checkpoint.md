@@ -1,5 +1,105 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-13 early-44)
+
+> This checkpoint records the `D096` UAPSDEnable workbook row-96 closure after `D093`.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D096 UAPSDEnable` is now aligned via official rerun `20260413T095836613095`
+- workbook row `96` is a `Not Supported / Not Supported / Not Supported` row; the stale authored case had drifted to old workbook row `98`, which is actually `WDSEnable`
+- active 0403 source still exposes a real setter path: `wld_accesspoint.odl` keeps `UAPSDEnable` as a persistent bool with default `false`, and `whm_brcm_ap_mod_uapsd()` still writes it into `wl wme_apsd`
+- the calibrated closure therefore preserves the live tri-band `0 -> 1 -> 0` round-trip evidence with hostapd `uapsd_advertisement_enabled` plus driver `wme_apsd`, but aligns `results_reference.v4.0.3` back to workbook row-96 authority
+- targeted D096 tests remain `3 passed`, and full repo regression remains `1656 passed`
+- overlay compare is now `280 / 420 full matches`、`140 mismatches`、`58 metadata drifts`
+- next ready actionable open case is `D101 ConfigMethodsEnabled`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D096` | 96 | `UAPSDEnable` | `Not Supported / Not Supported / Not Supported` | `20260413T095836613095_DUT.log L5-L152` | `n/a (AP-only)` |
+
+#### D096 UAPSDEnable
+
+**STA 指令**
+
+```sh
+# AP-only case; no STA transport
+```
+
+**DUT 指令**
+
+```sh
+echo "Baseline5g=$(ubus-cli 'WiFi.AccessPoint.1.UAPSDEnable?' 2>/dev/null | grep -o 'UAPSDEnable=[0-9]*' | cut -d= -f2)"
+ubus-cli WiFi.AccessPoint.1.UAPSDEnable=1
+echo "AfterSet5g=$(ubus-cli 'WiFi.AccessPoint.1.UAPSDEnable?' 2>/dev/null | grep -o 'UAPSDEnable=[0-9]*' | cut -d= -f2)"
+echo "HapdAfterSet5g=$(grep 'uapsd_advertisement_enabled=' /tmp/wl0_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+echo "DriverAfterSet5g=$(wl -i wl0 wme_apsd 2>/dev/null)"
+ubus-cli WiFi.AccessPoint.1.UAPSDEnable=0
+echo "AfterRestore5g=$(ubus-cli 'WiFi.AccessPoint.1.UAPSDEnable?' 2>/dev/null | grep -o 'UAPSDEnable=[0-9]*' | cut -d= -f2)"
+echo "HapdAfterRestore5g=$(grep 'uapsd_advertisement_enabled=' /tmp/wl0_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+
+echo "Baseline6g=$(ubus-cli 'WiFi.AccessPoint.3.UAPSDEnable?' 2>/dev/null | grep -o 'UAPSDEnable=[0-9]*' | cut -d= -f2)"
+ubus-cli WiFi.AccessPoint.3.UAPSDEnable=1
+echo "AfterSet6g=$(ubus-cli 'WiFi.AccessPoint.3.UAPSDEnable?' 2>/dev/null | grep -o 'UAPSDEnable=[0-9]*' | cut -d= -f2)"
+echo "HapdAfterSet6g=$(grep 'uapsd_advertisement_enabled=' /tmp/wl1_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+echo "DriverAfterSet6g=$(wl -i wl1 wme_apsd 2>/dev/null)"
+ubus-cli WiFi.AccessPoint.3.UAPSDEnable=0
+echo "AfterRestore6g=$(ubus-cli 'WiFi.AccessPoint.3.UAPSDEnable?' 2>/dev/null | grep -o 'UAPSDEnable=[0-9]*' | cut -d= -f2)"
+echo "HapdAfterRestore6g=$(grep 'uapsd_advertisement_enabled=' /tmp/wl1_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+
+echo "Baseline24g=$(ubus-cli 'WiFi.AccessPoint.5.UAPSDEnable?' 2>/dev/null | grep -o 'UAPSDEnable=[0-9]*' | cut -d= -f2)"
+ubus-cli WiFi.AccessPoint.5.UAPSDEnable=1
+echo "AfterSet24g=$(ubus-cli 'WiFi.AccessPoint.5.UAPSDEnable?' 2>/dev/null | grep -o 'UAPSDEnable=[0-9]*' | cut -d= -f2)"
+echo "HapdAfterSet24g=$(grep 'uapsd_advertisement_enabled=' /tmp/wl2_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+echo "DriverAfterSet24g=$(wl -i wl2 wme_apsd 2>/dev/null)"
+ubus-cli WiFi.AccessPoint.5.UAPSDEnable=0
+echo "AfterRestore24g=$(ubus-cli 'WiFi.AccessPoint.5.UAPSDEnable?' 2>/dev/null | grep -o 'UAPSDEnable=[0-9]*' | cut -d= -f2)"
+echo "HapdAfterRestore24g=$(grep 'uapsd_advertisement_enabled=' /tmp/wl2_hapd.conf 2>/dev/null | head -1 | cut -d= -f2)"
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+20260413T095836613095_DUT.log L5-L50
+Baseline5g=0
+AfterSet5g=1
+HapdAfterSet5g=1
+DriverAfterSet5g=1
+AfterRestore5g=0
+HapdAfterRestore5g=0
+
+20260413T095836613095_DUT.log L51-L96
+Baseline6g=0
+AfterSet6g=1
+HapdAfterSet6g=1
+DriverAfterSet6g=1
+AfterRestore6g=0
+HapdAfterRestore6g=0
+
+20260413T095836613095_DUT.log L97-L152
+Baseline24g=0
+AfterSet24g=1
+HapdAfterSet24g=1
+DriverAfterSet24g=1
+AfterRestore24g=0
+HapdAfterRestore24g=0
+
+plugins/wifi_llapi/reports/agent_trace/20260413T095836613095/wifi-llapi-D096-uapsdenable.json L93-L120
+commands:
+  WiFi.AccessPoint.1.UAPSDEnable=1 -> 0
+  WiFi.AccessPoint.3.UAPSDEnable=1 -> 0
+  WiFi.AccessPoint.5.UAPSDEnable=1 -> 0
+outputs:
+  Baseline5g=0 / AfterSet5g=1 / HapdAfterSet5g=1 / DriverAfterSet5g=1 / AfterRestore5g=0 / HapdAfterRestore5g=0
+  Baseline6g=0 / AfterSet6g=1 / HapdAfterSet6g=1 / DriverAfterSet6g=1 / AfterRestore6g=0 / HapdAfterRestore6g=0
+  Baseline24g=0 / AfterSet24g=1 / HapdAfterSet24g=1 / DriverAfterSet24g=1 / AfterRestore24g=0 / HapdAfterRestore24g=0
+```
+
 ## Checkpoint summary (2026-04-13 early-43)
 
 > This checkpoint records the `D093` SSIDAdvertisementEnabled workbook row-93 closure after `D092`.

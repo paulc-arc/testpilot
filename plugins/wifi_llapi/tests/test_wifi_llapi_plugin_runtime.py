@@ -12529,21 +12529,21 @@ def test_d095_uapsdcapability_evaluate_live_examples():
     assert plugin.evaluate(d095, d095_bad) is False
 
 
-# ── D096 UAPSDEnable (setter round-trip, all bands Pass) ─────────────
+# ── D096 UAPSDEnable (workbook Not Supported, live round-trip retained) ──
 
 
 def test_d096_uapsdenable_contract():
     """D096 YAML loads, discovers, and has correct metadata."""
     cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
     case = load_case(cases_dir / "D096_uapsdenable.yaml")
-    assert case["source"]["row"] == 98
+    assert case["source"]["row"] == 96
     assert case["source"]["api"] == "UAPSDEnable"
     assert len(case["steps"]) == 3
     assert len(case["pass_criteria"]) == 15
     ref = case["results_reference"]["v4.0.3"]
-    assert ref["5g"] == "Pass"
-    assert ref["6g"] == "Pass"
-    assert ref["2.4g"] == "Pass"
+    assert ref["5g"] == "Not Supported"
+    assert ref["6g"] == "Not Supported"
+    assert ref["2.4g"] == "Not Supported"
 
 
 def test_d096_uapsdenable_setup_env(monkeypatch):

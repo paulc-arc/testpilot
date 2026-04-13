@@ -51,6 +51,7 @@
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T090437438519`
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T092400687838`
   - `plugins/wifi_llapi/reports/agent_trace/20260413T094515864676`
+  - `plugins/wifi_llapi/reports/agent_trace/20260413T095836613095`
 - answer sheet: `0401.xlsx`
 - cases dir: `plugins/wifi_llapi/cases`
 - compare rule: normalize both sides so only `Pass` stays `Pass`; all other values become `Fail`.
@@ -61,8 +62,8 @@
 | metric | value |
 | --- | ---: |
 | compared cases | 420 |
-| full matches | 279 |
-| mismatch cases | 141 |
+| full matches | 280 |
+| mismatch cases | 140 |
 | missing answer rows | 0 |
 | metadata drift rows | 58 |
 
@@ -70,9 +71,9 @@
 
 | band | matched | mismatched |
 | --- | ---: | ---: |
-| 5g | 285 | 135 |
-| 6g | 286 | 134 |
-| 2.4g | 284 | 136 |
+| 5g | 286 | 134 |
+| 6g | 287 | 133 |
+| 2.4g | 285 | 135 |
 
 ## Mismatch table
 
@@ -90,7 +91,6 @@
 | `wifi-llapi-D050-supportedvhtmcs` | 50 | exact | Not Supported / N/A / N/A | Pass / Not Supported / Not Supported | Fail / Fail / Fail | Pass / Fail / Fail | 5g |
 | `d053-blocked-txbytes` | 53 | exact | Fail / N/A / N/A | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `wifi-llapi-D057-txunicastpacketcount` | 57 | exact | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | 5g, 6g, 2.4g |
-| `wifi-llapi-D096-uapsdenable` | 96 | exact | Pass / Pass / Pass | Not Supported / Not Supported / Not Supported | Pass / Pass / Pass | Fail / Fail / Fail | 5g, 6g, 2.4g |
 | `wifi-llapi-D101-configmethodsenabled` | 101 | exact | Fail / Fail / Fail | Pass / Not Supported / Pass | Fail / Fail / Fail | Pass / Fail / Pass | 5g, 2.4g |
 | `wifi-llapi-D104-enable-accesspoint-wps` | 104 | exact | Fail / Not Supported / Fail | Pass / Not Supported / Pass | Fail / Fail / Fail | Pass / Fail / Pass | 5g, 2.4g |
 | `wifi-llapi-D105-pairinginprogress-accesspoint-wps` | 105 | exact | Fail / Fail / Fail | Pass / Not Supported / Pass | Fail / Fail / Fail | Pass / Fail / Pass | 5g, 2.4g |
@@ -451,25 +451,6 @@
 - 0401 G excerpt: ##Connect WiFi Station and send traffic then check TxUnicastPacketCount WiFi.AccessPoint.1.AssociatedDevice.1.TxUnicastPacketCount=0 WiFi.AccessPoint.3.AssociatedDevice.1.TxUnicastPacketCount=0 WiFi.AccessPoint.5.AssociatedDevice.1.TxUni...
 - 0401 H excerpt: wl -i wl0 sta_info ${STA_MAC} TxUnicastPacketCount tx ucast pkts 90
 - trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D057-txunicastpacketcount.json`
-
-### wifi-llapi-D096-uapsdenable
-
-- case file: `D096_uapsdenable.yaml`
-- answer row: `96`
-- mapping status: `exact`
-- source metadata: `WiFi.AccessPoint.{i}.` / `UAPSDEnable`
-- workbook metadata: `WiFi.AccessPoint.{i}.` / `UAPSDEnable`
-- final status: `Pass`
-- evaluation verdict: `Pass`
-- attempts used: `1`
-- actual raw: `Pass` / `Pass` / `Pass`
-- expected raw: `Not Supported` / `Not Supported` / `Not Supported`
-- actual normalized: `Pass` / `Pass` / `Pass`
-- expected normalized: `Fail` / `Fail` / `Fail`
-- mismatch bands: `5g, 6g, 2.4g`
-- 0401 G excerpt: \\Enable/Disable UPSD ubus-cli WiFi.AccessPoint.{i}.UAPSDEnable= 1=Enbale 0=Disable
-- 0401 H excerpt: cat /tmp/wl0_hapd.conf |grep apsd
-- trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D096-uapsdenable.json`
 
 ### wifi-llapi-D101-configmethodsenabled
 
