@@ -1,5 +1,79 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-15 early-122)
+
+> This checkpoint records the `D436 AccessPoint.Security.OWETransitionInterface` workbook closure.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D436 AccessPoint.Security.OWETransitionInterface` 已完成 closure
+- workbook authority 已刷新為 row `436`
+- 舊 row `438` getter shell 已改寫回 workbook `WiFi.AccessPoint.{i}.Security.` / `OWETransitionInterface`
+- official rerun `20260415T054920871826` 以 row-436 faithful `Fail / Fail / Fail` 關閉 workbook `Not Supported / Not Supported / Not Supported`
+- live evidence 顯示 AP1/AP3/AP5 setter 都可讀回 `DEFAULT_WL1_1 / DEFAULT_WL0_1 / DEFAULT_WL0_1`
+- wl1 / wl2 仍維持 `owe_transition_ifname=ABSENT`
+- wl0 於 workbook 5G `AP1.ModeEnabled=OWE` / `AP2.ModeEnabled=None` pair step 期間會投影 `HostapdOweTransitionIfname5g=wl1`
+- 因此 final report 維持 `diagnostic_status=FailTest`，但 compare 已依 workbook fail-shape 關閉該 row
+- targeted D436/runtime + budget guardrails passed
+- full repo regression=`1659 passed`
+- compare 更新為 `359 / 420 full matches`、`61 mismatches`、`47 metadata drifts`
+- `D371 AccessPoint.AssociatedDevice.DisassociationTime` 仍維持 localized blocker，rewrite 已回退
+- `D355-D357` 仍保留在需要 CSI client setup 的 placeholder bucket
+- `D359 AccessPoint.IsolationEnable` 因 two-station isolation ping 需求而暫停在 current single-STA lab shape
+- systemic active blockers 維持 `D047` authority conflict + shared 6G baseline manifestations（`D179`、`D181`）
+- `D414/D415` 仍保留為 readiness-review cluster；workbook `G` 已明示需要 dual-STA 802.11k split
+- next ready actionable survey target=`D437 AccessPoint.Security.SAEPassphrase`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| D436 | 436 | AccessPoint.Security.OWETransitionInterface | Fail / Fail / Fail | `20260415T054920871826_DUT.log L822-L1039; L1073-L1105; L1234-L1239; bgw720-0403_wifi_llapi_20260415t054920871826.md L9-L11; L15-L94` | `N/A（AP-only case；20260415T054920871826_STA.log empty）` |
+
+### D436 AccessPoint.Security.OWETransitionInterface alignment evidence
+
+**STA 指令**
+
+```sh
+# N/A (AP-only case)
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli WiFi.AccessPoint.1.Security.OWETransitionInterface=DEFAULT_WL1_1
+ubus-cli WiFi.AccessPoint.3.Security.OWETransitionInterface=DEFAULT_WL0_1
+ubus-cli WiFi.AccessPoint.5.Security.OWETransitionInterface=DEFAULT_WL0_1
+ubus-cli WiFi.AccessPoint.? | grep OWETransitionInterface
+ubus-cli WiFi.AccessPoint.1.Security.ModeEnabled=OWE
+ubus-cli WiFi.AccessPoint.2.Security.ModeEnabled=None
+grep -m1 '^owe_transition_ifname=' /tmp/wl0_hapd.conf || true
+grep -m1 '^owe_transition_ifname=' /tmp/wl1_hapd.conf || true
+grep -m1 '^owe_transition_ifname=' /tmp/wl2_hapd.conf || true
+ubus-cli WiFi.AccessPoint.1.Security.OWETransitionInterface=
+ubus-cli WiFi.AccessPoint.3.Security.OWETransitionInterface=
+ubus-cli WiFi.AccessPoint.5.Security.OWETransitionInterface=
+```
+
+**關鍵 log 摘錄 / log 區間**
+
+```text
+Official rerun 20260415T054920871826
+- bgw720-0403_wifi_llapi_20260415t054920871826.md L9-L11
+  result_5g/result_6g/result_24g = Fail / Fail / Fail with diagnostic_status=FailTest
+- bgw720-0403_wifi_llapi_20260415t054920871826.md L15-L94
+  workbook-faithful row-436 replay accepts AP1/AP3/AP5 setters, keeps wl1/wl2 hostapd absent, and fails because wl0 projects owe_transition_ifname=wl1 during the 5G OWE/None pair step
+- 20260415T054920871826_DUT.log L822-L1039
+  AP1-AP6 baseline OWETransitionInterface="" and AP1/AP2 baseline mode WPA2-Personal/WPA2-Personal; AP1/AP3/AP5 setters read back DEFAULT_WL1_1 / DEFAULT_WL0_1 / DEFAULT_WL0_1; the 5G mode probe reads back OWE / None and HostapdOweTransitionIfname5g=wl1
+- 20260415T054920871826_DUT.log L1073-L1105
+  6G and 2.4G still read back DEFAULT_WL0_1 while HostapdOweTransitionIfname6g=ABSENT and HostapdOweTransitionIfname24g=ABSENT
+- 20260415T054920871826_DUT.log L1234-L1239
+  AP1-AP6 all restore to AfterResetOweTransitionAp*=""
+```
+
 ## Checkpoint summary (2026-04-15 early-121)
 
 > This checkpoint records the `D435 AccessPoint.Neighbour.{i}.SSID` workbook closure.

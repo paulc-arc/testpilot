@@ -1,5 +1,5 @@
 {
-  "trace_dir": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351",
+  "trace_dir": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T054920871826",
   "trace_dirs": [
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T172957084134",
@@ -129,28 +129,29 @@
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T044008021410",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T045340433281",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T050448284344",
-    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T051545233691"
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T051545233691",
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T054920871826"
   ],
-  "answers_xlsx": "/home/paul_chen/prj_arc/testpilot/0401.xlsx",
-  "cases_dir": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases",
+  "answers_xlsx": "0401.xlsx",
+  "cases_dir": "plugins/wifi_llapi/cases",
   "compared_case_count": 420,
   "missing_answer_count": 0,
   "missing_answer_rows": [],
   "metadata_drift_count": 47,
-  "full_match_count": 358,
-  "mismatch_case_count": 62,
+  "full_match_count": 359,
+  "mismatch_case_count": 61,
   "band_summary": {
     "5g": {
-      "matched": 360,
-      "mismatched": 60
+      "matched": 361,
+      "mismatched": 59
     },
     "6g": {
-      "matched": 358,
-      "mismatched": 62
+      "matched": 359,
+      "mismatched": 61
     },
     "2.4g": {
-      "matched": 360,
-      "mismatched": 60
+      "matched": 361,
+      "mismatched": 59
     }
   },
   "cases": [
@@ -14114,7 +14115,7 @@
       "case_id": "d436-security-owetransitioninterface",
       "case_file": "D436_owetransitioninterface.yaml",
       "dnum": 436,
-      "source_row": 438,
+      "source_row": 436,
       "source_object": "WiFi.AccessPoint.{i}.Security.",
       "source_api": "OWETransitionInterface",
       "answer_row": 436,
@@ -14123,39 +14124,35 @@
       "mapping_status": "exact",
       "mapping_object_match": true,
       "mapping_api_match": true,
-      "final_status": "Pass",
-      "evaluation_verdict": "Pass",
-      "attempts_used": 1,
-      "comment": "",
+      "final_status": "Fail",
+      "evaluation_verdict": "Fail",
+      "attempts_used": 2,
+      "comment": "pass_criteria not satisfied (failed after 2/2 attempts)",
       "bands": {
         "5g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
+          "actual_raw": "Fail",
+          "actual_norm": "Fail",
           "expected_raw": "Not Supported",
           "expected_norm": "Fail"
         },
         "6g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
+          "actual_raw": "Fail",
+          "actual_norm": "Fail",
           "expected_raw": "Not Supported",
           "expected_norm": "Fail"
         },
         "2.4g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
+          "actual_raw": "Fail",
+          "actual_norm": "Fail",
           "expected_raw": "Not Supported",
           "expected_norm": "Fail"
         }
       },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
+      "mismatch_bands": [],
+      "matches_answer": true,
       "workbook_test_steps_excerpt": "1. Set OWETransitionInterface root@prplOS:~# ubus-cli WiFi.AccessPoint.1.Security.OWETransitionInterface=DEFAULT_W L1_1 > WiFi.AccessPoint.1.Security.OWETransitionInterface=DEFAULT_WL1_1 WiFi.AccessPoint.1.Security. WiFi.AccessPoint.1.Se...",
       "workbook_command_output_excerpt": "root@prplOS:~# cat /tmp/wl0_hapd.conf |grep owe_transition_ifname root@prplOS:~# cat /tmp/wl1_hapd.conf |grep owe_transition_ifname root@prplOS:~# cat /tmp/wl2_hapd.conf |grep owe_transition_ifname",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d436-security-owetransitioninterface.json"
+      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T054920871826/d436-security-owetransitioninterface.json"
     },
     {
       "case_id": "d437-security-saepassphrase",
@@ -19257,53 +19254,6 @@
       "workbook_test_steps_excerpt": "1. Connect WiFi Station to GW with one station 802.11k Enable and the other one 802.11k Disable. 2. Verify Station station 802.11k Enable Check whether RRM is ON or OFF using: wl sta_info <MAC> | grep -i rrm If 802.11k Enable then you wi...",
       "workbook_command_output_excerpt": "",
       "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d415-assocdev-rrmonchannelmaxduration.json"
-    },
-    {
-      "case_id": "d436-security-owetransitioninterface",
-      "case_file": "D436_owetransitioninterface.yaml",
-      "dnum": 436,
-      "source_row": 438,
-      "source_object": "WiFi.AccessPoint.{i}.Security.",
-      "source_api": "OWETransitionInterface",
-      "answer_row": 436,
-      "answer_object": "WiFi.AccessPoint.{i}.Security.",
-      "answer_api": "OWETransitionInterface",
-      "mapping_status": "exact",
-      "mapping_object_match": true,
-      "mapping_api_match": true,
-      "final_status": "Pass",
-      "evaluation_verdict": "Pass",
-      "attempts_used": 1,
-      "comment": "",
-      "bands": {
-        "5g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
-          "expected_raw": "Not Supported",
-          "expected_norm": "Fail"
-        },
-        "6g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
-          "expected_raw": "Not Supported",
-          "expected_norm": "Fail"
-        },
-        "2.4g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
-          "expected_raw": "Not Supported",
-          "expected_norm": "Fail"
-        }
-      },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
-      "workbook_test_steps_excerpt": "1. Set OWETransitionInterface root@prplOS:~# ubus-cli WiFi.AccessPoint.1.Security.OWETransitionInterface=DEFAULT_W L1_1 > WiFi.AccessPoint.1.Security.OWETransitionInterface=DEFAULT_WL1_1 WiFi.AccessPoint.1.Security. WiFi.AccessPoint.1.Se...",
-      "workbook_command_output_excerpt": "root@prplOS:~# cat /tmp/wl0_hapd.conf |grep owe_transition_ifname root@prplOS:~# cat /tmp/wl1_hapd.conf |grep owe_transition_ifname root@prplOS:~# cat /tmp/wl2_hapd.conf |grep owe_transition_ifname",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d436-security-owetransitioninterface.json"
     },
     {
       "case_id": "d437-security-saepassphrase",

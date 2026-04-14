@@ -12058,6 +12058,248 @@ def test_d435_neighbour_ssid_contract():
     assert d435["results_reference"]["v4.0.3"]["2.4g"] == "Pass"
 
 
+def test_d436_owetransitioninterface_contract():
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+
+    d436_raw = yaml.safe_load(
+        (cases_dir / "D436_owetransitioninterface.yaml").read_text(encoding="utf-8")
+    )
+    d436 = load_case(cases_dir / "D436_owetransitioninterface.yaml")
+    d436_commands = "\n".join(str(step.get("command", "")) for step in d436["steps"])
+
+    assert "aliases" not in d436_raw
+    assert d436["id"] == "d436-security-owetransitioninterface"
+    assert d436["source"]["report"] == "0310-BGW720-300_LLAPI_Test_Report.xlsx"
+    assert d436["source"]["row"] == 436
+    assert d436["source"]["object"] == "WiFi.AccessPoint.{i}.Security."
+    assert d436["source"]["api"] == "OWETransitionInterface"
+    assert (
+        d436["hlapi_command"]
+        == "ubus-cli WiFi.AccessPoint.1.Security.OWETransitionInterface=DEFAULT_WL1_1"
+    )
+    assert d436["llapi_support"] == "Not Supported"
+    assert d436["implemented_by"] == "pWHM"
+    assert d436["bands"] == ["5g", "6g", "2.4g"]
+    assert set(d436["topology"]["devices"]) == {"DUT"}
+    assert d436["topology"]["links"] == []
+    assert "killall wpa_supplicant" not in d436.get("sta_env_setup", "")
+    assert "AP1.ModeEnabled=OWE" in d436.get("test_procedure", "")
+    assert "grep -m1 '^owe_transition_ifname=' /tmp/wl1_hapd.conf" in d436_commands
+    assert 'AfterModeOweTransitionAp1="%s"' in d436_commands
+    assert 'AfterResetOweTransitionAp6="%s"' in d436_commands
+    assert any(
+        criterion["field"] == "owe_transition_5g_mode_probe.AfterModeOweTransitionAp1"
+        and criterion["operator"] == "not_equals"
+        and criterion["reference"]
+        == "owe_transition_5g_mode_probe.HostapdOweTransitionIfname5g"
+        for criterion in d436["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "owe_transition_conf_24g.HostapdOweTransitionIfname24g"
+        and criterion["operator"] == "equals"
+        and criterion["value"] == "ABSENT"
+        for criterion in d436["pass_criteria"]
+    )
+    assert d436["results_reference"]["v4.0.3"]["5g"] == "Not Supported"
+    assert d436["results_reference"]["v4.0.3"]["6g"] == "Not Supported"
+    assert d436["results_reference"]["v4.0.3"]["2.4g"] == "Not Supported"
+
+
+def test_d436_owetransitioninterface_setup_env_uses_only_dut_transport(monkeypatch):
+    plugin = _load_plugin()
+    topology = _FakeTopology()
+    recorder = _FactoryRecorder()
+    _install_fake_factory(monkeypatch, recorder)
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+    d436 = load_case(cases_dir / "D436_owetransitioninterface.yaml")
+
+    assert plugin.setup_env(d436, topology=topology) is True
+    assert len(recorder.calls) == 1
+    assert recorder.calls[0][0] == "serial"
+    executed_commands = recorder.transports[0].executed_commands
+    assert executed_commands.count("ubus-cli WiFi.AccessPoint.1.Enable=1") == 1
+    assert executed_commands.count("ubus-cli WiFi.AccessPoint.3.Enable=1") == 1
+    assert executed_commands.count("ubus-cli WiFi.AccessPoint.5.Enable=1") == 1
+    assert (
+        executed_commands.count(
+            "ubus-cli WiFi.AccessPoint.1.Security.OWETransitionInterface="
+        )
+        == 1
+    )
+    assert (
+        executed_commands.count(
+            "ubus-cli WiFi.AccessPoint.3.Security.OWETransitionInterface="
+        )
+        == 1
+    )
+    assert (
+        executed_commands.count(
+            "ubus-cli WiFi.AccessPoint.5.Security.OWETransitionInterface="
+        )
+        == 1
+    )
+    assert (
+        executed_commands.count(
+            "ubus-cli WiFi.AccessPoint.1.Security.ModeEnabled=WPA2-Personal"
+        )
+        == 1
+    )
+    assert (
+        executed_commands.count(
+            "ubus-cli WiFi.AccessPoint.2.Security.ModeEnabled=WPA2-Personal"
+        )
+        == 1
+    )
+    assert executed_commands.count("wl -i wl0 bss") == 1
+    assert executed_commands.count("wl -i wl1 bss") == 1
+    assert executed_commands.count("wl -i wl2 bss") == 1
+    assert all("STA" not in command for command in executed_commands)
+    plugin.teardown(d436, topology)
+
+
+def test_d436_owetransitioninterface_evaluate_live_examples():
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+    d436 = load_case(cases_dir / "D436_owetransitioninterface.yaml")
+
+    def baseline_output() -> str:
+        return "\n".join(
+            [
+                'BaselineOweTransitionAp1=""',
+                'BaselineOweTransitionAp2=""',
+                'BaselineOweTransitionAp3=""',
+                'BaselineOweTransitionAp4=""',
+                'BaselineOweTransitionAp5=""',
+                'BaselineOweTransitionAp6=""',
+                "BaselineModeEnabledAp1=WPA2-Personal",
+                "BaselineModeEnabledAp2=WPA2-Personal",
+            ]
+        )
+
+    def set_output() -> str:
+        return "\n".join(
+            [
+                "RequestedOweTransitionAp1=DEFAULT_WL1_1",
+                "RequestedOweTransitionAp3=DEFAULT_WL0_1",
+                "RequestedOweTransitionAp5=DEFAULT_WL0_1",
+            ]
+        )
+
+    def after_set_output() -> str:
+        return "\n".join(
+            [
+                'AfterSetOweTransitionAp1="DEFAULT_WL1_1"',
+                'AfterSetOweTransitionAp2=""',
+                'AfterSetOweTransitionAp3="DEFAULT_WL0_1"',
+                'AfterSetOweTransitionAp4=""',
+                'AfterSetOweTransitionAp5="DEFAULT_WL0_1"',
+                'AfterSetOweTransitionAp6=""',
+            ]
+        )
+
+    def mode_probe_output(hostapd: str = "ABSENT") -> str:
+        return "\n".join(
+            [
+                "RequestedModeEnabledAp1=OWE",
+                "RequestedModeEnabledAp2=None",
+                "AfterModeEnabledAp1=OWE",
+                "AfterModeEnabledAp2=None",
+                'AfterModeOweTransitionAp1="DEFAULT_WL1_1"',
+                f"HostapdOweTransitionIfname5g={hostapd}",
+                "AfterRestoreModeEnabledAp1=WPA2-Personal",
+                "AfterRestoreModeEnabledAp2=WPA2-Personal",
+            ]
+        )
+
+    def conf_output(ap: int, suffix: str, hostapd: str = "ABSENT") -> str:
+        value = "DEFAULT_WL0_1"
+        return "\n".join(
+            [
+                f'AfterConfOweTransitionAp{ap}="{value}"',
+                f"HostapdOweTransitionIfname{suffix}={hostapd}",
+            ]
+        )
+
+    def reset_output() -> str:
+        return "\n".join(
+            [
+                'RestoreOweTransitionAp1=""',
+                'RestoreOweTransitionAp3=""',
+                'RestoreOweTransitionAp5=""',
+            ]
+        )
+
+    def after_reset_output() -> str:
+        return "\n".join(
+            [
+                'AfterResetOweTransitionAp1=""',
+                'AfterResetOweTransitionAp2=""',
+                'AfterResetOweTransitionAp3=""',
+                'AfterResetOweTransitionAp4=""',
+                'AfterResetOweTransitionAp5=""',
+                'AfterResetOweTransitionAp6=""',
+            ]
+        )
+
+    d436_results = {
+        "steps": {
+            "step1_owe_transition_baseline_all": {
+                "success": True,
+                "output": baseline_output(),
+                "timing": 0.01,
+            },
+            "step2_owe_transition_set_all": {
+                "success": True,
+                "output": set_output(),
+                "timing": 0.01,
+            },
+            "step3_owe_transition_after_set_all": {
+                "success": True,
+                "output": after_set_output(),
+                "timing": 0.01,
+            },
+            "step4_owe_transition_5g_mode_probe": {
+                "success": True,
+                "output": mode_probe_output(),
+                "timing": 0.01,
+            },
+            "step5_owe_transition_conf_6g": {
+                "success": True,
+                "output": conf_output(3, "6g"),
+                "timing": 0.01,
+            },
+            "step6_owe_transition_conf_24g": {
+                "success": True,
+                "output": conf_output(5, "24g"),
+                "timing": 0.01,
+            },
+            "step7_owe_transition_reset_all": {
+                "success": True,
+                "output": reset_output(),
+                "timing": 0.01,
+            },
+            "step8_owe_transition_after_reset_all": {
+                "success": True,
+                "output": after_reset_output(),
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d436, d436_results) is True
+
+    d436_wrong_6g_backend = {
+        "steps": {
+            **d436_results["steps"],
+            "step5_owe_transition_conf_6g": {
+                "success": True,
+                "output": conf_output(3, "6g", "DEFAULT_WL0_1"),
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d436, d436_wrong_6g_backend) is False
+
+
 def test_d084_encryptionmode_accesspoint_security_contract():
     cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
 
@@ -21340,7 +21582,6 @@ _AP_SSID_SECURITY_CASES = [
     ("D319_macaddress_ssid.yaml", 319, "MACAddress", "WiFi.SSID.{i}."),
     ("D320_ssid.yaml", 320, "SSID", "WiFi.SSID.{i}."),
     ("D588_mldunit.yaml", 591, "MLDUnit", "WiFi.SSID.{i}."),
-    ("D436_owetransitioninterface.yaml", 438, "OWETransitionInterface", "WiFi.AccessPoint.{i}.Security."),
     ("D437_saepassphrase.yaml", 439, "SAEPassphrase", "WiFi.AccessPoint.{i}.Security."),
     ("D438_transitiondisable.yaml", 440, "TransitionDisable", "WiFi.AccessPoint.{i}.Security."),
 ]
