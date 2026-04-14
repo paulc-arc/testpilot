@@ -1,4 +1,4 @@
-**2026-04-14 superseding note：本檔下半部的大盤分析仍保留 2026-04-13 snapshot；最新 strict compare 已刷新為 `308 / 420 full matches`、`112` 筆 mismatch、`58` 筆 metadata drift。** 本輪再新增完成 `D193 Radio.HeCapsEnabled` official rerun closure（`20260414T142054369177`）：workbook authority 刷新到 row `193`，live rerun exact-close tri-band `HeCapsEnabled="DEFAULT"`，final full repo regression 維持 `1662 passed`。active blockers 仍是 `D047` 與 shared 6G baseline blocker（manifested in `D179`、`D181`）；next ready non-blocked compare-open case 改為 `D194 Radio.HeCapsSupported`。
+**2026-04-14 superseding note：本檔下半部的大盤分析仍保留 2026-04-13 snapshot；最新 strict compare 已刷新為 `309 / 420 full matches`、`111` 筆 mismatch、`58` 筆 metadata drift。** 本輪再新增完成 `D194 Radio.HeCapsSupported` official rerun closure（`20260414T143051719431`）：workbook authority 刷新到 row `194`，live rerun exact-close tri-band `HeCapsSupported="DL_OFDMA,UL_OFDMA,DL_MUMIMO,UL_MUMIMO"`，final full repo regression 維持 `1662 passed`。active blockers 仍是 `D047` 與 shared 6G baseline blocker（manifested in `D179`、`D181`）；next ready non-blocked compare-open case 改為 `D195 Radio.IEEE80211_Caps`。
 
 **先講結論：以目前 repo 內 `compare-0401` snapshot 為準，跟 workbook 的差距是 `122` 筆 mismatch、`58` 筆 metadata drift。** 如果只看 workbook `Pass` 目標，分兩種口徑：
 
@@ -241,6 +241,7 @@
 ### 8. 當前 continuation anchor
 
 - latest aligned cases:
+  - `D194 Radio.HeCapsSupported`
   - `D193 Radio.HeCapsEnabled`
   - `D192 Radio.GuardInterval`
   - `D191 Radio.ExplicitBeamFormingSupported`
@@ -257,8 +258,8 @@
   - `D179`
   - `D181`
 - strict compare snapshot：
-  - `308 / 420 full matches`
-  - `112 mismatches`
+  - `309 / 420 full matches`
+  - `111 mismatches`
   - `58 metadata drifts`
 - next ready non-blocked compare-open case：
-  - `D194 Radio.HeCapsSupported`
+  - `D195 Radio.IEEE80211_Caps`

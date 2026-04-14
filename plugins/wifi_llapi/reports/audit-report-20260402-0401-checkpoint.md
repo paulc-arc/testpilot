@@ -1,5 +1,59 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-14 early-71)
+
+> This checkpoint records the `D194 Radio.HeCapsSupported` low-risk radio getter closure.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D194 Radio.HeCapsSupported` 已透過 official rerun `20260414T143051719431` 完成 closure
+- workbook authority 現在刷新到 row `194`，不再沿用 stale row `157`
+- current rerun exact-close tri-band getter `HeCapsSupported="DL_OFDMA,UL_OFDMA,DL_MUMIMO,UL_MUMIMO"`
+- landed case 現在把 stale raw `Fail / Fail / Fail` 刷新為 workbook-consistent `Pass / Pass / Pass`
+- targeted radio-getter/runtime guardrails 維持 `201 passed`
+- command-budget guardrail 維持 `1 passed`
+- final full repo regression 維持 `1662 passed`
+- compare refresh 已更新為 `309 / 420 full matches`、`111 mismatches`、`58 metadata drifts`
+- active blockers 維持 `D047 SupportedHe160MCS` authority conflict + shared 6G baseline blocker（manifested in `D179` / `D181`）
+- next ready non-blocked compare-open case 改為 `D195 Radio.IEEE80211_Caps`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D194` | 194 | `HeCapsSupported` | `Pass / Pass / Pass` | `20260414T143051719431_DUT.log L5-L18; bgw720-0403_wifi_llapi_20260414t143051719431.md L15-L31` | `20260414T143051719431_STA.log` empty file |
+
+#### D194 Radio.HeCapsSupported
+
+**STA 指令**
+
+```sh
+# N/A (DUT-only radio getter case; rerun emitted an empty STA log)
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.Radio.1.HeCapsSupported?"
+ubus-cli "WiFi.Radio.2.HeCapsSupported?"
+ubus-cli "WiFi.Radio.3.HeCapsSupported?"
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+DUT (20260414T143051719431_DUT.log L5-L18; bgw720-0403_wifi_llapi_20260414t143051719431.md L15-L31)
+WiFi.Radio.1.HeCapsSupported="DL_OFDMA,UL_OFDMA,DL_MUMIMO,UL_MUMIMO"
+WiFi.Radio.2.HeCapsSupported="DL_OFDMA,UL_OFDMA,DL_MUMIMO,UL_MUMIMO"
+WiFi.Radio.3.HeCapsSupported="DL_OFDMA,UL_OFDMA,DL_MUMIMO,UL_MUMIMO"
+
+STA (20260414T143051719431_STA.log)
+empty file
+```
+
 ## Checkpoint summary (2026-04-14 early-70)
 
 > This checkpoint records the `D193 Radio.HeCapsEnabled` low-risk radio getter closure.
