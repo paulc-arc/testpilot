@@ -1,5 +1,59 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-14 early-85)
+
+> This checkpoint records the `D212 Radio.PossibleChannels` low-risk radio getter closure.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D212 Radio.PossibleChannels` 已透過 official rerun `20260414T172459100474` 完成 closure
+- workbook authority 現在刷新到 row `212`，不再沿用 stale row `173`
+- current rerun exact-close tri-band `PossibleChannels` lists
+- landed case 現在把 stale raw `Fail / Fail / Fail` 刷新為 workbook-consistent `Pass / Pass / Pass`
+- targeted radio-getter/runtime guardrails 維持 `202 passed`
+- command-budget guardrail 維持 `1 passed`
+- final full repo regression 維持 `1662 passed`
+- compare refresh 已更新為 `323 / 420 full matches`、`97 mismatches`、`58 metadata drifts`
+- `D211 Radio.OperatingStandards` 仍維持 parked beacon-validation gap（`plugins/wifi_llapi/reports/D211_block.md`）
+- next ready non-blocked compare-open case 改為 `D214 Radio.RIFSEnabled`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D212` | 212 | `PossibleChannels` | `Pass / Pass / Pass` | `20260414T172459100474_DUT.log L5-L20; bgw720-0403_wifi_llapi_20260414t172459100474.md L15-L35` | `20260414T172459100474_STA.log` empty file |
+
+#### D212 Radio.PossibleChannels
+
+**STA 指令**
+
+```sh
+# N/A (DUT-only radio getter case; rerun emitted an empty STA log)
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.Radio.1.PossibleChannels?"
+ubus-cli "WiFi.Radio.2.PossibleChannels?"
+ubus-cli "WiFi.Radio.3.PossibleChannels?"
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+DUT (20260414T172459100474_DUT.log L5-L20; bgw720-0403_wifi_llapi_20260414t172459100474.md L15-L35)
+WiFi.Radio.1.PossibleChannels="36,40,44,48,52,56,60,64,100,104,108,112,116,120,124,128,132,136,140,144,149,153,157,161,165,169,173,177"
+WiFi.Radio.2.PossibleChannels="1,5,9,13,17,21,25,29,33,37,41,45,49,53,57,61,65,69,73,77,81,85,89,93,97,101,105,109,113,117,121,125,129,133,137,141,145,149,153,157,161,165,169,173,177,181,185,189,193,197,201,205,209,213,217,221,225,229,233"
+WiFi.Radio.3.PossibleChannels="1,2,3,4,5,6,7,8,9,10,11,12,13,14"
+
+STA (20260414T172459100474_STA.log)
+empty file
+```
+
 ## Checkpoint summary (2026-04-14 early-84)
 
 > This checkpoint records the `D209 Radio.OperatingChannelBandwidth` low-risk radio getter closure.

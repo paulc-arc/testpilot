@@ -19030,7 +19030,7 @@ _RADIO_GETTER_CASES = [
     ("D208_ofdmaenable.yaml", 208, "1", "1", "1", "WiFi.Radio.{r}.OfdmaEnable"),
     ("D209_operatingchannelbandwidth.yaml", 209, "20MHz", "20MHz", "20MHz", "WiFi.Radio.{r}.OperatingChannelBandwidth"),
     ("D211_operatingstandards.yaml", 172, "be", "be", "be", "WiFi.Radio.{r}.OperatingStandards"),
-    ("D212_possiblechannels.yaml", 173, "36,40,44,48", "1,5,9,13", "1,2,3,4", "WiFi.Radio.{r}.PossibleChannels"),
+    ("D212_possiblechannels.yaml", 212, "36,40,44,48", "1,5,9,13", "1,2,3,4", "WiFi.Radio.{r}.PossibleChannels"),
     ("D213_regulatorydomain_radio.yaml", 174, "#a", "#a", "#a", "WiFi.Radio.{r}.RegulatoryDomain"),
     ("D214_rifsenabled.yaml", 175, "Default", "Default", "Default", "WiFi.Radio.{r}.RIFSEnabled"),
     # --- Batch 2: D215, D245-D251 Radio getters ---
