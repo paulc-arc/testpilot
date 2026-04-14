@@ -2957,7 +2957,7 @@ def test_pre_skip_aligned_manual_cases_avoid_stale_sample_values():
             "get_ref": "snapshot_5g.GetSSIDStatsPacketsSent5g",
             "driver_ref": "snapshot_5g.DriverPacketsSent5g",
         },
-        "D334_retranscount_ssid_stats.yaml": {"row": 334, "api": "RetransCount", "driver": "DriverRetransCount", "awk_field": "txretrans", "expected": "Pass"},
+        "D334_retranscount_ssid_stats.yaml": {"row": 334, "api": "RetransCount", "driver": "DriverRetransCount", "awk_field": "txretrans", "expected": "Fail"},
         "D335_unicastpacketsreceived.yaml": {"row": 335, "api": "UnicastPacketsReceived", "driver": "DriverUnicastPacketsReceived", "awk_field": "rxframe", "expected": "Pass"},
         "D336_unicastpacketssent.yaml": {"row": 336, "api": "UnicastPacketsSent", "driver": "DriverUnicastPacketsSent", "awk_field": "d11_txfrag", "expected": "Pass"},
         "D337_unknownprotopacketsreceived_ssid_stats.yaml": {"row": 337, "api": "UnknownProtoPacketsReceived", "driver": "DriverUnknownProtoPacketsReceived", "awk_field": "rxbadprotopkts", "expected": "Skip"},

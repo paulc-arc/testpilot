@@ -81,11 +81,11 @@
 
 ## Latest repo handoff snapshot（2026-04-14）
 
-- `D329 FailedRetransCount / SSID stats` is now aligned via official rerun `20260414T215500799545`
-- workbook authority remains row `329`; the rerun exact-closes the tri-band workbook `Fail / Fail / Fail` shape while preserving live direct/getSSIDStats()/driver cross-check evidence `FailedRetransCount=0 / 0 / 0`, so the landed case now retires stale all-pass results_reference drift
+- `D334 RetransCount / SSID stats` is now aligned via official rerun `20260414T222507260531`
+- workbook authority remains row `334`; the rerun exact-closes the tri-band workbook `Fail / Fail / Fail` shape while preserving live direct/getSSIDStats()/driver cross-check evidence `RetransCount=0 / 0 / 0`, so the landed case now retires stale all-pass results_reference drift
 - active blockers remain `D047` authority conflict plus the shared 6G baseline manifestations in `D179` and `D181`; parked clarification items remain `D204` and `D211`
-- historical blocker context for the temporary D257 empty-array failure is retained in `plugins/wifi_llapi/reports/D257_block.md`; latest committed aligned case is now `D329 FailedRetransCount / SSID stats`
-- targeted D329/direct-stats runtime guardrails plus command-budget are now `2 passed`; full repo regression is now `1662 passed`; compare is now `334 / 420 full matches` / `86 mismatches` / `58 metadata drifts`, and the next ready non-blocked compare-open case moves to `D334 RetransCount / SSID stats`
+- historical blocker context for the temporary D257 empty-array failure is retained in `plugins/wifi_llapi/reports/D257_block.md`; latest committed aligned case is now `D334 RetransCount / SSID stats`
+- targeted D334/direct-stats runtime guardrails plus command-budget are now `2 passed`; full repo regression is now `1662 passed`; compare is now `335 / 420 full matches` / `85 mismatches` / `58 metadata drifts`, and the next ready non-blocked compare-open case moves to `D336 UnicastPacketsSent / SSID stats`
 - `D214 Radio.RIFSEnabled` is now aligned via official rerun `20260414T175434503053`
 - workbook authority is row `214`, not stale row `175`; the rerun exact-closes the tri-band setter-backed `Default -> Auto -> Default` replay, so the landed case now refreshes stale row `175` / raw `Fail / Fail / Fail` to workbook row `214` / raw `Pass / Pass / Pass`
 - targeted radio/runtime guardrails are now `202 passed`; final full repo regression remains `1662 passed`; compare is now `324 / 420 full matches` / `96 mismatches` / `58 metadata drifts`, and the next ready non-blocked compare-open case moves to `D251 Radio.Vendor.RegulatoryDomainRev`

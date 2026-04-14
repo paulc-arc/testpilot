@@ -1,5 +1,74 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-14 early-98)
+
+> This checkpoint records the `D334 RetransCount / SSID stats` workbook closure.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D334 RetransCount / SSID stats` 已完成 closure
+- workbook authority 維持 row `334`
+- official rerun `20260414T222507260531` exact-close tri-band workbook `Fail / Fail / Fail`
+- live cross-check evidence 保留 direct/getSSIDStats()/driver `RetransCount=0/0/0`
+- `diagnostic_status=Pass`
+- targeted D334/direct-stats runtime guardrails + command-budget=`2 passed`
+- full repo regression=`1662 passed`
+- compare 更新為 `335 / 420 full matches`、`85 mismatches`、`58 metadata drifts`
+- active blockers 維持 `D047` authority conflict + shared 6G baseline manifestations（`D179`、`D181`）
+- next ready non-blocked compare-open case=`D336 UnicastPacketsSent / SSID stats`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| D334 | 334 | RetransCount | Fail / Fail / Fail | `20260414T222507260531_DUT.log L505-L527; L766-L788; bgw720-0403_wifi_llapi_20260414t222507260531.md L39-L51` | `20260414T222507260531_STA.log L84-L94; L195-L221; L308-L318` |
+
+### D334 RetransCount / SSID stats alignment evidence
+
+**STA 指令**
+
+```sh
+iw dev wl0 link
+iw dev wl1 link
+iw dev wl2 link
+```
+
+**DUT 指令**
+
+```sh
+wl -i wl0 assoclist | tr 'A-F' 'a-f' | sed -n 's/^assoclist \([^ ]*\).*$/AssocMac5g=\1/p'
+ubus-cli "WiFi.SSID.4.Stats.RetransCount?"
+ubus-cli "WiFi.SSID.4.getSSIDStats()" | sed -n 's/^[[:space:]]*RetransCount = \([0-9][0-9]*\).*/GetSSIDStatsRetransCount5g=\1/p'
+v=$(wl -i wl0 if_counters | sed -n 's/.*txretrans \([0-9][0-9]*\).*/\1/p'); printf "DriverRetransCount5g=%u\n" "$((v & 4294967295))"
+wl -i wl1 assoclist | tr 'A-F' 'a-f' | sed -n 's/^assoclist \([^ ]*\).*$/AssocMac6g=\1/p'
+ubus-cli "WiFi.SSID.6.Stats.RetransCount?"
+ubus-cli "WiFi.SSID.6.getSSIDStats()" | sed -n 's/^[[:space:]]*RetransCount = \([0-9][0-9]*\).*/GetSSIDStatsRetransCount6g=\1/p'
+v=$(wl -i wl1 if_counters | sed -n 's/.*txretrans \([0-9][0-9]*\).*/\1/p'); printf "DriverRetransCount6g=%u\n" "$((v & 4294967295))"
+wl -i wl2 assoclist | tr 'A-F' 'a-f' | sed -n 's/^assoclist \([^ ]*\).*$/AssocMac24g=\1/p'
+ubus-cli "WiFi.SSID.8.Stats.RetransCount?"
+ubus-cli "WiFi.SSID.8.getSSIDStats()" | sed -n 's/^[[:space:]]*RetransCount = \([0-9][0-9]*\).*/GetSSIDStatsRetransCount24g=\1/p'
+v=$(wl -i wl2 if_counters | sed -n 's/.*txretrans \([0-9][0-9]*\).*/\1/p'); printf "DriverRetransCount24g=%u\n" "$((v & 4294967295))"
+```
+
+**關鍵 log 摘錄 / log 區間**
+
+```text
+Official rerun 20260414T222507260531
+- bgw720-0403_wifi_llapi_20260414t222507260531.md L9-L11
+  result_5g/result_6g/result_24g = Fail / Fail / Fail with diagnostic_status=Pass
+- bgw720-0403_wifi_llapi_20260414t222507260531.md L39-L51
+  direct Stats / getSSIDStats() / driver all exact-close to 0 on 5g / 6g / 2.4g
+- 20260414T222507260531_DUT.log L505-L527
+  5g RetransCount / GetSSIDStatsRetransCount / DriverRetransCount = 0
+- 20260414T222507260531_DUT.log L766-L788
+  6g RetransCount / GetSSIDStatsRetransCount / DriverRetransCount = 0
+- 20260414T222507260531_STA.log L84-L94; L195-L221; L308-L318
+  STA links stay associated to testpilot5G / testpilot6G / testpilot2G during the successful replay
+```
+
 ## Checkpoint summary (2026-04-14 early-97)
 
 > This checkpoint records the `D329 FailedRetransCount / SSID stats` workbook closure.
