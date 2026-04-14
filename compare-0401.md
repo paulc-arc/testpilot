@@ -117,6 +117,7 @@
   - `plugins/wifi_llapi/reports/agent_trace/20260415T004735420726`
   - `plugins/wifi_llapi/reports/agent_trace/20260415T010122540134`
   - `plugins/wifi_llapi/reports/agent_trace/20260415T011605260076`
+  - `plugins/wifi_llapi/reports/agent_trace/20260415T023436252245`
 - answer sheet: `/home/paul_chen/prj_arc/testpilot/0401.xlsx`
 - cases dir: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases`
 - compare rule: normalize both sides so only `Pass` stays `Pass`; all other values become `Fail`.
@@ -127,8 +128,8 @@
 | metric | value |
 | --- | ---: |
 | compared cases | 420 |
-| full matches | 343 |
-| mismatch cases | 77 |
+| full matches | 344 |
+| mismatch cases | 76 |
 | missing answer rows | 0 |
 | metadata drift rows | 57 |
 
@@ -136,9 +137,9 @@
 
 | band | matched | mismatched |
 | --- | ---: | ---: |
-| 5g | 347 | 73 |
-| 6g | 343 | 77 |
-| 2.4g | 346 | 74 |
+| 5g | 348 | 72 |
+| 6g | 344 | 76 |
+| 2.4g | 347 | 73 |
 
 ## Mismatch table
 
@@ -159,7 +160,6 @@
 | `d357-skip-csistats` | 357 | exact | Fail / N/A / N/A | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d359-ap-isolationenable` | 359 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d371-assocdev-disassociationtime` | 371 | exact | Fail / N/A / N/A | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
-| `d377-radio-maxbitrate` | 377 | exact | Pass / Pass / Pass | Not Supported / Not Supported / Not Supported | Pass / Pass / Pass | Fail / Fail / Fail | 5g, 6g, 2.4g |
 | `d379-radio-mcs` | 379 | exact | Pass / Pass / Pass | Skip / Skip / Skip | Pass / Pass / Pass | Fail / Fail / Fail | 5g, 6g, 2.4g |
 | `d380-radio-multiaptypessupported` | 380 | exact | Pass / Pass / Pass | skip / skip / skip | Pass / Pass / Pass | Fail / Fail / Fail | 5g, 6g, 2.4g |
 | `d384-radio-radcapabilitieshtstr` | 384 | exact | Pass / Pass / Pass | Pass / Not Supported / Pass | Pass / Pass / Pass | Pass / Fail / Pass | 6g |
@@ -514,25 +514,6 @@
 - 0401 G excerpt: 1. Connect WiFi station to GW 2. Check Associated Device Status 3. Disconnect Wifi Station from GW 4. Check Associated Device DisassociationTime root@prplOS:/# ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.? | grep -E 'Activ root@prplOS...
 - 0401 H excerpt: root@prplOS:/# wl -i wl0 assoclist root@prplOS:/# wl -i wl1 assoclist root@prplOS:/# wl -i wl2 assoclist
 - trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d371-assocdev-disassociationtime.json`
-
-### d377-radio-maxbitrate
-
-- case file: `D377_maxbitrate.yaml`
-- answer row: `377`
-- mapping status: `exact`
-- source metadata: `WiFi.Radio.{i}.` / `MaxBitRate`
-- workbook metadata: `WiFi.Radio.{i}.` / `MaxBitRate`
-- final status: `Pass`
-- evaluation verdict: `Pass`
-- attempts used: `1`
-- actual raw: `Pass` / `Pass` / `Pass`
-- expected raw: `Not Supported` / `Not Supported` / `Not Supported`
-- actual normalized: `Pass` / `Pass` / `Pass`
-- expected normalized: `Fail` / `Fail` / `Fail`
-- mismatch bands: `5g, 6g, 2.4g`
-- 0401 G excerpt: 1. Read-only API, defines max bitrate for each radio: ubus-cli WiFi.Radio.*.MaxBitRate? > WiFi.Radio.*.MaxBitRate? WiFi.Radio.1.MaxBitRate=0 WiFi.Radio.2.MaxBitRate=0 WiFi.Radio.3.MaxBitRate=0
-- 0401 H excerpt: (empty)
-- trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d377-radio-maxbitrate.json`
 
 ### d379-radio-mcs
 

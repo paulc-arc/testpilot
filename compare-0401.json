@@ -114,7 +114,8 @@
     "plugins/wifi_llapi/reports/agent_trace/20260415T004006392874",
     "plugins/wifi_llapi/reports/agent_trace/20260415T004735420726",
     "plugins/wifi_llapi/reports/agent_trace/20260415T010122540134",
-    "plugins/wifi_llapi/reports/agent_trace/20260415T011605260076"
+    "plugins/wifi_llapi/reports/agent_trace/20260415T011605260076",
+    "plugins/wifi_llapi/reports/agent_trace/20260415T023436252245"
   ],
   "answers_xlsx": "/home/paul_chen/prj_arc/testpilot/0401.xlsx",
   "cases_dir": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases",
@@ -122,20 +123,20 @@
   "missing_answer_count": 0,
   "missing_answer_rows": [],
   "metadata_drift_count": 57,
-  "full_match_count": 343,
-  "mismatch_case_count": 77,
+  "full_match_count": 344,
+  "mismatch_case_count": 76,
   "band_summary": {
     "5g": {
-      "matched": 347,
-      "mismatched": 73
+      "matched": 348,
+      "mismatched": 72
     },
     "6g": {
-      "matched": 343,
-      "mismatched": 77
+      "matched": 344,
+      "mismatched": 76
     },
     "2.4g": {
-      "matched": 346,
-      "mismatched": 74
+      "matched": 347,
+      "mismatched": 73
     }
   },
   "cases": [
@@ -12371,7 +12372,7 @@
       "case_id": "d377-radio-maxbitrate",
       "case_file": "D377_maxbitrate.yaml",
       "dnum": 377,
-      "source_row": 280,
+      "source_row": 377,
       "source_object": "WiFi.Radio.{i}.",
       "source_api": "MaxBitRate",
       "answer_row": 377,
@@ -12386,33 +12387,29 @@
       "comment": "",
       "bands": {
         "5g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
+          "actual_raw": "Not Supported",
+          "actual_norm": "Fail",
           "expected_raw": "Not Supported",
           "expected_norm": "Fail"
         },
         "6g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
+          "actual_raw": "Not Supported",
+          "actual_norm": "Fail",
           "expected_raw": "Not Supported",
           "expected_norm": "Fail"
         },
         "2.4g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
+          "actual_raw": "Not Supported",
+          "actual_norm": "Fail",
           "expected_raw": "Not Supported",
           "expected_norm": "Fail"
         }
       },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
+      "mismatch_bands": [],
+      "matches_answer": true,
       "workbook_test_steps_excerpt": "1. Read-only API, defines max bitrate for each radio: ubus-cli WiFi.Radio.*.MaxBitRate? > WiFi.Radio.*.MaxBitRate? WiFi.Radio.1.MaxBitRate=0 WiFi.Radio.2.MaxBitRate=0 WiFi.Radio.3.MaxBitRate=0",
       "workbook_command_output_excerpt": "",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d377-radio-maxbitrate.json"
+      "trace_path": "plugins/wifi_llapi/reports/agent_trace/20260415T023436252245/d377-radio-maxbitrate.json"
     },
     {
       "case_id": "d378-radio-maxsupportedssids",
@@ -19205,53 +19202,6 @@
       "workbook_test_steps_excerpt": "1. Connect WiFi station to GW 2. Check Associated Device Status 3. Disconnect Wifi Station from GW 4. Check Associated Device DisassociationTime root@prplOS:/# ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.? | grep -E 'Activ root@prplOS...",
       "workbook_command_output_excerpt": "root@prplOS:/# wl -i wl0 assoclist root@prplOS:/# wl -i wl1 assoclist root@prplOS:/# wl -i wl2 assoclist",
       "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d371-assocdev-disassociationtime.json"
-    },
-    {
-      "case_id": "d377-radio-maxbitrate",
-      "case_file": "D377_maxbitrate.yaml",
-      "dnum": 377,
-      "source_row": 280,
-      "source_object": "WiFi.Radio.{i}.",
-      "source_api": "MaxBitRate",
-      "answer_row": 377,
-      "answer_object": "WiFi.Radio.{i}.",
-      "answer_api": "MaxBitRate",
-      "mapping_status": "exact",
-      "mapping_object_match": true,
-      "mapping_api_match": true,
-      "final_status": "Pass",
-      "evaluation_verdict": "Pass",
-      "attempts_used": 1,
-      "comment": "",
-      "bands": {
-        "5g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
-          "expected_raw": "Not Supported",
-          "expected_norm": "Fail"
-        },
-        "6g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
-          "expected_raw": "Not Supported",
-          "expected_norm": "Fail"
-        },
-        "2.4g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
-          "expected_raw": "Not Supported",
-          "expected_norm": "Fail"
-        }
-      },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
-      "workbook_test_steps_excerpt": "1. Read-only API, defines max bitrate for each radio: ubus-cli WiFi.Radio.*.MaxBitRate? > WiFi.Radio.*.MaxBitRate? WiFi.Radio.1.MaxBitRate=0 WiFi.Radio.2.MaxBitRate=0 WiFi.Radio.3.MaxBitRate=0",
-      "workbook_command_output_excerpt": "",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d377-radio-maxbitrate.json"
     },
     {
       "case_id": "d379-radio-mcs",

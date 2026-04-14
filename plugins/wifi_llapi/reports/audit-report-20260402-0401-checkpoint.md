@@ -1,5 +1,63 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-15 early-107)
+
+> This checkpoint records the `D377 Radio.MaxBitRate` workbook closure and the rejected `D371 AccessPoint.AssociatedDevice.DisassociationTime` survey rewrite.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D377 Radio.MaxBitRate` 已完成 closure
+- workbook authority 已刷新為 row `377`
+- stale row `280` 已由真實 workbook row `377` 取代
+- official rerun `20260415T023436252245` exact-close workbook `Not Supported / Not Supported / Not Supported`
+- live evidence 保留 tri-band getter `MaxBitRate=0/0/0`
+- `diagnostic_status=Pass`
+- targeted D377/runtime + radio-getter guardrails passed
+- full repo regression=`1661 passed`
+- compare 更新為 `344 / 420 full matches`、`76 mismatches`、`57 metadata drifts`
+- `D371 AccessPoint.AssociatedDevice.DisassociationTime` focused survey reruns `20260415T014146461381` / `20260415T015629548681` / `20260415T020725267608` 已確認為 blocker，rewrite 已回退：first replay 先暴露 24G `assoclist` 殘留且 `DisassociationTime` 不變，後續 detach trials 又分別出現 5G `assoclist` 殘留與 6G `step11_6g_post_assoc` serialwrap timeout
+- `D355-D357` 仍保留在需要 CSI client setup 的 placeholder bucket
+- `D359 AccessPoint.IsolationEnable` 因 two-station isolation ping 需求而暫停在 current single-STA lab shape
+- systemic active blockers 維持 `D047` authority conflict + shared 6G baseline manifestations（`D179`、`D181`）
+- next ready non-blocked compare-open case=`D379 Radio.MCS`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| D377 | 377 | Radio.MaxBitRate | Not Supported / Not Supported / Not Supported | `20260415T023436252245_DUT.log L30-L43; bgw720-0403_wifi_llapi_20260415t023436252245.md L9-L11; L15-L35` | `N/A（DUT-only case；20260415T023436252245_STA.log empty）` |
+
+### D377 Radio.MaxBitRate alignment evidence
+
+**STA 指令**
+
+```sh
+# N/A (DUT-only case)
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.Radio.1.MaxBitRate?"
+ubus-cli "WiFi.Radio.2.MaxBitRate?"
+ubus-cli "WiFi.Radio.3.MaxBitRate?"
+```
+
+**關鍵 log 摘錄 / log 區間**
+
+```text
+Official rerun 20260415T023436252245
+- bgw720-0403_wifi_llapi_20260415t023436252245.md L9-L11
+  result_5g/result_6g/result_24g = Not Supported / Not Supported / Not Supported with diagnostic_status=Pass
+- bgw720-0403_wifi_llapi_20260415t023436252245.md L20-L30
+  tri-band getter evidence exact-closes MaxBitRate=0/0/0 while workbook verdict remains Not Supported
+- 20260415T023436252245_DUT.log L30-L43
+  DUT getter readback is stable on all three radios: WiFi.Radio.1/2/3.MaxBitRate=0
+```
+
 ## Checkpoint summary (2026-04-15 early-106)
 
 > This checkpoint records the `D370 AccessPoint.AssociatedDevice.Active` workbook closure.

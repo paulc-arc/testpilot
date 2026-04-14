@@ -4173,6 +4173,24 @@ def test_d370_assocdev_active_contract():
     )
 
 
+def test_d377_radio_maxbitrate_contract():
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+
+    d377 = load_case(cases_dir / "D377_maxbitrate.yaml")
+    ref = d377["results_reference"]["v4.0.3"]
+
+    assert d377["source"]["row"] == 377
+    assert d377["llapi_support"] == "Not Supported"
+    assert ref["5g"] == "Not Supported"
+    assert ref["6g"] == "Not Supported"
+    assert ref["2.4g"] == "Not Supported"
+    assert case_band_results(d377, True) == (
+        "Not Supported",
+        "Not Supported",
+        "Not Supported",
+    )
+
+
 def test_pending_boolean_and_frequency_cases_evaluate_live_examples():
     plugin = _load_plugin()
     cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
@@ -19401,7 +19419,7 @@ _RADIO_GETTER_CASES = [
     # --- Batch 5a: Radio property getters ---
     ("D189_enable_radio_sensing.yaml", 264, "1", "1", "1", "WiFi.Radio.{r}.Sensing.Enable"),
     ("D376_longretrylimit.yaml", 279, "6", "6", "6", "WiFi.Radio.{r}.LongRetryLimit"),
-    ("D377_maxbitrate.yaml", 280, "0", "0", "0", "WiFi.Radio.{r}.MaxBitRate"),
+    ("D377_maxbitrate.yaml", 377, "0", "0", "0", "WiFi.Radio.{r}.MaxBitRate"),
     ("D378_maxsupportedssids.yaml", 281, "8", "8", "8", "WiFi.Radio.{r}.MaxSupportedSSIDs"),
     ("D381_noise_radio.yaml", 284, "-100", "-97", "-79", "WiFi.Radio.{r}.Noise"),
     ("D382_operatingfrequencyband.yaml", 285, "5GHz", "6GHz", "2.4GHz", "WiFi.Radio.{r}.OperatingFrequencyBand"),
