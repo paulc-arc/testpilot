@@ -1,5 +1,64 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-15 early-105)
+
+> This checkpoint records the `D367 IEEE80211ax.SRGOBSSPDMaxOffset` workbook closure.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D367 IEEE80211ax.SRGOBSSPDMaxOffset` 已完成 closure
+- workbook authority 已刷新為 row `367`
+- stale row `369` 已由真實 workbook row `367` 取代
+- official rerun `20260415T004735420726` exact-close tri-band workbook `Pass / Pass / Pass`
+- live evidence 保留 tri-band getter `SRGOBSSPDMaxOffset=62/62/62`
+- `diagnostic_status=Pass`
+- targeted D367/runtime + getter-batch guardrails=`192 passed`
+- full repo regression=`1662 passed`
+- compare 更新為 `342 / 420 full matches`、`78 mismatches`、`57 metadata drifts`
+- `D355-D357` 仍保留在需要 CSI client setup 的 placeholder bucket
+- `D359 AccessPoint.IsolationEnable` 因 two-station isolation ping 需求而暫停在 current single-STA lab shape
+- active blockers 維持 `D047` authority conflict + shared 6G baseline manifestations（`D179`、`D181`）
+- next ready non-blocked compare-open case=`D370 AccessPoint.AssociatedDevice.Active`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| D367 | 367 | IEEE80211ax.SRGOBSSPDMaxOffset | Pass / Pass / Pass | `20260415T004735420726_DUT.log L5-L18; bgw720-0403_wifi_llapi_20260415t004735420726.md L9-L11; L15-L37` | `N/A（DUT-only case；20260415T004735420726_STA.log empty）` |
+
+### D367 IEEE80211ax.SRGOBSSPDMaxOffset alignment evidence
+
+**STA 指令**
+
+```sh
+# N/A (DUT-only case)
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.Radio.1.IEEE80211ax.SRGOBSSPDMaxOffset?"
+ubus-cli "WiFi.Radio.2.IEEE80211ax.SRGOBSSPDMaxOffset?"
+ubus-cli "WiFi.Radio.3.IEEE80211ax.SRGOBSSPDMaxOffset?"
+```
+
+**關鍵 log 摘錄 / log 區間**
+
+```text
+Official rerun 20260415T004735420726
+- bgw720-0403_wifi_llapi_20260415t004735420726.md L9-L11
+  result_5g/result_6g/result_24g = Pass / Pass / Pass with diagnostic_status=Pass
+- bgw720-0403_wifi_llapi_20260415t004735420726.md L15-L37
+  each band returns getter evidence SRGOBSSPDMaxOffset=62 while preserving workbook pass-shaped raw verdict
+- 20260415T004735420726_DUT.log L5-L18
+  tri-band getter exact-closes WiFi.Radio.{1,2,3}.IEEE80211ax.SRGOBSSPDMaxOffset=62
+- 20260415T004735420726_STA.log
+  empty as expected for DUT-only closure
+```
+
 ## Checkpoint summary (2026-04-15 early-104)
 
 > This checkpoint records the `D364 IEEE80211ax.NonSRGOBSSPDMaxOffset` workbook closure.
