@@ -1,4 +1,4 @@
-**2026-04-14 superseding note：本檔下半部的大盤分析仍保留 2026-04-13 snapshot；最新 strict compare 已更新為 `326 / 420 full matches`、`94` 筆 mismatch、`58` 筆 metadata drift。** 最新已提交 closure 現在是 `D257 getRadioAirStats() Load`（official rerun `20260414T200750384793`）：earlier empty-array blocker 已清除，workbook authority 刷新到 row `257`，stale row `259` / fail-shaped YAML 退場，official rerun exact-close tri-band getter `Load=83/62/98`。本輪 targeted D257/method-stats runtime guardrails=`132 passed`、command-budget=`1 passed`、full repo regression=`1662 passed`。同一輪 multi-band `baseline-qualify --repeat-count 1 --soak-minutes 0` 已不再重現舊的 `wl1 bss` / STA disconnect blocker，但 6G post-verify 仍有 `dut_ocv_not_zero` drift，因此 active blockers 目前回到 `D047` authority conflict + shared 6G baseline manifestations（`D179`、`D181`）為主；`D211` / `D204` 仍是 parked clarification items，next ready non-blocked compare-open case 改為 `D261 getRadioAirStats() TxTime`。
+**2026-04-14 superseding note：本檔下半部的大盤分析仍保留 2026-04-13 snapshot；最新 strict compare 已更新為 `327 / 420 full matches`、`93` 筆 mismatch、`58` 筆 metadata drift。** 最新已提交 closure 現在是 `D261 getRadioAirStats() TxTime`（official rerun `20260414T202052779232`）：同一輪 recovered `getRadioAirStats()` path 延續自 D257，workbook authority 刷新到 row `261`，stale row `263` / pass-shaped YAML 退場，official rerun exact-close tri-band fail-shaped getter `TxTime=0/0/1`。本輪 targeted D261/method-stats runtime guardrails=`132 passed`、command-budget=`1 passed`、full repo regression=`1662 passed`。6G baseline 目前仍保留 `dut_ocv_not_zero` post-verify drift，因此 active blockers 仍以 `D047` authority conflict + shared 6G baseline manifestations（`D179`、`D181`）為主；`D211` / `D204` 仍是 parked clarification items，next ready non-blocked compare-open case 改為 `D308 getSSIDStats() FailedRetransCount`。
 
 **先講結論：以目前 repo 內 `compare-0401` snapshot 為準，跟 workbook 的差距是 `122` 筆 mismatch、`58` 筆 metadata drift。** 如果只看 workbook `Pass` 目標，分兩種口徑：
 
@@ -241,6 +241,7 @@
 ### 8. 當前 continuation anchor
 
 - latest aligned cases:
+  - `D261 getRadioAirStats() TxTime`
   - `D257 getRadioAirStats() Load`
   - `D251 Radio.Vendor.RegulatoryDomainRev`
   - `D214 Radio.RIFSEnabled`
@@ -269,7 +270,7 @@
   - `D186 Radio.NrRxAntenna`
   - `D187 Radio.NrTxAntenna`
 - latest closure after baseline recovery:
-  - `D257 getRadioAirStats() Load`
+  - `D261 getRadioAirStats() TxTime`
 - latest parked clarification item:
   - `D211 Radio.OperatingStandards`
   - `D204 Radio.MultiUserMIMOEnabled`
@@ -278,8 +279,8 @@
   - `D179`
   - `D181`
 - strict compare snapshot：
-  - `326 / 420 full matches`
-  - `94 mismatches`
+  - `327 / 420 full matches`
+  - `93 mismatches`
   - `58 metadata drifts`
 - next ready non-blocked compare-open case：
-  - `D261 getRadioAirStats() TxTime`
+  - `D308 getSSIDStats() FailedRetransCount`

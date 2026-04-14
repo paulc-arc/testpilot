@@ -19296,7 +19296,7 @@ _METHOD_STATS_CASES = [
     ("D258_getradioairstats_noise.yaml", 260, "getRadioAirStats", "Noise", "-100", "-97", "-79"),
     ("D259_getradioairstats_rxtime.yaml", 261, "getRadioAirStats", "RxTime", "0", "0", "0"),
     ("D260_getradioairstats_totaltime.yaml", 262, "getRadioAirStats", "TotalTime", "3", "26", "17"),
-    ("D261_getradioairstats_txtime.yaml", 263, "getRadioAirStats", "TxTime", "0", "0", "3851"),
+    ("D261_getradioairstats_txtime.yaml", 261, "getRadioAirStats", "TxTime", "0", "0", "1"),
     # getRadioStats field cases — workbook Pass
     ("D263_getradiostats_broadcastpacketsreceived.yaml", 263, "getRadioStats", "BroadcastPacketsReceived", "0", "0", "0"),
     ("D264_getradiostats_broadcastpacketssent.yaml", 264, "getRadioStats", "BroadcastPacketsSent", "0", "0", "0"),

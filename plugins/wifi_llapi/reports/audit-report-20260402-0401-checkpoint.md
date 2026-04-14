@@ -1,5 +1,60 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-14 early-90)
+
+> This checkpoint records the `D261 getRadioAirStats() TxTime` workbook closure on the recovered getter path.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D261 getRadioAirStats() TxTime` 已完成 closure
+- workbook authority 現在是 row `261`，不是 stale row `263`
+- official rerun `20260414T202052779232` exact-close tri-band fail-shaped getter `TxTime=0/0/1`
+- targeted D261/method-stats runtime guardrails=`132 passed`
+- command-budget guardrail=`1 passed`
+- full repo regression=`1662 passed`
+- compare 更新為 `327 / 420 full matches`、`93 mismatches`、`58 metadata drifts`
+- active blockers 維持 `D047` authority conflict + shared 6G baseline manifestations（`D179`、`D181`）
+- next ready non-blocked compare-open case=`D308 getSSIDStats() FailedRetransCount`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| D261 | 261 | getRadioAirStats() TxTime | Fail / Fail / Fail | `20260414T202052779232_DUT.log L5-L74` | `20260414T202052779232_STA.log`（empty） |
+
+### D261 getRadioAirStats() TxTime alignment evidence
+
+**STA 指令**
+
+```sh
+# N/A (DUT-only case)
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.Radio.1.getRadioAirStats()"
+ubus-cli "WiFi.Radio.2.getRadioAirStats()"
+ubus-cli "WiFi.Radio.3.getRadioAirStats()"
+```
+
+**關鍵 log 摘錄 / log 區間**
+
+```text
+Official rerun 20260414T202052779232
+- bgw720-0403_wifi_llapi_20260414t202052779232.md L9-L12
+  result_5g/result_6g/result_24g = Fail / Fail / Fail
+- bgw720-0403_wifi_llapi_20260414t202052779232.md L17-L89
+  TxTime = 0 / 0 / 1
+- 20260414T202052779232_DUT.log L5-L74
+  WiFi.Radio.1.getRadioAirStats() -> TxTime = 0
+  WiFi.Radio.2.getRadioAirStats() -> TxTime = 0
+  WiFi.Radio.3.getRadioAirStats() -> TxTime = 1
+```
+
 ## Checkpoint summary (2026-04-14 early-89)
 
 > This checkpoint records the `D257 getRadioAirStats() Load` workbook closure after the earlier empty-array blocker cleared and the getter path recovered.

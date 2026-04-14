@@ -96,7 +96,8 @@
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260414T173905381380",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260414T175434503053",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260414T180934010938",
-    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260414T200750384793"
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260414T200750384793",
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260414T202052779232"
   ],
   "answers_xlsx": "/home/paul_chen/prj_arc/testpilot/0401.xlsx",
   "cases_dir": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases",
@@ -104,20 +105,20 @@
   "missing_answer_count": 0,
   "missing_answer_rows": [],
   "metadata_drift_count": 58,
-  "full_match_count": 326,
-  "mismatch_case_count": 94,
+  "full_match_count": 327,
+  "mismatch_case_count": 93,
   "band_summary": {
     "5g": {
-      "matched": 330,
-      "mismatched": 90
+      "matched": 331,
+      "mismatched": 89
     },
     "6g": {
-      "matched": 326,
-      "mismatched": 94
+      "matched": 327,
+      "mismatched": 93
     },
     "2.4g": {
-      "matched": 329,
-      "mismatched": 91
+      "matched": 330,
+      "mismatched": 90
     }
   },
   "cases": [
@@ -8404,7 +8405,7 @@
       "case_id": "d261-getradioairstats-txtime",
       "case_file": "D261_getradioairstats_txtime.yaml",
       "dnum": 261,
-      "source_row": 263,
+      "source_row": 261,
       "source_object": "WiFi.Radio.{i}.",
       "source_api": "getRadioAirStats()",
       "answer_row": 261,
@@ -8413,39 +8414,35 @@
       "mapping_status": "exact",
       "mapping_object_match": true,
       "mapping_api_match": true,
-      "final_status": "Pass",
+      "final_status": "Fail",
       "evaluation_verdict": "Pass",
       "attempts_used": 1,
       "comment": "",
       "bands": {
         "5g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
+          "actual_raw": "Fail",
+          "actual_norm": "Fail",
           "expected_raw": "Fail",
           "expected_norm": "Fail"
         },
         "6g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
+          "actual_raw": "Fail",
+          "actual_norm": "Fail",
           "expected_raw": "Fail",
           "expected_norm": "Fail"
         },
         "2.4g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
+          "actual_raw": "Fail",
+          "actual_norm": "Fail",
           "expected_raw": "Fail",
           "expected_norm": "Fail"
         }
       },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
+      "mismatch_bands": [],
+      "matches_answer": true,
       "workbook_test_steps_excerpt": "",
       "workbook_command_output_excerpt": "",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d261-getradioairstats-txtime.json"
+      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260414T202052779232/d261-getradioairstats-txtime.json"
     },
     {
       "case_id": "d262-getradioairstats-void",
@@ -18832,53 +18829,6 @@
       "workbook_test_steps_excerpt": "1. Try change all radio to BE standard: ubus-cli WiFi.Radio.1.OperatingStandards=be ubus-cli WiFi.Radio.2.OperatingStandards=be ubus-cli WiFi.Radio.3.OperatingStandards=be 2. Check standard: root@prplOS:/# ubus-cli WiFi.Radio.*.Operating...",
       "workbook_command_output_excerpt": "[BE] wl -i wl[i] status wl -i wl[i] nmode wl -i wl[i] vhtmode wl -i wl[i] he features wl -i wl[i] eht features root@prplOS:/# wl -i wl0 status SSID: \"AAA_ATnT-wl0\" Mode: Managed RSSI: 0 dBm SNR: 0 dB noise: -99 dBm Channel: 36 BSSID: 64:...",
       "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d211-radio-operatingstandards.json"
-    },
-    {
-      "case_id": "d261-getradioairstats-txtime",
-      "case_file": "D261_getradioairstats_txtime.yaml",
-      "dnum": 261,
-      "source_row": 263,
-      "source_object": "WiFi.Radio.{i}.",
-      "source_api": "getRadioAirStats()",
-      "answer_row": 261,
-      "answer_object": "WiFi.Radio.{i}.",
-      "answer_api": "getRadioAirStats()",
-      "mapping_status": "exact",
-      "mapping_object_match": true,
-      "mapping_api_match": true,
-      "final_status": "Pass",
-      "evaluation_verdict": "Pass",
-      "attempts_used": 1,
-      "comment": "",
-      "bands": {
-        "5g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
-          "expected_raw": "Fail",
-          "expected_norm": "Fail"
-        },
-        "6g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
-          "expected_raw": "Fail",
-          "expected_norm": "Fail"
-        },
-        "2.4g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
-          "expected_raw": "Fail",
-          "expected_norm": "Fail"
-        }
-      },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
-      "workbook_test_steps_excerpt": "",
-      "workbook_command_output_excerpt": "",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d261-getradioairstats-txtime.json"
     },
     {
       "case_id": "d277-getscanresults-bandwidth",
