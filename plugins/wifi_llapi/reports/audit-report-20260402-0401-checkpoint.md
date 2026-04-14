@@ -1,5 +1,59 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-14 early-84)
+
+> This checkpoint records the `D209 Radio.OperatingChannelBandwidth` low-risk radio getter closure.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D209 Radio.OperatingChannelBandwidth` 已透過 official rerun `20260414T171246046906` 完成 closure
+- workbook authority 現在刷新到 row `209`，不再沿用 stale row `171`
+- current rerun exact-close tri-band getter `OperatingChannelBandwidth=20MHz/20MHz/20MHz`
+- landed case 現在把 stale raw `Fail / Fail / Fail` 刷新為 workbook-consistent `Pass / Pass / Pass`
+- targeted radio-getter/runtime guardrails 維持 `202 passed`
+- command-budget guardrail 維持 `1 passed`
+- final full repo regression 維持 `1662 passed`
+- compare refresh 已更新為 `322 / 420 full matches`、`98 mismatches`、`58 metadata drifts`
+- `D204 Radio.MultiUserMIMOEnabled` 仍維持 parked authority clarification item（`plugins/wifi_llapi/reports/D204_block.md`）
+- next ready non-blocked compare-open case 改為 `D211 Radio.OperatingStandards`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D209` | 209 | `OperatingChannelBandwidth` | `Pass / Pass / Pass` | `20260414T171246046906_DUT.log L5-L20; bgw720-0403_wifi_llapi_20260414t171246046906.md L15-L35` | `20260414T171246046906_STA.log` empty file |
+
+#### D209 Radio.OperatingChannelBandwidth
+
+**STA 指令**
+
+```sh
+# N/A (DUT-only radio getter case; rerun emitted an empty STA log)
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.Radio.1.OperatingChannelBandwidth?"
+ubus-cli "WiFi.Radio.2.OperatingChannelBandwidth?"
+ubus-cli "WiFi.Radio.3.OperatingChannelBandwidth?"
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+DUT (20260414T171246046906_DUT.log L5-L20; bgw720-0403_wifi_llapi_20260414t171246046906.md L15-L35)
+WiFi.Radio.1.OperatingChannelBandwidth="20MHz"
+WiFi.Radio.2.OperatingChannelBandwidth="20MHz"
+WiFi.Radio.3.OperatingChannelBandwidth="20MHz"
+
+STA (20260414T171246046906_STA.log)
+empty file
+```
+
 ## Checkpoint summary (2026-04-14 early-83)
 
 > This checkpoint records the `D208 Radio.OfdmaEnable` low-risk radio getter closure.

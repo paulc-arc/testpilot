@@ -90,7 +90,8 @@
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260414T165000634858",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260414T165326740351",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260414T170152736726",
-    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260414T170500384375"
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260414T170500384375",
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260414T171246046906"
   ],
   "answers_xlsx": "/home/paul_chen/prj_arc/testpilot/0401.xlsx",
   "cases_dir": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases",
@@ -98,20 +99,20 @@
   "missing_answer_count": 0,
   "missing_answer_rows": [],
   "metadata_drift_count": 58,
-  "full_match_count": 321,
-  "mismatch_case_count": 99,
+  "full_match_count": 322,
+  "mismatch_case_count": 98,
   "band_summary": {
     "5g": {
-      "matched": 325,
-      "mismatched": 95
+      "matched": 326,
+      "mismatched": 94
     },
     "6g": {
-      "matched": 321,
-      "mismatched": 99
+      "matched": 322,
+      "mismatched": 98
     },
     "2.4g": {
-      "matched": 324,
-      "mismatched": 96
+      "matched": 325,
+      "mismatched": 95
     }
   },
   "cases": [
@@ -7620,7 +7621,7 @@
       "case_id": "d209-radio-operatingchannelbandwidth",
       "case_file": "D209_operatingchannelbandwidth.yaml",
       "dnum": 209,
-      "source_row": 171,
+      "source_row": 209,
       "source_object": "WiFi.Radio.{i}.",
       "source_api": "OperatingChannelBandwidth",
       "answer_row": 209,
@@ -7635,33 +7636,29 @@
       "comment": "",
       "bands": {
         "5g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         },
         "6g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         },
         "2.4g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         }
       },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
+      "mismatch_bands": [],
+      "matches_answer": true,
       "workbook_test_steps_excerpt": "1. Check MaxChannelBandwidth for each radio: root@prplOS:/# ubus-cli WiFi.Radio.*.MaxChannelBandwidth? > WiFi.Radio.*.MaxChannelBandwidth? WiFi.Radio.1.MaxChannelBandwidth=\"160MHz\" WiFi.Radio.2.MaxChannelBandwidth=\"320MHz\" WiFi.Radio.3.M...",
       "workbook_command_output_excerpt": "wl -i wl[x] status wl -i wl0 status ... Chanspec: 5GHz channel [ch] 20MHz 40MHz 80MHz 160MHz wl -i wl1 status ... Chanspec: 6GHz channel [ch] 20MHz 40MHz 80MHz 160MHz 320MHz wl -i wl2 status ... Chanspec: 2.4GHz channel [ch] 20MHz 40MHz ...",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d209-radio-operatingchannelbandwidth.json"
+      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260414T171246046906/d209-radio-operatingchannelbandwidth.json"
     },
     {
       "case_id": "d211-radio-operatingstandards",
@@ -18799,53 +18796,6 @@
       "workbook_test_steps_excerpt": "1. Check MIMO enabled or not root@prplOS:/# ubus-cli WiFi.Radio.*.MultiUserMIMOEnabled? > WiFi.Radio.*.MultiUserMIMOEnabled? WiFi.Radio.1.MultiUserMIMOEnabled=1 WiFi.Radio.2.MultiUserMIMOEnabled=1 WiFi.Radio.3.MultiUserMIMOEnabled=1 2. C...",
       "workbook_command_output_excerpt": "root@prplOS:/# wl -i wl0 mu_features 1 root@prplOS:/# wl -i wl1 mu_features 1 root@prplOS:/# wl -i wl1 mu_features 1",
       "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260414T165000634858/d204-radio-multiusermimoenabled.json"
-    },
-    {
-      "case_id": "d209-radio-operatingchannelbandwidth",
-      "case_file": "D209_operatingchannelbandwidth.yaml",
-      "dnum": 209,
-      "source_row": 171,
-      "source_object": "WiFi.Radio.{i}.",
-      "source_api": "OperatingChannelBandwidth",
-      "answer_row": 209,
-      "answer_object": "WiFi.Radio.{i}.",
-      "answer_api": "OperatingChannelBandwidth",
-      "mapping_status": "exact",
-      "mapping_object_match": true,
-      "mapping_api_match": true,
-      "final_status": "Fail",
-      "evaluation_verdict": "Pass",
-      "attempts_used": 1,
-      "comment": "",
-      "bands": {
-        "5g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        },
-        "6g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        },
-        "2.4g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        }
-      },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
-      "workbook_test_steps_excerpt": "1. Check MaxChannelBandwidth for each radio: root@prplOS:/# ubus-cli WiFi.Radio.*.MaxChannelBandwidth? > WiFi.Radio.*.MaxChannelBandwidth? WiFi.Radio.1.MaxChannelBandwidth=\"160MHz\" WiFi.Radio.2.MaxChannelBandwidth=\"320MHz\" WiFi.Radio.3.M...",
-      "workbook_command_output_excerpt": "wl -i wl[x] status wl -i wl0 status ... Chanspec: 5GHz channel [ch] 20MHz 40MHz 80MHz 160MHz wl -i wl1 status ... Chanspec: 6GHz channel [ch] 20MHz 40MHz 80MHz 160MHz 320MHz wl -i wl2 status ... Chanspec: 2.4GHz channel [ch] 20MHz 40MHz ...",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d209-radio-operatingchannelbandwidth.json"
     },
     {
       "case_id": "d211-radio-operatingstandards",

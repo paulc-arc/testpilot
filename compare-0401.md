@@ -93,6 +93,7 @@
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260414T165326740351`
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260414T170152736726`
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260414T170500384375`
+  - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260414T171246046906`
 - answer sheet: `/home/paul_chen/prj_arc/testpilot/0401.xlsx`
 - cases dir: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases`
 - compare rule: normalize both sides so only `Pass` stays `Pass`; all other values become `Fail`.
@@ -103,8 +104,8 @@
 | metric | value |
 | --- | ---: |
 | compared cases | 420 |
-| full matches | 321 |
-| mismatch cases | 99 |
+| full matches | 322 |
+| mismatch cases | 98 |
 | missing answer rows | 0 |
 | metadata drift rows | 58 |
 
@@ -112,9 +113,9 @@
 
 | band | matched | mismatched |
 | --- | ---: | ---: |
-| 5g | 325 | 95 |
-| 6g | 321 | 99 |
-| 2.4g | 324 | 96 |
+| 5g | 326 | 94 |
+| 6g | 322 | 98 |
+| 2.4g | 325 | 95 |
 
 ## Mismatch table
 
@@ -125,7 +126,6 @@
 | `d181-radio-fragmentationthreshold` | 181 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d182-radio-rtsthreshold` | 182 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d204-radio-multiusermimoenabled` | 204 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
-| `d209-radio-operatingchannelbandwidth` | 209 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d211-radio-operatingstandards` | 211 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d212-radio-possiblechannels` | 212 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d214-radio-rifsenabled` | 214 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
@@ -317,25 +317,6 @@
 - 0401 G excerpt: 1. Check MIMO enabled or not root@prplOS:/# ubus-cli WiFi.Radio.*.MultiUserMIMOEnabled? > WiFi.Radio.*.MultiUserMIMOEnabled? WiFi.Radio.1.MultiUserMIMOEnabled=1 WiFi.Radio.2.MultiUserMIMOEnabled=1 WiFi.Radio.3.MultiUserMIMOEnabled=1 2. C...
 - 0401 H excerpt: root@prplOS:/# wl -i wl0 mu_features 1 root@prplOS:/# wl -i wl1 mu_features 1 root@prplOS:/# wl -i wl1 mu_features 1
 - trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260414T165000634858/d204-radio-multiusermimoenabled.json`
-
-### d209-radio-operatingchannelbandwidth
-
-- case file: `D209_operatingchannelbandwidth.yaml`
-- answer row: `209`
-- mapping status: `exact`
-- source metadata: `WiFi.Radio.{i}.` / `OperatingChannelBandwidth`
-- workbook metadata: `WiFi.Radio.{i}.` / `OperatingChannelBandwidth`
-- final status: `Fail`
-- evaluation verdict: `Pass`
-- attempts used: `1`
-- actual raw: `Fail` / `Fail` / `Fail`
-- expected raw: `Pass` / `Pass` / `Pass`
-- actual normalized: `Fail` / `Fail` / `Fail`
-- expected normalized: `Pass` / `Pass` / `Pass`
-- mismatch bands: `5g, 6g, 2.4g`
-- 0401 G excerpt: 1. Check MaxChannelBandwidth for each radio: root@prplOS:/# ubus-cli WiFi.Radio.*.MaxChannelBandwidth? > WiFi.Radio.*.MaxChannelBandwidth? WiFi.Radio.1.MaxChannelBandwidth="160MHz" WiFi.Radio.2.MaxChannelBandwidth="320MHz" WiFi.Radio.3.M...
-- 0401 H excerpt: wl -i wl[x] status wl -i wl0 status ... Chanspec: 5GHz channel [ch] 20MHz 40MHz 80MHz 160MHz wl -i wl1 status ... Chanspec: 6GHz channel [ch] 20MHz 40MHz 80MHz 160MHz 320MHz wl -i wl2 status ... Chanspec: 2.4GHz channel [ch] 20MHz 40MHz ...
-- trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d209-radio-operatingchannelbandwidth.json`
 
 ### d211-radio-operatingstandards
 
