@@ -81,6 +81,8 @@
 
 ## Latest repo handoff snapshot（2026-04-14）
 
+- `D202 Radio.Interference` is now aligned via official rerun `20260414T163235194291`
+- workbook authority is row `202`, not stale row `165`; the rerun exact-closes tri-band getter `Interference=0/0/0`, so the landed case now refreshes stale row `165` / raw `Fail / Fail / Fail` to workbook row `202` / raw `Pass / Fail / Pass`
 - `D201 Radio.ImplicitBeamFormingSupported` is now aligned via official rerun `20260414T162439231118`
 - workbook authority is row `201`, not stale row `164`; the rerun exact-closes tri-band getter `ImplicitBeamFormingSupported=1/1/1`, so the landed case now refreshes stale row `164` / raw `Fail / Fail / Fail` to workbook row `201` / raw `Pass / Pass / Pass`
 - `D200 Radio.ImplicitBeamFormingEnabled` is now aligned via official rerun `20260414T161411193999`
@@ -109,7 +111,7 @@
 - workbook authority is row `180`, not stale row `143`; the rerun exact-closes tri-band getter `Amsdu=-1`, so the landed case now refreshes stale row `143` / raw `Fail / Fail / Fail` to workbook row `180` / raw `Pass / Pass / Pass`
 - `D184-D187` are now aligned via official reruns `20260414T111624033199` / `20260414T111633789177` / `20260414T111643078674` / `20260414T111652454052`
 - each rerun exact-closes the active 0403 tri-band getter value `4`, so the landed cases now refresh stale rows `147-150` / raw `Fail / Fail / Fail` to workbook rows `184-187` / raw `Pass / Pass / Pass`
-- refreshed overlay compare is now `316 / 420 full matches` / `104 mismatches` / `58 metadata drifts`
+- refreshed overlay compare is now `317 / 420 full matches` / `103 mismatches` / `58 metadata drifts`
 - targeted radio-getter/runtime guardrails are now `201 passed`; command-budget guardrail is `1 passed`
 - final full repo regression remains `1662 passed`
 - `D181 Radio.FragmentationThreshold` is now blocked as another manifestation of the shared `DUT + STA` 6G baseline bring-up failure already exposed by `D179`
@@ -117,7 +119,7 @@
 - the provisional workbook-faithful `D181/D182` setter rewrites were rolled back to respect the YAML writeback gate; `D182 Radio.RtsThreshold` remains parked until the shared 6G baseline path is stabilized
 - active blockers are now `D047` authority conflict plus the shared 6G baseline blocker manifested in `D179` and `D181`
 - blocker handoff: `plugins/wifi_llapi/reports/D047_block.md`, `plugins/wifi_llapi/reports/D179_block.md`, `plugins/wifi_llapi/reports/D181_block.md`
-- next ready non-blocked compare-open case: `D202 Radio.Interference`
+- next ready non-blocked compare-open case: `D203 Radio.MaxChannelBandwidth`
 
 - `D179 Radio.Ampdu` is now blocked after two focused rerun phases instead of closing as a workbook-Pass row
 - workbook authority is still row `179`, and workbook `G/H` explicitly require an active station/throughput path before `wl -i wlx ampdu` is used as the driver oracle
