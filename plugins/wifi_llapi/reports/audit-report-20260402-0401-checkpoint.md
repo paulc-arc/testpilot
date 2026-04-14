@@ -1,5 +1,91 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-15 early-123)
+
+> This checkpoint records the `D437 AccessPoint.Security.SAEPassphrase` workbook closure.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D437 AccessPoint.Security.SAEPassphrase` 已完成 closure
+- workbook authority 已刷新為 row `437`
+- 舊 row `439` generic getter shell 已改寫回 workbook `WiFi.AccessPoint.{i}.Security.` / `SAEPassphrase`
+- official rerun `20260415T061648225671` exact-close workbook `Pass / Pass / Pass`
+- baseline 維持 5G/2.4G getter `password` + hostapd `ABSENT`、6G getter / hostapd `00000000`
+- wildcard `ModeEnabled=WPA3-Personal` + `SAEPassphrase=1234567890` 後，AP1/AP3/AP5 getter 與 wl0/wl1/wl2 hostapd `sae_password=` 全部收斂到 `1234567890`
+- restore 也穩定回到 5G/2.4G `WPA2-Personal + password + no sae_password`、6G `WPA3-Personal + quoted 00000000`
+- quoted 6G baseline 也已透過 plugin `sync_psk` fix 正確同步成 `KeyPassPhrase="00000000"`
+- final report 維持 `diagnostic_status=Pass`
+- targeted D437/runtime + budget guardrails passed
+- full repo regression=`1660 passed`
+- compare 更新為 `360 / 420 full matches`、`60 mismatches`、`47 metadata drifts`
+- `D371 AccessPoint.AssociatedDevice.DisassociationTime` 仍維持 localized blocker，rewrite 已回退
+- `D355-D357` 仍保留在需要 CSI client setup 的 placeholder bucket
+- `D359 AccessPoint.IsolationEnable` 因 two-station isolation ping 需求而暫停在 current single-STA lab shape
+- systemic active blockers 維持 `D047` authority conflict + shared 6G baseline manifestations（`D179`、`D181`）
+- `D414/D415` 仍保留為 readiness-review cluster；workbook `G` 已明示需要 dual-STA 802.11k split
+- next ready actionable survey target=`D438 AccessPoint.Security.TransitionDisable`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| D437 | 437 | AccessPoint.Security.SAEPassphrase | Pass / Pass / Pass | `20260415T061648225671_DUT.log L168-L226; L270-L328; L398-L456; bgw720-0403_wifi_llapi_20260415t061648225671.md L9-L11; L15-L97` | `N/A（AP-only case；20260415T061648225671_STA.log empty）` |
+
+### D437 AccessPoint.Security.SAEPassphrase alignment evidence
+
+**STA 指令**
+
+```sh
+# N/A (AP-only case)
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.Security.ModeEnabled?"
+ubus-cli "WiFi.AccessPoint.3.Security.ModeEnabled?"
+ubus-cli "WiFi.AccessPoint.5.Security.ModeEnabled?"
+ubus-cli "WiFi.AccessPoint.1.Security.SAEPassphrase?"
+ubus-cli "WiFi.AccessPoint.3.Security.SAEPassphrase?"
+ubus-cli "WiFi.AccessPoint.5.Security.SAEPassphrase?"
+grep -m1 '^sae_password=' /tmp/wl0_hapd.conf || true
+grep -m1 '^sae_password=' /tmp/wl1_hapd.conf || true
+grep -m1 '^sae_password=' /tmp/wl2_hapd.conf || true
+ubus-cli "WiFi.AccessPoint.*.Security.ModeEnabled=WPA3-Personal"
+ubus-cli "WiFi.AccessPoint.*.Security.SAEPassphrase=1234567890"
+ubus-cli "WiFi.AccessPoint.1.Security.SAEPassphrase=password"
+ubus-cli "WiFi.AccessPoint.2.Security.SAEPassphrase=password"
+ubus-cli 'WiFi.AccessPoint.3.Security.SAEPassphrase="00000000"'
+ubus-cli 'WiFi.AccessPoint.4.Security.SAEPassphrase="00000000"'
+ubus-cli "WiFi.AccessPoint.5.Security.SAEPassphrase=password"
+ubus-cli "WiFi.AccessPoint.6.Security.SAEPassphrase=password"
+ubus-cli "WiFi.AccessPoint.1.Security.ModeEnabled=WPA2-Personal"
+ubus-cli "WiFi.AccessPoint.2.Security.ModeEnabled=WPA2-Personal"
+ubus-cli "WiFi.AccessPoint.3.Security.ModeEnabled=WPA3-Personal"
+ubus-cli "WiFi.AccessPoint.4.Security.ModeEnabled=WPA3-Personal"
+ubus-cli "WiFi.AccessPoint.5.Security.ModeEnabled=WPA2-Personal"
+ubus-cli "WiFi.AccessPoint.6.Security.ModeEnabled=WPA2-Personal"
+```
+
+**關鍵 log 摘錄 / log 區間**
+
+```text
+Official rerun 20260415T061648225671
+- bgw720-0403_wifi_llapi_20260415t061648225671.md L9-L11
+  result_5g/result_6g/result_24g = Pass / Pass / Pass with diagnostic_status=Pass
+- bgw720-0403_wifi_llapi_20260415t061648225671.md L15-L97
+  workbook-faithful row-437 replay keeps the observed baseline shape, drives AP1/AP3/AP5 getter plus wl0/wl1/wl2 hostapd `sae_password=` to 1234567890, then restores the baseline cleanly
+- 20260415T061648225671_DUT.log L168-L226
+  baseline exact-closes 5G/2.4G getter `password` with hostapd `ABSENT`, and 6G getter / hostapd `00000000`
+- 20260415T061648225671_DUT.log L270-L328
+  workbook wildcard `ModeEnabled=WPA3-Personal` + `SAEPassphrase=1234567890` exact-closes tri-band getter and hostapd `sae_password=1234567890`
+- 20260415T061648225671_DUT.log L398-L456
+  restore exact-closes 5G/2.4G `WPA2-Personal + password + ABSENT` and 6G `WPA3-Personal + 00000000`
+```
+
 ## Checkpoint summary (2026-04-15 early-122)
 
 > This checkpoint records the `D436 AccessPoint.Security.OWETransitionInterface` workbook closure.

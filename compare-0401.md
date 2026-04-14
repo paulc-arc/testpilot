@@ -133,8 +133,9 @@
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T050448284344`
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T051545233691`
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T054920871826`
-- answer sheet: `0401.xlsx`
-- cases dir: `plugins/wifi_llapi/cases`
+  - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T061648225671`
+- answer sheet: `/home/paul_chen/prj_arc/testpilot/0401.xlsx`
+- cases dir: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases`
 - compare rule: normalize both sides so only `Pass` stays `Pass`; all other values become `Fail`.
 - row mapping rule: use case `D###` number to match `0401.xlsx` worksheet row `###`.
 
@@ -143,8 +144,8 @@
 | metric | value |
 | --- | ---: |
 | compared cases | 420 |
-| full matches | 359 |
-| mismatch cases | 61 |
+| full matches | 360 |
+| mismatch cases | 60 |
 | missing answer rows | 0 |
 | metadata drift rows | 47 |
 
@@ -152,9 +153,9 @@
 
 | band | matched | mismatched |
 | --- | ---: | ---: |
-| 5g | 361 | 59 |
-| 6g | 359 | 61 |
-| 2.4g | 361 | 59 |
+| 5g | 362 | 58 |
+| 6g | 360 | 60 |
+| 2.4g | 362 | 58 |
 
 ## Mismatch table
 
@@ -177,7 +178,6 @@
 | `d371-assocdev-disassociationtime` | 371 | exact | Fail / N/A / N/A | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d414-assocdev-rrmoffchannelmaxduration` | 414 | exact | Fail / N/A / N/A | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d415-assocdev-rrmonchannelmaxduration` | 415 | exact | Fail / N/A / N/A | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
-| `d437-security-saepassphrase` | 437 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d438-security-transitiondisable` | 438 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d454-getradiostats-failedretranscount` | 454 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d455-getradiostats-multipleretrycount` | 455 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
@@ -552,25 +552,6 @@
 - 0401 G excerpt: 1. Connect WiFi Station to GW with one station 802.11k Enable and the other one 802.11k Disable. 2. Verify Station station 802.11k Enable Check whether RRM is ON or OFF using: wl sta_info <MAC> | grep -i rrm If 802.11k Enable then you wi...
 - 0401 H excerpt: (empty)
 - trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d415-assocdev-rrmonchannelmaxduration.json`
-
-### d437-security-saepassphrase
-
-- case file: `D437_saepassphrase.yaml`
-- answer row: `437`
-- mapping status: `exact`
-- source metadata: `WiFi.AccessPoint.{i}.Security.` / `SAEPassphrase`
-- workbook metadata: `WiFi.AccessPoint.{i}.Security.` / `SAEPassphrase`
-- final status: `Fail`
-- evaluation verdict: `Pass`
-- attempts used: `1`
-- actual raw: `Fail` / `Fail` / `Fail`
-- expected raw: `Pass` / `Pass` / `Pass`
-- actual normalized: `Fail` / `Fail` / `Fail`
-- expected normalized: `Pass` / `Pass` / `Pass`
-- mismatch bands: `5g, 6g, 2.4g`
-- 0401 G excerpt: 1. Set Security ModeEnabled=WPA3-Personal ubus-cli WiFi.AccessPoint.*.Security.ModeEnabled=WPA3-Personal 2. Set Security SAEPassphrase=1234567890 ubus-cli WiFi.AccessPoint.*.Security.SAEPassphrase=1234567890
-- 0401 H excerpt: cat /tmp/wl0_hapd.conf |grep sae_password root@prplOS:/# cat /tmp/wl0_hapd.conf |grep sae_password sae_password=1234567890 root@prplOS:/# cat /tmp/wl1_hapd.conf |grep sae_password sae_password=1234567890 root@prplOS:/# cat /tmp/wl2_hapd....
-- trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d437-security-saepassphrase.json`
 
 ### d438-security-transitiondisable
 

@@ -1492,6 +1492,21 @@ class Plugin(PluginBase):
     @classmethod
     def _wpa3_key_sync_command(cls, command: str) -> str | None:
         normalized = cls._normalize_command_text(command)
+        try:
+            tokens = shlex.split(normalized)
+        except ValueError:
+            tokens = normalized.split()
+        for token in tokens[1:]:
+            match = re.fullmatch(
+                r"WiFi\.AccessPoint\.(\d+)\.Security\.SAEPassphrase=(.+)",
+                token,
+                re.IGNORECASE,
+            )
+            if match is None:
+                continue
+            ap_index, passphrase = match.groups()
+            key_token = f"WiFi.AccessPoint.{ap_index}.Security.KeyPassPhrase={passphrase}"
+            return f"ubus-cli {shlex.quote(key_token)}"
         match = re.search(
             r"WiFi\.AccessPoint\.(\d+)\.Security\.SAEPassphrase=(.+)$",
             normalized,
@@ -1500,7 +1515,8 @@ class Plugin(PluginBase):
         if match is None:
             return None
         ap_index, passphrase = match.groups()
-        return f"ubus-cli WiFi.AccessPoint.{ap_index}.Security.KeyPassPhrase={passphrase}"
+        key_token = f"WiFi.AccessPoint.{ap_index}.Security.KeyPassPhrase={passphrase}"
+        return f"ubus-cli {shlex.quote(key_token)}"
 
     @classmethod
     def _sta_wpa_supplicant_iface(cls, command: str) -> str | None:

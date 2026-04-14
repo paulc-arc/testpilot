@@ -1178,6 +1178,44 @@ def test_setup_env_syncs_psk_from_custom_wpa3_sae_passphrase(monkeypatch):
     plugin.teardown(case, topology=topology)
 
 
+def test_setup_env_syncs_psk_from_quoted_custom_wpa3_sae_passphrase(monkeypatch):
+    plugin = _load_plugin()
+    topology = _FakeTopology()
+    recorder = _FactoryRecorder()
+    _install_fake_factory(monkeypatch, recorder)
+
+    case = {
+        "id": "wifi-llapi-runtime-custom-wpa3-quoted-cleanup",
+        "topology": {
+            "devices": {
+                "DUT": {"transport": "serial"},
+            }
+        },
+        "sta_env_setup": """
+        DUT 6G baseline:
+          ubus-cli WiFi.AccessPoint.3.Security.ModeEnabled=WPA3-Personal
+          ubus-cli 'WiFi.AccessPoint.3.Security.SAEPassphrase="00000000"'
+          ubus-cli WiFi.AccessPoint.3.Enable=1
+        """,
+        "verification_command": 'wl -i wl1 assoclist',
+        "pass_criteria": [{"field": "result", "operator": "contains", "value": "OK"}],
+        "steps": [{"id": "s1", "command": 'ubus-cli "WiFi.AccessPoint.3.AssociatedDevice.*.MACAddress?"'}],
+    }
+
+    assert plugin.setup_env(case, topology=topology) is True
+    dut = next(
+        transport for transport in recorder.transports if transport.transport_type == "serial"
+    )
+    sae_index = dut.executed_commands.index(
+        'ubus-cli \'WiFi.AccessPoint.3.Security.SAEPassphrase="00000000"\''
+    )
+    assert (
+        dut.executed_commands[sae_index + 1]
+        == 'ubus-cli \'WiFi.AccessPoint.3.Security.KeyPassPhrase="00000000"\''
+    )
+    plugin.teardown(case, topology=topology)
+
+
 def test_setup_env_skips_placeholder_sta_env_setup_and_leaves_auto_baseline_available(monkeypatch):
     plugin = _load_plugin()
     topology = _FakeTopology()
@@ -12300,6 +12338,222 @@ def test_d436_owetransitioninterface_evaluate_live_examples():
     assert plugin.evaluate(d436, d436_wrong_6g_backend) is False
 
 
+def test_d437_saepassphrase_contract():
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+
+    d437_raw = yaml.safe_load((cases_dir / "D437_saepassphrase.yaml").read_text(encoding="utf-8"))
+    d437 = load_case(cases_dir / "D437_saepassphrase.yaml")
+    d437_commands = "\n".join(str(step.get("command", "")) for step in d437["steps"])
+
+    assert "aliases" not in d437_raw
+    assert d437["id"] == "d437-security-saepassphrase"
+    assert d437["source"]["report"] == "0310-BGW720-300_LLAPI_Test_Report.xlsx"
+    assert d437["source"]["row"] == 437
+    assert d437["source"]["object"] == "WiFi.AccessPoint.{i}.Security."
+    assert d437["source"]["api"] == "SAEPassphrase"
+    assert d437["hlapi_command"] == 'ubus-cli "WiFi.AccessPoint.*.Security.SAEPassphrase=1234567890"'
+    assert d437["llapi_support"] == "Support"
+    assert d437["implemented_by"] == "pWHM"
+    assert d437["bands"] == ["5g", "6g", "2.4g"]
+    assert set(d437["topology"]["devices"]) == {"DUT"}
+    assert d437["topology"]["links"] == []
+    assert "killall wpa_supplicant" not in d437.get("sta_env_setup", "")
+    assert "WPA3-Personal" in d437.get("test_procedure", "")
+    assert "grep -m1 '^sae_password=' /tmp/wl1_hapd.conf" in d437_commands
+    assert 'AfterSetHostapdSAEPassphrase6g=%s' in d437_commands
+    assert 'AfterRestoreHostapdSAEPassphrase24g=%s' in d437_commands
+    assert 'WiFi.AccessPoint.3.Security.SAEPassphrase="00000000"' in d437_commands
+    assert any(
+        criterion["field"] == "saepassphrase_after_set_6g.AfterSetHostapdSAEPassphrase6g"
+        and criterion["operator"] == "equals"
+        and criterion["reference"] == "saepassphrase_after_set_6g.AfterSetGetterSAEPassphrase6g"
+        for criterion in d437["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "saepassphrase_after_restore_5g.AfterRestoreHostapdSAEPassphrase5g"
+        and criterion["operator"] == "equals"
+        and criterion["reference"]
+        == "saepassphrase_baseline_5g.BaselineHostapdSAEPassphrase5g"
+        for criterion in d437["pass_criteria"]
+    )
+    assert d437["results_reference"]["v4.0.3"]["5g"] == "Pass"
+    assert d437["results_reference"]["v4.0.3"]["6g"] == "Pass"
+    assert d437["results_reference"]["v4.0.3"]["2.4g"] == "Pass"
+
+
+def test_d437_saepassphrase_setup_env_uses_only_dut_transport(monkeypatch):
+    plugin = _load_plugin()
+    topology = _FakeTopology()
+    recorder = _FactoryRecorder()
+    _install_fake_factory(monkeypatch, recorder)
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+    d437 = load_case(cases_dir / "D437_saepassphrase.yaml")
+
+    assert plugin.setup_env(d437, topology=topology) is True
+    assert len(recorder.calls) == 1
+    assert recorder.calls[0][0] == "serial"
+    executed_commands = recorder.transports[0].executed_commands
+    assert executed_commands.count("ubus-cli WiFi.AccessPoint.1.Enable=1") == 1
+    assert executed_commands.count("ubus-cli WiFi.AccessPoint.3.Enable=1") == 1
+    assert executed_commands.count("ubus-cli WiFi.AccessPoint.5.Enable=1") == 1
+    assert (
+        executed_commands.count(
+            "ubus-cli WiFi.AccessPoint.1.Security.ModeEnabled=WPA2-Personal"
+        )
+        == 1
+    )
+    assert (
+        executed_commands.count(
+            "ubus-cli WiFi.AccessPoint.3.Security.ModeEnabled=WPA3-Personal"
+        )
+        == 1
+    )
+    assert (
+        executed_commands.count(
+            'ubus-cli \'WiFi.AccessPoint.3.Security.SAEPassphrase="00000000"\''
+        )
+        == 1
+    )
+    assert (
+        executed_commands.count(
+            'ubus-cli \'WiFi.AccessPoint.4.Security.SAEPassphrase="00000000"\''
+        )
+        == 1
+    )
+    assert (
+        executed_commands.count(
+            'ubus-cli \'WiFi.AccessPoint.3.Security.KeyPassPhrase="00000000"\''
+        )
+        == 1
+    )
+    assert (
+        executed_commands.count(
+            'ubus-cli \'WiFi.AccessPoint.4.Security.KeyPassPhrase="00000000"\''
+        )
+        == 1
+    )
+    assert executed_commands.count("ubus-cli WiFi.AccessPoint.5.Security.SAEPassphrase=password") == 1
+    assert executed_commands.count("wl -i wl0 bss") == 1
+    assert executed_commands.count("wl -i wl1 bss") == 1
+    assert executed_commands.count("wl -i wl2 bss") == 1
+    assert all("STA" not in command for command in executed_commands)
+    plugin.teardown(d437, topology)
+
+
+def test_d437_saepassphrase_evaluate_live_examples():
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+    d437 = load_case(cases_dir / "D437_saepassphrase.yaml")
+
+    def baseline_output(mode: str, getter: str, hostapd: str, suffix: str) -> str:
+        return "\n".join(
+            [
+                f"BaselineModeEnabled{suffix}={mode}",
+                f"BaselineGetterSAEPassphrase{suffix}={getter}",
+                f"BaselineHostapdSAEPassphrase{suffix}={hostapd}",
+            ]
+        )
+
+    def after_set_output(suffix: str) -> str:
+        return "\n".join(
+            [
+                f"AfterSetModeEnabled{suffix}=WPA3-Personal",
+                f"AfterSetGetterSAEPassphrase{suffix}=1234567890",
+                f"AfterSetHostapdSAEPassphrase{suffix}=1234567890",
+            ]
+        )
+
+    def after_restore_output(mode: str, getter: str, hostapd: str, suffix: str) -> str:
+        return "\n".join(
+            [
+                f"AfterRestoreModeEnabled{suffix}={mode}",
+                f"AfterRestoreGetterSAEPassphrase{suffix}={getter}",
+                f"AfterRestoreHostapdSAEPassphrase{suffix}={hostapd}",
+            ]
+        )
+
+    d437_results = {
+        "steps": {
+            "step1_saepassphrase_baseline_5g": {
+                "success": True,
+                "output": baseline_output("WPA2-Personal", "password", "ABSENT", "5g"),
+                "timing": 0.01,
+            },
+            "step2_saepassphrase_baseline_6g": {
+                "success": True,
+                "output": baseline_output("WPA3-Personal", "00000000", "00000000", "6g"),
+                "timing": 0.01,
+            },
+            "step3_saepassphrase_baseline_24g": {
+                "success": True,
+                "output": baseline_output("WPA2-Personal", "password", "ABSENT", "24g"),
+                "timing": 0.01,
+            },
+            "step4_saepassphrase_set_mode_all": {
+                "success": True,
+                "output": "RequestedModeEnabledAll=WPA3-Personal",
+                "timing": 0.01,
+            },
+            "step5_saepassphrase_set_all": {
+                "success": True,
+                "output": "RequestedSAEPassphraseAll=1234567890",
+                "timing": 0.01,
+            },
+            "step6_saepassphrase_after_set_5g": {
+                "success": True,
+                "output": after_set_output("5g"),
+                "timing": 0.01,
+            },
+            "step7_saepassphrase_after_set_6g": {
+                "success": True,
+                "output": after_set_output("6g"),
+                "timing": 0.01,
+            },
+            "step8_saepassphrase_after_set_24g": {
+                "success": True,
+                "output": after_set_output("24g"),
+                "timing": 0.01,
+            },
+            "step9_saepassphrase_restore_baseline": {
+                "success": True,
+                "output": "restore=ok",
+                "timing": 0.01,
+            },
+            "step10_saepassphrase_after_restore_5g": {
+                "success": True,
+                "output": after_restore_output("WPA2-Personal", "password", "ABSENT", "5g"),
+                "timing": 0.01,
+            },
+            "step11_saepassphrase_after_restore_6g": {
+                "success": True,
+                "output": after_restore_output("WPA3-Personal", "00000000", "00000000", "6g"),
+                "timing": 0.01,
+            },
+            "step12_saepassphrase_after_restore_24g": {
+                "success": True,
+                "output": after_restore_output("WPA2-Personal", "password", "ABSENT", "24g"),
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d437, d437_results) is True
+
+    d437_wrong_24g_backend = {
+        "steps": {
+            **d437_results["steps"],
+            "step8_saepassphrase_after_set_24g": {
+                "success": True,
+                "output": after_set_output("24g").replace(
+                    "AfterSetHostapdSAEPassphrase24g=1234567890",
+                    "AfterSetHostapdSAEPassphrase24g=ABSENT",
+                ),
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d437, d437_wrong_24g_backend) is False
+
+
 def test_d084_encryptionmode_accesspoint_security_contract():
     cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
 
@@ -21575,14 +21829,13 @@ def test_assocdev_getter_evaluate(yaml_file, row, api_field):
 
 
 # ---------------------------------------------------------------------------
-# Batch 6 — AP/SSID/Security getters (D319,D320,D359,D436-D438,D588): 3-band
+# Batch 6 — AP/SSID/Security getters (D319,D320,D359,D438,D588): 3-band
 # ---------------------------------------------------------------------------
 _AP_SSID_SECURITY_CASES = [
     ("D359_isolationenable.yaml", 361, "IsolationEnable", "WiFi.AccessPoint.{i}."),
     ("D319_macaddress_ssid.yaml", 319, "MACAddress", "WiFi.SSID.{i}."),
     ("D320_ssid.yaml", 320, "SSID", "WiFi.SSID.{i}."),
     ("D588_mldunit.yaml", 591, "MLDUnit", "WiFi.SSID.{i}."),
-    ("D437_saepassphrase.yaml", 439, "SAEPassphrase", "WiFi.AccessPoint.{i}.Security."),
     ("D438_transitiondisable.yaml", 440, "TransitionDisable", "WiFi.AccessPoint.{i}.Security."),
 ]
 _AP_SSID_SECURITY_IDS = [t[0].split(".")[0] for t in _AP_SSID_SECURITY_CASES]

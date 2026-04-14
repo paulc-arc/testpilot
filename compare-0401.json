@@ -1,5 +1,5 @@
 {
-  "trace_dir": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T054920871826",
+  "trace_dir": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T061648225671",
   "trace_dirs": [
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T172957084134",
@@ -130,28 +130,29 @@
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T045340433281",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T050448284344",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T051545233691",
-    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T054920871826"
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T054920871826",
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T061648225671"
   ],
-  "answers_xlsx": "0401.xlsx",
-  "cases_dir": "plugins/wifi_llapi/cases",
+  "answers_xlsx": "/home/paul_chen/prj_arc/testpilot/0401.xlsx",
+  "cases_dir": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases",
   "compared_case_count": 420,
   "missing_answer_count": 0,
   "missing_answer_rows": [],
   "metadata_drift_count": 47,
-  "full_match_count": 359,
-  "mismatch_case_count": 61,
+  "full_match_count": 360,
+  "mismatch_case_count": 60,
   "band_summary": {
     "5g": {
-      "matched": 361,
-      "mismatched": 59
+      "matched": 362,
+      "mismatched": 58
     },
     "6g": {
-      "matched": 359,
-      "mismatched": 61
+      "matched": 360,
+      "mismatched": 60
     },
     "2.4g": {
-      "matched": 361,
-      "mismatched": 59
+      "matched": 362,
+      "mismatched": 58
     }
   },
   "cases": [
@@ -14158,7 +14159,7 @@
       "case_id": "d437-security-saepassphrase",
       "case_file": "D437_saepassphrase.yaml",
       "dnum": 437,
-      "source_row": 439,
+      "source_row": 437,
       "source_object": "WiFi.AccessPoint.{i}.Security.",
       "source_api": "SAEPassphrase",
       "answer_row": 437,
@@ -14167,39 +14168,35 @@
       "mapping_status": "exact",
       "mapping_object_match": true,
       "mapping_api_match": true,
-      "final_status": "Fail",
+      "final_status": "Pass",
       "evaluation_verdict": "Pass",
       "attempts_used": 1,
       "comment": "",
       "bands": {
         "5g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         },
         "6g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         },
         "2.4g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         }
       },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
+      "mismatch_bands": [],
+      "matches_answer": true,
       "workbook_test_steps_excerpt": "1. Set Security ModeEnabled=WPA3-Personal ubus-cli WiFi.AccessPoint.*.Security.ModeEnabled=WPA3-Personal 2. Set Security SAEPassphrase=1234567890 ubus-cli WiFi.AccessPoint.*.Security.SAEPassphrase=1234567890",
       "workbook_command_output_excerpt": "cat /tmp/wl0_hapd.conf |grep sae_password root@prplOS:/# cat /tmp/wl0_hapd.conf |grep sae_password sae_password=1234567890 root@prplOS:/# cat /tmp/wl1_hapd.conf |grep sae_password sae_password=1234567890 root@prplOS:/# cat /tmp/wl2_hapd....",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d437-security-saepassphrase.json"
+      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T061648225671/d437-security-saepassphrase.json"
     },
     {
       "case_id": "d438-security-transitiondisable",
@@ -19254,53 +19251,6 @@
       "workbook_test_steps_excerpt": "1. Connect WiFi Station to GW with one station 802.11k Enable and the other one 802.11k Disable. 2. Verify Station station 802.11k Enable Check whether RRM is ON or OFF using: wl sta_info <MAC> | grep -i rrm If 802.11k Enable then you wi...",
       "workbook_command_output_excerpt": "",
       "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d415-assocdev-rrmonchannelmaxduration.json"
-    },
-    {
-      "case_id": "d437-security-saepassphrase",
-      "case_file": "D437_saepassphrase.yaml",
-      "dnum": 437,
-      "source_row": 439,
-      "source_object": "WiFi.AccessPoint.{i}.Security.",
-      "source_api": "SAEPassphrase",
-      "answer_row": 437,
-      "answer_object": "WiFi.AccessPoint.{i}.Security.",
-      "answer_api": "SAEPassphrase",
-      "mapping_status": "exact",
-      "mapping_object_match": true,
-      "mapping_api_match": true,
-      "final_status": "Fail",
-      "evaluation_verdict": "Pass",
-      "attempts_used": 1,
-      "comment": "",
-      "bands": {
-        "5g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        },
-        "6g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        },
-        "2.4g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        }
-      },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
-      "workbook_test_steps_excerpt": "1. Set Security ModeEnabled=WPA3-Personal ubus-cli WiFi.AccessPoint.*.Security.ModeEnabled=WPA3-Personal 2. Set Security SAEPassphrase=1234567890 ubus-cli WiFi.AccessPoint.*.Security.SAEPassphrase=1234567890",
-      "workbook_command_output_excerpt": "cat /tmp/wl0_hapd.conf |grep sae_password root@prplOS:/# cat /tmp/wl0_hapd.conf |grep sae_password sae_password=1234567890 root@prplOS:/# cat /tmp/wl1_hapd.conf |grep sae_password sae_password=1234567890 root@prplOS:/# cat /tmp/wl2_hapd....",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d437-security-saepassphrase.json"
     },
     {
       "case_id": "d438-security-transitiondisable",
