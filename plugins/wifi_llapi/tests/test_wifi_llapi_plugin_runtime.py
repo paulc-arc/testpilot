@@ -20026,7 +20026,7 @@ _ACTION_METHOD_CASES = [
     # (yaml_file, row, method, verdict, pass_criteria_count)
     ("D295_scan.yaml", 295, "scan", "Pass", 3),
     ("D296_startacs.yaml", 296, "startACS", "Pass", 15),
-    ("D297_startautochannelselection.yaml", 222, "startAutoChannelSelection", "Fail", 3),
+    ("D297_startautochannelselection.yaml", 297, "startAutoChannelSelection", "Pass", 12),
     ("D298_startscan.yaml", 298, "startScan", "Pass", 3),
     ("D299_stopscan.yaml", 299, "stopScan", "Pass", 3),
 ]
@@ -20097,6 +20097,18 @@ def test_action_method_evaluate(yaml_file, row, method, verdict, pass_criteria_c
                     f"WiFi.Radio.{r}.AutoChannelEnable=1\n"
                     f"WiFi.Radio.{r}.startAutoChannelSelection() returned\n"
                     f"WiFi.Radio.{r}.startACS() returned\n"
+                    f"Interface {iface}\n"
+                ),
+                "timing": 0.5,
+            }
+            continue
+        if yaml_file == "D297_startautochannelselection.yaml":
+            iface = {"5g": "wl0", "6g": "wl1", "24g": "wl2"}[band]
+            results["steps"][f"step_{band}"] = {
+                "success": True,
+                "output": (
+                    f"WiFi.Radio.{r}.AutoChannelEnable=1\n"
+                    f"WiFi.Radio.{r}.startAutoChannelSelection() returned\n"
                     f"Interface {iface}\n"
                 ),
                 "timing": 0.5,

@@ -107,7 +107,8 @@
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260414T215500799545",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260414T222507260531",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260414T231646005774",
-    "plugins/wifi_llapi/reports/agent_trace/20260414T234216396870"
+    "plugins/wifi_llapi/reports/agent_trace/20260414T234216396870",
+    "plugins/wifi_llapi/reports/agent_trace/20260414T235120551775"
   ],
   "answers_xlsx": "/home/paul_chen/prj_arc/testpilot/0401.xlsx",
   "cases_dir": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases",
@@ -115,20 +116,20 @@
   "missing_answer_count": 0,
   "missing_answer_rows": [],
   "metadata_drift_count": 58,
-  "full_match_count": 337,
-  "mismatch_case_count": 83,
+  "full_match_count": 338,
+  "mismatch_case_count": 82,
   "band_summary": {
     "5g": {
-      "matched": 341,
-      "mismatched": 79
+      "matched": 342,
+      "mismatched": 78
     },
     "6g": {
-      "matched": 337,
-      "mismatched": 83
+      "matched": 338,
+      "mismatched": 82
     },
     "2.4g": {
-      "matched": 340,
-      "mismatched": 80
+      "matched": 341,
+      "mismatched": 79
     }
   },
   "cases": [
@@ -9846,7 +9847,7 @@
       "case_id": "d297-startautochannelselection",
       "case_file": "D297_startautochannelselection.yaml",
       "dnum": 297,
-      "source_row": 222,
+      "source_row": 297,
       "source_object": "WiFi.Radio.{i}.",
       "source_api": "startAutoChannelSelection()",
       "answer_row": 297,
@@ -9855,39 +9856,35 @@
       "mapping_status": "exact",
       "mapping_object_match": true,
       "mapping_api_match": true,
-      "final_status": "Fail",
-      "evaluation_verdict": "Fail",
-      "attempts_used": 2,
-      "comment": "pass_criteria not satisfied (failed after 2/2 attempts)",
+      "final_status": "Pass",
+      "evaluation_verdict": "Pass",
+      "attempts_used": 1,
+      "comment": "",
       "bands": {
         "5g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         },
         "6g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         },
         "2.4g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         }
       },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
+      "mismatch_bands": [],
+      "matches_answer": true,
       "workbook_test_steps_excerpt": "1. Try call API function: root@prplOS:/# ubus-cli \"WiFi.Radio.*.startAutoChannelSelection()\" > WiFi.Radio.*.startAutoChannelSelectio() ERROR: call (null) failed with status 3 - function not found WiFi.Radio.1.startAutoChannelSelectio() r...",
       "workbook_command_output_excerpt": "iw dev wl0 info iw dev wl1 info iw dev wl2 info",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d297-startautochannelselection.json"
+      "trace_path": "plugins/wifi_llapi/reports/agent_trace/20260414T235120551775/d297-startautochannelselection.json"
     },
     {
       "case_id": "d298-startscan",
@@ -18940,53 +18937,6 @@
       "workbook_test_steps_excerpt": "",
       "workbook_command_output_excerpt": "",
       "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d290-getscanresults-centrechannel.json"
-    },
-    {
-      "case_id": "d297-startautochannelselection",
-      "case_file": "D297_startautochannelselection.yaml",
-      "dnum": 297,
-      "source_row": 222,
-      "source_object": "WiFi.Radio.{i}.",
-      "source_api": "startAutoChannelSelection()",
-      "answer_row": 297,
-      "answer_object": "WiFi.Radio.{i}.",
-      "answer_api": "startAutoChannelSelection()",
-      "mapping_status": "exact",
-      "mapping_object_match": true,
-      "mapping_api_match": true,
-      "final_status": "Fail",
-      "evaluation_verdict": "Fail",
-      "attempts_used": 2,
-      "comment": "pass_criteria not satisfied (failed after 2/2 attempts)",
-      "bands": {
-        "5g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        },
-        "6g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        },
-        "2.4g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        }
-      },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
-      "workbook_test_steps_excerpt": "1. Try call API function: root@prplOS:/# ubus-cli \"WiFi.Radio.*.startAutoChannelSelection()\" > WiFi.Radio.*.startAutoChannelSelectio() ERROR: call (null) failed with status 3 - function not found WiFi.Radio.1.startAutoChannelSelectio() r...",
-      "workbook_command_output_excerpt": "iw dev wl0 info iw dev wl1 info iw dev wl2 info",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d297-startautochannelselection.json"
     },
     {
       "case_id": "d302-getssidstats-bytesreceived",

@@ -81,11 +81,11 @@
 
 ## Latest repo handoff snapshot（2026-04-14）
 
-- `D296 StartACS` is now aligned via official rerun `20260414T234216396870`
-- workbook authority is row `296`, not stale row `221`; the landed rewrite replaces the old bare `startACS()` replay with the workbook note-V ACS prerequisite (`AutoChannelEnable=1` + `startAutoChannelSelection()` before `startACS()`), and exact-closes the tri-band workbook `Pass / Pass / Pass` shape while preserving live `iw dev wl0/wl1/wl2 info` evidence
+- `D297 StartAutoChannelSelection` is now aligned via official rerun `20260414T235120551775`
+- workbook authority is row `297`, not stale row `222`; the landed rewrite replaces the old bare `startAutoChannelSelection()` replay with the workbook note-V ACS prerequisite (`AutoChannelEnable=1` before `startAutoChannelSelection()`), and exact-closes the tri-band workbook `Pass / Pass / Pass` shape while preserving live `iw dev wl0/wl1/wl2 info` evidence
 - active blockers remain `D047` authority conflict plus the shared 6G baseline manifestations in `D179` and `D181`; parked clarification items remain `D204` and `D211`
-- historical blocker context for the temporary D257 empty-array failure is retained in `plugins/wifi_llapi/reports/D257_block.md`; latest committed aligned case is now `D296 StartACS`
-- targeted action-method runtime guardrails plus command-budget are now `16 passed`; full repo regression is now `1662 passed`; compare is now `337 / 420 full matches` / `83 mismatches` / `58 metadata drifts`, and the next ready non-blocked compare-open case moves to `D297 StartAutoChannelSelection`
+- historical blocker context for the temporary D257 empty-array failure is retained in `plugins/wifi_llapi/reports/D257_block.md`; latest committed aligned case is now `D297 StartAutoChannelSelection`
+- targeted action-method runtime guardrails plus command-budget are now `16 passed`; full repo regression is now `1662 passed`; compare is now `338 / 420 full matches` / `82 mismatches` / `58 metadata drifts`, and the next ready non-blocked compare-open case moves to `D354 Radio.Enable`
 - `D214 Radio.RIFSEnabled` is now aligned via official rerun `20260414T175434503053`
 - workbook authority is row `214`, not stale row `175`; the rerun exact-closes the tri-band setter-backed `Default -> Auto -> Default` replay, so the landed case now refreshes stale row `175` / raw `Fail / Fail / Fail` to workbook row `214` / raw `Pass / Pass / Pass`
 - targeted radio/runtime guardrails are now `202 passed`; final full repo regression remains `1662 passed`; compare is now `324 / 420 full matches` / `96 mismatches` / `58 metadata drifts`, and the next ready non-blocked compare-open case moves to `D251 Radio.Vendor.RegulatoryDomainRev`

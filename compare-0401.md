@@ -110,6 +110,7 @@
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260414T222507260531`
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260414T231646005774`
   - `plugins/wifi_llapi/reports/agent_trace/20260414T234216396870`
+  - `plugins/wifi_llapi/reports/agent_trace/20260414T235120551775`
 - answer sheet: `/home/paul_chen/prj_arc/testpilot/0401.xlsx`
 - cases dir: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases`
 - compare rule: normalize both sides so only `Pass` stays `Pass`; all other values become `Fail`.
@@ -120,8 +121,8 @@
 | metric | value |
 | --- | ---: |
 | compared cases | 420 |
-| full matches | 337 |
-| mismatch cases | 83 |
+| full matches | 338 |
+| mismatch cases | 82 |
 | missing answer rows | 0 |
 | metadata drift rows | 58 |
 
@@ -129,9 +130,9 @@
 
 | band | matched | mismatched |
 | --- | ---: | ---: |
-| 5g | 341 | 79 |
-| 6g | 337 | 83 |
-| 2.4g | 340 | 80 |
+| 5g | 342 | 78 |
+| 6g | 338 | 82 |
+| 2.4g | 341 | 79 |
 
 ## Mismatch table
 
@@ -146,7 +147,6 @@
 | `d277-getscanresults-bandwidth` | 277 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d289-getscanresults-radio` | 289 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d290-getscanresults-centrechannel` | 290 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
-| `d297-startautochannelselection` | 297 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d302-getssidstats-bytesreceived` | 302 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d354-radio-enable` | 354 | drift | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d355-skip-addclient` | 355 | exact | Fail / N/A / N/A | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
@@ -396,26 +396,6 @@
 - 0401 G excerpt: (empty)
 - 0401 H excerpt: (empty)
 - trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d290-getscanresults-centrechannel.json`
-
-### d297-startautochannelselection
-
-- case file: `D297_startautochannelselection.yaml`
-- answer row: `297`
-- mapping status: `exact`
-- source metadata: `WiFi.Radio.{i}.` / `startAutoChannelSelection()`
-- workbook metadata: `WiFi.Radio.{i}.` / `startAutoChannelSelection()`
-- final status: `Fail`
-- evaluation verdict: `Fail`
-- attempts used: `2`
-- runtime comment: pass_criteria not satisfied (failed after 2/2 attempts)
-- actual raw: `Fail` / `Fail` / `Fail`
-- expected raw: `Pass` / `Pass` / `Pass`
-- actual normalized: `Fail` / `Fail` / `Fail`
-- expected normalized: `Pass` / `Pass` / `Pass`
-- mismatch bands: `5g, 6g, 2.4g`
-- 0401 G excerpt: 1. Try call API function: root@prplOS:/# ubus-cli "WiFi.Radio.*.startAutoChannelSelection()" > WiFi.Radio.*.startAutoChannelSelectio() ERROR: call (null) failed with status 3 - function not found WiFi.Radio.1.startAutoChannelSelectio() r...
-- 0401 H excerpt: iw dev wl0 info iw dev wl1 info iw dev wl2 info
-- trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d297-startautochannelselection.json`
 
 ### d302-getssidstats-bytesreceived
 

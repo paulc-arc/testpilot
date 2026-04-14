@@ -1,5 +1,72 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-14 early-101)
+
+> This checkpoint records the `D297 StartAutoChannelSelection` workbook closure.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D297 StartAutoChannelSelection` 已完成 closure
+- workbook authority 已刷新為 row `297`
+- stale row `222` 與 bare `startAutoChannelSelection()` replay 已由 workbook note V 前置條件取代
+- official rerun `20260414T235120551775` exact-close tri-band workbook `Pass / Pass / Pass`
+- live evidence 保留 `AutoChannelEnable=1`、`startAutoChannelSelection() returned` 與 readable `iw dev wl0/wl1/wl2 info`
+- `diagnostic_status=Pass`
+- targeted action-method runtime guardrails + command-budget=`16 passed`
+- full repo regression=`1662 passed`
+- compare 更新為 `338 / 420 full matches`、`82 mismatches`、`58 metadata drifts`
+- active blockers 維持 `D047` authority conflict + shared 6G baseline manifestations（`D179`、`D181`）
+- next ready non-blocked compare-open case=`D354 Radio.Enable`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| D297 | 297 | startAutoChannelSelection() | Pass / Pass / Pass | `20260414T235120551775_DUT.log L5-L28; L29-L52; L53-L76; bgw720-0403_wifi_llapi_20260414t235120551775.md L9-L11; L33-L75` | `N/A（DUT-only case；20260414T235120551775_STA.log empty）` |
+
+### D297 StartAutoChannelSelection alignment evidence
+
+**STA 指令**
+
+```sh
+# N/A (DUT-only case)
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli WiFi.Radio.1.AutoChannelEnable=1
+ubus-cli "WiFi.Radio.1.startAutoChannelSelection()"
+iw dev wl0 info
+ubus-cli WiFi.Radio.2.AutoChannelEnable=1
+ubus-cli "WiFi.Radio.2.startAutoChannelSelection()"
+iw dev wl1 info
+ubus-cli WiFi.Radio.3.AutoChannelEnable=1
+ubus-cli "WiFi.Radio.3.startAutoChannelSelection()"
+iw dev wl2 info
+```
+
+**關鍵 log 摘錄 / log 區間**
+
+```text
+Official rerun 20260414T235120551775
+- bgw720-0403_wifi_llapi_20260414t235120551775.md L9-L11
+  result_5g/result_6g/result_24g = Pass / Pass / Pass with diagnostic_status=Pass
+- bgw720-0403_wifi_llapi_20260414t235120551775.md L33-L75
+  each band exact-closes the workbook note-V precondition path: AutoChannelEnable=1, startAutoChannelSelection() returned, and iw dev wlX info stayed readable
+- 20260414T235120551775_DUT.log L5-L28
+  5g exact-closes AutoChannelEnable=1 + startAutoChannelSelection() returned + Interface wl0
+- 20260414T235120551775_DUT.log L29-L52
+  6g exact-closes AutoChannelEnable=1 + startAutoChannelSelection() returned + Interface wl1
+- 20260414T235120551775_DUT.log L53-L76
+  2.4g exact-closes AutoChannelEnable=1 + startAutoChannelSelection() returned + Interface wl2
+- 20260414T235120551775_STA.log
+  empty as expected for DUT-only closure
+```
+
 ## Checkpoint summary (2026-04-14 early-100)
 
 > This checkpoint records the `D296 StartACS` workbook closure.
