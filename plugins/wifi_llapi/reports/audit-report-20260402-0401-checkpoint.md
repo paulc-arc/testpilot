@@ -1,5 +1,59 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-14 early-67)
+
+> This checkpoint records the `D190 Radio.ExplicitBeamFormingEnabled` low-risk radio getter closure.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D190 Radio.ExplicitBeamFormingEnabled` 已透過 official rerun `20260414T133109929684` 完成 closure
+- workbook authority 現在刷新到 row `190`，不再沿用 stale row `153`
+- current rerun exact-close tri-band getter `ExplicitBeamFormingEnabled=1`
+- landed case 現在把 stale raw `Fail / Fail / Fail` 刷新為 workbook-consistent `Pass / Pass / Pass`
+- targeted radio-getter/runtime guardrails 維持 `201 passed`
+- command-budget guardrail 維持 `1 passed`
+- final full repo regression 維持 `1662 passed`
+- compare refresh 已更新為 `305 / 420 full matches`、`115 mismatches`、`58 metadata drifts`
+- active blockers 維持 `D047 SupportedHe160MCS` authority conflict + shared 6G baseline blocker（manifested in `D179` / `D181`）
+- next ready non-blocked compare-open case 改為 `D191 Radio.ExplicitBeamFormingSupported`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D190` | 190 | `ExplicitBeamFormingEnabled` | `Pass / Pass / Pass` | `20260414T133109929684_DUT.log L5-L18; bgw720-0403_wifi_llapi_20260414t133109929684.md L15-L31` | `20260414T133109929684_STA.log` empty file |
+
+#### D190 Radio.ExplicitBeamFormingEnabled
+
+**STA 指令**
+
+```sh
+# N/A (DUT-only radio getter case; rerun emitted an empty STA log)
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.Radio.1.ExplicitBeamFormingEnabled?"
+ubus-cli "WiFi.Radio.2.ExplicitBeamFormingEnabled?"
+ubus-cli "WiFi.Radio.3.ExplicitBeamFormingEnabled?"
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+DUT (20260414T133109929684_DUT.log L5-L18; bgw720-0403_wifi_llapi_20260414t133109929684.md L15-L31)
+WiFi.Radio.1.ExplicitBeamFormingEnabled=1
+WiFi.Radio.2.ExplicitBeamFormingEnabled=1
+WiFi.Radio.3.ExplicitBeamFormingEnabled=1
+
+STA (20260414T133109929684_STA.log)
+empty file
+```
+
 ## Checkpoint summary (2026-04-14 early-66)
 
 > This checkpoint records the low-risk radio getter closures for `D180` and `D184-D187`, plus the follow-up `D181` shared-baseline blocker note.

@@ -1,4 +1,4 @@
-**2026-04-14 superseding note：本檔下半部的大盤分析仍保留 2026-04-13 snapshot；最新 strict compare 已刷新為 `304 / 420 full matches`、`116` 筆 mismatch、`58` 筆 metadata drift。** 本輪已完成 `D180 Radio.Amsdu` 與 `D184-D187` official rerun closure（`20260414T111010511593`、`20260414T111624033199`、`20260414T111633789177`、`20260414T111643078674`、`20260414T111652454052`），而 `D181 Radio.FragmentationThreshold` clean-start trial rerun `20260414T111023418516` 又重現 shared 6G `DUT + STA` baseline blocker，故 trial `D181/D182` setter rewrite 已回退，`D182` 暫停。active blockers 現在是 `D047` 與 shared 6G baseline blocker（manifested in `D179`、`D181`）；next ready non-blocked compare-open case 是 `D190 Radio.ExplicitBeamFormingEnabled`。
+**2026-04-14 superseding note：本檔下半部的大盤分析仍保留 2026-04-13 snapshot；最新 strict compare 已刷新為 `305 / 420 full matches`、`115` 筆 mismatch、`58` 筆 metadata drift。** 本輪新增完成 `D190 Radio.ExplicitBeamFormingEnabled` official rerun closure（`20260414T133109929684`）：workbook authority 刷新到 row `190`，live rerun exact-close tri-band `ExplicitBeamFormingEnabled=1`，final full repo regression 維持 `1662 passed`。active blockers 仍是 `D047` 與 shared 6G baseline blocker（manifested in `D179`、`D181`）；next ready non-blocked compare-open case 改為 `D191 Radio.ExplicitBeamFormingSupported`。
 
 **先講結論：以目前 repo 內 `compare-0401` snapshot 為準，跟 workbook 的差距是 `122` 筆 mismatch、`58` 筆 metadata drift。** 如果只看 workbook `Pass` 目標，分兩種口徑：
 
@@ -241,6 +241,7 @@
 ### 8. 當前 continuation anchor
 
 - latest aligned cases:
+  - `D190 Radio.ExplicitBeamFormingEnabled`
   - `D180 Radio.Amsdu`
   - `D184 Radio.NrActiveRxAntenna`
   - `D185 Radio.NrActiveTxAntenna`
@@ -253,8 +254,8 @@
   - `D179`
   - `D181`
 - strict compare snapshot：
-  - `304 / 420 full matches`
-  - `116 mismatches`
+  - `305 / 420 full matches`
+  - `115 mismatches`
   - `58 metadata drifts`
 - next ready non-blocked compare-open case：
-  - `D190 Radio.ExplicitBeamFormingEnabled`
+  - `D191 Radio.ExplicitBeamFormingSupported`
