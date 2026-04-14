@@ -1,7 +1,7 @@
 id: d207-radio-obsscoexistenceenable
 name: D207 Radio ObssCoexistenceEnable
 source:
-  row: 169
+  row: 207
   object: WiFi.Radio.{i}.
   api: ObssCoexistenceEnable
   baseline: 0310-BGW720-300
@@ -12,15 +12,16 @@ bands:
 llapi_support: Support
 results_reference:
   v4.0.3:
-    5g: Fail
-    6g: Fail
-    2.4g: Fail
+    5g: Not Supported
+    6g: Not Supported
+    2.4g: Pass
+    comment: read-only getter exact-closes the workbook mixed raw shape 0/0/1 under the active 0403 tri-band radio state
 topology:
   devices:
     DUT:
       role: ap
       transport: serial
-      selector: COM1
+      selector: COM0
 steps:
 - id: step_5g_getter
   target: dut

@@ -19026,7 +19026,7 @@ _RADIO_GETTER_CASES = [
     ("D203_maxchannelbandwidth.yaml", 203, "160MHz", "320MHz", "40MHz", "WiFi.Radio.{r}.MaxChannelBandwidth"),
     ("D204_multiusermimoenabled.yaml", 167, "1", "1", "0", "WiFi.Radio.{r}.MultiUserMIMOEnabled"),
     ("D205_multiusermimosupported.yaml", 205, "1", "1", "1", "WiFi.Radio.{r}.MultiUserMIMOSupported"),
-    ("D207_obsscoexistenceenable.yaml", 169, "0", "0", "1", "WiFi.Radio.{r}.ObssCoexistenceEnable"),
+    ("D207_obsscoexistenceenable.yaml", 207, "0", "0", "1", "WiFi.Radio.{r}.ObssCoexistenceEnable"),
     ("D208_ofdmaenable.yaml", 170, "1", "1", "1", "WiFi.Radio.{r}.OfdmaEnable"),
     ("D209_operatingchannelbandwidth.yaml", 171, "20MHz", "20MHz", "20MHz", "WiFi.Radio.{r}.OperatingChannelBandwidth"),
     ("D211_operatingstandards.yaml", 172, "be", "be", "be", "WiFi.Radio.{r}.OperatingStandards"),
