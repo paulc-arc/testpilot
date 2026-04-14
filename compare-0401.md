@@ -115,6 +115,8 @@
   - `plugins/wifi_llapi/reports/agent_trace/20260415T003139523643`
   - `plugins/wifi_llapi/reports/agent_trace/20260415T004006392874`
   - `plugins/wifi_llapi/reports/agent_trace/20260415T004735420726`
+  - `plugins/wifi_llapi/reports/agent_trace/20260415T010122540134`
+  - `plugins/wifi_llapi/reports/agent_trace/20260415T011605260076`
 - answer sheet: `/home/paul_chen/prj_arc/testpilot/0401.xlsx`
 - cases dir: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases`
 - compare rule: normalize both sides so only `Pass` stays `Pass`; all other values become `Fail`.
@@ -125,8 +127,8 @@
 | metric | value |
 | --- | ---: |
 | compared cases | 420 |
-| full matches | 342 |
-| mismatch cases | 78 |
+| full matches | 343 |
+| mismatch cases | 77 |
 | missing answer rows | 0 |
 | metadata drift rows | 57 |
 
@@ -134,9 +136,9 @@
 
 | band | matched | mismatched |
 | --- | ---: | ---: |
-| 5g | 346 | 74 |
-| 6g | 342 | 78 |
-| 2.4g | 345 | 75 |
+| 5g | 347 | 73 |
+| 6g | 343 | 77 |
+| 2.4g | 346 | 74 |
 
 ## Mismatch table
 
@@ -156,7 +158,6 @@
 | `d356-skip-delclient` | 356 | exact | Skip / N/A / N/A | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d357-skip-csistats` | 357 | exact | Fail / N/A / N/A | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d359-ap-isolationenable` | 359 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
-| `d370-assocdev-active` | 370 | exact | Fail / N/A / N/A | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d371-assocdev-disassociationtime` | 371 | exact | Fail / N/A / N/A | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d377-radio-maxbitrate` | 377 | exact | Pass / Pass / Pass | Not Supported / Not Supported / Not Supported | Pass / Pass / Pass | Fail / Fail / Fail | 5g, 6g, 2.4g |
 | `d379-radio-mcs` | 379 | exact | Pass / Pass / Pass | Skip / Skip / Skip | Pass / Pass / Pass | Fail / Fail / Fail | 5g, 6g, 2.4g |
@@ -494,25 +495,6 @@
 - 0401 G excerpt: 1. Connect two WiFi station to the Radio 2. Run ping between Station - by default isolation = disable so ping is OK -Enable Isolation ubus-cli WiFi.AccessPoint.5.IsolationEnable=1 --Ping between station should failed after enable Isolati...
 - 0401 H excerpt: (empty)
 - trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d359-ap-isolationenable.json`
-
-### d370-assocdev-active
-
-- case file: `D370_active.yaml`
-- answer row: `370`
-- mapping status: `exact`
-- source metadata: `WiFi.AccessPoint.{i}.AssociatedDevice.{i}.` / `Active`
-- workbook metadata: `WiFi.AccessPoint.{i}.AssociatedDevice.{i}.` / `Active`
-- final status: `Fail`
-- evaluation verdict: `Pass`
-- attempts used: `1`
-- actual raw: `Fail` / `N/A` / `N/A`
-- expected raw: `Pass` / `Pass` / `Pass`
-- actual normalized: `Fail` / `Fail` / `Fail`
-- expected normalized: `Pass` / `Pass` / `Pass`
-- mismatch bands: `5g, 6g, 2.4g`
-- 0401 G excerpt: 1. Connect WiFi station to GW 2. Check Associated Device Status root@prplOS:/# ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.? | grep -E 'Activ e|MAC' WiFi.AccessPoint.1.AssociatedDevice.11.Active=1 WiFi.AccessPoint.1.AssociatedDevice.1...
-- 0401 H excerpt: root@prplOS:/# wl -i wl0 assoclist assoclist 34:19:4D:A4:B5:09 assoclist 12:E3:C4:78:7B:6F assoclist 42:B7:35:6A:17:8E root@prplOS:/# wl -i wl1 assoclist assoclist 38:06:E6:92:B0:4A root@prplOS:/# wl -i wl2 assoclist assoclist E4:60:17:E...
-- trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d370-assocdev-active.json`
 
 ### d371-assocdev-disassociationtime
 

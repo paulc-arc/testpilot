@@ -1,5 +1,80 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-15 early-106)
+
+> This checkpoint records the `D370 AccessPoint.AssociatedDevice.Active` workbook closure.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D370 AccessPoint.AssociatedDevice.Active` 已完成 closure
+- workbook authority 已刷新為 row `370`
+- stale row `372` 已由真實 workbook row `370` 取代
+- case shape 已由舊的 5G-only getter 提升為 tri-band AssociatedDevice live check
+- official rerun `20260415T011605260076` exact-close tri-band workbook `Pass / Pass / Pass`
+- live evidence 保留 tri-band getter `Active=1/1/1`
+- 三個 band 的 `wl assoclist` 都能對上同一個 `AssociatedDevice.1` STA MAC
+- `diagnostic_status=Pass`
+- targeted D370/runtime + assocdev guardrails passed
+- full repo regression=`1660 passed`
+- compare 更新為 `343 / 420 full matches`、`77 mismatches`、`57 metadata drifts`
+- `D355-D357` 仍保留在需要 CSI client setup 的 placeholder bucket
+- `D359 AccessPoint.IsolationEnable` 因 two-station isolation ping 需求而暫停在 current single-STA lab shape
+- active blockers 維持 `D047` authority conflict + shared 6G baseline manifestations（`D179`、`D181`）
+- next ready non-blocked compare-open case=`D371 AccessPoint.AssociatedDevice.DisassociationTime`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| D370 | 370 | AssociatedDevice.Active | Pass / Pass / Pass | `20260415T011605260076_DUT.log L394-L409; L614-L629; L691-L706; bgw720-0403_wifi_llapi_20260415t011605260076.md L9-L11; L15-L163` | `20260415T011605260076_STA.log L82-L113; L207-L260; L386-L415` |
+
+### D370 AccessPoint.AssociatedDevice.Active alignment evidence
+
+**STA 指令**
+
+```sh
+iw dev wl0 link
+wpa_cli -p /var/run/wpa_supplicant -i wl0 status
+iw dev wl1 link
+wpa_cli -p /var/run/wpa_supplicant -i wl1 status
+wl -i wl1 status
+iw dev wl2 link
+wpa_cli -p /var/run/wpa_supplicant -i wl2 status
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?"
+wl -i wl0 assoclist | grep -iq "2C:59:17:00:04:85"
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.Active?"
+ubus-cli "WiFi.AccessPoint.3.AssociatedDevice.1.MACAddress?"
+wl -i wl1 assoclist | grep -iq "2C:59:17:00:04:86"
+ubus-cli "WiFi.AccessPoint.3.AssociatedDevice.1.Active?"
+ubus-cli "WiFi.AccessPoint.5.AssociatedDevice.1.MACAddress?"
+wl -i wl2 assoclist | grep -iq "2C:59:17:00:04:97"
+ubus-cli "WiFi.AccessPoint.5.AssociatedDevice.1.Active?"
+```
+
+**關鍵 log 摘錄 / log 區間**
+
+```text
+Official rerun 20260415T011605260076
+- bgw720-0403_wifi_llapi_20260415t011605260076.md L9-L11
+  result_5g/result_6g/result_24g = Pass / Pass / Pass with diagnostic_status=Pass
+- bgw720-0403_wifi_llapi_20260415t011605260076.md L63-L65, L134-L136, L156-L158
+  tri-band getter evidence exact-closes Active=1 on AP1/AP3/AP5
+- bgw720-0403_wifi_llapi_20260415t011605260076.md L63-L64, L134-L135, L156-L157
+  each band also records the same AssociatedDevice.1 MAC and matching DriverAssocMac echo
+- 20260415T011605260076_DUT.log L394-L409, L614-L629, L691-L706
+  DUT keeps the same tri-band AssociatedDevice.1 MACs, matching DriverAssocMac echoes, and Active=1 readback
+- 20260415T011605260076_STA.log L82-L113, L207-L260, L386-L415
+  STA remains associated on wl0/wl1/wl2 against testpilot5G/testpilot6G/testpilot2G baselines
+```
+
 ## Checkpoint summary (2026-04-15 early-105)
 
 > This checkpoint records the `D367 IEEE80211ax.SRGOBSSPDMaxOffset` workbook closure.

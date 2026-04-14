@@ -4131,6 +4131,48 @@ def test_pending_boolean_and_frequency_cases_use_supported_contracts():
     )
 
 
+def test_d370_assocdev_active_contract():
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+    plugin = _load_plugin()
+    discoverable_ids = {case["id"] for case in plugin.discover_cases()}
+
+    d370 = load_case(cases_dir / "D370_active.yaml")
+    d370_commands = "\n".join(str(step.get("command", "")) for step in d370["steps"])
+    d370_links = {link["band"] for link in d370["topology"]["links"]}
+
+    assert d370["id"] in discoverable_ids
+    assert d370["source"]["row"] == 370
+    assert d370["hlapi_command"] == 'ubus-cli "WiFi.AccessPoint.{i}.AssociatedDevice.1.Active?"'
+    assert d370_links == {"5g", "6g", "2.4g"}
+    assert 'WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?' in d370_commands
+    assert 'WiFi.AccessPoint.1.AssociatedDevice.1.Active?' in d370_commands
+    assert 'WiFi.AccessPoint.3.AssociatedDevice.1.MACAddress?' in d370_commands
+    assert 'WiFi.AccessPoint.3.AssociatedDevice.1.Active?' in d370_commands
+    assert 'WiFi.AccessPoint.5.AssociatedDevice.1.MACAddress?' in d370_commands
+    assert 'WiFi.AccessPoint.5.AssociatedDevice.1.Active?' in d370_commands
+    assert "wl -i wl0 assoclist" in d370_commands
+    assert "wl -i wl1 assoclist" in d370_commands
+    assert "wl -i wl2 assoclist" in d370_commands
+    assert any(
+        criterion["field"] == "driver_assoc_5g.DriverAssocMac5g"
+        and criterion["operator"] == "equals"
+        and criterion["reference"] == "assoc_5g.MACAddress"
+        for criterion in d370["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "result_6g.Active"
+        and criterion["operator"] == "equals"
+        and criterion["value"] == "1"
+        for criterion in d370["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "result_24g.Active"
+        and criterion["operator"] == "equals"
+        and criterion["value"] == "1"
+        for criterion in d370["pass_criteria"]
+    )
+
+
 def test_pending_boolean_and_frequency_cases_evaluate_live_examples():
     plugin = _load_plugin()
     cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
@@ -20736,12 +20778,11 @@ def test_spectrum_evaluate(yaml_file, row, field, sample_value):
 
 
 # ---------------------------------------------------------------------------
-# Batch 6 — AssocDev getters (D014,D035,D370-D371,D408-D415,D426): 5G-only
+# Batch 6 — AssocDev getters (D014,D035,D371,D408-D415,D426): 5G-only
 # ---------------------------------------------------------------------------
 _ASSOCDEV_GETTER_CASES = [
     ("D014_chargeableuserid.yaml", 14, "ChargeableUserId"),
     ("D035_operatingstandard.yaml", 35, "OperatingStandard"),
-    ("D370_active.yaml", 372, "Active"),
     ("D371_disassociationtime.yaml", 373, "DisassociationTime"),
     ("D408_downlinkratespec.yaml", 410, "DownlinkRateSpec"),
     ("D409_maxdownlinkratesupported.yaml", 411, "MaxDownlinkRateSupported"),
