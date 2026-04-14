@@ -77,6 +77,7 @@
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260414T111652454052`
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260414T133109929684`
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260414T134150940705`
+  - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260414T140146826061`
 - answer sheet: `/home/paul_chen/prj_arc/testpilot/0401.xlsx`
 - cases dir: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases`
 - compare rule: normalize both sides so only `Pass` stays `Pass`; all other values become `Fail`.
@@ -87,8 +88,8 @@
 | metric | value |
 | --- | ---: |
 | compared cases | 420 |
-| full matches | 306 |
-| mismatch cases | 114 |
+| full matches | 307 |
+| mismatch cases | 113 |
 | missing answer rows | 0 |
 | metadata drift rows | 58 |
 
@@ -96,9 +97,9 @@
 
 | band | matched | mismatched |
 | --- | ---: | ---: |
-| 5g | 311 | 109 |
-| 6g | 308 | 112 |
-| 2.4g | 309 | 111 |
+| 5g | 312 | 108 |
+| 6g | 309 | 111 |
+| 2.4g | 310 | 110 |
 
 ## Mismatch table
 
@@ -108,7 +109,6 @@
 | `wifi-llapi-D047-supportedhe160mcs` | 47 | exact | Not Supported / N/A / N/A | Pass / Pass / Not Supported | Fail / Fail / Fail | Pass / Pass / Fail | 5g, 6g |
 | `d181-radio-fragmentationthreshold` | 181 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d182-radio-rtsthreshold` | 182 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
-| `d192-radio-guardinterval` | 192 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d193-radio-hecapsenabled` | 193 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d194-radio-hecapssupported` | 194 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d195-radio-ieee80211_caps` | 195 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
@@ -297,25 +297,6 @@
 - 0401 G excerpt: 1. Set RtsThreshold "ex. 1500 root@prplOS:/# ubus-cli WiFi.Radio.*.DriverConfig.RtsThreshold=1500 > WiFi.Radio.*.DriverConfig.RtsThreshold=1500 WiFi.Radio.1.DriverConfig. WiFi.Radio.1.DriverConfig.RtsThreshold=1500 WiFi.Radio.2.DriverCon...
 - 0401 H excerpt: root@prplOS:/# wl -i wl0 rtsthresh 1500 (0x5dc) root@prplOS:/# wl -i wl1 rtsthresh 1500 (0x5dc) root@prplOS:/# wl -i wl2 rtsthresh 1500 (0x5dc)
 - trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d182-radio-rtsthreshold.json`
-
-### d192-radio-guardinterval
-
-- case file: `D192_guardinterval.yaml`
-- answer row: `192`
-- mapping status: `exact`
-- source metadata: `WiFi.Radio.{i}.` / `GuardInterval`
-- workbook metadata: `WiFi.Radio.{i}.` / `GuardInterval`
-- final status: `Fail`
-- evaluation verdict: `Pass`
-- attempts used: `1`
-- actual raw: `Fail` / `Fail` / `Fail`
-- expected raw: `Pass` / `Pass` / `Pass`
-- actual normalized: `Fail` / `Fail` / `Fail`
-- expected normalized: `Pass` / `Pass` / `Pass`
-- mismatch bands: `5g, 6g, 2.4g`
-- 0401 G excerpt: Setting value: ["400nsec'","800nsec","1xLTF_0.8us","1xLTF_1.6us","2xLTF_0.8us","2xLTF_1.6us","4xLTF_0.8us","4xLTF_1.6us","Auto"] 1. Get GI Default value root@prplOS:/# ubus-cli WiFi.Radio.*.GuardInterval? > WiFi.Radio.*.GuardInterval? Wi...
-- 0401 H excerpt: BRCM: CSP CS00012439197 -- root@prplOS:/# wl -i wl0 nrate eht mcs 13 Nss 4 Tx Exp 0 bw160 2xLTF GI 0.8us auto root@prplOS:/# wl -i wl0 sgi_tx -1
-- trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d192-radio-guardinterval.json`
 
 ### d193-radio-hecapsenabled
 

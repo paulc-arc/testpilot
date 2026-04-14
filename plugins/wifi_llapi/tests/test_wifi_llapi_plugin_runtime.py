@@ -19011,7 +19011,7 @@ _RADIO_GETTER_CASES = [
     ("D354_enable_radio.yaml", 152, "1", "1", "1", "WiFi.Radio.{r}.Enable"),
     ("D190_explicitbeamformingenabled.yaml", 190, "1", "1", "1", "WiFi.Radio.{r}.ExplicitBeamFormingEnabled"),
     ("D191_explicitbeamformingsupported.yaml", 191, "1", "1", "1", "WiFi.Radio.{r}.ExplicitBeamFormingSupported"),
-    ("D192_guardinterval.yaml", 155, "Auto", "Auto", "Auto", "WiFi.Radio.{r}.GuardInterval"),
+    ("D192_guardinterval.yaml", 192, "Auto", "Auto", "Auto", "WiFi.Radio.{r}.GuardInterval"),
     # --- Batch 1: D193-D214 Radio config/capabilities ---
     ("D193_hecapsenabled.yaml", 156, "DEFAULT", "DEFAULT", "DEFAULT", "WiFi.Radio.{r}.HeCapsEnabled"),
     ("D194_hecapssupported.yaml", 157, "DL_OFDMA,UL_OFDMA,DL_MUMIMO,UL_MUMIMO", "DL_OFDMA,UL_OFDMA,DL_MUMIMO,UL_MUMIMO", "DL_OFDMA,UL_OFDMA,DL_MUMIMO,UL_MUMIMO", "WiFi.Radio.{r}.HeCapsSupported"),
