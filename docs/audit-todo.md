@@ -81,6 +81,10 @@
 
 ## Latest repo handoff snapshot（2026-04-14）
 
+- `D204 Radio.MultiUserMIMOEnabled` is now parked for workbook/source authority clarification after official rerun `20260414T165000634858`
+- the rerun exact-closes the same repeated live getter shape already present in historical authoritative traces: `5g=1`, `6g=1`, `2.4g=0`
+- workbook row `204` still says `Pass / Pass / Pass`, but note `V204` simultaneously says `2.4GHz mu features are disable by default`; workbook `H204` also repeats `wl -i wl1 mu_features` instead of clearly showing the 2.4G driver check
+- blocker-style handoff now lives at `plugins/wifi_llapi/reports/D204_block.md`; compare remains `318 / 420 full matches` / `102 mismatches` / `58 metadata drifts`, and the next ready non-blocked compare-open case moves to `D205 Radio.MultiUserMIMOSupported`
 - `D203 Radio.MaxChannelBandwidth` is now aligned via official rerun `20260414T164038591687`
 - workbook authority is row `203`, not stale row `166`; the rerun exact-closes tri-band getter `MaxChannelBandwidth=160MHz/320MHz/40MHz`, so the landed case now refreshes stale row `166` / raw `Fail / Fail / Fail` to workbook row `203` / raw `Pass / Pass / Pass`
 - `D202 Radio.Interference` is now aligned via official rerun `20260414T163235194291`
@@ -121,7 +125,7 @@
 - the provisional workbook-faithful `D181/D182` setter rewrites were rolled back to respect the YAML writeback gate; `D182 Radio.RtsThreshold` remains parked until the shared 6G baseline path is stabilized
 - active blockers are now `D047` authority conflict plus the shared 6G baseline blocker manifested in `D179` and `D181`
 - blocker handoff: `plugins/wifi_llapi/reports/D047_block.md`, `plugins/wifi_llapi/reports/D179_block.md`, `plugins/wifi_llapi/reports/D181_block.md`
-- next ready non-blocked compare-open case: `D204 Radio.MultiUserMIMOEnabled`
+- next ready non-blocked compare-open case: `D205 Radio.MultiUserMIMOSupported`
 
 - `D179 Radio.Ampdu` is now blocked after two focused rerun phases instead of closing as a workbook-Pass row
 - workbook authority is still row `179`, and workbook `G/H` explicitly require an active station/throughput path before `wl -i wlx ampdu` is used as the driver oracle

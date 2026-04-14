@@ -1,4 +1,4 @@
-**2026-04-14 superseding note：本檔下半部的大盤分析仍保留 2026-04-13 snapshot；最新 strict compare 已刷新為 `318 / 420 full matches`、`102` 筆 mismatch、`58` 筆 metadata drift。** 本輪再新增完成 `D203 Radio.MaxChannelBandwidth` official rerun closure（`20260414T164038591687`）：workbook authority 刷新到 row `203`，live rerun exact-close tri-band getter `MaxChannelBandwidth=160MHz/320MHz/40MHz`，並把 stale raw `Fail / Fail / Fail` 收斂回 workbook-consistent `Pass / Pass / Pass`；targeted getter/runtime guardrails 現在是 `202 passed`，final full repo regression 維持 `1662 passed`。active blockers 仍是 `D047` 與 shared 6G baseline blocker（manifested in `D179`、`D181`）；next ready non-blocked compare-open case 改為 `D204 Radio.MultiUserMIMOEnabled`。
+**2026-04-14 superseding note：本檔下半部的大盤分析仍保留 2026-04-13 snapshot；最新 strict compare 仍是 `318 / 420 full matches`、`102` 筆 mismatch、`58` 筆 metadata drift。** 最新已 push closure 仍是 `D203 Radio.MaxChannelBandwidth`（`20260414T164038591687`）；其後 `D204 Radio.MultiUserMIMOEnabled` official rerun（`20260414T165000634858`）再次 exact-close repeated live shape `1/1/0`，但 workbook row `204` 的 `R/S/T = Pass / Pass / Pass` 又和 note `V204`「2.4GHz mu features are disable by default」互相衝突，因此本案先 park 為 authority clarification item，而不強行改寫成 workbook-pass semantics。active blockers 仍是 `D047` 與 shared 6G baseline blocker（manifested in `D179`、`D181`）；next ready non-blocked compare-open case 改為 `D205 Radio.MultiUserMIMOSupported`。
 
 **先講結論：以目前 repo 內 `compare-0401` snapshot 為準，跟 workbook 的差距是 `122` 筆 mismatch、`58` 筆 metadata drift。** 如果只看 workbook `Pass` 目標，分兩種口徑：
 
@@ -262,6 +262,8 @@
   - `D187 Radio.NrTxAntenna`
 - latest blocker:
   - `D181 Radio.FragmentationThreshold`
+- latest parked clarification item:
+  - `D204 Radio.MultiUserMIMOEnabled`
 - active blockers（repo handoff current view）：
   - `D047`
   - `D179`
@@ -271,4 +273,4 @@
   - `102 mismatches`
   - `58 metadata drifts`
 - next ready non-blocked compare-open case：
-  - `D204 Radio.MultiUserMIMOEnabled`
+  - `D205 Radio.MultiUserMIMOSupported`
