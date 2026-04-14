@@ -20778,7 +20778,7 @@ _METHOD_STATS_CASES = [
     ("D396_errorsreceived_radio_stats.yaml", 396, "getRadioStats", "ErrorsReceived", "20", "8", "13"),
     ("D397_errorssent_radio_stats.yaml", 397, "getRadioStats", "ErrorsSent", "0", "0", "0"),
     ("D454_failedretranscount_radio_stats.yaml", 293, "getRadioStats", "FailedRetransCount", "48", "0", "0"),
-    ("D456_noise_radio_stats.yaml", 295, "getRadioStats", "Noise", "-100", "-97", "-79"),
+    ("D456_noise_radio_stats.yaml", 456, "getRadioStats", "Noise", "-100", "-97", "-79"),
     ("D457_retranscount_radio_stats.yaml", 296, "getRadioStats", "RetransCount", "17234", "0", "0"),
     ("D458_retrycount_radio_stats.yaml", 297, "getRadioStats", "RetryCount", "0", "0", "0"),
     ("D403_temperature.yaml", 298, "getRadioStats", "Temperature", "82", "85", "80"),
