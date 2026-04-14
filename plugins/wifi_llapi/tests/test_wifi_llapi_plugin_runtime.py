@@ -4258,6 +4258,21 @@ def test_d396_getradiostats_errorsreceived_contract():
     assert case_band_results(d396, True) == ("Pass", "Pass", "Pass")
 
 
+def test_d397_getradiostats_errorssent_contract():
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+
+    d397 = load_case(cases_dir / "D397_errorssent_radio_stats.yaml")
+    ref = d397["results_reference"]["v4.0.3"]
+
+    assert d397["source"]["row"] == 397
+    assert d397["source"]["object"] == "WiFi.Radio.{i}.Stats."
+    assert d397["source"]["api"] == "ErrorsSent"
+    assert ref["5g"] == "Pass"
+    assert ref["6g"] == "Pass"
+    assert ref["2.4g"] == "Pass"
+    assert case_band_results(d397, True) == ("Pass", "Pass", "Pass")
+
+
 def test_pending_boolean_and_frequency_cases_evaluate_live_examples():
     plugin = _load_plugin()
     cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
@@ -19608,7 +19623,7 @@ _METHOD_STATS_CASES = [
     ("D394_bytesreceived_radio_stats.yaml", 289, "getRadioStats", "BytesReceived", "189265", "0", "0"),
     ("D395_bytessent_radio_stats.yaml", 290, "getRadioStats", "BytesSent", "588249079", "393557814", "393818836"),
     ("D396_errorsreceived_radio_stats.yaml", 396, "getRadioStats", "ErrorsReceived", "20", "8", "13"),
-    ("D397_errorssent_radio_stats.yaml", 292, "getRadioStats", "ErrorsSent", "0", "0", "0"),
+    ("D397_errorssent_radio_stats.yaml", 397, "getRadioStats", "ErrorsSent", "0", "0", "0"),
     ("D454_failedretranscount_radio_stats.yaml", 293, "getRadioStats", "FailedRetransCount", "48", "0", "0"),
     ("D455_multipleretrycount_radio_stats.yaml", 294, "getRadioStats", "MultipleRetryCount", "0", "0", "0"),
     ("D456_noise_radio_stats.yaml", 295, "getRadioStats", "Noise", "-100", "-97", "-79"),
