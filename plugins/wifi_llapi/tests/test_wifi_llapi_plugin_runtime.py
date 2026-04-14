@@ -4311,6 +4311,125 @@ def test_d397_getradiostats_errorssent_contract():
     assert case_band_results(d397, True) == ("Pass", "Pass", "Pass")
 
 
+def test_d455_getradiostats_multipleretrycount_contract():
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+
+    d455_raw = yaml.safe_load(
+        (cases_dir / "D455_multipleretrycount_radio_stats.yaml").read_text(encoding="utf-8")
+    )
+    d455 = load_case(cases_dir / "D455_multipleretrycount_radio_stats.yaml")
+    ref = d455["results_reference"]["v4.0.3"]
+    d455_commands = "\n".join(str(step.get("command", "")) for step in d455["steps"])
+
+    assert "aliases" not in d455_raw
+    assert d455["id"] == "d455-getradiostats-multipleretrycount"
+    assert d455["source"]["report"] == "0310-BGW720-300_LLAPI_Test_Report.xlsx"
+    assert d455["source"]["sheet"] == "Wifi_LLAPI"
+    assert d455["source"]["row"] == 455
+    assert d455["source"]["object"] == "WiFi.Radio.{i}."
+    assert d455["source"]["api"] == "getRadioStats()"
+    assert d455["hlapi_command"] == 'ubus-cli "WiFi.Radio.{i}.getRadioStats()"'
+    assert d455["llapi_support"] == "Support"
+    assert d455["implemented_by"] == "pWHM"
+    assert d455["bands"] == ["5g", "6g", "2.4g"]
+    assert set(d455["topology"]["devices"]) == {"DUT"}
+    assert d455["topology"]["links"] == []
+    assert len(d455["steps"]) == 6
+    assert 'ubus-cli "WiFi.Radio.1.getRadioStats()"' in d455_commands
+    assert "DriverMultipleRetryCount5g=" in d455_commands
+    assert "DriverMultipleRetryCount6g=" in d455_commands
+    assert "DriverMultipleRetryCount24g=" in d455_commands
+    assert any(
+        criterion["field"] == "method_5g.MultipleRetryCount"
+        and criterion["operator"] == "equals"
+        and criterion["reference"] == "driver_5g.DriverMultipleRetryCount5g"
+        for criterion in d455["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "method_6g.MultipleRetryCount"
+        and criterion["operator"] == "equals"
+        and criterion["reference"] == "driver_6g.DriverMultipleRetryCount6g"
+        for criterion in d455["pass_criteria"]
+    )
+    assert any(
+        criterion["field"] == "method_24g.MultipleRetryCount"
+        and criterion["operator"] == "equals"
+        and criterion["reference"] == "driver_24g.DriverMultipleRetryCount24g"
+        for criterion in d455["pass_criteria"]
+    )
+    assert ref["5g"] == "Pass"
+    assert ref["6g"] == "Pass"
+    assert ref["2.4g"] == "Pass"
+    assert case_band_results(d455, True) == ("Pass", "Pass", "Pass")
+
+
+def test_d455_getradiostats_multipleretrycount_setup_env(monkeypatch):
+    plugin = _load_plugin()
+    topology = _FakeTopology()
+    recorder = _FactoryRecorder()
+    _install_fake_factory(monkeypatch, recorder)
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+    d455 = load_case(cases_dir / "D455_multipleretrycount_radio_stats.yaml")
+
+    assert plugin.setup_env(d455, topology=topology) is True
+    plugin.teardown(d455, topology)
+
+
+def test_d455_getradiostats_multipleretrycount_evaluate_live_examples():
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+    d455 = load_case(cases_dir / "D455_multipleretrycount_radio_stats.yaml")
+
+    def method_output(radio: str, value: str) -> str:
+        return "\n".join(
+            [
+                f"WiFi.Radio.{radio}.getRadioStats() returned",
+                "[",
+                "{",
+                f"MultipleRetryCount = {value},",
+                "}",
+                "]",
+            ]
+        )
+
+    d455_results = {
+        "steps": {
+            "step1_method_5g": {
+                "success": True,
+                "output": method_output("1", "0"),
+                "timing": 0.01,
+            },
+            "step2_driver_5g": {
+                "success": True,
+                "output": "DriverMultipleRetryCount5g=0",
+                "timing": 0.01,
+            },
+            "step3_method_6g": {
+                "success": True,
+                "output": method_output("2", "0"),
+                "timing": 0.01,
+            },
+            "step4_driver_6g": {
+                "success": True,
+                "output": "DriverMultipleRetryCount6g=0",
+                "timing": 0.01,
+            },
+            "step5_method_24g": {
+                "success": True,
+                "output": method_output("3", "0"),
+                "timing": 0.01,
+            },
+            "step6_driver_24g": {
+                "success": True,
+                "output": "DriverMultipleRetryCount24g=0",
+                "timing": 0.01,
+            },
+        }
+    }
+
+    assert plugin.evaluate(d455, d455_results) is True
+
+
 def test_pending_boolean_and_frequency_cases_evaluate_live_examples():
     plugin = _load_plugin()
     cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
@@ -20659,7 +20778,6 @@ _METHOD_STATS_CASES = [
     ("D396_errorsreceived_radio_stats.yaml", 396, "getRadioStats", "ErrorsReceived", "20", "8", "13"),
     ("D397_errorssent_radio_stats.yaml", 397, "getRadioStats", "ErrorsSent", "0", "0", "0"),
     ("D454_failedretranscount_radio_stats.yaml", 293, "getRadioStats", "FailedRetransCount", "48", "0", "0"),
-    ("D455_multipleretrycount_radio_stats.yaml", 294, "getRadioStats", "MultipleRetryCount", "0", "0", "0"),
     ("D456_noise_radio_stats.yaml", 295, "getRadioStats", "Noise", "-100", "-97", "-79"),
     ("D457_retranscount_radio_stats.yaml", 296, "getRadioStats", "RetransCount", "17234", "0", "0"),
     ("D458_retrycount_radio_stats.yaml", 297, "getRadioStats", "RetryCount", "0", "0", "0"),

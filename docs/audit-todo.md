@@ -81,14 +81,15 @@
 
 ## Latest repo handoff snapshot（2026-04-15）
 
-- `D438 AccessPoint.Security.TransitionDisable` is now aligned via official rerun `20260415T063258768736`
-- workbook authority is row `438`; the old row `440` generic getter shell is now replaced by a workbook-faithful AP-only `TransitionDisable` setter/getter + hostapd `transition_disable` bit replay on `WiFi.AccessPoint.{i}.Security.`
-- the rerun exact-closes `Pass / Pass / Pass`: baseline stays `TransitionDisable=""` with hostapd `ABSENT`, then all three bands exact-close the same 6-second-settle mapping `WPA3-Personal -> 1`, `SAE-PK -> 2`, `EnhancedOpen -> 8`, and restore returns to `"" -> ABSENT`; final status is `diagnostic_status=Pass`
+- `D455 getRadioStats().MultipleRetryCount` is now aligned via official rerun `20260415T070258045824`
+- workbook authority is row `455`; the old row `294` generic getter shell is now replaced by a workbook-faithful tri-band `WiFi.Radio.{i}.` / `getRadioStats()` replay with current 0403 `wl if_counters txretrie` as the driver oracle
+- the rerun exact-closes `Pass / Pass / Pass`: 5G/6G/2.4G all return `MultipleRetryCount=0`, and `DriverMultipleRetryCount5g/6g/24g` all close at `0/0/0`; final status is `diagnostic_status=Pass`
+- `D454 getRadioStats().FailedRetransCount` remains a localized blocker after focused workbook-faithful rerun `20260415T064937785938`: 5G/2.4G still exact-close `100/946` against `wl0/wl2 counters txfail=100/946`, but 6G drifts `FailedRetransCount=0` vs `wl1 counters txfail=740`, so the exploratory rewrite was rolled back
 - `D371 AccessPoint.AssociatedDevice.DisassociationTime` is now parked as a localized blocker after focused survey runs `20260415T014146461381` / `20260415T015629548681` / `20260415T020725267608`; the rewrite was rolled back after 24G `assoclist` residue plus later 5G residue / 6G `step11_6g_post_assoc` serialwrap timeout after driver-level detach
 - systemic active blockers remain `D047` authority conflict plus the shared 6G baseline manifestations in `D179` and `D181`; parked clarification items remain `D204` and `D211`
 - `D359 AccessPoint.IsolationEnable` remains parked: workbook requires two WiFi stations plus isolation ping, but the current lab/testbed flow only exposes the standard single-STA path
-- historical blocker context for the temporary D257 empty-array failure is retained in `plugins/wifi_llapi/reports/D257_block.md`; latest committed closure is now `D438 AccessPoint.Security.TransitionDisable`
-- targeted D438/runtime + budget guardrails passed; full repo regression remains `1660 passed`; compare is now `361 / 420 full matches` / `59 mismatches` / `47 metadata drifts`, `D355-D357` remain in the CSI-client placeholder bucket, `D414/D415` stay in readiness review because workbook `G` requires a dual-STA 802.11k split, and the next ready actionable survey target now moves to `D454 getRadioStats().FailedRetransCount`
+- historical blocker context for the temporary D257 empty-array failure is retained in `plugins/wifi_llapi/reports/D257_block.md`; latest committed closure is now `D455 getRadioStats().MultipleRetryCount`
+- targeted D455/runtime + budget guardrails passed; full repo regression remains `1660 passed`; compare is now `362 / 420 full matches` / `58 mismatches` / `47 metadata drifts`, `D355-D357` remain in the CSI-client placeholder bucket, `D414/D415` stay in readiness review because workbook `G` requires a dual-STA 802.11k split, and the next ready actionable survey target now moves to `D456 getRadioStats().Noise`
 - `D214 Radio.RIFSEnabled` is now aligned via official rerun `20260414T175434503053`
 - workbook authority is row `214`, not stale row `175`; the rerun exact-closes the tri-band setter-backed `Default -> Auto -> Default` replay, so the landed case now refreshes stale row `175` / raw `Fail / Fail / Fail` to workbook row `214` / raw `Pass / Pass / Pass`
 - targeted radio/runtime guardrails are now `202 passed`; final full repo regression remains `1662 passed`; compare is now `324 / 420 full matches` / `96 mismatches` / `58 metadata drifts`, and the next ready non-blocked compare-open case moves to `D251 Radio.Vendor.RegulatoryDomainRev`
