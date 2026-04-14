@@ -1,5 +1,60 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-14 early-89)
+
+> This checkpoint records the `D257 getRadioAirStats() Load` workbook closure after the earlier empty-array blocker cleared and the getter path recovered.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D257 getRadioAirStats() Load` 已完成 closure
+- workbook authority 現在是 row `257`，不是 stale row `259`
+- multi-band `baseline-qualify --repeat-count 1 --soak-minutes 0` 已不再重現先前的 empty-array / `wl1 bss` blocker；follow-up official rerun `20260414T200750384793` exact-close `Load=83/62/98`
+- targeted D257/method-stats runtime guardrails=`132 passed`
+- command-budget guardrail=`1 passed`
+- full repo regression=`1662 passed`
+- compare 更新為 `326 / 420 full matches`、`94 mismatches`、`58 metadata drifts`
+- active blockers 回到 `D047` authority conflict + shared 6G baseline manifestations（`D179`、`D181`）
+- next ready non-blocked compare-open case=`D261 getRadioAirStats() TxTime`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| D257 | 257 | getRadioAirStats() Load | Pass / Pass / Pass | `20260414T200750384793_DUT.log L5-L74` | `20260414T200750384793_STA.log`（empty） |
+
+### D257 getRadioAirStats() Load alignment evidence
+
+**STA 指令**
+
+```sh
+# N/A (DUT-only case)
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.Radio.1.getRadioAirStats()"
+ubus-cli "WiFi.Radio.2.getRadioAirStats()"
+ubus-cli "WiFi.Radio.3.getRadioAirStats()"
+```
+
+**關鍵 log 摘錄 / log 區間**
+
+```text
+Official rerun 20260414T200750384793
+- bgw720-0403_wifi_llapi_20260414t200750384793.md L9-L12
+  result_5g/result_6g/result_24g = Pass / Pass / Pass
+- bgw720-0403_wifi_llapi_20260414t200750384793.md L17-L89
+  Load = 83 / 62 / 98
+- 20260414T200750384793_DUT.log L5-L74
+  WiFi.Radio.1.getRadioAirStats() -> Load = 83
+  WiFi.Radio.2.getRadioAirStats() -> Load = 62
+  WiFi.Radio.3.getRadioAirStats() -> Load = 98
+```
+
 ## Checkpoint summary (2026-04-14 early-88)
 
 > This checkpoint records the `D257 getRadioAirStats() Load` blocker after the stale row / fail-shape was disproven but the current isolated lab state returned empty air-stats objects and the 6G baseline repair also failed.

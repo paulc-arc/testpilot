@@ -1,4 +1,4 @@
-**2026-04-14 superseding note：本檔下半部的大盤分析仍保留 2026-04-13 snapshot；最新 strict compare 仍維持 `325 / 420 full matches`、`95` 筆 mismatch、`58` 筆 metadata drift。** 最新已提交 closure 仍是 `D251 Radio.Vendor.RegulatoryDomainRev`（`20260414T180934010938`）：workbook authority 刷新到 row `251`，並以 setter-backed `0 -> 8 -> 0` replay 加上 `RegulatoryDomainSupported` capture 與 `wl country=#a (#a/0) <unknown>` invariant exact-close `Pass / Pass / Pass`。但後續 single-case 嘗試 `D257 getRadioAirStats() Load` 目前不能 closure：historical authoritative full-run `20260412T113008433351` 已證明 stale row `259` / fail-shaped YAML 錯誤（`Load=84/62/96`），但 isolated rerun `20260414T183120002375` 只回 `[""]`，safe env repair `wifi-llapi baseline-qualify --band 6g --repeat-count 1 --soak-minutes 0` 也落回 shared 6G baseline blocker（`sta_baseline_bss[1] not ready after 60s cmd=wl -i wl1 bss`、`6G ocv fix did not stabilize wl1 after retries`、`STA band baseline/connect failed`）。`D257` 已 park 在 `plugins/wifi_llapi/reports/D257_block.md`；active blockers 目前以 `D047` authority conflict + shared 6G baseline manifestations（`D179`、`D181`、`D257`）為主，下一步需先恢復 all-radios `Status="Up"` 再重試 D257。
+**2026-04-14 superseding note：本檔下半部的大盤分析仍保留 2026-04-13 snapshot；最新 strict compare 已更新為 `326 / 420 full matches`、`94` 筆 mismatch、`58` 筆 metadata drift。** 最新已提交 closure 現在是 `D257 getRadioAirStats() Load`（official rerun `20260414T200750384793`）：earlier empty-array blocker 已清除，workbook authority 刷新到 row `257`，stale row `259` / fail-shaped YAML 退場，official rerun exact-close tri-band getter `Load=83/62/98`。本輪 targeted D257/method-stats runtime guardrails=`132 passed`、command-budget=`1 passed`、full repo regression=`1662 passed`。同一輪 multi-band `baseline-qualify --repeat-count 1 --soak-minutes 0` 已不再重現舊的 `wl1 bss` / STA disconnect blocker，但 6G post-verify 仍有 `dut_ocv_not_zero` drift，因此 active blockers 目前回到 `D047` authority conflict + shared 6G baseline manifestations（`D179`、`D181`）為主；`D211` / `D204` 仍是 parked clarification items，next ready non-blocked compare-open case 改為 `D261 getRadioAirStats() TxTime`。
 
 **先講結論：以目前 repo 內 `compare-0401` snapshot 為準，跟 workbook 的差距是 `122` 筆 mismatch、`58` 筆 metadata drift。** 如果只看 workbook `Pass` 目標，分兩種口徑：
 
@@ -241,6 +241,7 @@
 ### 8. 當前 continuation anchor
 
 - latest aligned cases:
+  - `D257 getRadioAirStats() Load`
   - `D251 Radio.Vendor.RegulatoryDomainRev`
   - `D214 Radio.RIFSEnabled`
   - `D212 Radio.PossibleChannels`
@@ -267,7 +268,7 @@
   - `D185 Radio.NrActiveTxAntenna`
   - `D186 Radio.NrRxAntenna`
   - `D187 Radio.NrTxAntenna`
-- latest blocker:
+- latest closure after baseline recovery:
   - `D257 getRadioAirStats() Load`
 - latest parked clarification item:
   - `D211 Radio.OperatingStandards`
@@ -276,10 +277,9 @@
   - `D047`
   - `D179`
   - `D181`
-  - `D257`
 - strict compare snapshot：
-  - `325 / 420 full matches`
-  - `95 mismatches`
+  - `326 / 420 full matches`
+  - `94 mismatches`
   - `58 metadata drifts`
-- next retry after baseline recovery：
-  - `D257 getRadioAirStats() Load`
+- next ready non-blocked compare-open case：
+  - `D261 getRadioAirStats() TxTime`

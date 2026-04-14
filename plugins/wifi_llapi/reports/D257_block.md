@@ -1,14 +1,15 @@
-# D257 getRadioAirStats() Load parked note
+# D257 getRadioAirStats() Load historical parked note
 
-## Summary
+## Status update
 
 - case: `D257 getRadioAirStats() Load`
-- latest isolated rerun: `20260414T183120002375`
-- current isolated live shape: `5g=[""]`, `6g=[""]`, `2.4g=[""]`
-- compare status: still open against workbook row `257` `Pass / Pass / Pass`
-- disposition: **parked on the shared 6G baseline / radio-active blocker**
+- blocker-era isolated rerun: `20260414T183120002375`
+- resolving official rerun: `20260414T200750384793`
+- current closure shape: `5g=83`, `6g=62`, `2.4g=98`
+- compare status: closed on workbook row `257` `Pass / Pass / Pass`
+- disposition: **historical note retained for the temporary empty-array / 6G baseline blocker**
 
-## Why this is parked
+## Historical blocker context
 
 The historical authoritative full-run trace already proves that the stale authored mapping is wrong:
 
@@ -45,7 +46,7 @@ Safe environment repair also fell back into the known shared 6G baseline blocker
 - `sta_baseline_bss[1] not ready after 60s cmd=wl -i wl1 bss`
 - `STA band baseline/connect failed`
 
-So `D257` should not land a row/results rewrite until the baseline is recovered and the isolated rerun again returns structured air-stats objects.
+That was the blocker state before baseline recovery restored structured air-stats objects.
 
 ## Evidence
 
@@ -105,6 +106,6 @@ S24=96
 failure_snapshot field=capture_5g.Air5 expected=^\d+$ actual=
 ```
 
-## Next action
+## Resolution
 
-Recover the shared 6G baseline first so all radios are back to `Status="Up"`, then retry `D257` before advancing to the next compare-open case.
+Multi-band `wifi-llapi baseline-qualify --repeat-count 1 --soak-minutes 0` later recovered all three band links well enough for a follow-up official rerun. `D257` then exact-closed on workbook row `257` via `20260414T200750384793`, with tri-band getter output `Load = 83 / 62 / 98`. Keep this file only as provenance of the temporary blocker; current continuation should follow `compare-0401` and move to `D261 getRadioAirStats() TxTime`.

@@ -19292,7 +19292,7 @@ _METHOD_STATS_CASES = [
     # (yaml_file, row, method, field, live_5g, live_6g, live_24g)
     # getRadioAirStats field cases — workbook Fail
     ("D256_getradioairstats_freetime.yaml", 258, "getRadioAirStats", "FreeTime", "0", "10", "3851"),
-    ("D257_getradioairstats_load.yaml", 259, "getRadioAirStats", "Load", "100", "61", "100"),
+    ("D257_getradioairstats_load.yaml", 257, "getRadioAirStats", "Load", "84", "62", "96"),
     ("D258_getradioairstats_noise.yaml", 260, "getRadioAirStats", "Noise", "-100", "-97", "-79"),
     ("D259_getradioairstats_rxtime.yaml", 261, "getRadioAirStats", "RxTime", "0", "0", "0"),
     ("D260_getradioairstats_totaltime.yaml", 262, "getRadioAirStats", "TotalTime", "3", "26", "17"),
