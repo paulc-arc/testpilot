@@ -81,6 +81,9 @@
 
 ## Latest repo handoff snapshot（2026-04-14）
 
+- `D214 Radio.RIFSEnabled` is now aligned via official rerun `20260414T175434503053`
+- workbook authority is row `214`, not stale row `175`; the rerun exact-closes the tri-band setter-backed `Default -> Auto -> Default` replay, so the landed case now refreshes stale row `175` / raw `Fail / Fail / Fail` to workbook row `214` / raw `Pass / Pass / Pass`
+- targeted radio/runtime guardrails are now `202 passed`; final full repo regression remains `1662 passed`; compare is now `324 / 420 full matches` / `96 mismatches` / `58 metadata drifts`, and the next ready non-blocked compare-open case moves to `D251 Radio.Vendor.RegulatoryDomainRev`
 - `D212 Radio.PossibleChannels` is now aligned via official rerun `20260414T172459100474`
 - workbook authority is row `212`, not stale row `173`; the rerun exact-closes tri-band `PossibleChannels` lists, so the landed case now refreshes stale row `173` / raw `Fail / Fail / Fail` to workbook row `212` / raw `Pass / Pass / Pass`
 - `D211 Radio.OperatingStandards` is now parked after getter rerun `20260414T172208746324`

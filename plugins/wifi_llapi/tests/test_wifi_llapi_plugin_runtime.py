@@ -18993,6 +18993,79 @@ def test_d179_ampdu_evaluate_requires_tri_band_setter_effects() -> None:
     assert plugin.evaluate(d179, wrong_6g_disable) is False
 
 
+def test_d214_rifsenabled_contract() -> None:
+    cases_dir = Path(__file__).resolve().parents[1] / "cases"
+    d214 = load_case(cases_dir / "D214_rifsenabled.yaml")
+
+    assert d214["source"]["row"] == 214
+    assert d214["results_reference"]["v4.0.3"] == {
+        "5g": "Pass",
+        "6g": "Pass",
+        "2.4g": "Pass",
+        "comment": "workbook pass intent is tri-band Default -> Auto -> Default replay via northbound setter/readback on active 0403 lab state",
+    }
+    assert sorted(d214["topology"]["devices"]) == ["DUT"]
+    assert len(d214["steps"]) == 15
+    assert d214["steps"][0]["id"] == "step1_rifs_default_5g"
+    assert d214["steps"][-1]["id"] == "step15_rifs_after_restore_24g"
+
+    commands = "\n".join(str(step["command"]) for step in d214["steps"])
+    assert "RequestedRIFSEnabled5g=Auto" in commands
+    assert 'WiFi.Radio.1.RIFSEnabled="Auto"' in commands
+    assert "AfterRestoreRIFSEnabled24g" in commands
+
+
+def test_d214_rifsenabled_setup_env(monkeypatch: pytest.MonkeyPatch) -> None:
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[1] / "cases"
+    d214 = load_case(cases_dir / "D214_rifsenabled.yaml")
+    topo = _FakeTopology()
+    recorder = _FactoryRecorder()
+    _install_fake_factory(monkeypatch, recorder)
+
+    assert plugin.setup_env(d214, topology=topo) is True
+    plugin.teardown(d214, topo)
+
+
+def test_d214_rifsenabled_evaluate_requires_tri_band_setter_readback() -> None:
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[1] / "cases"
+    d214 = load_case(cases_dir / "D214_rifsenabled.yaml")
+
+    good_results = {
+        "steps": {
+            "step1_rifs_default_5g": {"success": True, "output": "DefaultRIFSEnabled5g=Default", "timing": 0.01},
+            "step2_rifs_set_auto_5g": {"success": True, "output": "RequestedRIFSEnabled5g=Auto", "timing": 0.01},
+            "step3_rifs_after_set_5g": {"success": True, "output": "AfterSetRIFSEnabled5g=Auto", "timing": 0.01},
+            "step4_rifs_restore_5g": {"success": True, "output": "RestoreRIFSEnabled5g=Default", "timing": 0.01},
+            "step5_rifs_after_restore_5g": {"success": True, "output": "AfterRestoreRIFSEnabled5g=Default", "timing": 0.01},
+            "step6_rifs_default_6g": {"success": True, "output": "DefaultRIFSEnabled6g=Default", "timing": 0.01},
+            "step7_rifs_set_auto_6g": {"success": True, "output": "RequestedRIFSEnabled6g=Auto", "timing": 0.01},
+            "step8_rifs_after_set_6g": {"success": True, "output": "AfterSetRIFSEnabled6g=Auto", "timing": 0.01},
+            "step9_rifs_restore_6g": {"success": True, "output": "RestoreRIFSEnabled6g=Default", "timing": 0.01},
+            "step10_rifs_after_restore_6g": {"success": True, "output": "AfterRestoreRIFSEnabled6g=Default", "timing": 0.01},
+            "step11_rifs_default_24g": {"success": True, "output": "DefaultRIFSEnabled24g=Default", "timing": 0.01},
+            "step12_rifs_set_auto_24g": {"success": True, "output": "RequestedRIFSEnabled24g=Auto", "timing": 0.01},
+            "step13_rifs_after_set_24g": {"success": True, "output": "AfterSetRIFSEnabled24g=Auto", "timing": 0.01},
+            "step14_rifs_restore_24g": {"success": True, "output": "RestoreRIFSEnabled24g=Default", "timing": 0.01},
+            "step15_rifs_after_restore_24g": {"success": True, "output": "AfterRestoreRIFSEnabled24g=Default", "timing": 0.01},
+        }
+    }
+    assert plugin.evaluate(d214, good_results) is True
+
+    wrong_24g_after_set = {
+        "steps": {
+            **good_results["steps"],
+            "step13_rifs_after_set_24g": {
+                "success": True,
+                "output": "AfterSetRIFSEnabled24g=Default",
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(d214, wrong_24g_after_set) is False
+
+
 # Remaining WiFi.Radio.{i} read-only getter batch
 # ---------------------------------------------------------------------------
 
@@ -19032,7 +19105,6 @@ _RADIO_GETTER_CASES = [
     ("D211_operatingstandards.yaml", 172, "be", "be", "be", "WiFi.Radio.{r}.OperatingStandards"),
     ("D212_possiblechannels.yaml", 212, "36,40,44,48", "1,5,9,13", "1,2,3,4", "WiFi.Radio.{r}.PossibleChannels"),
     ("D213_regulatorydomain_radio.yaml", 174, "#a", "#a", "#a", "WiFi.Radio.{r}.RegulatoryDomain"),
-    ("D214_rifsenabled.yaml", 175, "Default", "Default", "Default", "WiFi.Radio.{r}.RIFSEnabled"),
     # --- Batch 2: D215, D245-D251 Radio getters ---
     ("D215_rxchainctrl.yaml", 176, "-1", "-1", "-1", "WiFi.Radio.{r}.RxChainCtrl"),
     ("D245_supportedfrequencybands.yaml", 177, "5GHz", "6GHz", "2.4GHz", "WiFi.Radio.{r}.SupportedFrequencyBands"),

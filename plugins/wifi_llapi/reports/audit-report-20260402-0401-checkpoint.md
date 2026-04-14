@@ -1,5 +1,89 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-14 early-86)
+
+> This checkpoint records the `D214 Radio.RIFSEnabled` setter-backed workbook closure.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D214 Radio.RIFSEnabled` 已透過 official rerun `20260414T175434503053` 完成 closure
+- workbook authority 現在刷新到 row `214`，不再沿用 stale row `175`
+- current rerun exact-close tri-band setter-backed `Default -> Auto -> Default` replay
+- landed case 現在把 stale raw `Fail / Fail / Fail` 刷新為 workbook-consistent `Pass / Pass / Pass`
+- targeted radio/runtime guardrails 維持 `202 passed`
+- command-budget guardrail 維持 `1 passed`
+- final full repo regression 維持 `1662 passed`
+- compare refresh 已更新為 `324 / 420 full matches`、`96 mismatches`、`58 metadata drifts`
+- `D211 Radio.OperatingStandards` 仍維持 parked beacon-validation gap（`plugins/wifi_llapi/reports/D211_block.md`）
+- next ready non-blocked compare-open case 改為 `D251 Radio.Vendor.RegulatoryDomainRev`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D214` | 214 | `RIFSEnabled` | `Pass / Pass / Pass` | `20260414T175434503053_DUT.log L8-L111; bgw720-0403_wifi_llapi_20260414t175434503053.md L15-L93` | `20260414T175434503053_STA.log` empty file |
+
+#### D214 Radio.RIFSEnabled
+
+**STA 指令**
+
+```sh
+# N/A (DUT-only setter/readback case; rerun emitted an empty STA log)
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.Radio.1.RIFSEnabled?" | sed -n 's/.*RIFSEnabled="\([^"]*\)".*/DefaultRIFSEnabled5g=\1/p'
+ubus-cli 'WiFi.Radio.1.RIFSEnabled="Auto"'
+sleep 5
+ubus-cli "WiFi.Radio.1.RIFSEnabled?" | sed -n 's/.*RIFSEnabled="\([^"]*\)".*/AfterSetRIFSEnabled5g=\1/p'
+ubus-cli 'WiFi.Radio.1.RIFSEnabled="Default"'
+sleep 5
+ubus-cli "WiFi.Radio.1.RIFSEnabled?" | sed -n 's/.*RIFSEnabled="\([^"]*\)".*/AfterRestoreRIFSEnabled5g=\1/p'
+ubus-cli "WiFi.Radio.2.RIFSEnabled?" | sed -n 's/.*RIFSEnabled="\([^"]*\)".*/DefaultRIFSEnabled6g=\1/p'
+ubus-cli 'WiFi.Radio.2.RIFSEnabled="Auto"'
+sleep 5
+ubus-cli "WiFi.Radio.2.RIFSEnabled?" | sed -n 's/.*RIFSEnabled="\([^"]*\)".*/AfterSetRIFSEnabled6g=\1/p'
+ubus-cli 'WiFi.Radio.2.RIFSEnabled="Default"'
+sleep 5
+ubus-cli "WiFi.Radio.2.RIFSEnabled?" | sed -n 's/.*RIFSEnabled="\([^"]*\)".*/AfterRestoreRIFSEnabled6g=\1/p'
+ubus-cli "WiFi.Radio.3.RIFSEnabled?" | sed -n 's/.*RIFSEnabled="\([^"]*\)".*/DefaultRIFSEnabled24g=\1/p'
+ubus-cli 'WiFi.Radio.3.RIFSEnabled="Auto"'
+sleep 5
+ubus-cli "WiFi.Radio.3.RIFSEnabled?" | sed -n 's/.*RIFSEnabled="\([^"]*\)".*/AfterSetRIFSEnabled24g=\1/p'
+ubus-cli 'WiFi.Radio.3.RIFSEnabled="Default"'
+sleep 5
+ubus-cli "WiFi.Radio.3.RIFSEnabled?" | sed -n 's/.*RIFSEnabled="\([^"]*\)".*/AfterRestoreRIFSEnabled24g=\1/p'
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+DUT (20260414T175434503053_DUT.log L8-L111; bgw720-0403_wifi_llapi_20260414t175434503053.md L15-L93)
+DefaultRIFSEnabled5g=Default
+RequestedRIFSEnabled5g=Auto
+AfterSetRIFSEnabled5g=Auto
+RestoreRIFSEnabled5g=Default
+AfterRestoreRIFSEnabled5g=Default
+DefaultRIFSEnabled6g=Default
+RequestedRIFSEnabled6g=Auto
+AfterSetRIFSEnabled6g=Auto
+RestoreRIFSEnabled6g=Default
+AfterRestoreRIFSEnabled6g=Default
+DefaultRIFSEnabled24g=Default
+RequestedRIFSEnabled24g=Auto
+AfterSetRIFSEnabled24g=Auto
+RestoreRIFSEnabled24g=Default
+AfterRestoreRIFSEnabled24g=Default
+
+STA (20260414T175434503053_STA.log)
+empty file
+```
+
 ## Checkpoint summary (2026-04-14 early-85)
 
 > This checkpoint records the `D212 Radio.PossibleChannels` low-risk radio getter closure.
