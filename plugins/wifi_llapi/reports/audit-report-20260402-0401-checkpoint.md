@@ -1,5 +1,59 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-14 early-80)
+
+> This checkpoint records the `D203 Radio.MaxChannelBandwidth` low-risk radio getter closure.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D203 Radio.MaxChannelBandwidth` 已透過 official rerun `20260414T164038591687` 完成 closure
+- workbook authority 現在刷新到 row `203`，不再沿用 stale row `166`
+- current rerun exact-close tri-band getter `MaxChannelBandwidth=160MHz/320MHz/40MHz`
+- landed case 現在把 stale raw `Fail / Fail / Fail` 刷新為 workbook-consistent `Pass / Pass / Pass`
+- targeted radio-getter/runtime guardrails 現在是 `202 passed`
+- command-budget guardrail 維持 `1 passed`
+- final full repo regression 維持 `1662 passed`
+- compare refresh 已更新為 `318 / 420 full matches`、`102 mismatches`、`58 metadata drifts`
+- active blockers 維持 `D047 SupportedHe160MCS` authority conflict + shared 6G baseline blocker（manifested in `D179` / `D181`）
+- next ready non-blocked compare-open case 改為 `D204 Radio.MultiUserMIMOEnabled`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| `D203` | 203 | `MaxChannelBandwidth` | `Pass / Pass / Pass` | `20260414T164038591687_DUT.log L5-L18; bgw720-0403_wifi_llapi_20260414t164038591687.md L15-L35` | `20260414T164038591687_STA.log` empty file |
+
+#### D203 Radio.MaxChannelBandwidth
+
+**STA 指令**
+
+```sh
+# N/A (DUT-only radio getter case; rerun emitted an empty STA log)
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.Radio.1.MaxChannelBandwidth?"
+ubus-cli "WiFi.Radio.2.MaxChannelBandwidth?"
+ubus-cli "WiFi.Radio.3.MaxChannelBandwidth?"
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+DUT (20260414T164038591687_DUT.log L5-L18; bgw720-0403_wifi_llapi_20260414t164038591687.md L15-L35)
+WiFi.Radio.1.MaxChannelBandwidth="160MHz"
+WiFi.Radio.2.MaxChannelBandwidth="320MHz"
+WiFi.Radio.3.MaxChannelBandwidth="40MHz"
+
+STA (20260414T164038591687_STA.log)
+empty file
+```
+
 ## Checkpoint summary (2026-04-14 early-79)
 
 > This checkpoint records the `D202 Radio.Interference` workbook-shaped getter closure.
