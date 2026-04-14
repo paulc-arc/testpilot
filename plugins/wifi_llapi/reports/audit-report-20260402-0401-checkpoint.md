@@ -1,5 +1,67 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-14 early-99)
+
+> This checkpoint records the `D336 UnicastPacketsSent / SSID stats` workbook closure.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D336 UnicastPacketsSent / SSID stats` 已完成 closure
+- workbook authority 維持 row `336`
+- same-window snapshot rewrite 已取代舊的分步 direct/getSSIDStats()/driver 採樣，避免 WDS counter drift
+- official rerun `20260414T231646005774` exact-close tri-band workbook `Pass / Pass / Pass`
+- live cross-check evidence 保留 direct/getSSIDStats()/driver `UnicastPacketsSent=3621/2595/3997`
+- `diagnostic_status=Pass`
+- targeted D336/direct-stats runtime guardrails + command-budget=`2 passed`
+- full repo regression=`1662 passed`
+- compare 更新為 `336 / 420 full matches`、`84 mismatches`、`58 metadata drifts`
+- active blockers 維持 `D047` authority conflict + shared 6G baseline manifestations（`D179`、`D181`）
+- next ready non-blocked compare-open case=`D296 StartACS`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| D336 | 336 | UnicastPacketsSent | Pass / Pass / Pass | `20260414T231646005774_DUT.log L464-L469; L741-L746; bgw720-0403_wifi_llapi_20260414t231646005774.md L29-L40` | `20260414T231646005774_STA.log L84-L94; L195-L224; L311-L321` |
+
+### D336 UnicastPacketsSent / SSID stats alignment evidence
+
+**STA 指令**
+
+```sh
+iw dev wl0 link
+iw dev wl1 link
+iw dev wl2 link
+```
+
+**DUT 指令**
+
+```sh
+sleep 2
+ap=wl0; a=$(wl -i "$ap" assoclist | tr 'A-F' 'a-f' | sed -n 's/^assoclist \([^ ]*\).*$/\1/p'); wf=0; wm=0; set -- $(wl -i "$ap" if_counters | awk '/^txframe /{print $2} /^d11_txfrag /{print $4}'); f=$1; m=$2; for i in $(ls /sys/class/net | grep -E '^wds0\.0\.[0-9]+$' || true); do set -- $(wl -i "$i" if_counters 2>/dev/null | awk '/^txframe /{print $2} /^d11_txfrag /{print $4}'); wf=$((wf+${1:-0})); wm=$((wm+${2:-0})); done; s=$(ubus-cli "WiFi.SSID.4.getSSIDStats()"); d=$(ubus-cli "WiFi.SSID.4.Stats.UnicastPacketsSent?" | sed -n 's/.*=\([0-9][0-9]*\).*/\1/p'); g=$(printf '%s\n' "$s" | sed -n 's/^[[:space:]]*UnicastPacketsSent = \([0-9][0-9]*\).*/\1/p'); r=$(( ((${f:-0}+wf)-(${m:-0}+wm)) & 0xffffffff )); printf 'AssocMac5g=%s\n' "${a:-}"; printf 'DirectUnicastPacketsSent5g=%s\n' "${d:-}"; printf 'GetSSIDStatsUnicastPacketsSent5g=%s\n' "${g:-}"; printf 'DriverUnicastPacketsSent5g=%s\n' "$r"
+ap=wl1; a=$(wl -i "$ap" assoclist | tr 'A-F' 'a-f' | sed -n 's/^assoclist \([^ ]*\).*$/\1/p'); wf=0; wm=0; set -- $(wl -i "$ap" if_counters | awk '/^txframe /{print $2} /^d11_txfrag /{print $4}'); f=$1; m=$2; for i in $(ls /sys/class/net | grep -E '^wds1\.0\.[0-9]+$' || true); do set -- $(wl -i "$i" if_counters 2>/dev/null | awk '/^txframe /{print $2} /^d11_txfrag /{print $4}'); wf=$((wf+${1:-0})); wm=$((wm+${2:-0})); done; s=$(ubus-cli "WiFi.SSID.6.getSSIDStats()"); d=$(ubus-cli "WiFi.SSID.6.Stats.UnicastPacketsSent?" | sed -n 's/.*=\([0-9][0-9]*\).*/\1/p'); g=$(printf '%s\n' "$s" | sed -n 's/^[[:space:]]*UnicastPacketsSent = \([0-9][0-9]*\).*/\1/p'); r=$(( ((${f:-0}+wf)-(${m:-0}+wm)) & 0xffffffff )); printf 'AssocMac6g=%s\n' "${a:-}"; printf 'DirectUnicastPacketsSent6g=%s\n' "${d:-}"; printf 'GetSSIDStatsUnicastPacketsSent6g=%s\n' "${g:-}"; printf 'DriverUnicastPacketsSent6g=%s\n' "$r"
+ap=wl2; a=$(wl -i "$ap" assoclist | tr 'A-F' 'a-f' | sed -n 's/^assoclist \([^ ]*\).*$/\1/p'); wf=0; wm=0; set -- $(wl -i "$ap" if_counters | awk '/^txframe /{print $2} /^d11_txfrag /{print $4}'); f=$1; m=$2; for i in $(ls /sys/class/net | grep -E '^wds2\.0\.[0-9]+$' || true); do set -- $(wl -i "$i" if_counters 2>/dev/null | awk '/^txframe /{print $2} /^d11_txfrag /{print $4}'); wf=$((wf+${1:-0})); wm=$((wm+${2:-0})); done; s=$(ubus-cli "WiFi.SSID.8.getSSIDStats()"); d=$(ubus-cli "WiFi.SSID.8.Stats.UnicastPacketsSent?" | sed -n 's/.*=\([0-9][0-9]*\).*/\1/p'); g=$(printf '%s\n' "$s" | sed -n 's/^[[:space:]]*UnicastPacketsSent = \([0-9][0-9]*\).*/\1/p'); r=$(( ((${f:-0}+wf)-(${m:-0}+wm)) & 0xffffffff )); printf 'AssocMac24g=%s\n' "${a:-}"; printf 'DirectUnicastPacketsSent24g=%s\n' "${d:-}"; printf 'GetSSIDStatsUnicastPacketsSent24g=%s\n' "${g:-}"; printf 'DriverUnicastPacketsSent24g=%s\n' "$r"
+```
+
+**關鍵 log 摘錄 / log 區間**
+
+```text
+Official rerun 20260414T231646005774
+- bgw720-0403_wifi_llapi_20260414t231646005774.md L9-L11
+  result_5g/result_6g/result_24g = Pass / Pass / Pass with diagnostic_status=Pass
+- bgw720-0403_wifi_llapi_20260414t231646005774.md L29-L40
+  same-window snapshot exact-closes direct Stats / getSSIDStats() / driver on 5g / 6g / 2.4g at 3621 / 2595 / 3997
+- 20260414T231646005774_DUT.log L464-L469
+  5g AssocMac / DirectUnicastPacketsSent / GetSSIDStatsUnicastPacketsSent / DriverUnicastPacketsSent exact-close at 3621
+- 20260414T231646005774_DUT.log L741-L746
+  6g AssocMac / DirectUnicastPacketsSent / GetSSIDStatsUnicastPacketsSent / DriverUnicastPacketsSent exact-close at 2595
+- 20260414T231646005774_STA.log L84-L94; L195-L224; L311-L321
+  STA links stay associated to testpilot5G / testpilot6G / testpilot2G during the successful replay
+```
+
 ## Checkpoint summary (2026-04-14 early-98)
 
 > This checkpoint records the `D334 RetransCount / SSID stats` workbook closure.
