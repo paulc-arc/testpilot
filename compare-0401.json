@@ -115,7 +115,8 @@
     "plugins/wifi_llapi/reports/agent_trace/20260415T004735420726",
     "plugins/wifi_llapi/reports/agent_trace/20260415T010122540134",
     "plugins/wifi_llapi/reports/agent_trace/20260415T011605260076",
-    "plugins/wifi_llapi/reports/agent_trace/20260415T023436252245"
+    "plugins/wifi_llapi/reports/agent_trace/20260415T023436252245",
+    "plugins/wifi_llapi/reports/agent_trace/20260415T024522159981"
   ],
   "answers_xlsx": "/home/paul_chen/prj_arc/testpilot/0401.xlsx",
   "cases_dir": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases",
@@ -123,20 +124,20 @@
   "missing_answer_count": 0,
   "missing_answer_rows": [],
   "metadata_drift_count": 57,
-  "full_match_count": 344,
-  "mismatch_case_count": 76,
+  "full_match_count": 345,
+  "mismatch_case_count": 75,
   "band_summary": {
     "5g": {
-      "matched": 348,
-      "mismatched": 72
+      "matched": 349,
+      "mismatched": 71
     },
     "6g": {
-      "matched": 344,
-      "mismatched": 76
+      "matched": 345,
+      "mismatched": 75
     },
     "2.4g": {
-      "matched": 347,
-      "mismatched": 73
+      "matched": 348,
+      "mismatched": 72
     }
   },
   "cases": [
@@ -12458,7 +12459,7 @@
       "case_id": "d379-radio-mcs",
       "case_file": "D379_mcs.yaml",
       "dnum": 379,
-      "source_row": 381,
+      "source_row": 379,
       "source_object": "WiFi.Radio.{i}.",
       "source_api": "MCS",
       "answer_row": 379,
@@ -12473,33 +12474,29 @@
       "comment": "",
       "bands": {
         "5g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
+          "actual_raw": "Skip",
+          "actual_norm": "Fail",
           "expected_raw": "Skip",
           "expected_norm": "Fail"
         },
         "6g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
+          "actual_raw": "Skip",
+          "actual_norm": "Fail",
           "expected_raw": "Skip",
           "expected_norm": "Fail"
         },
         "2.4g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
+          "actual_raw": "Skip",
+          "actual_norm": "Fail",
           "expected_raw": "Skip",
           "expected_norm": "Fail"
         }
       },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
+      "mismatch_bands": [],
+      "matches_answer": true,
       "workbook_test_steps_excerpt": "1. Verify MCS of the Radio root@prplOS:/# ubus-cli WiFi.Radio.*.MCS? > WiFi.Radio.*.MCS? WiFi.Radio.1.MCS=0 WiFi.Radio.2.MCS=0 WiFi.Radio.3.MCS=0",
       "workbook_command_output_excerpt": "root@prplOS:/# wl -i wl0 status SSID: \"5G-123\" Mode: Managed RSSI: 0 dBm SNR: 0 dB noise: -92 dBm Channel: 48/160 BSSID: 64:75:DA:4E:51:75 Capability: ESS RRM Beacon Interval: 100 msecs Supported Rates: [ 6(b) 9 12 18 24(b) 36 48 54 ] Ex...",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d379-radio-mcs.json"
+      "trace_path": "plugins/wifi_llapi/reports/agent_trace/20260415T024522159981/d379-radio-mcs.json"
     },
     {
       "case_id": "d380-radio-multiaptypessupported",
@@ -19202,53 +19199,6 @@
       "workbook_test_steps_excerpt": "1. Connect WiFi station to GW 2. Check Associated Device Status 3. Disconnect Wifi Station from GW 4. Check Associated Device DisassociationTime root@prplOS:/# ubus-cli WiFi.AccessPoint.*.AssociatedDevice.*.? | grep -E 'Activ root@prplOS...",
       "workbook_command_output_excerpt": "root@prplOS:/# wl -i wl0 assoclist root@prplOS:/# wl -i wl1 assoclist root@prplOS:/# wl -i wl2 assoclist",
       "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d371-assocdev-disassociationtime.json"
-    },
-    {
-      "case_id": "d379-radio-mcs",
-      "case_file": "D379_mcs.yaml",
-      "dnum": 379,
-      "source_row": 381,
-      "source_object": "WiFi.Radio.{i}.",
-      "source_api": "MCS",
-      "answer_row": 379,
-      "answer_object": "WiFi.Radio.{i}.",
-      "answer_api": "MCS",
-      "mapping_status": "exact",
-      "mapping_object_match": true,
-      "mapping_api_match": true,
-      "final_status": "Pass",
-      "evaluation_verdict": "Pass",
-      "attempts_used": 1,
-      "comment": "",
-      "bands": {
-        "5g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
-          "expected_raw": "Skip",
-          "expected_norm": "Fail"
-        },
-        "6g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
-          "expected_raw": "Skip",
-          "expected_norm": "Fail"
-        },
-        "2.4g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
-          "expected_raw": "Skip",
-          "expected_norm": "Fail"
-        }
-      },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
-      "workbook_test_steps_excerpt": "1. Verify MCS of the Radio root@prplOS:/# ubus-cli WiFi.Radio.*.MCS? > WiFi.Radio.*.MCS? WiFi.Radio.1.MCS=0 WiFi.Radio.2.MCS=0 WiFi.Radio.3.MCS=0",
-      "workbook_command_output_excerpt": "root@prplOS:/# wl -i wl0 status SSID: \"5G-123\" Mode: Managed RSSI: 0 dBm SNR: 0 dB noise: -92 dBm Channel: 48/160 BSSID: 64:75:DA:4E:51:75 Capability: ESS RRM Beacon Interval: 100 msecs Supported Rates: [ 6(b) 9 12 18 24(b) 36 48 54 ] Ex...",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d379-radio-mcs.json"
     },
     {
       "case_id": "d380-radio-multiaptypessupported",

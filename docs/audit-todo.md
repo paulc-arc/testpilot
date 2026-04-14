@@ -81,13 +81,13 @@
 
 ## Latest repo handoff snapshot（2026-04-14）
 
-- `D377 Radio.MaxBitRate` is now aligned via official rerun `20260415T023436252245`
-- workbook authority is row `377`, not stale row `280`; the landed closure keeps the live tri-band getter evidence `MaxBitRate=0/0/0` while intentionally projecting workbook `Not Supported / Not Supported / Not Supported` with `diagnostic_status=Pass`
+- `D379 Radio.MCS` is now aligned via official rerun `20260415T024522159981`
+- workbook authority is row `379`, not stale row `381`; the landed closure keeps the live tri-band getter evidence `MCS=0/0/0` while intentionally projecting workbook `Skip / Skip / Skip` with `diagnostic_status=Pass`
 - `D371 AccessPoint.AssociatedDevice.DisassociationTime` is now parked as a localized blocker after focused survey runs `20260415T014146461381` / `20260415T015629548681` / `20260415T020725267608`; the rewrite was rolled back after 24G `assoclist` residue plus later 5G residue / 6G `step11_6g_post_assoc` serialwrap timeout after driver-level detach
 - systemic active blockers remain `D047` authority conflict plus the shared 6G baseline manifestations in `D179` and `D181`; parked clarification items remain `D204` and `D211`
 - `D359 AccessPoint.IsolationEnable` remains parked: workbook requires two WiFi stations plus isolation ping, but the current lab/testbed flow only exposes the standard single-STA path
-- historical blocker context for the temporary D257 empty-array failure is retained in `plugins/wifi_llapi/reports/D257_block.md`; latest committed aligned case is now `D377 Radio.MaxBitRate`
-- targeted D377/runtime + radio-getter guardrails passed; full repo regression is now `1661 passed`; compare is now `344 / 420 full matches` / `76 mismatches` / `57 metadata drifts`, `D355-D357` remain in the CSI-client placeholder bucket, and the next ready non-blocked compare-open case moves to `D379 Radio.MCS`
+- historical blocker context for the temporary D257 empty-array failure is retained in `plugins/wifi_llapi/reports/D257_block.md`; latest committed aligned case is now `D379 Radio.MCS`
+- targeted D379/runtime + radio-getter guardrails passed; full repo regression is now `1662 passed`; compare is now `345 / 420 full matches` / `75 mismatches` / `57 metadata drifts`, `D355-D357` remain in the CSI-client placeholder bucket, and the next ready non-blocked compare-open case moves to `D380 Radio.MultiAPTypesSupported`
 - `D214 Radio.RIFSEnabled` is now aligned via official rerun `20260414T175434503053`
 - workbook authority is row `214`, not stale row `175`; the rerun exact-closes the tri-band setter-backed `Default -> Auto -> Default` replay, so the landed case now refreshes stale row `175` / raw `Fail / Fail / Fail` to workbook row `214` / raw `Pass / Pass / Pass`
 - targeted radio/runtime guardrails are now `202 passed`; final full repo regression remains `1662 passed`; compare is now `324 / 420 full matches` / `96 mismatches` / `58 metadata drifts`, and the next ready non-blocked compare-open case moves to `D251 Radio.Vendor.RegulatoryDomainRev`
