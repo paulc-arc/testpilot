@@ -1,5 +1,69 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-15 early-136)
+
+> This checkpoint records the `D481 Radio Stats WmmBytesReceived AC_VO` focused blocker survey.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D481 Radio Stats WmmBytesReceived AC_VO` 尚未 closure；latest committed closure 仍是 `D480`
+- workbook authority 仍是 row `481` 的 direct `WiFi.Radio.{i}.Stats.WmmBytesReceived.AC_VO?` getter + `wl wme_counters` AC_VO RX-byte cross-check
+- focused workbook-faithful rerun `20260415T093205719889` 失敗兩次，失敗點都落在 `direct_6g.AC_VO`
+- 5G/2.4G 仍可 exact-close：`WiFi.Radio.1.Stats.WmmBytesReceived.AC_VO=45322` 對 `DriverWmmBytesReceived5g=45322`，`WiFi.Radio.3.Stats.WmmBytesReceived.AC_VO=31588` 對 `DriverWmmBytesReceived24g=31588`
+- 6G direct getter 固定停在 `0`，但 `wl1 wme_counters` `AC_VO` RX bytes 穩定為 `32323`
+- follow-up serialwrap probe 也確認 `ubus-cli "WiFi.Radio.2.Stats.WmmBytesReceived.AC_VO?"` 在 `getRadioStats()` refresh 前後都維持 `0`，而 `ubus-cli "WiFi.Radio.2.getRadioStats()" | grep AC_VO_Stats` 仍是空輸出
+- exploratory rewrite 已回退、不進 commit
+- compare 因此維持 `367 / 420 full matches`、`53 mismatches`，metadata drifts 維持 `43`
+- next ready actionable survey target=`D482 Radio Stats WmmBytesSent AC_BE`
+
+</details>
+
+### D481 Radio Stats WmmBytesReceived AC_VO blocker evidence
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.Radio.1.Stats.WmmBytesReceived.AC_VO?"
+wl -i wl0 wme_counters | grep -A2 '^AC_VO:' | awk '/rx frames:/ {print "DriverWmmBytesReceived5g="$5}'
+ubus-cli "WiFi.Radio.2.Stats.WmmBytesReceived.AC_VO?"
+wl -i wl1 wme_counters | grep -A2 '^AC_VO:' | awk '/rx frames:/ {print "DriverWmmBytesReceived6g="$5}'
+ubus-cli "WiFi.Radio.3.Stats.WmmBytesReceived.AC_VO?"
+wl -i wl2 wme_counters | grep -A2 '^AC_VO:' | awk '/rx frames:/ {print "DriverWmmBytesReceived24g="$5}'
+ubus-cli "WiFi.Radio.2.Stats.WmmBytesReceived.AC_VO?"
+ubus-cli "WiFi.Radio.2.getRadioStats()" | grep AC_VO_Stats
+ubus-cli "WiFi.Radio.2.Stats.WmmBytesReceived.AC_VO?"
+wl -i wl1 wme_counters | grep -A2 '^AC_VO:'
+```
+
+**關鍵 log 摘錄 / log 區間**
+
+```text
+Official rerun 20260415T093205719889
+- bgw720-0403_wifi_llapi_20260415t093205719889.md L9-L11
+  result_5g/result_6g/result_24g = Fail / Fail / Fail with diagnostic_status=FailTest
+- bgw720-0403_wifi_llapi_20260415t093205719889.md L17-L25
+  workbook-faithful row-481 replay uses tri-band direct Stats.WmmBytesReceived.AC_VO getters plus wl wme_counters AC_VO rx-byte cross-checks
+- bgw720-0403_wifi_llapi_20260415t093205719889.md L30-L39
+  5G and 2.4G exact-close at `45322` / `31588`, but 6G stays `WiFi.Radio.2.Stats.WmmBytesReceived.AC_VO=0` vs `DriverWmmBytesReceived6g=32323`
+- 20260415T093205719889_DUT.log L5-L31
+  official rerun repeats the same 6G drift on both attempts while 5G/2.4G exact-close
+
+Focused serialwrap probe after rerun
+- direct-before
+  > WiFi.Radio.2.Stats.WmmBytesReceived.AC_VO?
+  WiFi.Radio.2.Stats.WmmBytesReceived.AC_VO=0
+- getRadioStats
+  (empty output for `ubus-cli "WiFi.Radio.2.getRadioStats()" | grep AC_VO_Stats`)
+- direct-after
+  > WiFi.Radio.2.Stats.WmmBytesReceived.AC_VO?
+  WiFi.Radio.2.Stats.WmmBytesReceived.AC_VO=0
+- driver-raw
+  AC_VO: tx frames: 206 bytes: 41612 failed frames: 0 failed bytes: 0
+         rx frames: 206 bytes: 32323 failed frames: 0 failed bytes: 0
+         foward frames: 0 bytes: 0
+```
+
 ## Checkpoint summary (2026-04-15 early-135)
 
 > This checkpoint records the `D480 Radio Stats WmmBytesReceived AC_VI` workbook alignment.
