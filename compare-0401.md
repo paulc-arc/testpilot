@@ -146,6 +146,7 @@
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T082800519654`
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T084649232463`
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T091144122493`
+  - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T092125550117`
 - answer sheet: `/home/paul_chen/prj_arc/testpilot/0401.xlsx`
 - cases dir: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases`
 - compare rule: normalize both sides so only `Pass` stays `Pass`; all other values become `Fail`.
@@ -156,8 +157,8 @@
 | metric | value |
 | --- | ---: |
 | compared cases | 420 |
-| full matches | 366 |
-| mismatch cases | 54 |
+| full matches | 367 |
+| mismatch cases | 53 |
 | missing answer rows | 0 |
 | metadata drift rows | 43 |
 
@@ -165,9 +166,9 @@
 
 | band | matched | mismatched |
 | --- | ---: | ---: |
-| 5g | 368 | 52 |
-| 6g | 366 | 54 |
-| 2.4g | 368 | 52 |
+| 5g | 369 | 51 |
+| 6g | 367 | 53 |
+| 2.4g | 369 | 51 |
 
 ## Mismatch table
 
@@ -191,7 +192,6 @@
 | `d414-assocdev-rrmoffchannelmaxduration` | 414 | exact | Fail / N/A / N/A | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d415-assocdev-rrmonchannelmaxduration` | 415 | exact | Fail / N/A / N/A | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d454-getradiostats-failedretranscount` | 454 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
-| `d480-getradiostats-wmm-bytesreceived-ac_vi` | 480 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d481-getradiostats-wmm-bytesreceived-ac_vo` | 481 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d482-getradiostats-wmm-bytessent-ac_be` | 482 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d483-getradiostats-wmm-bytessent-ac_bk` | 483 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
@@ -577,26 +577,6 @@
 - 0401 G excerpt: 1. Record counters at start: root@prplOS:/# ubus-cli "WiFi.Radio.*.getRadioStats()" | grep MultipleRetryCount MultipleRetryCount = 0, MultipleRetryCount = 0, MultipleRetryCount = 0, root@prplOS:/# ubus-cli "WiFi.Radio.*.getRadioStats()" ...
 - 0401 H excerpt: (empty)
 - trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d454-getradiostats-failedretranscount.json`
-
-### d480-getradiostats-wmm-bytesreceived-ac_vi
-
-- case file: `D480_ac_vi_stats_wmmbytesreceived_radio.yaml`
-- answer row: `480`
-- mapping status: `exact`
-- source metadata: `WiFi.Radio.{i}.Stats.WmmBytesReceived.` / `AC_VI`
-- workbook metadata: `WiFi.Radio.{i}.Stats.WmmBytesReceived.` / `AC_VI`
-- final status: `Fail`
-- evaluation verdict: `Fail`
-- attempts used: `2`
-- runtime comment: pass_criteria not satisfied (failed after 2/2 attempts)
-- actual raw: `Fail` / `Fail` / `Fail`
-- expected raw: `Pass` / `Pass` / `Pass`
-- actual normalized: `Fail` / `Fail` / `Fail`
-- expected normalized: `Pass` / `Pass` / `Pass`
-- mismatch bands: `5g, 6g, 2.4g`
-- 0401 G excerpt: 1. Connect WiFi station (use another WiFi7 GW as station with built-in IPERF3) 2. Run IPERF "iperf3 -c <server> -u -b 20M --tos 0x88" 3. Verify Radio Stats.WmmBytesReceived.AC_VI root@prplOS:/# ubus-cli WiFi.Radio.*.? | grep WmmBytesRece...
-- 0401 H excerpt: wl -i wl0 wme_counters root@prplOS:/# wl -i wl0 wme_counters AC_VI: tx frames: 0 bytes: 0 failed frames: 0 failed bytes: 0 rx frames: 17205 bytes: 26495350 failed frames: 0 failed bytes: 0 root@prplOS:/# wl -i wl1 wme_counters AC_VI: tx ...
-- trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d480-getradiostats-wmm-bytesreceived-ac_vi.json`
 
 ### d481-getradiostats-wmm-bytesreceived-ac_vo
 
