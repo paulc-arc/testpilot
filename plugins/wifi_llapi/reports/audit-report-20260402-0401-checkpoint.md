@@ -1,5 +1,61 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-15 early-145)
+
+> This checkpoint records the `D490 Radio Stats WmmFailedBytesSent AC_BE` focused blocker confirmation.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D490 Radio Stats WmmFailedBytesSent AC_BE` 未完成 closure，改列 localized blocker
+- workbook authority 應對位 row `490`
+- survey 已確認正確 live getter namespace 是 lowercase `WiFi.Radio.{i}.Stats.WmmFailedbytesSent.AC_BE?`；camel-case `WmmFailedBytesSent` 會 object not found
+- official rerun `20260415T110106382425` 對 workbook-faithful direct getter / driver tx failed-byte cross-check 給出 mixed tri-band shape：5G `0=0`、6G `0 vs 708116`、2.4G `90=90`
+- 因 6G direct getter 固定停在 `0`，而 `wl1 wme_counters` `AC_BE` tx failed bytes 穩定為 `708116`，這筆屬於 localized 6G zero-getter blocker，不能 land 成 workbook `Pass / Pass / Pass`
+- exploratory workbook-faithful rewrite 已回退，不進 commit
+- rerun 啟動時雖再次出現 `serialwrap daemon start failed` warning，但 decoded DUT/STA logs 仍成功落盤，blocker evidence 可用
+- 最新已提交 closure 仍是 `D489 Radio Stats WmmFailedBytesReceived AC_VO`；compare 維持 `373 / 420 full matches`、`47 mismatches`、metadata drifts `43`
+- 同族既有 blocker `D481` / `D482` / `D485` / `D454` / `D371` 仍維持
+- `D355-D357` 仍是 CSI placeholder，`D359` 仍卡在 current single-STA lab shape，`D414/D415` 仍保留在 dual-STA readiness review
+- next ready actionable survey target=`D491 Radio Stats WmmFailedBytesSent AC_BK`
+
+</details>
+
+### D490 Radio Stats WmmFailedBytesSent AC_BE blocker evidence
+
+**STA 指令**
+
+```sh
+# N/A (DUT-only case)
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.Radio.1.Stats.WmmFailedbytesSent.AC_BE?"
+wl -i wl0 wme_counters | grep '^AC_BE:' | awk '{print "DriverWmmFailedbytesSent5g="$12}'
+ubus-cli "WiFi.Radio.2.Stats.WmmFailedbytesSent.AC_BE?"
+wl -i wl1 wme_counters | grep '^AC_BE:' | awk '{print "DriverWmmFailedbytesSent6g="$12}'
+ubus-cli "WiFi.Radio.3.Stats.WmmFailedbytesSent.AC_BE?"
+wl -i wl2 wme_counters | grep '^AC_BE:' | awk '{print "DriverWmmFailedbytesSent24g="$12}'
+```
+
+**關鍵 log 摘錄 / log 區間**
+
+```text
+Official rerun 20260415T110106382425
+- bgw720-0403_wifi_llapi_20260415t110106382425.md L9-L11
+  result_5g/result_6g/result_24g = Fail / Fail / Fail with diagnostic_status=FailTest
+- bgw720-0403_wifi_llapi_20260415t110106382425.md L17-L25
+  workbook-faithful row-490 replay uses lowercase direct Stats.WmmFailedbytesSent.AC_BE getters plus wl wme_counters AC_BE tx failed-byte cross-checks
+- 20260415T110106382425_DUT.log L6-L14
+  5G exact-closes `WiFi.Radio.1.Stats.WmmFailedbytesSent.AC_BE=0` against `DriverWmmFailedbytesSent5g=0`
+- 20260415T110106382425_DUT.log L15-L23
+  6G drifts: `WiFi.Radio.2.Stats.WmmFailedbytesSent.AC_BE=0` while `DriverWmmFailedbytesSent6g=708116`
+- 20260415T110106382425_DUT.log L24-L32
+  2.4G exact-closes `WiFi.Radio.3.Stats.WmmFailedbytesSent.AC_BE=90` against `DriverWmmFailedbytesSent24g=90`
+```
+
 ## Checkpoint summary (2026-04-15 early-144)
 
 > This checkpoint records the `D489 Radio Stats WmmFailedBytesReceived AC_VO` workbook alignment.
