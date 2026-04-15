@@ -139,28 +139,29 @@
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T074042045965",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T074830179441",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T075629344743",
-    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T080003753294"
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T080003753294",
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T081114606106"
   ],
   "answers_xlsx": "/home/paul_chen/prj_arc/testpilot/0401.xlsx",
   "cases_dir": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases",
   "compared_case_count": 420,
   "missing_answer_count": 0,
   "missing_answer_rows": [],
-  "metadata_drift_count": 45,
-  "full_match_count": 362,
-  "mismatch_case_count": 58,
+  "metadata_drift_count": 44,
+  "full_match_count": 363,
+  "mismatch_case_count": 57,
   "band_summary": {
     "5g": {
-      "matched": 364,
-      "mismatched": 56
+      "matched": 365,
+      "mismatched": 55
     },
     "6g": {
-      "matched": 362,
-      "mismatched": 58
+      "matched": 363,
+      "mismatched": 57
     },
     "2.4g": {
-      "matched": 364,
-      "mismatched": 56
+      "matched": 365,
+      "mismatched": 55
     }
   },
   "cases": [
@@ -15114,17 +15115,17 @@
       "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T013545364055/d467-radio-rxbeamformingcapsenabled.json"
     },
     {
-      "case_id": "d474-radio-channel",
+      "case_id": "d474-radio-surroundingchannels-channel",
       "case_file": "D474_channel_radio_37.yaml",
       "dnum": 474,
-      "source_row": 179,
-      "source_object": "WiFi.Radio.{i}.",
+      "source_row": 474,
+      "source_object": "WiFi.Radio.{i}.ScanResults.SurroundingChannels.{i}.",
       "source_api": "Channel",
       "answer_row": 474,
       "answer_object": "WiFi.Radio.{i}.ScanResults.SurroundingChannels.{i}.",
       "answer_api": "Channel",
-      "mapping_status": "drift",
-      "mapping_object_match": false,
+      "mapping_status": "exact",
+      "mapping_object_match": true,
       "mapping_api_match": true,
       "final_status": "Pass",
       "evaluation_verdict": "Pass",
@@ -15132,33 +15133,29 @@
       "comment": "",
       "bands": {
         "5g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
+          "actual_raw": "Not Supported",
+          "actual_norm": "Fail",
           "expected_raw": "Not Supported",
           "expected_norm": "Fail"
         },
         "6g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
+          "actual_raw": "Not Supported",
+          "actual_norm": "Fail",
           "expected_raw": "Not Supported",
           "expected_norm": "Fail"
         },
         "2.4g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
+          "actual_raw": "Not Supported",
+          "actual_norm": "Fail",
           "expected_raw": "Not Supported",
           "expected_norm": "Fail"
         }
       },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
+      "mismatch_bands": [],
+      "matches_answer": true,
       "workbook_test_steps_excerpt": "",
       "workbook_command_output_excerpt": "",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d474-radio-channel.json"
+      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T081114606106/d474-radio-surroundingchannels-channel.json"
     },
     {
       "case_id": "d477-getradiostats-unknownprotopacketsreceived",
@@ -19298,53 +19295,6 @@
       "workbook_test_steps_excerpt": "1. Record counters at start: root@prplOS:/# ubus-cli \"WiFi.Radio.*.getRadioStats()\" | grep MultipleRetryCount MultipleRetryCount = 0, MultipleRetryCount = 0, MultipleRetryCount = 0, root@prplOS:/# ubus-cli \"WiFi.Radio.*.getRadioStats()\" ...",
       "workbook_command_output_excerpt": "",
       "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d454-getradiostats-failedretranscount.json"
-    },
-    {
-      "case_id": "d474-radio-channel",
-      "case_file": "D474_channel_radio_37.yaml",
-      "dnum": 474,
-      "source_row": 179,
-      "source_object": "WiFi.Radio.{i}.",
-      "source_api": "Channel",
-      "answer_row": 474,
-      "answer_object": "WiFi.Radio.{i}.ScanResults.SurroundingChannels.{i}.",
-      "answer_api": "Channel",
-      "mapping_status": "drift",
-      "mapping_object_match": false,
-      "mapping_api_match": true,
-      "final_status": "Pass",
-      "evaluation_verdict": "Pass",
-      "attempts_used": 1,
-      "comment": "",
-      "bands": {
-        "5g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
-          "expected_raw": "Not Supported",
-          "expected_norm": "Fail"
-        },
-        "6g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
-          "expected_raw": "Not Supported",
-          "expected_norm": "Fail"
-        },
-        "2.4g": {
-          "actual_raw": "Pass",
-          "actual_norm": "Pass",
-          "expected_raw": "Not Supported",
-          "expected_norm": "Fail"
-        }
-      },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
-      "workbook_test_steps_excerpt": "",
-      "workbook_command_output_excerpt": "",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d474-radio-channel.json"
     },
     {
       "case_id": "d477-getradiostats-unknownprotopacketsreceived",

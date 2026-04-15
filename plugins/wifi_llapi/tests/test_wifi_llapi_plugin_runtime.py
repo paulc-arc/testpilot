@@ -20612,7 +20612,6 @@ def test_d251_regulatorydomainrev_evaluate_requires_rd_override_shape() -> None:
 # llapi_path_template uses {r} for radio number (1=5g, 2=6g, 3=2.4g)
 _RADIO_GETTER_CASES = [
     ("D174_activeantennactrl.yaml", 174, "-1", "-1", "-1", "WiFi.Radio.{r}.ActiveAntennaCtrl"),
-    ("D474_channel_radio_37.yaml", 179, "36", "1", "1", "WiFi.Radio.{r}.Channel"),
     ("D180_amsdu.yaml", 180, "-1", "-1", "-1", "WiFi.Radio.{r}.DriverConfig.Amsdu"),
     ("D181_fragmentationthreshold.yaml", 144, "-1", "-1", "-1", "WiFi.Radio.{r}.DriverConfig.FragmentationThreshold"),
     ("D182_rtsthreshold.yaml", 145, "-1", "-1", "-1", "WiFi.Radio.{r}.DriverConfig.RtsThreshold"),
@@ -22331,6 +22330,70 @@ def test_d494_radio_vhtcapabilities_evaluate():
                     "ERROR: get WiFi.Radio.3.VHTCapabilities failed (4 - parameter not found)\n"
                     "error=4\n"
                     "message=parameter not found"
+                ),
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(case, results) is True
+
+
+def test_d474_radio_surroundingchannels_channel_load():
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / "D474_channel_radio_37.yaml")
+    assert case["source"]["row"] == 474
+    assert case["source"]["object"] == "WiFi.Radio.{i}.ScanResults.SurroundingChannels.{i}."
+    assert case["source"]["api"] == "Channel"
+    assert case["llapi_support"] == "Not Supported"
+    ref = case["results_reference"]["v4.0.3"]
+    assert ref["5g"] == "Not Supported"
+    assert ref["6g"] == "Not Supported"
+    assert ref["2.4g"] == "Not Supported"
+    assert 'WiFi.Radio.1.ScanResults.SurroundingChannels.1.Channel?' in case["steps"][0]["command"]
+    assert 'error=\\1' in case["steps"][0]["command"]
+    assert case["pass_criteria"][0]["field"] == "getter_5g.error"
+    assert case["pass_criteria"][1]["field"] == "getter_5g.message"
+    assert case["pass_criteria"][5]["field"] == "getter_24g.message"
+
+
+def test_d474_radio_surroundingchannels_channel_discover():
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / "D474_channel_radio_37.yaml")
+    plugin = _load_plugin()
+    discoverable = {c["id"] for c in plugin.discover_cases()}
+    assert case["id"] in discoverable, f"{case['id']} not discoverable"
+
+
+def test_d474_radio_surroundingchannels_channel_evaluate():
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / "D474_channel_radio_37.yaml")
+    results = {
+        "steps": {
+            "step_5g_getter": {
+                "success": True,
+                "output": (
+                    "ERROR: get WiFi.Radio.1.ScanResults.SurroundingChannels.1.Channel failed (2 - object not found)\n"
+                    "error=2\n"
+                    "message=object not found"
+                ),
+                "timing": 0.01,
+            },
+            "step_6g_getter": {
+                "success": True,
+                "output": (
+                    "ERROR: get WiFi.Radio.2.ScanResults.SurroundingChannels.1.Channel failed (2 - object not found)\n"
+                    "error=2\n"
+                    "message=object not found"
+                ),
+                "timing": 0.01,
+            },
+            "step_24g_getter": {
+                "success": True,
+                "output": (
+                    "ERROR: get WiFi.Radio.3.ScanResults.SurroundingChannels.1.Channel failed (2 - object not found)\n"
+                    "error=2\n"
+                    "message=object not found"
                 ),
                 "timing": 0.01,
             },
