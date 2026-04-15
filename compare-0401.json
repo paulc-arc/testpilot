@@ -151,7 +151,8 @@
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T112139068980",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T112956993038",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260413T005633950804",
-    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T114636190262"
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T114636190262",
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T120604251884"
   ],
   "answers_xlsx": "/home/paul_chen/prj_arc/testpilot/0401.xlsx",
   "cases_dir": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases",
@@ -159,20 +160,20 @@
   "missing_answer_count": 0,
   "missing_answer_rows": [],
   "metadata_drift_count": 43,
-  "full_match_count": 377,
-  "mismatch_case_count": 43,
+  "full_match_count": 378,
+  "mismatch_case_count": 42,
   "band_summary": {
     "5g": {
-      "matched": 379,
-      "mismatched": 41
+      "matched": 380,
+      "mismatched": 40
     },
     "6g": {
-      "matched": 377,
-      "mismatched": 43
+      "matched": 378,
+      "mismatched": 42
     },
     "2.4g": {
-      "matched": 379,
-      "mismatched": 41
+      "matched": 380,
+      "mismatched": 40
     }
   },
   "cases": [
@@ -16134,7 +16135,7 @@
       "case_id": "d499-ssid-wmm-ac_vo_stats_wmmbytesreceived_ssid",
       "case_file": "D499_ac_vo_stats_wmmbytesreceived_ssid.yaml",
       "dnum": 499,
-      "source_row": 366,
+      "source_row": 499,
       "source_object": "WiFi.SSID.{i}.Stats.WmmBytesReceived.",
       "source_api": "AC_VO",
       "answer_row": 499,
@@ -16143,39 +16144,35 @@
       "mapping_status": "exact",
       "mapping_object_match": true,
       "mapping_api_match": true,
-      "final_status": "Fail",
+      "final_status": "Pass",
       "evaluation_verdict": "Pass",
       "attempts_used": 1,
       "comment": "",
       "bands": {
         "5g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         },
         "6g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         },
         "2.4g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
+          "actual_raw": "Pass",
+          "actual_norm": "Pass",
           "expected_raw": "Pass",
           "expected_norm": "Pass"
         }
       },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
+      "mismatch_bands": [],
+      "matches_answer": true,
       "workbook_test_steps_excerpt": "1. Connect two WiFi station (use another WiFi7 GW as station with built-in IPERF3) 2. Run IPERF \"iperf3 -c <server> -u -b 20M --tos 0xB8\" 3. Verify SSID stats WmmBytesReceived.AC_VO root@prplOS:/# ubus-cli WiFi.SSID.6.? | grep Received.A...",
       "workbook_command_output_excerpt": "AC_VO: tx frames: 3 bytes: 495 failed frames: 0 failed bytes: 0 rx frames: 60 bytes: 3881 failed frames: 0 failed bytes: 0 foward frames: 0 bytes: 0 tx frames time expired: 0",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d499-ssid-wmm-ac_vo_stats_wmmbytesreceived_ssid.json"
+      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T120604251884/d499-ssid-wmm-ac_vo_stats_wmmbytesreceived_ssid.json"
     },
     {
       "case_id": "d500-ssid-wmm-ac_be_stats_wmmbytessent_ssid",
@@ -19438,53 +19435,6 @@
       "workbook_test_steps_excerpt": "",
       "workbook_command_output_excerpt": "wl -i wl0 wme_counters | grep -A2 \"AC_BE\" | grep -E 'tx frames|rx frames' wl -i wl1 wme_counters | grep -A2 \"AC_BE\" | grep -E 'tx frames|rx frames' wl -i wl2 wme_counters | grep -A2 \"AC_BE\" | grep -E 'tx frames|rx frames'",
       "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d490-getradiostats-wmm-failedbytessent-ac_be.json"
-    },
-    {
-      "case_id": "d499-ssid-wmm-ac_vo_stats_wmmbytesreceived_ssid",
-      "case_file": "D499_ac_vo_stats_wmmbytesreceived_ssid.yaml",
-      "dnum": 499,
-      "source_row": 366,
-      "source_object": "WiFi.SSID.{i}.Stats.WmmBytesReceived.",
-      "source_api": "AC_VO",
-      "answer_row": 499,
-      "answer_object": "WiFi.SSID.{i}.Stats.WmmBytesReceived.",
-      "answer_api": "AC_VO",
-      "mapping_status": "exact",
-      "mapping_object_match": true,
-      "mapping_api_match": true,
-      "final_status": "Fail",
-      "evaluation_verdict": "Pass",
-      "attempts_used": 1,
-      "comment": "",
-      "bands": {
-        "5g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        },
-        "6g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        },
-        "2.4g": {
-          "actual_raw": "Fail",
-          "actual_norm": "Fail",
-          "expected_raw": "Pass",
-          "expected_norm": "Pass"
-        }
-      },
-      "mismatch_bands": [
-        "5g",
-        "6g",
-        "2.4g"
-      ],
-      "matches_answer": false,
-      "workbook_test_steps_excerpt": "1. Connect two WiFi station (use another WiFi7 GW as station with built-in IPERF3) 2. Run IPERF \"iperf3 -c <server> -u -b 20M --tos 0xB8\" 3. Verify SSID stats WmmBytesReceived.AC_VO root@prplOS:/# ubus-cli WiFi.SSID.6.? | grep Received.A...",
-      "workbook_command_output_excerpt": "AC_VO: tx frames: 3 bytes: 495 failed frames: 0 failed bytes: 0 rx frames: 60 bytes: 3881 failed frames: 0 failed bytes: 0 foward frames: 0 bytes: 0 tx frames time expired: 0",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d499-ssid-wmm-ac_vo_stats_wmmbytesreceived_ssid.json"
     },
     {
       "case_id": "d502-ssid-wmm-ac_vi_stats_wmmbytessent_ssid",
