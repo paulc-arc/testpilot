@@ -1,5 +1,57 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-15 early-140)
+
+> This checkpoint records the `D485 Radio Stats WmmBytesSent AC_VO` focused blocker survey.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D485 Radio Stats WmmBytesSent AC_VO` 尚未 closure；latest committed closure 仍是 `D484`
+- workbook authority 仍是 row `485` 的 direct `WiFi.Radio.{i}.Stats.WmmBytesSent.AC_VO?` getter + `wl wme_counters` AC_VO tx-byte cross-check
+- focused workbook-faithful rerun `20260415T101223410820` 失敗兩次，失敗點都落在 `direct_6g.AC_VO`
+- 5G/2.4G 仍可 exact-close：`WiFi.Radio.1.Stats.WmmBytesSent.AC_VO=53599` 對 `DriverWmmBytesSent5g=53599`，`WiFi.Radio.3.Stats.WmmBytesSent.AC_VO=43099` 對 `DriverWmmBytesSent24g=43099`
+- 6G direct getter 固定停在 `0`，但 `wl1 wme_counters` `AC_VO` tx bytes 穩定為 `41612`
+- focused serialwrap preprobe 也曾看到 tri-band zero-getter / non-zero-driver shape：5G `48406`、6G `31681`、2.4G `34271`
+- official rerun 已證實穩定 blocker 是 localized 6G drift，而不是 parser/evaluate 問題
+- exploratory rewrite 已回退、不進 commit
+- compare 因此維持 `369 / 420 full matches`、`51 mismatches`，metadata drifts 維持 `43`
+- next ready actionable survey target=`D486 Radio Stats WmmFailedBytesReceived AC_BE`
+
+</details>
+
+### D485 Radio Stats WmmBytesSent AC_VO blocker evidence
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.Radio.1.Stats.WmmBytesSent.AC_VO?"
+wl -i wl0 wme_counters | grep '^AC_VO:' | awk '{print "DriverWmmBytesSent5g="$6}'
+ubus-cli "WiFi.Radio.2.Stats.WmmBytesSent.AC_VO?"
+wl -i wl1 wme_counters | grep '^AC_VO:' | awk '{print "DriverWmmBytesSent6g="$6}'
+ubus-cli "WiFi.Radio.3.Stats.WmmBytesSent.AC_VO?"
+wl -i wl2 wme_counters | grep '^AC_VO:' | awk '{print "DriverWmmBytesSent24g="$6}'
+```
+
+**關鍵 log 摘錄 / log 區間**
+
+```text
+Official rerun 20260415T101223410820
+- bgw720-0403_wifi_llapi_20260415t101223410820.md L9-L11
+  result_5g/result_6g/result_24g = Fail / Fail / Fail with diagnostic_status=FailTest
+- bgw720-0403_wifi_llapi_20260415t101223410820.md L17-L25
+  workbook-faithful row-485 replay uses tri-band direct Stats.WmmBytesSent.AC_VO getters plus wl wme_counters AC_VO tx-byte cross-checks
+- bgw720-0403_wifi_llapi_20260415t101223410820.md L30-L39
+  5G and 2.4G exact-close at `53599` / `43099`, but 6G stays `WiFi.Radio.2.Stats.WmmBytesSent.AC_VO=0` vs `DriverWmmBytesSent6g=41612`
+- 20260415T101223410820_DUT.log L15-L23; L47-L55
+  official rerun repeats the same 6G drift on both attempts while 5G/2.4G exact-close
+
+Focused serialwrap preprobe before rerun
+- WiFi.Radio.1.Stats.WmmBytesSent.AC_VO=0 vs driver `48406`
+- WiFi.Radio.2.Stats.WmmBytesSent.AC_VO=0 vs driver `31681`
+- WiFi.Radio.3.Stats.WmmBytesSent.AC_VO=0 vs driver `34271`
+```
+
 ## Checkpoint summary (2026-04-15 early-139)
 
 > This checkpoint records the `D484 Radio Stats WmmBytesSent AC_VI` workbook alignment.
