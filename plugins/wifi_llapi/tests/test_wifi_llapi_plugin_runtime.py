@@ -21659,7 +21659,6 @@ def test_d317_bssid_ssid_evaluate():
 
 _WMM_STATS_CASES = [
     # (yaml_file, row, wmm_sub_object, field, live_5g, live_6g, live_24g)
-    ("D478_ac_be_stats_wmmbytesreceived_radio.yaml", 345, "AC_BE_Stats", "WmmBytesReceived", "162754", "0", "0"),
     ("D479_ac_bk_stats_wmmbytesreceived_radio.yaml", 346, "AC_BK_Stats", "WmmBytesReceived", "0", "0", "0"),
     ("D480_ac_vi_stats_wmmbytesreceived_radio.yaml", 347, "AC_VI_Stats", "WmmBytesReceived", "0", "0", "0"),
     ("D481_ac_vo_stats_wmmbytesreceived_radio.yaml", 348, "AC_VO_Stats", "WmmBytesReceived", "26511", "0", "0"),
@@ -21730,6 +21729,74 @@ def test_wmm_stats_evaluate(yaml_file, row, wmm_sub, field, live_5g, live_6g, li
         results["steps"][f"step_{band}_stats"] = {
             "success": True, "output": output, "timing": 0.01,
         }
+    assert plugin.evaluate(case, results) is True
+
+
+def test_d478_radio_stats_wmmbytesreceived_ac_be_load():
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / "D478_ac_be_stats_wmmbytesreceived_radio.yaml")
+    assert case["id"] == "d478-radio-stats-wmmbytesreceived-ac_be"
+    assert case["source"]["row"] == 478
+    assert case["source"]["object"] == "WiFi.Radio.{i}.Stats.WmmBytesReceived."
+    assert case["source"]["api"] == "AC_BE"
+    assert case["llapi_support"] == "Support"
+    ref = case["results_reference"]["v4.0.3"]
+    assert ref["5g"] == "Pass"
+    assert ref["6g"] == "Pass"
+    assert ref["2.4g"] == "Pass"
+    assert len(case["steps"]) == 6
+    assert 'WiFi.Radio.1.Stats.WmmBytesReceived.AC_BE?' in case["steps"][0]["command"]
+    assert 'wme_counters' in case["steps"][1]["command"]
+    assert case["pass_criteria"][0]["field"] == "direct_5g.AC_BE"
+    assert case["pass_criteria"][0]["reference"] == "driver_5g.DriverWmmBytesReceived5g"
+
+
+def test_d478_radio_stats_wmmbytesreceived_ac_be_discover():
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / "D478_ac_be_stats_wmmbytesreceived_radio.yaml")
+    plugin = _load_plugin()
+    discoverable = {c["id"] for c in plugin.discover_cases()}
+    assert case["id"] in discoverable, f"{case['id']} not discoverable"
+
+
+def test_d478_radio_stats_wmmbytesreceived_ac_be_evaluate():
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / "D478_ac_be_stats_wmmbytesreceived_radio.yaml")
+    results = {
+        "steps": {
+            "step_5g_direct": {
+                "success": True,
+                "output": "WiFi.Radio.1.Stats.WmmBytesReceived.AC_BE=26181728",
+                "timing": 0.01,
+            },
+            "step_5g_driver": {
+                "success": True,
+                "output": "DriverWmmBytesReceived5g=26181728",
+                "timing": 0.01,
+            },
+            "step_6g_direct": {
+                "success": True,
+                "output": "WiFi.Radio.2.Stats.WmmBytesReceived.AC_BE=37665998",
+                "timing": 0.01,
+            },
+            "step_6g_driver": {
+                "success": True,
+                "output": "DriverWmmBytesReceived6g=37665998",
+                "timing": 0.01,
+            },
+            "step_24g_direct": {
+                "success": True,
+                "output": "WiFi.Radio.3.Stats.WmmBytesReceived.AC_BE=26231742",
+                "timing": 0.01,
+            },
+            "step_24g_driver": {
+                "success": True,
+                "output": "DriverWmmBytesReceived24g=26231742",
+                "timing": 0.01,
+            },
+        }
+    }
     assert plugin.evaluate(case, results) is True
 
 
