@@ -22537,7 +22537,7 @@ _WIFI7_CAPS_CASES = [
     ("D597_emlmrsupport_capabilities_wifi7starole.yaml", 413, "WiFi7STARole", "EMLMRSupport"),
     ("D598_emlsrsupport_capabilities_wifi7starole.yaml", 414, "WiFi7STARole", "EMLSRSupport"),
     ("D599_strsupport_capabilities_wifi7starole.yaml", 415, "WiFi7STARole", "STRSupport"),
-    ("D600_nstrsupport_capabilities_wifi7starole.yaml", 416, "WiFi7STARole", "NSTRSupport"),
+    ("D600_nstrsupport_capabilities_wifi7starole.yaml", 600, "WiFi7STARole", "NSTRSupport"),
 ]
 
 _WIFI7_IDS = [t[0].split(".")[0] for t in _WIFI7_CAPS_CASES]

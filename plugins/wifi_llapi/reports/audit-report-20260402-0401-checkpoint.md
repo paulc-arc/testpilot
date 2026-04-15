@@ -1,5 +1,62 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-15 early-171)
+
+> This checkpoint records the `D600 WiFi7STARole.NSTRSupport` workbook alignment.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D600 WiFi7STARole.NSTRSupport` 已完成 closure
+- workbook authority 已刷新為 row `600`
+- 舊 source row `416` 已退休
+- landed case 仍是 getter-only 形狀，但 `results_reference.v4.0.3` 已從 `Fail / Fail / Fail` 刷回 workbook `Pass / Pass / Pass`
+- focused live survey 與 official rerun `20260415T173554269251` 都 exact-close tri-band `NSTRSupport=1`
+- official rerun 維持 `diagnostic_status=Pass`
+- compare 前進到 `395 / 420 full matches`、`25 mismatches`，metadata drifts 維持 `43`
+- `D588` blocker 仍維持，repo-visible note 在 `plugins/wifi_llapi/reports/D588_block.md`
+- next ready investigative target=`D277 getScanResults() Bandwidth` revisit
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| D600 | 600 | WiFi7STARole.NSTRSupport | Pass / Pass / Pass | `bgw720-b0-403_wifi_llapi_20260415t173554269251.md L9-L11; L17-L30; 20260415T173554269251_DUT.log L24-L35` | `N/A（DUT-only case）` |
+
+### D600 WiFi7STARole.NSTRSupport alignment evidence
+
+**STA 指令**
+
+```sh
+# N/A (DUT-only case)
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.Radio.1.Capabilities.WiFi7STARole.NSTRSupport?"
+ubus-cli "WiFi.Radio.2.Capabilities.WiFi7STARole.NSTRSupport?"
+ubus-cli "WiFi.Radio.3.Capabilities.WiFi7STARole.NSTRSupport?"
+```
+
+**關鍵 log 摘錄 / log 區間**
+
+```text
+Official rerun 20260415T173554269251
+- bgw720-b0-403_wifi_llapi_20260415t173554269251.md L9-L11
+  result_5g/result_6g/result_24g = Pass / Pass / Pass with diagnostic_status=Pass
+- bgw720-b0-403_wifi_llapi_20260415t173554269251.md L17-L30
+  workbook-faithful row-600 replay keeps the direct tri-band getter path and exact-closes
+  WiFi.Radio.1/2/3.Capabilities.WiFi7STARole.NSTRSupport=1
+- 20260415T173554269251_DUT.log L24-L35
+  focused live getter replay exact-closes 5G/6G/2.4G at
+  `WiFi.Radio.1.Capabilities.WiFi7STARole.NSTRSupport=1`,
+  `WiFi.Radio.2.Capabilities.WiFi7STARole.NSTRSupport=1`,
+  `WiFi.Radio.3.Capabilities.WiFi7STARole.NSTRSupport=1`
+```
+
 ## Checkpoint summary (2026-04-15 early-170)
 
 > This checkpoint records the `D588 SSID MLDUnit` blocker survey.
