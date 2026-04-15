@@ -160,6 +160,7 @@
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T123614258535`
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T125611587722`
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T132948443340`
+  - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T134510589533`
 - answer sheet: `/home/paul_chen/prj_arc/testpilot/0401.xlsx`
 - cases dir: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases`
 - compare rule: normalize both sides so only `Pass` stays `Pass`; all other values become `Fail`.
@@ -170,8 +171,8 @@
 | metric | value |
 | --- | ---: |
 | compared cases | 420 |
-| full matches | 383 |
-| mismatch cases | 37 |
+| full matches | 384 |
+| mismatch cases | 36 |
 | missing answer rows | 0 |
 | metadata drift rows | 43 |
 
@@ -179,9 +180,9 @@
 
 | band | matched | mismatched |
 | --- | ---: | ---: |
-| 5g | 385 | 35 |
-| 6g | 383 | 37 |
-| 2.4g | 385 | 35 |
+| 5g | 386 | 34 |
+| 6g | 384 | 36 |
+| 2.4g | 386 | 34 |
 
 ## Mismatch table
 
@@ -210,7 +211,6 @@
 | `d485-getradiostats-wmm-bytessent-ac_vo` | 485 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d490-getradiostats-wmm-failedbytessent-ac_be` | 490 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d508-ssid-wmm-ac_be_stats_wmmfailedbytessent_ssid` | 508 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
-| `d512-ssid-wmm-ac_be_stats_wmmfailedreceived` | 512 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d513-ssid-wmm-ac_bk_stats_wmmfailedreceived` | 513 | exact | Fail / Fail / Fail | Pass / Pass / Pass | Fail / Fail / Fail | Pass / Pass / Pass | 5g, 6g, 2.4g |
 | `d517-ssid-wmm-ac_bk_stats_wmmfailedsent` | 517 | exact | Pass / Fail / Pass | Pass / Pass / Pass | Pass / Fail / Pass | Pass / Pass / Pass | 6g |
 | `d518-ssid-wmm-ac_vi_stats_wmmfailedsent` | 518 | exact | Pass / Fail / Fail | Pass / Pass / Pass | Pass / Fail / Fail | Pass / Pass / Pass | 6g, 2.4g |
@@ -673,25 +673,6 @@
 - 0401 G excerpt: (empty)
 - 0401 H excerpt: (empty)
 - trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d508-ssid-wmm-ac_be_stats_wmmfailedbytessent_ssid.json`
-
-### d512-ssid-wmm-ac_be_stats_wmmfailedreceived
-
-- case file: `D512_ac_be_stats_wmmfailedreceived.yaml`
-- answer row: `512`
-- mapping status: `exact`
-- source metadata: `WiFi.SSID.{i}.Stats.WmmFailedReceived.` / `AC_BE`
-- workbook metadata: `WiFi.SSID.{i}.Stats.WmmFailedReceived.` / `AC_BE`
-- final status: `Fail`
-- evaluation verdict: `Pass`
-- attempts used: `1`
-- actual raw: `Fail` / `Fail` / `Fail`
-- expected raw: `Pass` / `Pass` / `Pass`
-- actual normalized: `Fail` / `Fail` / `Fail`
-- expected normalized: `Pass` / `Pass` / `Pass`
-- mismatch bands: `5g, 6g, 2.4g`
-- 0401 G excerpt: (empty)
-- 0401 H excerpt: (empty)
-- trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d512-ssid-wmm-ac_be_stats_wmmfailedreceived.json`
 
 ### d513-ssid-wmm-ac_bk_stats_wmmfailedreceived
 
