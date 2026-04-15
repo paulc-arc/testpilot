@@ -85,6 +85,9 @@
 - workbook authority for the landed D507 case is row `507`; the stale row `374` is retired in favor of workbook-faithful direct `WiFi.SSID.{i}.Stats.WmmFailedBytesReceived.AC_VO?` getters plus explicit `WiFi.SSID.{i}.getSSIDStats()` refresh and `wl0/wl1/wl2 wme_counters` `AC_VO` rx failed-byte cross-checks
 - the D507 official rerun exact-closes tri-band workbook `Pass / Pass / Pass` at refresh/direct/driver `0 / 0 / 0` with `diagnostic_status=Pass`
 - taken together, `D496`, `D499`, `D502`, `D505`, `D506`, and `D507` now confirm the current compare-open SSID-level WMM stats family needs an explicit `getSSIDStats()` refresh before the direct getter reread can be judged stably
+- focused official rerun `20260415T131457874117` confirms `D508 SSID WMM AC_BE Stats WmmFailedBytesSent` is a localized 2.4G zero-getter blocker instead of a closure
+- D508 workbook authority should be row `508`; 5G exact-closes `0 / 0 / 0` and 6G exact-closes `708116 / 708116 / 708116`, but 2.4G `getSSIDStats()` plus the direct getter both stay at `0` while `wl2 wme_counters` `AC_BE` tx failed bytes stays at `90`
+- that keeps D508 out of commit as a workbook-faithful closure; the exploratory rewrite was rolled back after the rerun
 - focused official rerun `20260415T110106382425` still parks `D490 Radio Stats WmmFailedBytesSent AC_BE` as the immediately preceding localized blocker instead of a closure
 - D490 workbook authority is row `490`, and the live getter namespace is the lowercase path `WiFi.Radio.{i}.Stats.WmmFailedbytesSent.AC_BE?`; the camel-case `WmmFailedBytesSent` getter is object-not-found on the current DUT
 - the D490 rerun exact-closes 5G `WiFi.Radio.1.Stats.WmmFailedbytesSent.AC_BE=0` against `DriverWmmFailedbytesSent5g=0` and 2.4G `WiFi.Radio.3.Stats.WmmFailedbytesSent.AC_BE=90` against `DriverWmmFailedbytesSent24g=90`, but 6G direct getter `WiFi.Radio.2.Stats.WmmFailedbytesSent.AC_BE=0` still drifts against `DriverWmmFailedbytesSent6g=708116`
@@ -101,7 +104,7 @@
 - systemic active blockers remain `D047` authority conflict plus the shared 6G baseline manifestations in `D179` and `D181`; parked clarification items remain `D204` and `D211`
 - `D359 AccessPoint.IsolationEnable` remains parked: workbook requires two WiFi stations plus isolation ping, but the current lab/testbed flow only exposes the standard single-STA path
 - historical blocker context for the temporary D257 empty-array failure is retained in `plugins/wifi_llapi/reports/D257_block.md`; latest committed closure is now `D507 SSID WMM AC_VO Stats WmmFailedBytesReceived`
-- `D355-D357` remain in the CSI-client placeholder bucket, `D414/D415` stay in readiness review because workbook `G` requires a dual-STA 802.11k split, and the next ready actionable survey target now moves to `D508 SSID WMM AC_BE Stats WmmFailedBytesSent`
+- `D355-D357` remain in the CSI-client placeholder bucket, `D414/D415` stay in readiness review because workbook `G` requires a dual-STA 802.11k split, and the next ready actionable survey target now moves to `D510 SSID WMM AC_VI Stats WmmFailedBytesSent`
 - `D214 Radio.RIFSEnabled` is now aligned via official rerun `20260414T175434503053`
 - workbook authority is row `214`, not stale row `175`; the rerun exact-closes the tri-band setter-backed `Default -> Auto -> Default` replay, so the landed case now refreshes stale row `175` / raw `Fail / Fail / Fail` to workbook row `214` / raw `Pass / Pass / Pass`
 - targeted radio/runtime guardrails are now `202 passed`; final full repo regression remains `1662 passed`; compare is now `324 / 420 full matches` / `96 mismatches` / `58 metadata drifts`, and the next ready non-blocked compare-open case moves to `D251 Radio.Vendor.RegulatoryDomainRev`

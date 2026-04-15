@@ -1,5 +1,64 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-15 early-155)
+
+> This checkpoint records the `D508 SSID WMM AC_BE Stats WmmFailedBytesSent` focused blocker confirmation.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D508 SSID WMM AC_BE Stats WmmFailedBytesSent` 未完成 closure，改列 localized blocker
+- workbook authority 應對位 row `508`
+- survey 已確認目前 live getter family 使用 lowercase `WiFi.SSID.{i}.Stats.WmmFailedbytesSent.AC_BE?`，而 `getSSIDStats()` 也會匯出同名 `WmmFailedbytesSent`
+- official rerun `20260415T131457874117` 對 workbook-faithful refresh / direct getter / driver tx failed-byte cross-check 給出 mixed tri-band shape：5G `0 / 0 / 0`、6G `708116 / 708116 / 708116`、2.4G `0 / 0 vs 90`
+- 因 2.4G `getSSIDStats()` 與 direct getter 固定停在 `0`，而 `wl2 wme_counters` `AC_BE` tx failed bytes 穩定為 `90`，這筆屬於 localized 2.4G zero-getter blocker，不能 land 成 workbook `Pass / Pass / Pass`
+- exploratory workbook-faithful rewrite 已回退，不進 commit
+- rerun 啟動時雖再次出現 `serialwrap daemon start failed` warning，但 decoded DUT/STA logs 仍成功落盤，blocker evidence 可用
+- 最新已提交 closure 仍是 `D507 SSID WMM AC_VO Stats WmmFailedBytesReceived`；compare 維持 `382 / 420 full matches`、`38 mismatches`、metadata drifts `43`
+- 同族既有 blocker `D490` / `D481` / `D482` / `D485` / `D454` / `D371` 仍維持，現在新增 `D508`
+- `D355-D357` 仍是 CSI placeholder，`D359` 仍卡在 current single-STA lab shape，`D414/D415` 仍保留在 dual-STA readiness review
+- next ready actionable survey target=`D510 SSID WMM AC_VI Stats WmmFailedBytesSent`
+
+</details>
+
+### D508 SSID WMM AC_BE Stats WmmFailedBytesSent blocker evidence
+
+**STA 指令**
+
+```sh
+# N/A (DUT-only case)
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.SSID.4.getSSIDStats()" | sed -n '/WmmFailedbytesSent = {/,/}/s/^[[:space:]]*AC_BE = \([0-9][0-9]*\).*/GetSSIDStatsWmmFailedbytesSent5g=\1/p'
+ubus-cli "WiFi.SSID.4.Stats.WmmFailedbytesSent.AC_BE?"
+wl -i wl0 wme_counters | grep '^AC_BE:' | awk '{print "DriverWmmFailedbytesSent5g="$12}'
+ubus-cli "WiFi.SSID.6.getSSIDStats()" | sed -n '/WmmFailedbytesSent = {/,/}/s/^[[:space:]]*AC_BE = \([0-9][0-9]*\).*/GetSSIDStatsWmmFailedbytesSent6g=\1/p'
+ubus-cli "WiFi.SSID.6.Stats.WmmFailedbytesSent.AC_BE?"
+wl -i wl1 wme_counters | grep '^AC_BE:' | awk '{print "DriverWmmFailedbytesSent6g="$12}'
+ubus-cli "WiFi.SSID.8.getSSIDStats()" | sed -n '/WmmFailedbytesSent = {/,/}/s/^[[:space:]]*AC_BE = \([0-9][0-9]*\).*/GetSSIDStatsWmmFailedbytesSent24g=\1/p'
+ubus-cli "WiFi.SSID.8.Stats.WmmFailedbytesSent.AC_BE?"
+wl -i wl2 wme_counters | grep '^AC_BE:' | awk '{print "DriverWmmFailedbytesSent24g="$12}'
+```
+
+**關鍵 log 摘錄 / log 區間**
+
+```text
+Official rerun 20260415T131457874117
+- bgw720-b0-403_wifi_llapi_20260415t131457874117.md L9-L11
+  result_5g/result_6g/result_24g = Fail / Fail / Fail with diagnostic_status=FailTest
+- bgw720-b0-403_wifi_llapi_20260415t131457874117.md L17-L28
+  workbook-faithful row-508 replay uses lowercase getSSIDStats/direct Stats.WmmFailedbytesSent.AC_BE plus wl wme_counters AC_BE tx failed-byte cross-checks
+- 20260415T131457874117_DUT.log L6-L23
+  5G exact-closes `GetSSIDStatsWmmFailedbytesSent5g=0`, `WiFi.SSID.4.Stats.WmmFailedbytesSent.AC_BE=0`, and `DriverWmmFailedbytesSent5g=0`
+- 20260415T131457874117_DUT.log L24-L41
+  6G exact-closes `GetSSIDStatsWmmFailedbytesSent6g=708116`, `WiFi.SSID.6.Stats.WmmFailedbytesSent.AC_BE=708116`, and `DriverWmmFailedbytesSent6g=708116`
+- 20260415T131457874117_DUT.log L42-L59 and L101-L118
+  2.4G repeats the blocker shape across both attempts: `GetSSIDStatsWmmFailedbytesSent24g=0` and `WiFi.SSID.8.Stats.WmmFailedbytesSent.AC_BE=0`, while `DriverWmmFailedbytesSent24g=90`
+```
+
 ## Checkpoint summary (2026-04-15 early-154)
 
 > This checkpoint records the `D507 SSID WMM AC_VO Stats WmmFailedBytesReceived` workbook alignment.
