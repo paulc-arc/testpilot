@@ -21663,7 +21663,6 @@ _WMM_STATS_CASES = [
     ("D482_ac_be_stats_wmmbytessent_radio.yaml", 349, "AC_BE_Stats", "WmmBytesSent", "588206344", "393557814", "393818836"),
     ("D485_ac_vo_stats_wmmbytessent_radio.yaml", 352, "AC_VO_Stats", "WmmBytesSent", "42735", "0", "0"),
     ("D490_ac_be_stats_wmmfailedbytessent_radio.yaml", 357, "AC_BE_Stats", "WmmFailedbytesSent", "158", "0", "0"),
-    ("D492_ac_vi_stats_wmmfailedbytessent_radio.yaml", 359, "AC_VI_Stats", "WmmFailedbytesSent", "0", "0", "0"),
     ("D493_ac_vo_stats_wmmfailedbytessent_radio.yaml", 360, "AC_VO_Stats", "WmmFailedbytesSent", "0", "0", "0"),
 ]
 
@@ -22391,6 +22390,74 @@ def test_d491_radio_stats_wmmfailedbytessent_ac_bk_evaluate():
             "step_24g_direct": {
                 "success": True,
                 "output": "WiFi.Radio.3.Stats.WmmFailedbytesSent.AC_BK=0",
+                "timing": 0.01,
+            },
+            "step_24g_driver": {
+                "success": True,
+                "output": "DriverWmmFailedbytesSent24g=0",
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(case, results) is True
+
+
+def test_d492_radio_stats_wmmfailedbytessent_ac_vi_load():
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / "D492_ac_vi_stats_wmmfailedbytessent_radio.yaml")
+    assert case["id"] == "d492-radio-stats-wmmfailedbytessent-ac_vi"
+    assert case["source"]["row"] == 492
+    assert case["source"]["object"] == "WiFi.Radio.{i}.Stats.WmmFailedbytesSent."
+    assert case["source"]["api"] == "AC_VI"
+    assert case["llapi_support"] == "Support"
+    ref = case["results_reference"]["v4.0.3"]
+    assert ref["5g"] == "Pass"
+    assert ref["6g"] == "Pass"
+    assert ref["2.4g"] == "Pass"
+    assert len(case["steps"]) == 6
+    assert 'WiFi.Radio.1.Stats.WmmFailedbytesSent.AC_VI?' in case["steps"][0]["command"]
+    assert 'wme_counters' in case["steps"][1]["command"]
+    assert case["pass_criteria"][0]["field"] == "direct_5g.AC_VI"
+    assert case["pass_criteria"][0]["reference"] == "driver_5g.DriverWmmFailedbytesSent5g"
+
+
+def test_d492_radio_stats_wmmfailedbytessent_ac_vi_discover():
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / "D492_ac_vi_stats_wmmfailedbytessent_radio.yaml")
+    plugin = _load_plugin()
+    discoverable = {c["id"] for c in plugin.discover_cases()}
+    assert case["id"] in discoverable, f"{case['id']} not discoverable"
+
+
+def test_d492_radio_stats_wmmfailedbytessent_ac_vi_evaluate():
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / "D492_ac_vi_stats_wmmfailedbytessent_radio.yaml")
+    results = {
+        "steps": {
+            "step_5g_direct": {
+                "success": True,
+                "output": "WiFi.Radio.1.Stats.WmmFailedbytesSent.AC_VI=0",
+                "timing": 0.01,
+            },
+            "step_5g_driver": {
+                "success": True,
+                "output": "DriverWmmFailedbytesSent5g=0",
+                "timing": 0.01,
+            },
+            "step_6g_direct": {
+                "success": True,
+                "output": "WiFi.Radio.2.Stats.WmmFailedbytesSent.AC_VI=0",
+                "timing": 0.01,
+            },
+            "step_6g_driver": {
+                "success": True,
+                "output": "DriverWmmFailedbytesSent6g=0",
+                "timing": 0.01,
+            },
+            "step_24g_direct": {
+                "success": True,
+                "output": "WiFi.Radio.3.Stats.WmmFailedbytesSent.AC_VI=0",
                 "timing": 0.01,
             },
             "step_24g_driver": {

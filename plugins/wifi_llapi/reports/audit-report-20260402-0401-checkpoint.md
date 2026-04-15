@@ -1,5 +1,74 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-15 early-147)
+
+> This checkpoint records the `D492 Radio Stats WmmFailedBytesSent AC_VI` workbook alignment.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D492 Radio Stats WmmFailedBytesSent AC_VI` 已完成 closure
+- workbook authority 已刷新為 row `492`
+- 舊 source row `359` 與 `getRadioStats() | grep AC_VI_Stats` replay 已退休
+- landed case 已改回 workbook lowercase `WiFi.Radio.{i}.Stats.WmmFailedbytesSent.` / `AC_VI`
+- focused serialwrap survey 已先確認 tri-band direct getter / driver 都是 `0 / 0 / 0`
+- official rerun `20260415T112139068980` exact-close workbook `Pass / Pass / Pass`
+- tri-band direct getter / driver tx failed-byte cross-check 都穩定回 `0 / 0 / 0`
+- final report 維持 `diagnostic_status=Pass`
+- rerun 啟動時雖再次出現 `serialwrap daemon start failed` warning，但 decoded DUT/STA logs 仍正常落盤
+- compare 已更新為 `375 / 420 full matches`、`45 mismatches`，metadata drifts 維持 `43`
+- 緊接前一筆 `D491 Radio Stats WmmFailedBytesSent AC_BK` 仍保留為 tri-band `0 / 0 / 0` closure
+- `D490 Radio Stats WmmFailedBytesSent AC_BE` 仍保留為 localized 6G zero-getter blocker，exploratory rewrite 已回退
+- 其他既有 blocker `D481` / `D482` / `D485` / `D454` / `D371` 仍維持
+- `D355-D357` 仍保留在需要 CSI client setup 的 placeholder bucket
+- `D359 AccessPoint.IsolationEnable` 因 two-station isolation ping 需求而暫停在 current single-STA lab shape
+- systemic active blockers 維持 `D047` authority conflict + shared 6G baseline manifestations（`D179`、`D181`）
+- `D414/D415` 仍保留為 readiness-review cluster；workbook `G` 已明示需要 dual-STA 802.11k split
+- next ready actionable survey target=`D493 Radio Stats WmmFailedBytesSent AC_VO`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| D492 | 492 | Stats.WmmFailedbytesSent.AC_VI | Pass / Pass / Pass | `bgw720-0403_wifi_llapi_20260415t112139068980.md L9-L11; L17-L25; 20260415T112139068980_DUT.log L6-L14; L15-L23; L24-L32` | `20260415T112139068980_STA.log L25-L25（no STA command body; DUT-only case）` |
+
+### D492 Radio Stats WmmFailedBytesSent AC_VI alignment evidence
+
+**STA 指令**
+
+```sh
+# N/A (DUT-only case)
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.Radio.1.Stats.WmmFailedbytesSent.AC_VI?"
+wl -i wl0 wme_counters | grep '^AC_VI:' | awk '{print "DriverWmmFailedbytesSent5g="$12}'
+ubus-cli "WiFi.Radio.2.Stats.WmmFailedbytesSent.AC_VI?"
+wl -i wl1 wme_counters | grep '^AC_VI:' | awk '{print "DriverWmmFailedbytesSent6g="$12}'
+ubus-cli "WiFi.Radio.3.Stats.WmmFailedbytesSent.AC_VI?"
+wl -i wl2 wme_counters | grep '^AC_VI:' | awk '{print "DriverWmmFailedbytesSent24g="$12}'
+```
+
+**關鍵 log 摘錄 / log 區間**
+
+```text
+Official rerun 20260415T112139068980
+- bgw720-0403_wifi_llapi_20260415t112139068980.md L9-L11
+  result_5g/result_6g/result_24g = Pass / Pass / Pass with diagnostic_status=Pass
+- bgw720-0403_wifi_llapi_20260415t112139068980.md L17-L25
+  workbook-faithful row-492 replay uses lowercase direct Stats.WmmFailedbytesSent.AC_VI getters plus wl wme_counters AC_VI tx failed-byte cross-checks
+- 20260415T112139068980_DUT.log L6-L14
+  5G exact-closes `WiFi.Radio.1.Stats.WmmFailedbytesSent.AC_VI=0` against `DriverWmmFailedbytesSent5g=0`
+- 20260415T112139068980_DUT.log L15-L23
+  6G exact-closes `WiFi.Radio.2.Stats.WmmFailedbytesSent.AC_VI=0` against `DriverWmmFailedbytesSent6g=0`
+- 20260415T112139068980_DUT.log L24-L32
+  2.4G exact-closes `WiFi.Radio.3.Stats.WmmFailedbytesSent.AC_VI=0` against `DriverWmmFailedbytesSent24g=0`
+```
+
 ## Checkpoint summary (2026-04-15 early-146)
 
 > This checkpoint records the `D491 Radio Stats WmmFailedBytesSent AC_BK` workbook alignment.
