@@ -1,5 +1,73 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-15 early-165)
+
+> This checkpoint records the `D523 SSID WMM AC_VO Stats WmmPacketsReceived` workbook alignment.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D523 SSID WMM AC_VO Stats WmmPacketsReceived` 已完成 closure
+- workbook authority 已刷新為 row `523`
+- 舊 source row `390` 已退休
+- landed case 已改回 workbook direct `WiFi.SSID.{i}.Stats.WmmPacketsReceived.` / `AC_VO`
+- focused serialwrap survey 與 official rerun `20260415T154857895725` 都 exact-close tri-band refresh / direct getter / driver `302 / 206 / 210`
+- official rerun 維持 `diagnostic_status=Pass`
+- compare 已更新為 `392 / 420 full matches`、`28 mismatches`，metadata drifts 維持 `43`
+- 這也把 current compare-open 的 SSID-level WMM stats closure family 擴大到十六筆：`D496` / `D499` / `D502` / `D505` / `D506` / `D507` / `D510` / `D512` / `D513` / `D517` / `D518` / `D519` / `D520` / `D521` / `D522` / `D523`
+- localized blockers `D490` / `D481` / `D482` / `D485` / `D454` / `D371` / `D508` 仍維持
+- targeted runtime/budget guardrails=`1251 passed`；full repo regression=`1660 passed`
+- `D355-D357` 仍保留在需要 CSI client setup 的 placeholder bucket，`D359 AccessPoint.IsolationEnable` 仍暫停在 current single-STA lab shape
+- systemic active blockers 維持 `D047` authority conflict + shared 6G baseline manifestations（`D179`、`D181`）
+- `D414/D415` 仍保留為 readiness-review cluster；workbook `G` 已明示需要 dual-STA 802.11k split
+- next ready actionable survey target=`D524 SSID WMM AC_BE Stats WmmPacketsSent`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| D523 | 523 | Stats.WmmPacketsReceived.AC_VO | Pass / Pass / Pass | `bgw720-b0-403_wifi_llapi_20260415t154857895725.md L9-L11; L17-L28; 20260415T154857895725_DUT.log L14-L23; L32-L41; L50-L59` | `N/A（20260415T154857895725_STA.log contains only harness residue; no STA commands）` |
+
+### D523 SSID WMM AC_VO Stats WmmPacketsReceived alignment evidence
+
+**STA 指令**
+
+```sh
+# N/A (DUT-only case)
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.SSID.4.getSSIDStats()" | sed -n '/WmmPacketsReceived = {/,/}/s/^[[:space:]]*AC_VO = \([0-9][0-9]*\).*/GetSSIDStatsWmmPacketsReceived5g=\1/p'
+ubus-cli "WiFi.SSID.4.Stats.WmmPacketsReceived.AC_VO?"
+wl -i wl0 wme_counters | grep -A2 '^AC_VO:' | awk '/rx frames:/ {print "DriverWmmPacketsReceived5g="$3}'
+ubus-cli "WiFi.SSID.6.getSSIDStats()" | sed -n '/WmmPacketsReceived = {/,/}/s/^[[:space:]]*AC_VO = \([0-9][0-9]*\).*/GetSSIDStatsWmmPacketsReceived6g=\1/p'
+ubus-cli "WiFi.SSID.6.Stats.WmmPacketsReceived.AC_VO?"
+wl -i wl1 wme_counters | grep -A2 '^AC_VO:' | awk '/rx frames:/ {print "DriverWmmPacketsReceived6g="$3}'
+ubus-cli "WiFi.SSID.8.getSSIDStats()" | sed -n '/WmmPacketsReceived = {/,/}/s/^[[:space:]]*AC_VO = \([0-9][0-9]*\).*/GetSSIDStatsWmmPacketsReceived24g=\1/p'
+ubus-cli "WiFi.SSID.8.Stats.WmmPacketsReceived.AC_VO?"
+wl -i wl2 wme_counters | grep -A2 '^AC_VO:' | awk '/rx frames:/ {print "DriverWmmPacketsReceived24g="$3}'
+```
+
+**關鍵 log 摘錄 / log 區間**
+
+```text
+Official rerun 20260415T154857895725
+- bgw720-b0-403_wifi_llapi_20260415t154857895725.md L9-L11
+  result_5g/result_6g/result_24g = Pass / Pass / Pass with diagnostic_status=Pass
+- bgw720-b0-403_wifi_llapi_20260415t154857895725.md L17-L28
+  workbook-faithful row-523 replay uses getSSIDStats/direct Stats.WmmPacketsReceived.AC_VO plus wl wme_counters AC_VO rx-frame cross-checks
+- 20260415T154857895725_DUT.log L14-L23
+  5G exact-closes `GetSSIDStatsWmmPacketsReceived5g=302`, `WiFi.SSID.4.Stats.WmmPacketsReceived.AC_VO=302`, and `DriverWmmPacketsReceived5g=302`
+- 20260415T154857895725_DUT.log L32-L41
+  6G exact-closes `GetSSIDStatsWmmPacketsReceived6g=206`, `WiFi.SSID.6.Stats.WmmPacketsReceived.AC_VO=206`, and `DriverWmmPacketsReceived6g=206`
+- 20260415T154857895725_DUT.log L50-L59
+  2.4G exact-closes `GetSSIDStatsWmmPacketsReceived24g=210`, `WiFi.SSID.8.Stats.WmmPacketsReceived.AC_VO=210`, and `DriverWmmPacketsReceived24g=210`
+```
+
 ## Checkpoint summary (2026-04-15 early-164)
 
 > This checkpoint records the `D522 SSID WMM AC_VI Stats WmmPacketsReceived` workbook alignment.
