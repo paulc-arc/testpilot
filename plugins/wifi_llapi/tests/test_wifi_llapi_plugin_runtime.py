@@ -21662,7 +21662,6 @@ _WMM_STATS_CASES = [
     ("D481_ac_vo_stats_wmmbytesreceived_radio.yaml", 348, "AC_VO_Stats", "WmmBytesReceived", "26511", "0", "0"),
     ("D482_ac_be_stats_wmmbytessent_radio.yaml", 349, "AC_BE_Stats", "WmmBytesSent", "588206344", "393557814", "393818836"),
     ("D485_ac_vo_stats_wmmbytessent_radio.yaml", 352, "AC_VO_Stats", "WmmBytesSent", "42735", "0", "0"),
-    ("D486_ac_be_stats_wmmfailedbytesreceived_radio.yaml", 353, "AC_BE_Stats", "WmmFailedBytesReceived", "0", "0", "0"),
     ("D487_ac_bk_stats_wmmfailedbytesreceived_radio.yaml", 354, "AC_BK_Stats", "WmmFailedBytesReceived", "0", "0", "0"),
     ("D488_ac_vi_stats_wmmfailedbytesreceived_radio.yaml", 355, "AC_VI_Stats", "WmmFailedBytesReceived", "0", "0", "0"),
     ("D489_ac_vo_stats_wmmfailedbytesreceived_radio.yaml", 356, "AC_VO_Stats", "WmmFailedBytesReceived", "0", "0", "0"),
@@ -22061,6 +22060,74 @@ def test_d484_radio_stats_wmmbytessent_ac_vi_evaluate():
             "step_24g_driver": {
                 "success": True,
                 "output": "DriverWmmBytesSent24g=0",
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(case, results) is True
+
+
+def test_d486_radio_stats_wmmfailedbytesreceived_ac_be_load():
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / "D486_ac_be_stats_wmmfailedbytesreceived_radio.yaml")
+    assert case["id"] == "d486-radio-stats-wmmfailedbytesreceived-ac_be"
+    assert case["source"]["row"] == 486
+    assert case["source"]["object"] == "WiFi.Radio.{i}.Stats.WmmFailedBytesReceived."
+    assert case["source"]["api"] == "AC_BE"
+    assert case["llapi_support"] == "Support"
+    ref = case["results_reference"]["v4.0.3"]
+    assert ref["5g"] == "Pass"
+    assert ref["6g"] == "Pass"
+    assert ref["2.4g"] == "Pass"
+    assert len(case["steps"]) == 6
+    assert 'WiFi.Radio.1.Stats.WmmFailedBytesReceived.AC_BE?' in case["steps"][0]["command"]
+    assert 'wme_counters' in case["steps"][1]["command"]
+    assert case["pass_criteria"][0]["field"] == "direct_5g.AC_BE"
+    assert case["pass_criteria"][0]["reference"] == "driver_5g.DriverWmmFailedBytesReceived5g"
+
+
+def test_d486_radio_stats_wmmfailedbytesreceived_ac_be_discover():
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / "D486_ac_be_stats_wmmfailedbytesreceived_radio.yaml")
+    plugin = _load_plugin()
+    discoverable = {c["id"] for c in plugin.discover_cases()}
+    assert case["id"] in discoverable, f"{case['id']} not discoverable"
+
+
+def test_d486_radio_stats_wmmfailedbytesreceived_ac_be_evaluate():
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / "D486_ac_be_stats_wmmfailedbytesreceived_radio.yaml")
+    results = {
+        "steps": {
+            "step_5g_direct": {
+                "success": True,
+                "output": "WiFi.Radio.1.Stats.WmmFailedBytesReceived.AC_BE=188",
+                "timing": 0.01,
+            },
+            "step_5g_driver": {
+                "success": True,
+                "output": "DriverWmmFailedBytesReceived5g=188",
+                "timing": 0.01,
+            },
+            "step_6g_direct": {
+                "success": True,
+                "output": "WiFi.Radio.2.Stats.WmmFailedBytesReceived.AC_BE=0",
+                "timing": 0.01,
+            },
+            "step_6g_driver": {
+                "success": True,
+                "output": "DriverWmmFailedBytesReceived6g=0",
+                "timing": 0.01,
+            },
+            "step_24g_direct": {
+                "success": True,
+                "output": "WiFi.Radio.3.Stats.WmmFailedBytesReceived.AC_BE=0",
+                "timing": 0.01,
+            },
+            "step_24g_driver": {
+                "success": True,
+                "output": "DriverWmmFailedBytesReceived24g=0",
                 "timing": 0.01,
             },
         }
