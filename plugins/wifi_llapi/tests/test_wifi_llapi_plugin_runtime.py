@@ -20670,7 +20670,7 @@ _RADIO_GETTER_CASES = [
     ("D365_psrdisallowed.yaml", 272, "0", "0", "0", "WiFi.Radio.{r}.IEEE80211ax.PSRDisallowed"),
     ("D462_bsscolor.yaml", 462, "0", "0", "0", "WiFi.Radio.{r}.IEEE80211ax.BssColor"),
     ("D463_hesigaspatialreusevalue15allowed.yaml", 463, "0", "0", "0", "WiFi.Radio.{r}.IEEE80211ax.HESIGASpatialReuseValue15Allowed"),
-    ("D464_nonsrgoffsetvalid.yaml", 341, "0", "0", "0", "WiFi.Radio.{r}.IEEE80211ax.NonSRGOffsetValid"),
+    ("D464_nonsrgoffsetvalid.yaml", 464, "0", "0", "0", "WiFi.Radio.{r}.IEEE80211ax.NonSRGOffsetValid"),
     ("D465_srginformationvalid.yaml", 465, "0", "0", "0", "WiFi.Radio.{r}.IEEE80211ax.SRGInformationValid"),
     # --- Bulk calibration batch 6: additional Radio/IEEE80211ax getters ---
     ("D379_mcs.yaml", 379, "0", "0", "0", "WiFi.Radio.{r}.MCS"),

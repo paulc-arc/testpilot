@@ -137,14 +137,16 @@
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T071500138827",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T073336901222",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T074042045965",
-    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T074830179441"
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T074830179441",
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T075629344743",
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T080003753294"
   ],
   "answers_xlsx": "/home/paul_chen/prj_arc/testpilot/0401.xlsx",
   "cases_dir": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases",
   "compared_case_count": 420,
   "missing_answer_count": 0,
   "missing_answer_rows": [],
-  "metadata_drift_count": 46,
+  "metadata_drift_count": 45,
   "full_match_count": 362,
   "mismatch_case_count": 58,
   "band_summary": {
@@ -14986,14 +14988,14 @@
       "case_id": "d464-radio-nonsrgoffsetvalid",
       "case_file": "D464_nonsrgoffsetvalid.yaml",
       "dnum": 464,
-      "source_row": 341,
-      "source_object": "WiFi.Radio.{i}.",
+      "source_row": 464,
+      "source_object": "WiFi.Radio.{i}.IEEE80211ax.",
       "source_api": "NonSRGOffsetValid",
       "answer_row": 464,
       "answer_object": "WiFi.Radio.{i}.IEEE80211ax.",
       "answer_api": "NonSRGOffsetValid",
-      "mapping_status": "drift",
-      "mapping_object_match": false,
+      "mapping_status": "exact",
+      "mapping_object_match": true,
       "mapping_api_match": true,
       "final_status": "Fail",
       "evaluation_verdict": "Pass",
@@ -15023,7 +15025,7 @@
       "matches_answer": true,
       "workbook_test_steps_excerpt": "",
       "workbook_command_output_excerpt": "wl -i wl0 he options",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/d464-radio-nonsrgoffsetvalid.json"
+      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T080003753294/d464-radio-nonsrgoffsetvalid.json"
     },
     {
       "case_id": "d465-radio-srginformationvalid",

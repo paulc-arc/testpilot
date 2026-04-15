@@ -1,5 +1,65 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-15 early-130)
+
+> This checkpoint records the `D464 NonSRGOffsetValid` fail-shaped workbook alignment.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D464 NonSRGOffsetValid` 已完成 closure
+- workbook authority 已刷新為 row `464`
+- 舊 row `341` 誤指到 `WiFi.wps_DefParam.FriendlyName`
+- metadata 已改回 workbook `WiFi.Radio.{i}.IEEE80211ax.` / `NonSRGOffsetValid`
+- official rerun `20260415T080003753294` exact-close workbook `Fail / Fail / Fail`
+- tri-band getter 都穩定回 `WiFi.Radio.{i}.IEEE80211ax.NonSRGOffsetValid=0`
+- final report 維持 `diagnostic_status=Pass`
+- targeted D464/runtime tests passed
+- compare 維持 `362 / 420 full matches`、`58 mismatches`，metadata drifts 降到 `45`
+- `D454 getRadioStats().FailedRetransCount` 在 focused workbook-faithful rerun `20260415T064937785938` 仍呈 localized blocker：5G/2.4G 可 exact-close `100/946` 對 `wl0/wl2 counters txfail=100/946`，但 6G 仍漂移成 `FailedRetransCount=0` vs `wl1 counters txfail=740`，因此 exploratory rewrite 已回退
+- `D371 AccessPoint.AssociatedDevice.DisassociationTime` 仍維持 localized blocker，rewrite 已回退
+- `D355-D357` 仍保留在需要 CSI client setup 的 placeholder bucket
+- `D359 AccessPoint.IsolationEnable` 因 two-station isolation ping 需求而暫停在 current single-STA lab shape
+- systemic active blockers 維持 `D047` authority conflict + shared 6G baseline manifestations（`D179`、`D181`）
+- `D414/D415` 仍保留為 readiness-review cluster；workbook `G` 已明示需要 dual-STA 802.11k split
+- next ready actionable survey target=`D474 channel_radio_37`
+
+</details>
+
+### Per-case 摘要表（zh-tw）
+
+| case id | workbook row | API 名稱 | verdict | DUT log interval | STA log interval |
+| --- | ---: | --- | --- | --- | --- |
+| D464 | 464 | NonSRGOffsetValid | Fail / Fail / Fail | `bgw720-b0-403_wifi_llapi_20260415t080003753294.md L9-L11; L17-L23; 20260415T080003753294_DUT.log L5-L18` | `N/A（DUT-only case；20260415T080003753294_STA.log empty）` |
+
+### D464 NonSRGOffsetValid alignment evidence
+
+**STA 指令**
+
+```sh
+# N/A (DUT-only case)
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.Radio.1.IEEE80211ax.NonSRGOffsetValid?"
+ubus-cli "WiFi.Radio.2.IEEE80211ax.NonSRGOffsetValid?"
+ubus-cli "WiFi.Radio.3.IEEE80211ax.NonSRGOffsetValid?"
+```
+
+**關鍵 log 摘錄 / log 區間**
+
+```text
+Official rerun 20260415T080003753294
+- bgw720-b0-403_wifi_llapi_20260415t080003753294.md L9-L11
+  result_5g/result_6g/result_24g = Fail / Fail / Fail with diagnostic_status=Pass
+- bgw720-b0-403_wifi_llapi_20260415t080003753294.md L17-L23
+  workbook-faithful row-464 replay uses tri-band IEEE80211ax.NonSRGOffsetValid getters
+- 20260415T080003753294_DUT.log L5-L18
+  tri-band getters exact-close `WiFi.Radio.{i}.IEEE80211ax.NonSRGOffsetValid=0`
+```
+
 ## Checkpoint summary (2026-04-15 early-129)
 
 > This checkpoint records the `D459 getRadioStats().Temperature` workbook alignment refresh.

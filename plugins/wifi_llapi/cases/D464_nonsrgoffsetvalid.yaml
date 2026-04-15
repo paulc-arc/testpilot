@@ -1,8 +1,8 @@
 id: d464-radio-nonsrgoffsetvalid
 name: D464 Radio NonSRGOffsetValid
 source:
-  row: 341
-  object: WiFi.Radio.{i}.
+  row: 464
+  object: WiFi.Radio.{i}.IEEE80211ax.
   api: NonSRGOffsetValid
   baseline: 0310-BGW720-300
 bands:
