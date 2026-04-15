@@ -20781,7 +20781,6 @@ _METHOD_STATS_CASES = [
     ("D457_retranscount_radio_stats.yaml", 457, "getRadioStats", "RetransCount", "17234", "0", "0"),
     ("D458_retrycount_radio_stats.yaml", 458, "getRadioStats", "RetryCount", "0", "0", "0"),
     ("D403_temperature.yaml", 298, "getRadioStats", "Temperature", "82", "85", "80"),
-    ("D477_unknownprotopacketsreceived_radio_stats.yaml", 344, "getRadioStats", "UnknownProtoPacketsReceived", "0", "0", "0"),
     # --- Bulk calibration batch 6: additional getRadioAirStats/getRadioStats fields ---
     ("D447_getradioairstats_inttime.yaml", 449, "getRadioAirStats", "IntTime", "1", "16", "3"),
     ("D448_getradioairstats_longpreambleerrorpercentage.yaml", 450, "getRadioAirStats", "LongPreambleErrorPercentage", "0", "0", "0"),
@@ -22395,6 +22394,74 @@ def test_d474_radio_surroundingchannels_channel_evaluate():
                     "error=2\n"
                     "message=object not found"
                 ),
+                "timing": 0.01,
+            },
+        }
+    }
+    assert plugin.evaluate(case, results) is True
+
+
+def test_d477_radio_stats_unknownprotopacketsreceived_load():
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / "D477_unknownprotopacketsreceived_radio_stats.yaml")
+    assert case["id"] == "d477-radio-stats-unknownprotopacketsreceived"
+    assert case["source"]["row"] == 477
+    assert case["source"]["object"] == "WiFi.Radio.{i}.Stats."
+    assert case["source"]["api"] == "UnknownProtoPacketsReceived"
+    assert case["llapi_support"] == "Support"
+    ref = case["results_reference"]["v4.0.3"]
+    assert ref["5g"] == "Pass"
+    assert ref["6g"] == "Pass"
+    assert ref["2.4g"] == "Pass"
+    assert len(case["steps"]) == 6
+    assert 'WiFi.Radio.1.Stats.UnknownProtoPacketsReceived?' in case["steps"][0]["command"]
+    assert 'rxbadproto' in case["steps"][1]["command"]
+    assert case["pass_criteria"][0]["field"] == "direct_5g.UnknownProtoPacketsReceived"
+    assert case["pass_criteria"][0]["reference"] == "driver_5g.DriverUnknownProtoPacketsReceived5g"
+
+
+def test_d477_radio_stats_unknownprotopacketsreceived_discover():
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / "D477_unknownprotopacketsreceived_radio_stats.yaml")
+    plugin = _load_plugin()
+    discoverable = {c["id"] for c in plugin.discover_cases()}
+    assert case["id"] in discoverable, f"{case['id']} not discoverable"
+
+
+def test_d477_radio_stats_unknownprotopacketsreceived_evaluate():
+    plugin = _load_plugin()
+    cases_dir = Path(__file__).resolve().parents[3] / "plugins" / "wifi_llapi" / "cases"
+    case = load_case(cases_dir / "D477_unknownprotopacketsreceived_radio_stats.yaml")
+    results = {
+        "steps": {
+            "step_5g_direct": {
+                "success": True,
+                "output": "WiFi.Radio.1.Stats.UnknownProtoPacketsReceived=21",
+                "timing": 0.01,
+            },
+            "step_5g_driver": {
+                "success": True,
+                "output": "DriverUnknownProtoPacketsReceived5g=21",
+                "timing": 0.01,
+            },
+            "step_6g_direct": {
+                "success": True,
+                "output": "WiFi.Radio.2.Stats.UnknownProtoPacketsReceived=2",
+                "timing": 0.01,
+            },
+            "step_6g_driver": {
+                "success": True,
+                "output": "DriverUnknownProtoPacketsReceived6g=2",
+                "timing": 0.01,
+            },
+            "step_24g_direct": {
+                "success": True,
+                "output": "WiFi.Radio.3.Stats.UnknownProtoPacketsReceived=12",
+                "timing": 0.01,
+            },
+            "step_24g_driver": {
+                "success": True,
+                "output": "DriverUnknownProtoPacketsReceived24g=12",
                 "timing": 0.01,
             },
         }

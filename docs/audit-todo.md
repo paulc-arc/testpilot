@@ -81,15 +81,15 @@
 
 ## Latest repo handoff snapshot（2026-04-15）
 
-- `D474 Radio ScanResults SurroundingChannels Channel` is now aligned via official rerun `20260415T081114606106`
-- workbook authority is row `474`; the old row `179` metadata that still pointed at `WiFi.Radio.{i}.` / `Channel` is now corrected back to workbook `WiFi.Radio.{i}.ScanResults.SurroundingChannels.{i}.` / `Channel`
-- the rerun exact-closes workbook `Not Supported / Not Supported / Not Supported` while keeping `diagnostic_status=Pass`: 5G/6G/2.4G all return `error=2 / object not found`
+- `D477 Radio Stats UnknownProtoPacketsReceived` is now aligned via official rerun `20260415T082800519654`
+- workbook authority is row `477`; the old row `344` metadata that still pointed at `WiFi.wps_DefParam.` / `ModelDescription` is now corrected back to workbook `WiFi.Radio.{i}.Stats.` / `UnknownProtoPacketsReceived`
+- the rerun exact-closes workbook `Pass / Pass / Pass` while keeping `diagnostic_status=Pass`: 5G/6G/2.4G direct getter values all match `wl0/wl1/wl2 counters` `rxbadproto` at `0 / 0 / 0`
 - `D454 getRadioStats().FailedRetransCount` remains a localized blocker after focused workbook-faithful rerun `20260415T064937785938`: 5G/2.4G still exact-close `100/946` against `wl0/wl2 counters txfail=100/946`, but 6G drifts `FailedRetransCount=0` vs `wl1 counters txfail=740`, so the exploratory rewrite was rolled back
 - `D371 AccessPoint.AssociatedDevice.DisassociationTime` is now parked as a localized blocker after focused survey runs `20260415T014146461381` / `20260415T015629548681` / `20260415T020725267608`; the rewrite was rolled back after 24G `assoclist` residue plus later 5G residue / 6G `step11_6g_post_assoc` serialwrap timeout after driver-level detach
 - systemic active blockers remain `D047` authority conflict plus the shared 6G baseline manifestations in `D179` and `D181`; parked clarification items remain `D204` and `D211`
 - `D359 AccessPoint.IsolationEnable` remains parked: workbook requires two WiFi stations plus isolation ping, but the current lab/testbed flow only exposes the standard single-STA path
-- historical blocker context for the temporary D257 empty-array failure is retained in `plugins/wifi_llapi/reports/D257_block.md`; latest committed closure is now `D474 Radio ScanResults SurroundingChannels Channel`
-- targeted D474/runtime tests and full repo regression both passed (`1660 passed`); compare now moves to `363 / 420 full matches` / `57 mismatches` while metadata drifts drop to `44`, `D355-D357` remain in the CSI-client placeholder bucket, `D414/D415` stay in readiness review because workbook `G` requires a dual-STA 802.11k split, and the next ready actionable survey target now moves to `D477 getRadioStats().UnknownProtoPacketsReceived`
+- historical blocker context for the temporary D257 empty-array failure is retained in `plugins/wifi_llapi/reports/D257_block.md`; latest committed closure is now `D477 Radio Stats UnknownProtoPacketsReceived`
+- targeted D477/runtime tests and full repo regression both passed (`1660 passed`); compare now moves to `364 / 420 full matches` / `56 mismatches` while metadata drifts drop to `43`, `D355-D357` remain in the CSI-client placeholder bucket, `D414/D415` stay in readiness review because workbook `G` requires a dual-STA 802.11k split, and the next ready actionable survey target now moves to `D478 getRadioStats().WmmBytesReceived.AC_BE`
 - `D214 Radio.RIFSEnabled` is now aligned via official rerun `20260414T175434503053`
 - workbook authority is row `214`, not stale row `175`; the rerun exact-closes the tri-band setter-backed `Default -> Auto -> Default` replay, so the landed case now refreshes stale row `175` / raw `Fail / Fail / Fail` to workbook row `214` / raw `Pass / Pass / Pass`
 - targeted radio/runtime guardrails are now `202 passed`; final full repo regression remains `1662 passed`; compare is now `324 / 420 full matches` / `96 mismatches` / `58 metadata drifts`, and the next ready non-blocked compare-open case moves to `D251 Radio.Vendor.RegulatoryDomainRev`
