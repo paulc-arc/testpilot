@@ -2,7 +2,7 @@
 
 > 版本：v0.1.0-draft（第三次重構規劃基線）
 > 更新日期：2026-03-31
-> 深度參考：`docs/copilot-sdk-hooks-skills-session-resume-persistenc.md`
+> 深度參考已收斂回本文件；詳細研究筆記改為 local-only，不再納入 repo。
 
 ---
 
@@ -282,7 +282,7 @@ testpilot/
 │   ├── plan.md
 │   ├── spec.md
 │   ├── todos.md
-│   └── copilot-sdk-hooks-skills-session-resume-persistenc.md
+│   └── （local-only research notes; not versioned）
 ├── src/testpilot/
 │   ├── core/
 │   ├── reporting/
@@ -347,6 +347,6 @@ testpilot/
 
 1. `docs/plan.md`：主計畫與 phase 邊界
 2. `docs/todos.md`：唯一待辦看板
-3. `docs/copilot-sdk-hooks-skills-session-resume-persistenc.md`：第三次重構深度研究
+3. 本文件與 `docs/plan.md`：第三次重構的 repo 內收斂基線
 4. `README.md`：對外說明與當前/目標方向摘要
 5. `AGENTS.md`：專案級 agent/model/policy 規則

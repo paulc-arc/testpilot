@@ -93,10 +93,7 @@ python -m testpilot.cli wifi-llapi baseline-qualify --band 2.4g --repeat-count 5
 7. UART line-length limit
    - serialwrap 仍受 120-char line limit 影響；長命令必須依賴 temp-script staging。
 
-歷史實驗來源：
-
-- `5G-STA-sccuss-exp.md`
-- `6G-STA-exp.md`
+歷史實驗來源已收斂進本文件；較早的 5G / 6G 實驗筆記改為 local-only，不再納入 repo。
 
 ## Shared baseline hardening checkpoint (2026-04-12)
 
