@@ -4,8 +4,8 @@
 
 - case: `D047 SupportedHe160MCS`
 - workbook row: `47`
-- current state: **blocked as workbook/source authority conflict**
-- next ready actionable compare-open case: `D050 SupportedVhtMCS`
+- current state: **blocked as workbook/source authority conflict** (freshly revalidated via official rerun `20260415T182628238198`)
+- next blocker-review target: `D179 Radio.Ampdu` (there is currently no clean workbook-pass-ready single case left in the compare-open set)
 
 ## Why this is blocked
 
@@ -57,6 +57,22 @@ That row-level note matches the current 0403 source/runtime split for `WiFi.Acce
 - trace JSON: `plugins/wifi_llapi/reports/agent_trace/20260412T235952361188/wifi-llapi-D047-supportedhe160mcs.json`
   - `evaluation_verdict=Pass`
   - live case logic exact-closes the not-supported getter plus sibling-field evidence
+- fresh official rerun: `20260415T182628238198`
+  - markdown report: `plugins/wifi_llapi/reports/bgw720-b0-403_wifi_llapi_20260415t182628238198.md:L9-L11,L31-L47`
+    - `result_5g/result_6g/result_24g = Not Supported / N/A / N/A`
+    - `diagnostic_status=Pass`
+    - same run again exact-closes:
+      - `SupportedHe160MCS? -> error=4 / message=parameter not found`
+      - `DriverRxSupportedHe160MCS=11,11,11,11`
+      - `DriverTxSupportedHe160MCS=11,11,11,11`
+      - `DriverHeCapsPresent=1`
+  - DUT log: `plugins/wifi_llapi/reports/20260415T182628238198_DUT.log:L86-L109`
+    - standalone getter still returns `parameter not found`, while sibling Rx/Tx fields remain populated
+  - STA log: `plugins/wifi_llapi/reports/20260415T182628238198_STA.log:L84-L94`
+    - STA remains stably connected to `testpilot5G`
+  - compare overlay: `compare-0401.md:L208,L255-L272`
+    - actual raw still resolves to `Not Supported / N/A / N/A`
+    - workbook expected raw still resolves to `Pass / Pass / Not Supported`
 
 ## Why the YAML is not being rewritten
 

@@ -176,6 +176,7 @@
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260411T205454026707`
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260411T220324862766`
   - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T180502444191`
+  - `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T182628238198`
 - answer sheet: `/home/paul_chen/prj_arc/testpilot/0401.xlsx`
 - cases dir: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases`
 - compare rule: normalize both sides so only `Pass` stays `Pass`; all other values become `Fail`.
@@ -268,7 +269,7 @@
 - mismatch bands: `5g, 6g`
 - 0401 G excerpt: (empty)
 - 0401 H excerpt: (empty)
-- trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T235952361188/wifi-llapi-D047-supportedhe160mcs.json`
+- trace: `/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T182628238198/wifi-llapi-D047-supportedhe160mcs.json`
 
 ### d181-radio-fragmentationthreshold
 

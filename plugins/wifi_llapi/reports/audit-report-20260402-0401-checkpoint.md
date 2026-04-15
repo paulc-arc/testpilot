@@ -1,5 +1,61 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-15 early-173)
+
+> This checkpoint records the `D047 SupportedHe160MCS` blocker revalidation rerun.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D047 SupportedHe160MCS` 這次沒有 closure；official rerun `20260415T182628238198` 是在最新 baseline 下重新確認它仍屬於 workbook/source authority conflict
+- rerun exact-close source/runtime-correct 的 `Not Supported / N/A / N/A`，且 `diagnostic_status=Pass`
+- same-window 5G getter 仍固定回 `error=4 / parameter not found`
+- 同一個 `AssociatedDevice.1` entry 仍 exact-close `RxSupportedHe160MCS="11,11,11,11"` / `TxSupportedHe160MCS="11,11,11,11"`，而 driver capability evidence 仍保留 HE caps / MCS SET / HE SET
+- compare 已補納這筆 rerun，但 summary 仍維持 `395 / 420 full matches`、`25 mismatches`，metadata drifts 維持 `43`
+- `D047` 仍停在 authority-conflict blocker bucket，不能改寫成 workbook `Pass / Pass / Not Supported`
+- 目前仍沒有乾淨的 workbook-pass-ready 單案；下一個 investigative track 轉到 shared-6G blocker review，先看 `D179 Radio.Ampdu`
+
+</details>
+
+### D047 SupportedHe160MCS blocker evidence
+
+**STA 指令**
+
+```sh
+cat /sys/class/net/wl0/address | tr 'a-f' 'A-F' | sed 's/^/StaMac=/'
+iw dev wl0 link
+wpa_cli -p /var/run/wpa_supplicant -i wl0 status
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?"
+OUT=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.SupportedHe160MCS?" 2>&1 || true); printf '%s\n' "$OUT"; printf '%s\n' "$OUT" | sed -n 's/.*failed (\([0-9][0-9]*\) - \(.*\))/error=\1/p'; printf '%s\n' "$OUT" | sed -n 's/.*failed (\([0-9][0-9]*\) - \(.*\))/message=\2/p'
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.?" | sed -n 's/^WiFi\.AccessPoint\.1\.AssociatedDevice\.1\.MACAddress="\([^"]*\)".*/SiblingAssocMac=\1/p; s/^WiFi\.AccessPoint\.1\.AssociatedDevice\.1\.RxSupportedHe160MCS="\([^"]*\)".*/DriverRxSupportedHe160MCS=\1/p; s/^WiFi\.AccessPoint\.1\.AssociatedDevice\.1\.TxSupportedHe160MCS="\([^"]*\)".*/DriverTxSupportedHe160MCS=\1/p'
+STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p'); STA_MAC_LOWER=$(echo "$STA_MAC" | tr 'A-F' 'a-f'); [ -n "$STA_MAC" ] && echo DriverAssocMac=$STA_MAC && wl -i wl0 sta_info $STA_MAC_LOWER | awk '/HE caps/ {he=1} /MCS SET/ {mcs=1} /HE SET/ {heset=1} END {if (he) print "DriverHeCapsPresent=1"; if (mcs) print "DriverMCSSetPresent=1"; if (heset) print "DriverHeSetPresent=1"}'
+```
+
+**關鍵 log 摘錄 / log 區間**
+
+```text
+Official rerun 20260415T182628238198
+- bgw720-b0-403_wifi_llapi_20260415t182628238198.md L9-L11
+  result_5g/result_6g/result_24g = Not Supported / N/A / N/A, diagnostic_status=Pass
+- bgw720-b0-403_wifi_llapi_20260415t182628238198.md L31-L42
+  same-window evidence still exact-closes:
+  SupportedHe160MCS? -> error=4 / parameter not found
+  DriverRxSupportedHe160MCS=11,11,11,11
+  DriverTxSupportedHe160MCS=11,11,11,11
+  DriverHeCapsPresent=1
+  DriverMCSSetPresent=1
+  DriverHeSetPresent=1
+- 20260415T182628238198_DUT.log L86-L109
+  standalone AssociatedDevice getter remains absent while sibling Rx/Tx fields stay populated
+- 20260415T182628238198_STA.log L84-L94
+  STA remains stably connected to testpilot5G during the same checkpoint
+```
+
 ## Checkpoint summary (2026-04-15 early-172)
 
 > This checkpoint records the `D020 FrequencyCapabilities` revalidation rerun.

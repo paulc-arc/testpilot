@@ -173,7 +173,8 @@
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T173554269251",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260411T205454026707",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260411T220324862766",
-    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T180502444191"
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T180502444191",
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T182628238198"
   ],
   "answers_xlsx": "/home/paul_chen/prj_arc/testpilot/0401.xlsx",
   "cases_dir": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases",
@@ -2052,7 +2053,7 @@
       "matches_answer": false,
       "workbook_test_steps_excerpt": "",
       "workbook_command_output_excerpt": "",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T235952361188/wifi-llapi-D047-supportedhe160mcs.json"
+      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T182628238198/wifi-llapi-D047-supportedhe160mcs.json"
     },
     {
       "case_id": "wifi-llapi-D048-supportedhemcs",
@@ -18446,7 +18447,7 @@
       "matches_answer": false,
       "workbook_test_steps_excerpt": "",
       "workbook_command_output_excerpt": "",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T235952361188/wifi-llapi-D047-supportedhe160mcs.json"
+      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T182628238198/wifi-llapi-D047-supportedhe160mcs.json"
     },
     {
       "case_id": "d181-radio-fragmentationthreshold",
