@@ -1,5 +1,75 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-15 early-172)
+
+> This checkpoint records the `D020 FrequencyCapabilities` revalidation rerun.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D020 FrequencyCapabilities` 這次沒有 closure；official rerun `20260415T180502444191` 是在最新 baseline 下重新確認它仍屬於 verified/source-backed fail-shaped mismatch
+- attempt 1/2 與 2/2 都在 evaluate 階段停在 `result_5g.FrequencyCapabilities`
+- workbook 仍期待 5G empty string，但 live getter 與 driver normalization 都穩定回 `5GHz`
+- 同一筆 rerun 也再次 exact-close 6G / 2.4G getter 與 driver normalization 為 `6GHz` / `2.4GHz`
+- compare 已補納這筆 rerun，但 summary 仍維持 `395 / 420 full matches`、`25 mismatches`，metadata drifts 維持 `43`
+- `D020` 仍與 `D277`、`D289`、`D290` 同屬 verified/source-backed fail-shaped mismatch bucket
+- 目前仍沒有乾淨的 workbook-pass-ready 單案；下一個 investigative track 轉回 blocker review，先看 `D047 SupportedHe160MCS`
+
+</details>
+
+### D020 FrequencyCapabilities revalidation evidence
+
+**STA 指令**
+
+```sh
+iw dev wl0 link
+wpa_cli -p /var/run/wpa_supplicant -i wl0 status
+
+iw dev wl1 link
+wpa_cli -p /var/run/wpa_supplicant -i wl1 status
+wl -i wl1 status
+
+iw dev wl2 link
+wpa_cli -p /var/run/wpa_supplicant -i wl2 status
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?"
+STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p'); STA_MAC_LOWER=$(echo "$STA_MAC" | tr 'A-F' 'a-f'); BANDS_RAW=$(wl -i wl0 sta_info $STA_MAC_LOWER | sed -n 's/.*Frequency Bands Supported:[[:space:]]*//p'); BANDS_CLEAN=$(printf '%s' "$BANDS_RAW" | tr -d '\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//'); case "$BANDS_CLEAN" in 2.4G) BANDS=2.4GHz ;; 5G) BANDS=5GHz ;; 6G) BANDS=6GHz ;; *) BANDS=$BANDS_CLEAN ;; esac; [ -n "$STA_MAC" ] && echo DriverAssocMac5g=$STA_MAC && echo DriverFrequencyBandsRaw5g=$BANDS_CLEAN && echo DriverFrequencyCapabilities5g=$BANDS
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.FrequencyCapabilities?"
+
+ubus-cli "WiFi.AccessPoint.3.AssociatedDevice.1.MACAddress?"
+STA_MAC=$(ubus-cli "WiFi.AccessPoint.3.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p'); STA_MAC_LOWER=$(echo "$STA_MAC" | tr 'A-F' 'a-f'); BANDS_RAW=$(wl -i wl1 sta_info $STA_MAC_LOWER | sed -n 's/.*Frequency Bands Supported:[[:space:]]*//p'); BANDS_CLEAN=$(printf '%s' "$BANDS_RAW" | tr -d '\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//'); case "$BANDS_CLEAN" in 2.4G) BANDS=2.4GHz ;; 5G) BANDS=5GHz ;; 6G) BANDS=6GHz ;; *) BANDS=$BANDS_CLEAN ;; esac; [ -n "$STA_MAC" ] && echo DriverAssocMac6g=$STA_MAC && echo DriverFrequencyBandsRaw6g=$BANDS_CLEAN && echo DriverFrequencyCapabilities6g=$BANDS
+ubus-cli "WiFi.AccessPoint.3.AssociatedDevice.1.FrequencyCapabilities?"
+
+ubus-cli "WiFi.AccessPoint.5.AssociatedDevice.1.MACAddress?"
+STA_MAC=$(ubus-cli "WiFi.AccessPoint.5.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p'); STA_MAC_LOWER=$(echo "$STA_MAC" | tr 'A-F' 'a-f'); BANDS_RAW=$(wl -i wl2 sta_info $STA_MAC_LOWER | sed -n 's/.*Frequency Bands Supported:[[:space:]]*//p'); BANDS_CLEAN=$(printf '%s' "$BANDS_RAW" | tr -d '\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//'); case "$BANDS_CLEAN" in 2.4G) BANDS=2.4GHz ;; 5G) BANDS=5GHz ;; 6G) BANDS=6GHz ;; *) BANDS=$BANDS_CLEAN ;; esac; [ -n "$STA_MAC" ] && echo DriverAssocMac24g=$STA_MAC && echo DriverFrequencyBandsRaw24g=$BANDS_CLEAN && echo DriverFrequencyCapabilities24g=$BANDS
+ubus-cli "WiFi.AccessPoint.5.AssociatedDevice.1.FrequencyCapabilities?"
+```
+
+**關鍵 log 摘錄 / log 區間**
+
+```text
+Official rerun 20260415T180502444191
+- bgw720-b0-403_wifi_llapi_20260415t180502444191.md L9-L11
+  result_5g/result_6g/result_24g = Fail / Fail / Fail, diagnostic_status=FailTest
+- bgw720-b0-403_wifi_llapi_20260415t180502444191.md L61-L65
+  5G same-window driver normalization and getter still exact-close
+  DriverFrequencyCapabilities5g=5GHz
+  WiFi.AccessPoint.1.AssociatedDevice.1.FrequencyCapabilities="5GHz"
+- bgw720-b0-403_wifi_llapi_20260415t180502444191.md L135-L164
+  6G / 2.4G same-window driver normalization and getter still exact-close
+  DriverFrequencyCapabilities6g=6GHz
+  WiFi.AccessPoint.3.AssociatedDevice.1.FrequencyCapabilities="6GHz"
+  DriverFrequencyCapabilities24g=2.4GHz
+  WiFi.AccessPoint.5.AssociatedDevice.1.FrequencyCapabilities="2.4GHz"
+- bgw720-b0-403_wifi_llapi_20260415t180502444191.md L172-L174
+  failure_snapshot confirms the workbook/lab mismatch:
+  expected empty string, actual 5GHz, field=result_5g.FrequencyCapabilities
+```
+
 ## Checkpoint summary (2026-04-15 early-171)
 
 > This checkpoint records the `D600 WiFi7STARole.NSTRSupport` workbook alignment.

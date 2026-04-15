@@ -172,7 +172,8 @@
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T165703228123",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T173554269251",
     "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260411T205454026707",
-    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260411T220324862766"
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260411T220324862766",
+    "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T180502444191"
   ],
   "answers_xlsx": "/home/paul_chen/prj_arc/testpilot/0401.xlsx",
   "cases_dir": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/cases",
@@ -887,7 +888,7 @@
       "matches_answer": false,
       "workbook_test_steps_excerpt": "1. Connect WiFi Station to GW. 2. Verify Associated Station FrequencyCapabilities: root@prplOS:~# ubus-cli WiFi.? | grep FrequencyCapabilities= WiFi.AccessPoint.1.AssociatedDevice.1.FrequencyCapabilities=\"2.4GHz,5GHz,6GHz\" WiFi.AccessPoi...",
       "workbook_command_output_excerpt": "wl -i wl0 sta_info ${STA_MAC} Frequency Bands Supported: 2.4G 5G 6G",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D020-frequencycapabilities.json"
+      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T180502444191/wifi-llapi-D020-frequencycapabilities.json"
     },
     {
       "case_id": "wifi-llapi-D021-hecapabilities-accesspoint-associateddevice",
@@ -18399,7 +18400,7 @@
       "matches_answer": false,
       "workbook_test_steps_excerpt": "1. Connect WiFi Station to GW. 2. Verify Associated Station FrequencyCapabilities: root@prplOS:~# ubus-cli WiFi.? | grep FrequencyCapabilities= WiFi.AccessPoint.1.AssociatedDevice.1.FrequencyCapabilities=\"2.4GHz,5GHz,6GHz\" WiFi.AccessPoi...",
       "workbook_command_output_excerpt": "wl -i wl0 sta_info ${STA_MAC} Frequency Bands Supported: 2.4G 5G 6G",
-      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260412T113008433351/wifi-llapi-D020-frequencycapabilities.json"
+      "trace_path": "/home/paul_chen/prj_arc/testpilot/plugins/wifi_llapi/reports/agent_trace/20260415T180502444191/wifi-llapi-D020-frequencycapabilities.json"
     },
     {
       "case_id": "wifi-llapi-D047-supportedhe160mcs",
