@@ -1,5 +1,70 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-04-15 early-170)
+
+> This checkpoint records the `D588 SSID MLDUnit` blocker survey.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- `D588 SSID MLDUnit` 尚未 closure，先記錄為 blocker
+- workbook authority 仍是 row `588`
+- committed YAML 仍停在舊 source row `591`，沒有 land workbook-faithful rewrite
+- focused serialwrap survey 顯示 tri-band public getter 都維持 `MLDUnit=-1`
+- workbook `H588` 對應的 `wl -i wlX mld_unit 0` / `wl -i wlX mld_unit` 在 current DUT 一律回 `wl: Unsupported`
+- `/tmp/wl*_hapd.conf` 也沒有 `mld_unit=` lines 可作為 fallback readback
+- 在沒有可重播的 driver/config oracle 前，不能把 D588 升成 workbook `Pass / Pass / Pass`
+- repo-visible blocker note 已落在 `plugins/wifi_llapi/reports/D588_block.md`
+- compare 仍維持 `394 / 420 full matches`、`26 mismatches`，metadata drifts 維持 `43`
+- next ready actionable survey target=`D600 WiFi7STARole.NSTRSupport`
+
+</details>
+
+### D588 SSID MLDUnit blocker evidence
+
+**STA 指令**
+
+```sh
+# N/A (DUT-only survey)
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.SSID.4.MLDUnit?"
+ubus-cli "WiFi.SSID.6.MLDUnit?"
+ubus-cli "WiFi.SSID.8.MLDUnit?"
+
+wl -i wl0 mld_unit 0
+wl -i wl1 mld_unit 0
+wl -i wl2 mld_unit 0
+
+wl -i wl0 mld_unit
+wl -i wl1 mld_unit
+wl -i wl2 mld_unit
+
+grep -nE "^mld_unit=" /tmp/wl0_hapd.conf /tmp/wl1_hapd.conf /tmp/wl2_hapd.conf 2>/dev/null || true
+```
+
+**關鍵 log 摘錄 / log 區間**
+
+```text
+Focused serialwrap survey (2026-04-15)
+- Getter
+  WiFi.SSID.4.MLDUnit=-1
+  WiFi.SSID.6.MLDUnit=-1
+  WiFi.SSID.8.MLDUnit=-1
+- Driver candidates
+  wl -i wl0 mld_unit 0 -> wl: Unsupported
+  wl -i wl1 mld_unit 0 -> wl: Unsupported
+  wl -i wl2 mld_unit 0 -> wl: Unsupported
+  wl -i wl0 mld_unit -> wl: Unsupported
+  wl -i wl1 mld_unit -> wl: Unsupported
+  wl -i wl2 mld_unit -> wl: Unsupported
+- Config fallback
+  grep -nE '^mld_unit=' /tmp/wl0_hapd.conf /tmp/wl1_hapd.conf /tmp/wl2_hapd.conf -> no output
+```
+
 ## Checkpoint summary (2026-04-15 early-169)
 
 > This checkpoint records the `D527 SSID WMM AC_VO Stats WmmPacketsSent` workbook alignment.
