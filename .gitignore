@@ -20,7 +20,28 @@ build/
 plugins/wifi_llapi/reports/*
 !plugins/wifi_llapi/reports/templates/
 !plugins/wifi_llapi/reports/.gitkeep
+!plugins/wifi_llapi/reports/D035_block.md
+!plugins/wifi_llapi/reports/D047_block.md
+!plugins/wifi_llapi/reports/D179_block.md
 !plugins/wifi_llapi/reports/D181_block.md
+!plugins/wifi_llapi/reports/D204_block.md
+!plugins/wifi_llapi/reports/D211_block.md
+!plugins/wifi_llapi/reports/D257_block.md
+!plugins/wifi_llapi/reports/D281_block.md
+!plugins/wifi_llapi/reports/D282_block.md
+!plugins/wifi_llapi/reports/D283_block.md
+!plugins/wifi_llapi/reports/D284_block.md
+!plugins/wifi_llapi/reports/D285_block.md
+!plugins/wifi_llapi/reports/D286_block.md
+!plugins/wifi_llapi/reports/D287_block.md
+!plugins/wifi_llapi/reports/D295_block.md
+!plugins/wifi_llapi/reports/D324_block.md
+!plugins/wifi_llapi/reports/D331_block.md
+!plugins/wifi_llapi/reports/D333_block.md
+!plugins/wifi_llapi/reports/D336_block.md
+!plugins/wifi_llapi/reports/D524_block.md
+!plugins/wifi_llapi/reports/D588_block.md
+!plugins/wifi_llapi/reports/audit-report-20260402-0401-checkpoint.md
 
 # OS
 .DS_Store
@@ -34,6 +55,12 @@ configs/testbed.yaml
 # Local-only notes / handoff / scratch artifacts
 .codex
 report.*.json
+/*.xlsx
+/*.xls
+/*.xlsm
+compare-*.md
+compare-*.json
+*-full-run-static.md
 uv.lock
 0414-handover.md
 5G-STA-sccuss-exp.md

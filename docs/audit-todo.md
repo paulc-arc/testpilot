@@ -8,7 +8,7 @@
 
 ## Calibration authority
 
-- Acceptance baseline: repo-root `0401.xlsx` `Wifi_LLAPI` sheet, answer columns `R/S/T`.
+- Acceptance baseline: local-only `0401.xlsx` workbook (`Wifi_LLAPI` sheet, answer columns `R/S/T`) passed explicitly via `--answers` / `--source-xlsx`.
 - Compare rule: normalize both sides so only literal `Pass` stays `Pass`; all other workbook/run values become `Fail`.
 - Additional interpretation source: workbook columns `G/H` (`Test Steps` / `Command Output`).
 - Manual procedure seed: workbook `G/H`; use source survey only after workbook/live evidence still disagree.
@@ -493,7 +493,7 @@
 If I open only this file in a future session, I should do the following in order:
 
 1. Re-read the calibration authority and working rules in this file.
-2. Re-open repo-root `0401.xlsx` and use `Wifi_LLAPI` `R/S/T` as the answer key (`Pass` = pass, everything else = fail).
+2. Re-open the local-only `0401.xlsx` workbook and use `Wifi_LLAPI` `R/S/T` as the answer key (`Pass` = pass, everything else = fail).
 3. Rebuild the current STA 2.4G / 5G / 6G interface-to-DUT AP mapping from live MAC/BSSID evidence if it has not already been refreshed for this session.
 4. Read the current repo handoff snapshot in this file and `compare-0401.{md,json}`; do not rely on session-local SQL as the primary resume source.
 5. Confirm serialwrap access to `COM0/COM1` is healthy before attempting live validation.
@@ -516,7 +516,7 @@ If I open only this file in a future session, I should do the following in order
    - 2.4G = AP5 / `wl2` / Radio.3 / SSID.8 / `testpilot2G` / WPA2-Personal
    - 每個 band：baseline getter → setter → readback → driver/hostapd cross-check → restore baseline
    - 判定 verdict：Pass / Not Supported / Fail / mixed-band
-3. **YAML 重寫** — 對齊 `0401.xlsx` row、填入 `source.row`、保留 live evidence 與目前 deterministic baseline
+3. **YAML 重寫** — 對齊 local `0401.xlsx` row、填入 `source.row`、保留 live evidence 與目前 deterministic baseline
 4. **Tests**
    - `load_case()` schema 驗證
    - targeted `pytest -k 'dXXX'`
@@ -530,7 +530,7 @@ If I open only this file in a future session, I should do the following in order
 
 ## Current repo handoff snapshot（2026-04-02）
 
-- Acceptance campaign: compare live/full-run results against repo-root `0401.xlsx`, `Wifi_LLAPI` sheet, columns `R/S/T`.
+- Acceptance campaign: compare live/full-run results against the local-only `0401.xlsx` workbook (`Wifi_LLAPI` sheet, columns `R/S/T`).
 - Current compare summary (`compare-0401.json`, rebuilt with overlay through run `20260402T105808547293`):
   - compared cases: **420**
   - full matches: **264**
@@ -621,7 +621,7 @@ If I open only this file in a future session, I should do the following in order
   - `uv run python -m testpilot.cli run wifi_llapi --case wifi-llapi-D018-downlinkshortguard --dut-fw-ver BGW720-B0-403` → first rerun exposed driver-capture shape issue (`20260402T070911215127`); second rerun passed `Pass/Pass/Pass` via run `20260402T071356233843`
   - `uv run pytest -q plugins/wifi_llapi/tests/test_wifi_llapi_plugin_runtime.py` → `1202 passed`
   - `uv run pytest -q` → `1599 passed`
-  - `uv run python -m testpilot.cli wifi-llapi build-template-report --source-xlsx 0401.xlsx` → rebuilt `plugins/wifi_llapi/reports/templates/wifi_llapi_template.xlsx`
+  - `uv run python -m testpilot.cli wifi-llapi build-template-report --source-xlsx /abs/path/to/0401.xlsx` → rebuilt `plugins/wifi_llapi/reports/templates/wifi_llapi_template.xlsx`
   - `uv run pytest -q plugins/wifi_llapi/tests/test_wifi_llapi_excel_template.py` → `8 passed`
   - `uv run python -m testpilot.cli run wifi_llapi --case wifi-llapi-D020-frequencycapabilities --dut-fw-ver BGW720-B0-403` → live/source-confirmed `Fail/Fail/Fail` via run `20260402T095404127199` (`evaluation_verdict=Pass`, pass after retry 2/2)
   - `uv run python scripts/compare_0401_answers.py ... 20260402T095404127199 --output-md compare-0401.md --output-json compare-0401.json` → compare refreshed; summary stayed `263 / 420`, while `D020` actual raw updated to `Fail / Fail / Fail`
@@ -676,8 +676,8 @@ If I open only this file in a future session, I should do the following in order
 - Remaining multi-agent survey blocker from the same 10-case 5G batch:
   - none in `D020/D023`; next survey target shifts to `D024`
 - Template alignment status:
-  - `plugins/wifi_llapi/reports/templates/wifi_llapi_template.xlsx` has been rebuilt from repo-root `0401.xlsx`
-  - `plugins/wifi_llapi/reports/templates/wifi_llapi_template.manifest.json` now records `source_workbook=0401.xlsx`
+  - `plugins/wifi_llapi/reports/templates/wifi_llapi_template.xlsx` has been rebuilt from a supplied local-only `0401.xlsx` workbook
+  - `plugins/wifi_llapi/reports/templates/wifi_llapi_template.manifest.json` now records the supplied `source_workbook` path in portable form when possible
   - the previous row-shifted template was the root cause of the recent alignment warnings; current template/object/api alignment now matches workbook rows again
 - Latest single-case checkpoints after the 5G counter family follow-up:
   - `D054` `TxErrors`
@@ -825,7 +825,7 @@ If any item above is not satisfied, the case stays open or moves to blocker trac
 ## Pause / resume handoff（2026-04-02）
 
 - Work objective:
-  - continue the workbook-driven `0401.xlsx` single-case calibration loop for `wifi_llapi`
+  - continue the workbook-driven local `0401.xlsx` single-case calibration loop for `wifi_llapi`
   - preserve repo-only handoff so work can resume cleanly after a WSL backup pause
 - Work completed in this checkpoint:
   - closed `D020 FrequencyCapabilities` as a verified fail-shaped mismatch (`Fail / Fail / Fail`)

@@ -43,6 +43,12 @@ python -m testpilot.cli wifi-llapi build-template-report --source-xlsx <path>
 uv run pytest -q
 ```
 
+## Local Artifact Version Control Policy
+
+1. repo root workbook inputs (`/*.xlsx`, `/*.xls`, `/*.xlsm`) and compare outputs (`compare-*.md`, `compare-*.json`) are local-only artifacts; do not commit them.
+2. one-off campaign notes such as `*-full-run-static.md` and root-level STA experiment scratch notes are local-only unless explicitly promoted into `docs/`.
+3. reusable report assets that stay versioned belong under `plugins/wifi_llapi/reports/templates/`; runtime output bundles under `plugins/wifi_llapi/reports/<artifact_name>/` remain untracked.
+
 ## Todo Governance（嚴格）
 
 1. `docs/todos.md` 是唯一待辦看板。

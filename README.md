@@ -126,7 +126,7 @@ testpilot run wifi_llapi \
 # Full suite (420 discoverable official cases)
 testpilot run wifi_llapi --dut-fw-ver BGW720-B0-403
 
-# Rebuild workbook compare against 0401.xlsx after selected live overlays
+# Rebuild workbook compare against a local 0401 workbook after selected live overlays
 python scripts/compare_0401_answers.py \
   20260401T152827516151 \
   20260401T230006391661 \
@@ -146,6 +146,7 @@ python scripts/compare_0401_answers.py \
   20260402T071356233843 \
   20260402T095404127199 \
   20260402T105808547293 \
+  --answers ~/testpilot-local/0401.xlsx \
   --output-md compare-0401.md \
   --output-json compare-0401.json
 
@@ -154,6 +155,8 @@ testpilot --azure run wifi_llapi --dut-fw-ver BGW720-B0-403
 ```
 
 Baseline experiment authority and current lab findings live in `docs/wifi-baseline-exp.md`.
+
+> **Workbook / compare artifact policy:** keep answer workbooks outside version control and pass them explicitly with `--answers` or `--source-xlsx`. Repo-root `compare-*.md` / `compare-*.json` are local-only ignored outputs and should not be committed.
 
 ### Report Outputs
 
@@ -609,7 +612,7 @@ testpilot run wifi_llapi \
 # 全量執行（420 筆 discoverable 官方案例）
 testpilot run wifi_llapi --dut-fw-ver BGW720-B0-403
 
-# 以 0401.xlsx 重新產生 compare 報告（疊加已完成的 live overlay）
+# 以本地 `0401.xlsx` 重新產生 compare 報告（疊加已完成的 live overlay）
 python scripts/compare_0401_answers.py \
   20260401T152827516151 \
   20260401T230006391661 \
@@ -629,12 +632,15 @@ python scripts/compare_0401_answers.py \
   20260402T071356233843 \
   20260402T095404127199 \
   20260402T105808547293 \
+  --answers ~/testpilot-local/0401.xlsx \
   --output-md compare-0401.md \
   --output-json compare-0401.json
 
 # 使用 Azure OpenAI
 testpilot --azure run wifi_llapi --dut-fw-ver BGW720-B0-403
 ```
+
+> **Workbook / compare 產物政策：** answer workbook 請保留在版控外，並透過 `--answers` 或 `--source-xlsx` 顯式傳入。repo root 的 `compare-*.md` / `compare-*.json` 屬於本地 ignored 產物，不應提交。
 
 ### 報告產出
 

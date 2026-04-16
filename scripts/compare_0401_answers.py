@@ -18,7 +18,7 @@ def _default_reports_root() -> Path:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Compare wifi_llapi run results against 0401.xlsx answer sheet."
+        description="Compare wifi_llapi run results against a local answer workbook."
     )
     parser.add_argument(
         "runs",
@@ -31,8 +31,8 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--answers",
-        default="0401.xlsx",
-        help="Answer workbook path (default: 0401.xlsx at repo root).",
+        required=True,
+        help="Path to the local-only answer workbook (for example ~/testpilot-local/0401.xlsx).",
     )
     parser.add_argument(
         "--cases-dir",
