@@ -164,7 +164,18 @@ Baseline experiment authority and current lab findings live in `docs/wifi-baseli
 | Structured data | `json` | Machine-readable with summary stats, diagnostic status, remediation history, and log line numbers |
 | UART RAW log | `DUT.log` / `STA.log` | serialwrap WAL decoded per-run UART communication records |
 
-Output files location: `plugins/wifi_llapi/reports/`
+Per-run output location: `plugins/wifi_llapi/reports/<artifact_name>/`
+
+Typical artifact bundle contents:
+- `<artifact_name>.xlsx`
+- `<artifact_name>.md`
+- `<artifact_name>.json`
+- `DUT.log`
+- `STA.log`
+- `agent_trace/`
+- `alignment_issues.json` (only when row alignment warnings are emitted)
+
+Shared template files remain under `plugins/wifi_llapi/reports/templates/`.
 
 Current workbook-calibration campaign artifacts live at repo root:
 

@@ -402,7 +402,7 @@ class Orchestrator:
         self,
         *,
         run_id: str,
-        reports_root: Path,
+        artifact_dir: Path,
         case_seq_ranges: dict[str, dict[str, int | None]],
         case_results: list[WifiLlapiCaseResult],
     ) -> dict[str, str]:
@@ -421,10 +421,10 @@ class Orchestrator:
         dut_text = log_capture.decode_log(records, com_filter=dut_com)
         sta_text = log_capture.decode_log(records, com_filter=sta_com)
         dut_log_path = log_capture.save_decoded_log(
-            dut_text, reports_root / f"{run_id}_DUT.log"
+            dut_text, artifact_dir / "DUT.log"
         )
         sta_log_path = log_capture.save_decoded_log(
-            sta_text, reports_root / f"{run_id}_STA.log"
+            sta_text, artifact_dir / "STA.log"
         )
 
         # Build seq→line maps
@@ -480,6 +480,13 @@ class Orchestrator:
         source_xlsx = Path(report_source_xlsx) if report_source_xlsx else None
         alignment_xlsx: Path
         source_report = ""
+        run_date = date.today()
+        fw_ver = dut_fw_ver or "DUT-FW-VER"
+        run_id = datetime.now().strftime("%Y%m%dT%H%M%S%f")
+        report_name = generate_report_filename(run_date, fw_ver, unique_suffix=run_id)
+        artifact_name = Path(report_name).stem
+        artifact_dir = reports_root / artifact_name
+        artifact_dir.mkdir(parents=True, exist_ok=True)
 
         if source_xlsx is not None:
             if not source_xlsx.exists():
@@ -503,9 +510,7 @@ class Orchestrator:
 
         alignment_issues = collect_alignment_issues(cases, alignment_xlsx)
         if alignment_issues:
-            alignment_dir = reports_root / "alignment"
-            alignment_dir.mkdir(parents=True, exist_ok=True)
-            alignment_path = alignment_dir / f"{date.today():%Y%m%d}_wifi_llapi_alignment_issues.json"
+            alignment_path = artifact_dir / "alignment_issues.json"
             alignment_path.write_text(
                 json.dumps(
                     {
@@ -533,14 +538,10 @@ class Orchestrator:
             plugin=plugin,
             agent_config=agent_config,
         )
-        run_id = datetime.now().strftime("%Y%m%dT%H%M%S%f")
-        agent_trace_dir = reports_root / "agent_trace" / run_id
+        agent_trace_dir = artifact_dir / "agent_trace"
         agent_trace_dir.mkdir(parents=True, exist_ok=True)
 
-        run_date = date.today()
-        fw_ver = dut_fw_ver or "DUT-FW-VER"
-        report_name = generate_report_filename(run_date, fw_ver, unique_suffix=run_id)
-        report_path = reports_root / report_name
+        report_path = artifact_dir / report_name
         report_path = create_run_report_from_template(
             template_xlsx=template_path,
             out_report_xlsx=report_path,
@@ -690,7 +691,7 @@ class Orchestrator:
         try:
             log_result = self._export_serialwrap_logs(
                 run_id=run_id,
-                reports_root=reports_root,
+                artifact_dir=artifact_dir,
                 case_seq_ranges=case_seq_ranges,
                 case_results=case_results,
             )
@@ -741,18 +742,19 @@ class Orchestrator:
             )
 
         report_meta: dict[str, Any] = {
-            "title": f"{fw_ver}_wifi_LLAPI_{run_id}",
+            "title": artifact_name,
             "date": run_date.isoformat(),
             "plugin": plugin_name,
             "firmware_version": fw_ver,
             "run_id": run_id,
             "timing": timing_rows,
+            "output_stem": artifact_name,
         }
         case_dicts = [dataclasses.asdict(cr) for cr in case_results]
         md_json_paths = generate_reports(
             case_results=case_dicts,
             meta=report_meta,
-            output_dir=reports_root,
+            output_dir=artifact_dir,
             formats=["md", "json"],
         )
         for p in md_json_paths:
@@ -766,6 +768,7 @@ class Orchestrator:
             "pass_count": pass_count,
             "fail_count": fail_count,
             "status": "completed",
+            "artifact_dir": str(artifact_dir),
             "template_path": str(template_path),
             "report_path": str(report_path),
             "md_report_path": str(md_json_paths[0]) if len(md_json_paths) > 0 else "",

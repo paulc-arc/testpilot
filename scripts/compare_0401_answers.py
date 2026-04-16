@@ -9,20 +9,11 @@ from testpilot.reporting.wifi_llapi_compare_0401 import (
     compare_run_against_0401,
     render_compare_markdown,
 )
+from testpilot.reporting.wifi_llapi_artifacts import resolve_trace_run_dir
 
 
-def _default_trace_root() -> Path:
-    return Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "reports" / "agent_trace"
-
-
-def _resolve_run_dir(value: str, trace_root: Path) -> Path:
-    candidate = Path(value)
-    if candidate.is_dir():
-        return candidate
-    run_dir = trace_root / value
-    if run_dir.is_dir():
-        return run_dir
-    raise FileNotFoundError(f"run directory not found: {value}")
+def _default_reports_root() -> Path:
+    return Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "reports"
 
 
 def parse_args() -> argparse.Namespace:
@@ -33,8 +24,9 @@ def parse_args() -> argparse.Namespace:
         "runs",
         nargs="+",
         help=(
-            "One or more run IDs under plugins/wifi_llapi/reports/agent_trace, "
-            "or explicit run directories. Later runs override earlier case results."
+            "One or more artifact folder names under plugins/wifi_llapi/reports, "
+            "legacy run IDs under reports/agent_trace, or explicit artifact/trace directories. "
+            "Later runs override earlier case results."
         ),
     )
     parser.add_argument(
@@ -49,8 +41,8 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--trace-root",
-        default=str(_default_trace_root()),
-        help="Trace root directory for resolving run IDs.",
+        default=str(_default_reports_root()),
+        help="Reports root directory for resolving artifact folders and legacy trace runs.",
     )
     parser.add_argument(
         "--output-md",
@@ -68,8 +60,8 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     repo_root = Path(__file__).resolve().parents[1]
-    trace_root = Path(args.trace_root)
-    run_dirs = [_resolve_run_dir(value, trace_root) for value in args.runs]
+    reports_root = Path(args.trace_root)
+    run_dirs = [resolve_trace_run_dir(value, reports_root) for value in args.runs]
     answers = Path(args.answers)
     if not answers.is_absolute():
         answers = repo_root / answers

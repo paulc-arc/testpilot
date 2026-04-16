@@ -437,7 +437,8 @@ def generate_reports(
 ) -> list[Path]:
     """Generate reports in the requested formats and return their paths."""
     output_dir.mkdir(parents=True, exist_ok=True)
-    stem = meta.get("title", "report").replace(" ", "_").lower()
+    explicit_stem = str(meta.get("output_stem", "")).strip()
+    stem = explicit_stem or str(meta.get("title", "report")).replace(" ", "_").lower()
     paths: list[Path] = []
     for fmt in formats:
         cls = _FORMAT_REGISTRY.get(fmt)

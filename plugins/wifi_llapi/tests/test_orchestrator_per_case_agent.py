@@ -348,10 +348,11 @@ def test_fallback_trace_and_per_case_trace_payload(tmp_path: Path, monkeypatch):
             }
         ),
     )
-    _result, _orch, project_root = _run_wifi_llapi(tmp_path)
+    result, _orch, project_root = _run_wifi_llapi(tmp_path)
 
-    trace_root = project_root / "plugins" / "wifi_llapi" / "reports" / "agent_trace"
+    trace_root = Path(result["agent_trace_dir"])
     assert trace_root.is_dir(), f"missing per-case trace root: {trace_root}"
+    assert trace_root.parent == Path(result["artifact_dir"])
 
     expected_case_ids = {FAIL_CASE_ID, PASS_CASE_ID}
     traces = _load_case_traces(trace_root, expected_case_ids)

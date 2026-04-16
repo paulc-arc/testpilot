@@ -526,11 +526,20 @@ def test_realistic_runtime_covers_hooks_and_report_outputs(tmp_path: Path, monke
 
     report_path = Path(result["report_path"])
     md_report_path = Path(result["md_report_path"])
+    json_report_path = Path(result["json_report_path"])
     trace_dir = Path(result["agent_trace_dir"])
+    artifact_dir = Path(result["artifact_dir"])
     assert report_path.is_file()
     assert md_report_path.is_file()
+    assert json_report_path.is_file()
     assert trace_dir.is_dir()
+    assert artifact_dir.is_dir()
     assert result["run_id"] in report_path.name
+    assert artifact_dir == report_path.parent
+    assert md_report_path.parent == artifact_dir
+    assert json_report_path.parent == artifact_dir
+    assert trace_dir.parent == artifact_dir
+    assert artifact_dir.name == report_path.stem
 
     # 1 fail case (2 attempts) + 1 pass case (1 attempt) = 3 executions per hook.
     assert len(state["setup_calls"]) == 3
@@ -639,6 +648,7 @@ def test_realistic_runtime_report_paths_remain_unique_across_runs(tmp_path: Path
     )
 
     assert first_result["report_path"] != second_result["report_path"]
+    assert first_result["artifact_dir"] != second_result["artifact_dir"]
 
 
 def test_realistic_runtime_results_remain_identical_across_three_runs(tmp_path: Path, monkeypatch):

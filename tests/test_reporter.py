@@ -215,6 +215,15 @@ class TestGenerateReports:
         assert suffixes == {".md", ".json"}
         assert all(p.exists() for p in paths)
 
+    def test_honors_explicit_output_stem(self, tmp_path: Path) -> None:
+        meta = dict(_META)
+        meta["output_stem"] = "20250715_FW-TEST_wifi_LLAPI_20250715T100000000000"
+        paths = generate_reports(_CASES, meta, tmp_path)
+        assert {p.name for p in paths} == {
+            "20250715_FW-TEST_wifi_LLAPI_20250715T100000000000.md",
+            "20250715_FW-TEST_wifi_LLAPI_20250715T100000000000.json",
+        }
+
     def test_single_format(self, tmp_path: Path) -> None:
         paths = generate_reports(_CASES, _META, tmp_path, formats=("json",))
         assert len(paths) == 1
