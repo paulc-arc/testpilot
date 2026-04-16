@@ -112,6 +112,9 @@ profiles:
     key: "00000000"
     mfp: Required
     dut_secret_fields: [SAEPassphrase, KeyPassPhrase]
+    dut_pre_start_commands: [ubus-cli WiFi.AccessPoint.3.MultiAPType=None]
+    dut_runtime_config_commands: ["sed -i 's/^sae_pwe=.*/sae_pwe=2/g' /tmp/wl1_hapd.conf"]
+    dut_runtime_ready_commands: ["grep -q '^sae_pwe=2$' /tmp/wl1_hapd.conf"]
     sta_global_config: [ctrl_interface=/var/run/wpa_supplicant, update_config=1, sae_pwe=2]
     sta_network_config: ['ssid="{{ssid}}"', key_mgmt=SAE, 'sae_password="{{key}}"', ieee80211w=2, scan_ssid=1]
     sta_post_start_commands: []
@@ -143,6 +146,13 @@ profiles:
 
     assert profiles["5g"]["ssid"] == "testpilot5G"
     assert profiles["6g"]["dut_secret_fields"] == ["SAEPassphrase", "KeyPassPhrase"]
+    assert profiles["6g"]["dut_pre_start_commands"] == ["ubus-cli WiFi.AccessPoint.3.MultiAPType=None"]
+    assert profiles["6g"]["dut_runtime_config_commands"] == [
+        "sed -i 's/^sae_pwe=.*/sae_pwe=2/g' /tmp/wl1_hapd.conf"
+    ]
+    assert profiles["6g"]["dut_runtime_ready_commands"] == [
+        "grep -q '^sae_pwe=2$' /tmp/wl1_hapd.conf"
+    ]
     assert profiles["2.4g"]["sta_post_start_commands"] == [
         "wpa_cli -i {{iface}} enable_network 0",
         "wpa_cli -i {{iface}} select_network 0",

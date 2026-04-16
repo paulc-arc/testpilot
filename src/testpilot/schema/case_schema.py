@@ -104,6 +104,24 @@ def _validate_wifi_band_baseline_profile(
             source=source,
             field=f"profiles.{band}.dut_secret_fields",
         ),
+        "dut_pre_start_commands": _validate_string_list(
+            raw_profile.get("dut_pre_start_commands", []),
+            source=source,
+            field=f"profiles.{band}.dut_pre_start_commands",
+            allow_empty=True,
+        ),
+        "dut_runtime_config_commands": _validate_string_list(
+            raw_profile.get("dut_runtime_config_commands", []),
+            source=source,
+            field=f"profiles.{band}.dut_runtime_config_commands",
+            allow_empty=True,
+        ),
+        "dut_runtime_ready_commands": _validate_string_list(
+            raw_profile.get("dut_runtime_ready_commands", []),
+            source=source,
+            field=f"profiles.{band}.dut_runtime_ready_commands",
+            allow_empty=True,
+        ),
         "sta_global_config": _validate_string_list(
             raw_profile.get("sta_global_config"),
             source=source,
