@@ -57,6 +57,7 @@ uv run pytest -q
 4. Release preparation happens in a dedicated `release/vX.Y.Z` PR that updates version metadata, finalizes `CHANGELOG.md`, and syncs `README.md`, `docs/release-flow.md`, and this `AGENTS.md` when process guidance changes.
 5. Only tag merged `main` commits; release tags must be `vX.Y.Z` and match the in-repo version. Tag push is responsible for publishing the GitHub Release.
 6. Prefer GitHub-native controls first: PR template checklist, Actions CI, and tag-triggered Releases. Add extra local rules only where GitHub cannot enforce behavior directly.
+7. Current publication scope is GitHub tag + GitHub Release notes only; do not assume wheel / sdist / binary assets are produced. Installation guidance should point to tagged-source installs until package publication is added.
 
 ## Todo Governance（嚴格）
 

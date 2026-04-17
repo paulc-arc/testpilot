@@ -58,6 +58,27 @@ testpilot list-cases wifi_llapi                         # Verify
 testpilot run wifi_llapi --dut-fw-ver BGW720-B0-403     # Run
 ```
 
+### Installing a Released Version
+
+Tagged releases are currently published as **Git tags + GitHub Release notes**.
+The release workflow does **not** upload wheel, sdist, or binary assets yet, so
+deployment should install from the tagged source tree.
+
+```bash
+# Option A: install directly from a GitHub tag
+uv venv .venv
+source .venv/bin/activate
+uv pip install "git+https://github.com/hamanpaul/testpilot@v0.2.0"
+testpilot --version
+
+# Option B: install from a checked-out release tag
+git clone https://github.com/hamanpaul/testpilot.git
+cd testpilot
+git checkout v0.2.0
+uv pip install .
+testpilot --version
+```
+
 ### CLI Entry Points
 
 You can use either the installed `testpilot` command or the Python module entry point.

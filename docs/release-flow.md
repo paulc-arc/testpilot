@@ -77,6 +77,22 @@ After the release PR is merged:
 GitHub Releases are the canonical published release notes surface. `CHANGELOG.md`
 remains the curated in-repo history.
 
+### Current deployment model
+
+The current release workflow publishes **metadata only**:
+
+- git tag `vX.Y.Z`
+- GitHub Release page with generated release notes
+
+It does **not** build or upload wheel / sdist / binary assets yet. Consumers
+should therefore deploy from the tagged source tree, for example:
+
+```bash
+uv pip install "git+https://github.com/hamanpaul/testpilot@vX.Y.Z"
+```
+
+or by checking out the release tag and installing locally.
+
 ## 6. Release gates
 
 Do not tag a release until all of the following are true:
