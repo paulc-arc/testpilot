@@ -9,18 +9,36 @@ preparation.
 
 ## [Unreleased]
 
+## [0.2.0]
+
 ### Added
 
+- Per-run wifi_llapi artifact bundles under `plugins/wifi_llapi/reports/<artifact_name>/`
+  that keep xlsx, markdown, json, UART logs, trace output, and optional
+  alignment warnings together.
+- Local HTML diagnostic report generation from existing JSON run artifacts,
+  including Arcadyan-styled case details.
 - GitHub-native release management scaffolding: PR template checklist, CI
   workflow, tag-triggered release publishing, and release process
   documentation.
 
 ### Changed
 
-- Version metadata is now explicitly synced to the current managed baseline
-  `v0.1.5`.
-- Release preparation now requires changelog, version, and operator-facing docs
-  to be reviewed together in a dedicated release PR.
+- Report and template handling now use portable manifest paths and aligned repo
+  documentation for the current autopilot / reporting architecture.
+- Local workbook / compare outputs and one-off campaign notes are now treated as
+  local-only artifacts instead of versioned repo content.
+- Version metadata is now promoted from the historical `v0.1.5` baseline to the
+  release target `v0.2.0`.
+
+### Fixed
+
+- Markdown reports now include the full statistics block expected by downstream
+  review flows.
+- HTML case details now render referenced DUT / STA log snippets with readable
+  truncation for large ranges.
+- 6G DUT runtime cleanup now preserves non-ASCII output safely during case
+  execution.
 
 ## [0.1.5]
 
