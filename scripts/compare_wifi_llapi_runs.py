@@ -9,21 +9,11 @@ import sys
 from pathlib import Path
 from typing import Any
 
-
-def _default_trace_root() -> Path:
-    return Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "reports" / "agent_trace"
+from testpilot.reporting.wifi_llapi_artifacts import resolve_trace_run_dir
 
 
-def _resolve_run_dir(value: str, trace_root: Path) -> Path:
-    candidate = Path(value)
-    if candidate.is_dir():
-        return candidate
-
-    run_dir = trace_root / value
-    if run_dir.is_dir():
-        return run_dir
-
-    raise FileNotFoundError(f"run directory not found: {value}")
+def _default_reports_root() -> Path:
+    return Path(__file__).resolve().parents[1] / "plugins" / "wifi_llapi" / "reports"
 
 
 def _normalize_attempt(attempt: dict[str, Any]) -> dict[str, Any]:
@@ -102,12 +92,15 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument(
         "runs",
         nargs="+",
-        help="Run IDs under plugins/wifi_llapi/reports/agent_trace or explicit run directories.",
+        help=(
+            "Artifact folder names under plugins/wifi_llapi/reports, "
+            "legacy run IDs under reports/agent_trace, or explicit artifact/trace directories."
+        ),
     )
     parser.add_argument(
         "--trace-root",
-        default=str(_default_trace_root()),
-        help="Root directory containing wifi_llapi agent_trace runs.",
+        default=str(_default_reports_root()),
+        help="Reports root directory containing artifact folders and legacy trace runs.",
     )
     parser.add_argument(
         "--strict",
@@ -125,8 +118,8 @@ def _parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = _parse_args()
-    trace_root = Path(args.trace_root)
-    run_dirs = [_resolve_run_dir(item, trace_root) for item in args.runs]
+    reports_root = Path(args.trace_root)
+    run_dirs = [resolve_trace_run_dir(item, reports_root) for item in args.runs]
     run_names = [path.name for path in run_dirs]
     snapshots = {
         path.name: _load_run_snapshot(path, strict=bool(args.strict))
@@ -146,7 +139,7 @@ def main() -> int:
         identical = identical and bool(result["identical"])
 
     payload = {
-        "trace_root": str(trace_root),
+        "trace_root": str(reports_root),
         "runs": run_names,
         "strict": bool(args.strict),
         "all_identical": identical,

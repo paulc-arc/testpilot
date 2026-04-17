@@ -40,6 +40,17 @@ profiles:
     dut_secret_fields:
       - SAEPassphrase
       - KeyPassPhrase
+    dut_pre_start_commands:
+      - ubus-cli WiFi.AccessPoint.3.MultiAPType=None
+    dut_runtime_config_commands:
+      - sed -i 's/^sae_pwe=.*/sae_pwe=2/g' /tmp/wl1_hapd.conf
+      - sed -i 's/^ieee80211be=.*/ieee80211be=0/g' /tmp/wl1_hapd.conf
+      - sed -i '/^bss=wl1\.1$/,$d' /tmp/wl1_hapd.conf
+    dut_runtime_ready_commands:
+      - grep -q '^sae_pwe=2$' /tmp/wl1_hapd.conf
+      - '! grep -Eq "^ieee80211be=1$" /tmp/wl1_hapd.conf'
+      - '! grep -Eq "^bss=wl1\.1$" /tmp/wl1_hapd.conf'
+      - '! grep -Eq "^multi_ap=[1-9]" /tmp/wl1_hapd.conf'
     sta_global_config:
       - ctrl_interface=/var/run/wpa_supplicant
       - update_config=1

@@ -240,6 +240,20 @@ def test_plugin_loads_shared_wifi_band_baselines_yaml():
         "SAEPassphrase",
         "KeyPassPhrase",
     ]
+    assert plugin.DEFAULT_BAND_BASELINES["6g"]["dut_pre_start_commands"] == [
+        "ubus-cli WiFi.AccessPoint.3.MultiAPType=None"
+    ]
+    assert plugin.DEFAULT_BAND_BASELINES["6g"]["dut_runtime_config_commands"] == [
+        "sed -i 's/^sae_pwe=.*/sae_pwe=2/g' /tmp/wl1_hapd.conf",
+        "sed -i 's/^ieee80211be=.*/ieee80211be=0/g' /tmp/wl1_hapd.conf",
+        "sed -i '/^bss=wl1\\.1$/,$d' /tmp/wl1_hapd.conf",
+    ]
+    assert plugin.DEFAULT_BAND_BASELINES["6g"]["dut_runtime_ready_commands"] == [
+        "grep -q '^sae_pwe=2$' /tmp/wl1_hapd.conf",
+        '! grep -Eq "^ieee80211be=1$" /tmp/wl1_hapd.conf',
+        '! grep -Eq "^bss=wl1\\.1$" /tmp/wl1_hapd.conf',
+        '! grep -Eq "^multi_ap=[1-9]" /tmp/wl1_hapd.conf',
+    ]
     assert plugin.DEFAULT_BAND_BASELINES["6g"]["sta_pre_mode_commands"] == [
         "ifconfig {{iface}} down",
         "wl -i {{iface}} down",
@@ -2063,11 +2077,15 @@ def test_run_sta_band_baseline_sets_6g_sae_passphrase(monkeypatch):
     assert plugin._run_sta_band_baseline(case) is True
     assert "ubus-cli WiFi.Radio.2.Enable=1" in executed
     assert "ubus-cli WiFi.AccessPoint.4.Enable=0" in executed
+    assert "ubus-cli WiFi.AccessPoint.3.MultiAPType=None" in executed
     assert "ubus-cli WiFi.AccessPoint.3.Security.ModeEnabled=WPA3-Personal" in executed
     assert "ubus-cli 'WiFi.AccessPoint.3.Security.SAEPassphrase=\"00000000\"'" in executed
     assert "ubus-cli 'WiFi.AccessPoint.3.Security.KeyPassPhrase=\"00000000\"'" in executed
     assert "ubus-cli WiFi.AccessPoint.3.Security.MFPConfig=Required" in executed
     assert "ubus-cli WiFi.AccessPoint.3.Enable=1" in executed
+    assert executed.index("ubus-cli WiFi.AccessPoint.3.MultiAPType=None") < executed.index(
+        "ubus-cli WiFi.AccessPoint.3.Enable=1"
+    )
 
 
 def test_bounce_dut_band_disables_secondary_ap_before_reenable(monkeypatch):
@@ -2109,6 +2127,12 @@ def test_apply_6g_ocv_fix_cleans_control_sockets_and_forces_bss_up(monkeypatch):
     plugin = _load_plugin()
     dut = object()
     executed: list[str] = []
+    runtime_config_commands = plugin._profile_command_list(
+        plugin.DEFAULT_BAND_BASELINES["6g"], "dut_runtime_config_commands"
+    )
+    runtime_ready_commands = plugin._profile_command_list(
+        plugin.DEFAULT_BAND_BASELINES["6g"], "dut_runtime_ready_commands"
+    )
 
     def fake_execute_env_command(transport, command, *, timeout=30.0):
         del timeout
@@ -2132,6 +2156,7 @@ def test_apply_6g_ocv_fix_cleans_control_sockets_and_forces_bss_up(monkeypatch):
 
     assert executed == [
         "grep -q ieee80211w /tmp/wl1_hapd.conf 2>/dev/null && echo READY || echo WAIT",
+        *runtime_config_commands,
         "sed -i '/^ocv=/d; /^ieee80211w=/a ocv=0' /tmp/wl1_hapd.conf",
         "grep '^ocv=0' /tmp/wl1_hapd.conf 2>&1",
         "wl -i wl1 bss",
@@ -2150,6 +2175,7 @@ def test_apply_6g_ocv_fix_cleans_control_sockets_and_forces_bss_up(monkeypatch):
         "test -S /var/run/hostapd/wl1 && echo READY || echo WAIT",
         "pgrep -f '/tmp/wl1_hapd.conf' >/dev/null && echo READY || echo WAIT",
         "wl -i wl1 bss",
+        *runtime_ready_commands,
     ]
 
 
@@ -2157,6 +2183,12 @@ def test_apply_6g_ocv_fix_restarts_again_when_ocv_disappears_after_restart(monke
     plugin = _load_plugin()
     dut = object()
     executed: list[str] = []
+    runtime_config_commands = plugin._profile_command_list(
+        plugin.DEFAULT_BAND_BASELINES["6g"], "dut_runtime_config_commands"
+    )
+    runtime_ready_commands = plugin._profile_command_list(
+        plugin.DEFAULT_BAND_BASELINES["6g"], "dut_runtime_ready_commands"
+    )
     verify_outputs = iter(("ocv=0\n", "", "ocv=0\n", "ocv=0\n"))
     socket_outputs = iter(("WAIT", "READY"))
     process_outputs = iter(("WAIT", "READY"))
@@ -2194,6 +2226,7 @@ def test_apply_6g_ocv_fix_restarts_again_when_ocv_disappears_after_restart(monke
     ]
     assert executed == [
         "grep -q ieee80211w /tmp/wl1_hapd.conf 2>/dev/null && echo READY || echo WAIT",
+        *runtime_config_commands,
         "sed -i '/^ocv=/d; /^ieee80211w=/a ocv=0' /tmp/wl1_hapd.conf",
         "grep '^ocv=0' /tmp/wl1_hapd.conf 2>&1",
         "wl -i wl1 bss",
@@ -2205,6 +2238,8 @@ def test_apply_6g_ocv_fix_restarts_again_when_ocv_disappears_after_restart(monke
         "test -S /var/run/hostapd/wl1 && echo READY || echo WAIT",
         "pgrep -f '/tmp/wl1_hapd.conf' >/dev/null && echo READY || echo WAIT",
         "wl -i wl1 bss",
+        *runtime_ready_commands,
+        *runtime_config_commands,
         "sed -i '/^ocv=/d; /^ieee80211w=/a ocv=0' /tmp/wl1_hapd.conf",
         "grep '^ocv=0' /tmp/wl1_hapd.conf 2>&1",
         "wl -i wl1 bss",
@@ -2216,6 +2251,7 @@ def test_apply_6g_ocv_fix_restarts_again_when_ocv_disappears_after_restart(monke
         "test -S /var/run/hostapd/wl1 && echo READY || echo WAIT",
         "pgrep -f '/tmp/wl1_hapd.conf' >/dev/null && echo READY || echo WAIT",
         "wl -i wl1 bss",
+        *runtime_ready_commands,
     ]
 
 
@@ -2223,6 +2259,12 @@ def test_apply_6g_ocv_fix_accepts_running_hostapd_without_socket(monkeypatch):
     plugin = _load_plugin()
     dut = object()
     executed: list[str] = []
+    runtime_config_commands = plugin._profile_command_list(
+        plugin.DEFAULT_BAND_BASELINES["6g"], "dut_runtime_config_commands"
+    )
+    runtime_ready_commands = plugin._profile_command_list(
+        plugin.DEFAULT_BAND_BASELINES["6g"], "dut_runtime_ready_commands"
+    )
 
     def fake_execute_env_command(transport, command, *, timeout=30.0):
         del timeout
@@ -2256,6 +2298,7 @@ def test_apply_6g_ocv_fix_accepts_running_hostapd_without_socket(monkeypatch):
     ]
     assert executed == [
         "grep -q ieee80211w /tmp/wl1_hapd.conf 2>/dev/null && echo READY || echo WAIT",
+        *runtime_config_commands,
         "sed -i '/^ocv=/d; /^ieee80211w=/a ocv=0' /tmp/wl1_hapd.conf",
         "grep '^ocv=0' /tmp/wl1_hapd.conf 2>&1",
         "wl -i wl1 bss",
@@ -2267,6 +2310,7 @@ def test_apply_6g_ocv_fix_accepts_running_hostapd_without_socket(monkeypatch):
         "test -S /var/run/hostapd/wl1 && echo READY || echo WAIT",
         "pgrep -f '/tmp/wl1_hapd.conf' >/dev/null && echo READY || echo WAIT",
         "wl -i wl1 bss",
+        *runtime_ready_commands,
     ]
 
 
@@ -2274,6 +2318,12 @@ def test_apply_6g_ocv_fix_accepts_post_restart_ocv_probe_drop_when_process_and_b
     plugin = _load_plugin()
     dut = object()
     executed: list[str] = []
+    runtime_config_commands = plugin._profile_command_list(
+        plugin.DEFAULT_BAND_BASELINES["6g"], "dut_runtime_config_commands"
+    )
+    runtime_ready_commands = plugin._profile_command_list(
+        plugin.DEFAULT_BAND_BASELINES["6g"], "dut_runtime_ready_commands"
+    )
     verify_outputs = iter(("ocv=0\n", ""))
 
     def fake_execute_env_command(transport, command, *, timeout=30.0):
@@ -2308,6 +2358,7 @@ def test_apply_6g_ocv_fix_accepts_post_restart_ocv_probe_drop_when_process_and_b
     ]
     assert executed == [
         "grep -q ieee80211w /tmp/wl1_hapd.conf 2>/dev/null && echo READY || echo WAIT",
+        *runtime_config_commands,
         "sed -i '/^ocv=/d; /^ieee80211w=/a ocv=0' /tmp/wl1_hapd.conf",
         "grep '^ocv=0' /tmp/wl1_hapd.conf 2>&1",
         "wl -i wl1 bss",
@@ -2319,6 +2370,7 @@ def test_apply_6g_ocv_fix_accepts_post_restart_ocv_probe_drop_when_process_and_b
         "test -S /var/run/hostapd/wl1 && echo READY || echo WAIT",
         "pgrep -f '/tmp/wl1_hapd.conf' >/dev/null && echo READY || echo WAIT",
         "wl -i wl1 bss",
+        *runtime_ready_commands,
     ]
 
 
@@ -2326,6 +2378,9 @@ def test_apply_6g_ocv_fix_defers_restart_when_wl1_adapter_missing(monkeypatch):
     plugin = _load_plugin()
     dut = object()
     executed: list[str] = []
+    runtime_config_commands = plugin._profile_command_list(
+        plugin.DEFAULT_BAND_BASELINES["6g"], "dut_runtime_config_commands"
+    )
 
     def fake_execute_env_command(transport, command, *, timeout=30.0):
         del timeout
@@ -2345,6 +2400,7 @@ def test_apply_6g_ocv_fix_defers_restart_when_wl1_adapter_missing(monkeypatch):
 
     assert executed == [
         "grep -q ieee80211w /tmp/wl1_hapd.conf 2>/dev/null && echo READY || echo WAIT",
+        *runtime_config_commands,
         "sed -i '/^ocv=/d; /^ieee80211w=/a ocv=0' /tmp/wl1_hapd.conf",
         "grep '^ocv=0' /tmp/wl1_hapd.conf 2>&1",
         "wl -i wl1 bss",

@@ -9,6 +9,7 @@ import shutil
 from typing import Any
 
 from openpyxl import Workbook, load_workbook
+import pytest
 
 from testpilot.core.orchestrator import Orchestrator
 
@@ -525,10 +526,21 @@ def test_realistic_runtime_covers_hooks_and_report_outputs(tmp_path: Path, monke
     assert result["agent_trace_count"] == 2
 
     report_path = Path(result["report_path"])
+    md_report_path = Path(result["md_report_path"])
+    json_report_path = Path(result["json_report_path"])
     trace_dir = Path(result["agent_trace_dir"])
+    artifact_dir = Path(result["artifact_dir"])
     assert report_path.is_file()
+    assert md_report_path.is_file()
+    assert json_report_path.is_file()
     assert trace_dir.is_dir()
+    assert artifact_dir.is_dir()
     assert result["run_id"] in report_path.name
+    assert artifact_dir == report_path.parent
+    assert md_report_path.parent == artifact_dir
+    assert json_report_path.parent == artifact_dir
+    assert trace_dir.parent == artifact_dir
+    assert artifact_dir.name == report_path.stem
 
     # 1 fail case (2 attempts) + 1 pass case (1 attempt) = 3 executions per hook.
     assert len(state["setup_calls"]) == 3
@@ -558,6 +570,16 @@ def test_realistic_runtime_covers_hooks_and_report_outputs(tmp_path: Path, monke
     meta = wb["_meta"]
     assert meta["B2"].value == "FW-IT-REALISTIC-1"
     wb.close()
+
+    report_text = md_report_path.read_text(encoding="utf-8")
+    assert "## Timing" in report_text
+    assert "## Suite summary" in report_text
+    assert "## Per-case timing" in report_text
+    assert "| pass_cases | failed_cases | other_cases | pass_rate |" in report_text
+    assert "| 0 | 1 | 1 | `0.00%` |" in report_text
+    assert "| environment buildup |" in report_text
+    assert f"| {FAIL_CASE_ID} |" in report_text
+    assert f"| {PASS_CASE_ID} |" in report_text
 
     transports = state["transports"]
     assert any(cmd.startswith("verify:") for cmd in transports["DUT"].history)
@@ -627,6 +649,7 @@ def test_realistic_runtime_report_paths_remain_unique_across_runs(tmp_path: Path
     )
 
     assert first_result["report_path"] != second_result["report_path"]
+    assert first_result["artifact_dir"] != second_result["artifact_dir"]
 
 
 def test_realistic_runtime_results_remain_identical_across_three_runs(tmp_path: Path, monkeypatch):
@@ -698,7 +721,34 @@ def test_realistic_runtime_can_rerun_from_existing_template_without_source_xlsx(
     assert second_result["status"] == "completed"
     assert Path(second_result["template_path"]).is_file()
     assert Path(second_result["report_path"]).is_file()
-    assert second_result["source_report"] == str(source_xlsx)
+    # Manifest now stores portable relative paths, so compare basenames
+    assert Path(second_result["source_report"]).name == Path(str(source_xlsx)).name
+
+
+def test_realistic_runtime_missing_source_xlsx_does_not_create_artifact_dir(
+    tmp_path: Path,
+    monkeypatch,
+):
+    project_root, _source_xlsx = _prepare_runtime_project(tmp_path)
+    orch = Orchestrator(
+        project_root=project_root,
+        plugins_dir=project_root / "plugins",
+        config_path=project_root / "configs" / "testbed.yaml",
+    )
+    plugin = orch.loader.load("wifi_llapi")
+    cases = _build_cases()
+    _patch_runtime_hooks(monkeypatch, plugin=plugin, cases=cases)
+
+    missing_source_xlsx = project_root / "missing.xlsx"
+    with pytest.raises(FileNotFoundError, match="wifi_llapi source report not found"):
+        orch.run(
+            "wifi_llapi",
+            case_ids=[FAIL_CASE_ID, PASS_CASE_ID],
+            dut_fw_ver="FW-IT-REALISTIC-1",
+            report_source_xlsx=str(missing_source_xlsx),
+        )
+
+    assert not (project_root / "plugins" / "wifi_llapi" / "reports").exists()
 
 
 def test_realistic_runtime_records_pass_after_remediation(tmp_path: Path, monkeypatch):

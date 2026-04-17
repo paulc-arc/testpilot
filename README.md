@@ -13,11 +13,20 @@ Plugin-based test automation framework for embedded device verification (prplOS 
 TestPilot is a plugin-based test automation framework for prplOS / OpenWrt embedded devices. The architecture splits into two planes:
 
 - **Deterministic verdict kernel** — test execution, evidence collection, pass/fail verdicts, and report projection.
-- **Copilot SDK control plane** — session management, custom agents, advisory audit, and hook-governed safe remediation.
+- **Copilot SDK control plane** — per-case session foundation, lifecycle hooks, advisory audit, safe remediation, and extension surfaces such as custom agents / skills / selective MCP.
 
 Core principle: **the Copilot SDK handles the control plane; it does NOT decide the final verdict.**
 
 `wifi_llapi` currently supports in-run safe remediation between retry attempts. Scope is limited to environment repair only: serial session recovery, STA reconnect, band baseline rebuild, and environment re-verify. It does not rewrite YAML semantics, step commands, or pass criteria.
+
+Current landed control-plane subset today:
+
+- per-case runner selection with `selection_trace`
+- best-effort per-case Copilot session foundation
+- lifecycle hook dispatch (`pre_case`, `post_case`, `pre_step`, `post_step`, `on_failure`, `on_retry`)
+- advisory collection plus safe-environment remediation between retry attempts
+
+Custom agents / skills / MCP remain extension surfaces in the current codebase rather than default hot-path runtime wiring.
 
 ### Prerequisites
 
@@ -47,6 +56,27 @@ uv pip install -e ".[dev]"                              # Install
 cp configs/testbed.yaml.example configs/testbed.yaml    # First-time config
 testpilot list-cases wifi_llapi                         # Verify
 testpilot run wifi_llapi --dut-fw-ver BGW720-B0-403     # Run
+```
+
+### Installing a Released Version
+
+Tagged releases are currently published as **Git tags + GitHub Release notes**.
+The release workflow does **not** upload wheel, sdist, or binary assets yet, so
+deployment should install from the tagged source tree.
+
+```bash
+# Option A: install directly from a GitHub tag
+uv venv .venv
+source .venv/bin/activate
+uv pip install "git+https://github.com/hamanpaul/testpilot@v0.2.0"
+testpilot --version
+
+# Option B: install from a checked-out release tag
+git clone https://github.com/hamanpaul/testpilot.git
+cd testpilot
+git checkout v0.2.0
+uv pip install .
+testpilot --version
 ```
 
 ### CLI Entry Points
@@ -126,7 +156,7 @@ testpilot run wifi_llapi \
 # Full suite (420 discoverable official cases)
 testpilot run wifi_llapi --dut-fw-ver BGW720-B0-403
 
-# Rebuild workbook compare against 0401.xlsx after selected live overlays
+# Rebuild workbook compare against a local 0401 workbook after selected live overlays
 python scripts/compare_0401_answers.py \
   20260401T152827516151 \
   20260401T230006391661 \
@@ -146,14 +176,21 @@ python scripts/compare_0401_answers.py \
   20260402T071356233843 \
   20260402T095404127199 \
   20260402T105808547293 \
+  --answers ~/testpilot-local/0401.xlsx \
   --output-md compare-0401.md \
   --output-json compare-0401.json
+
+# Generate an HTML diagnostic report from an existing JSON run artifact
+testpilot wifi-llapi json-to-html \
+  plugins/wifi_llapi/reports/<artifact_name>/<artifact_name>.json
 
 # With Azure OpenAI
 testpilot --azure run wifi_llapi --dut-fw-ver BGW720-B0-403
 ```
 
 Baseline experiment authority and current lab findings live in `docs/wifi-baseline-exp.md`.
+
+> **Workbook / compare artifact policy:** keep answer workbooks outside version control and pass them explicitly with `--answers` or `--source-xlsx`. Repo-root `compare-*.md` / `compare-*.json` are local-only ignored outputs and should not be committed.
 
 ### Report Outputs
 
@@ -162,17 +199,25 @@ Baseline experiment authority and current lab findings live in `docs/wifi-baseli
 | External delivery | `xlsx` | Pass / Fail only, written to Excel report |
 | Internal diagnostics | `md` | Human-readable summary with per-case commands, output, log line references, and diagnostic status |
 | Structured data | `json` | Machine-readable with summary stats, diagnostic status, remediation history, and log line numbers |
+| Local HTML diagnostic | `html` | Self-contained review/share output generated from an existing JSON report |
 | UART RAW log | `DUT.log` / `STA.log` | serialwrap WAL decoded per-run UART communication records |
 
-Output files location: `plugins/wifi_llapi/reports/`
+Per-run output location: `plugins/wifi_llapi/reports/<artifact_name>/`
 
-Current workbook-calibration campaign artifacts live at repo root:
+Typical artifact bundle contents:
+- `<artifact_name>.xlsx`
+- `<artifact_name>.md`
+- `<artifact_name>.json`
+- `<artifact_name>.html` (when generated via `json-to-html`)
+- `DUT.log`
+- `STA.log`
+- `agent_trace/`
+- `alignment_issues.json` (only when row alignment warnings are emitted)
 
-- `compare-0401.md`
-- `compare-0401.json`
-- answer authority: `0401.xlsx`
-- workbook procedure authority for calibration: `Wifi_LLAPI` columns `G/H`
-- baseline experiment authority: `docs/wifi-baseline-exp.md`
+Shared template files remain under `plugins/wifi_llapi/reports/templates/`.
+
+> **Historical checkpoint note:** the time-stamped calibration/full-run bullets below are retained as audit handoff history. Their counts are period-specific snapshots, not the current branch-wide regression baseline.
+
 - current lab readiness status: multi-band baseline qualification is complete — `5G/6G/2.4G` all passed `baseline-qualify --repeat-count 5 --soak-minutes 15`; custom-6G hardening stabilized the old `D019/D027` 6G bring-up path, and the old `D032` `sta_band_not_ready` environment failure is gone. The invalid full run `20260412T084218316557` was stopped after early `D007`/`D009`/`D010`/`D011` multi-band instability, then both boards were hard-reset and recovered back to `READY`; patched sequential reruns `20260412T110545613993` (`D009`), `20260412T111048362099` (`D010`), and `20260412T111549474171` (`D011`) all returned `Pass/Pass/Pass` on the same baseline, so the old `D009/D010 FailEnv` and `D011 FailTest` prefix no longer reproduces
 - latest full-run checkpoint: recovery commit `338891b7115e5c41d04f45bd79c70ce4b117cebc` is now pushed, and authoritative full run `20260412T113008433351` completed all `420` cases without reintroducing the old early baseline collapse (`D004`~`D013` all stayed `Pass/Pass/Pass`). `compare-0401` on that run raised the snapshot to `235 / 420 full matches`, `185 mismatches`, and `62 metadata drifts`; actionable workbook-Pass gaps are `156`
 - latest calibration checkpoint: `D600 WiFi7STARole.NSTRSupport` is now the latest committed closure via official rerun `20260415T173554269251`. The stale getter-only case is refreshed from source row `416` / raw `Fail / Fail / Fail` back to workbook row `600` / raw `Pass / Pass / Pass`, and both the focused live survey plus the official rerun exact-close `WiFi.Radio.1/2/3.Capabilities.WiFi7STARole.NSTRSupport=1` on 5G/6G/2.4G with `diagnostic_status=Pass`. Overlay compare stays at `395 / 420 full matches`, `25 mismatches`, and `43 metadata drifts`, now also folds in the already-authoritative scan reruns for `D277 getScanResults() Bandwidth` and `D290 getScanResults() CentreChannel`, refreshes `D020 FrequencyCapabilities` with official rerun `20260415T180502444191`, and refreshes `D047 SupportedHe160MCS` with official rerun `20260415T182628238198`; the summary still holds at `395 / 25 / 43`, the per-band summary stays `5g 397/23`, `6g 395/25`, `2.4g 398/22`. `D020` is freshly re-confirmed as source-backed fail-shaped because both attempts still stop at `result_5g.FrequencyCapabilities` with workbook `expected=''` while the live getter and driver normalization remain `5GHz` (`6GHz` / `2.4GHz` on the other bands), while `D047` is freshly re-confirmed as a workbook/source authority conflict because the rerun exact-closes source/runtime-correct `Not Supported / N/A / N/A` with `diagnostic_status=Pass`, but the same-window 5G getter still returns `error=4 / parameter not found` while sibling `Rx/TxSupportedHe160MCS` values remain present for the same AssociatedDevice entry. `D020`, `D277`, `D289`, and `D290` therefore stay together in the verified/source-backed fail-shaped mismatch bucket, and `D047` stays in the authority-conflict blocker bucket. `D588 SSID MLDUnit` remains a workbook/source-driver authority blocker (`MLDUnit=-1 / -1 / -1`; `wl -i wlX mld_unit` is `Unsupported`; no `mld_unit=` fallback), `D508` and `D524` remain the current SSID-WMM blockers, earlier localized blockers `D490`, `D481`, `D482`, `D485`, `D454`, and `D371` remain in force, `D355-D357` stay in the CSI-client placeholder bucket, `D359 AccessPoint.IsolationEnable` remains parked behind the current single-STA lab shape, `D414/D415` remain in readiness review because workbook `G` still requires a dual-STA 802.11k split, runtime/budget guardrails are `1251 passed`, full repo regression is `1660 passed`, and there is still no clean workbook-pass-ready single case left in the compare-open set; the next investigative track therefore shifts to the shared-6G blocker review, starting with `D179 Radio.Ampdu`
@@ -342,11 +387,11 @@ graph TB
     end
 
     subgraph CP["Copilot SDK Control Plane"]
-        sdk["SDK Client<br/>create / resume / delete"]
-        hooks["Hooks<br/>on_session_start / on_pre_tool_use<br/>on_post_tool_use / on_error_occurred"]
-        agents["Custom Agents<br/>operator / case-auditor<br/>remediation-planner / run-summarizer"]
-        skills["Skills<br/>wifi diagnostics / remediation policy"]
-        mcp["Selective MCP<br/>GitHub / KB / lab inventory"]
+        sdk["SDK Session Foundation<br/>create / delete per-case session"]
+        hooks["Lifecycle Hooks<br/>pre_case / post_case<br/>pre_step / post_step<br/>on_failure / on_retry"]
+        agents["Advisory / Remediation<br/>selection trace / safe env repair"]
+        skills["Skills (extension surface)<br/>not auto-wired by default"]
+        mcp["Selective MCP (extension surface)<br/>not hot path by default"]
     end
 
     subgraph Kernel["Deterministic Verdict Kernel"]
@@ -356,7 +401,7 @@ graph TB
         yaml["YAML Cases"]
         transport["Transport<br/>serialwrap / adb / ssh / network"]
         evidence["Evidence Store<br/>selection trace / attempts / canonical result"]
-        report["Report Projection<br/>xlsx / md / json"]
+        report["Report Projection<br/>xlsx / md / json<br/>html (opt-in from json)"]
     end
 
     cli --> sdk
@@ -460,7 +505,7 @@ testpilot/
 │   │   ├── copilot_session.py   # SDK session manager
 │   │   ├── plugin_base.py       # PluginBase (abstract)
 │   │   └── plugin_loader.py     # sys.path-safe loader
-│   ├── reporting/               # xlsx / md / json reporters
+│   ├── reporting/               # xlsx / md / json (+ html) reporters
 │   └── transport/               # serialwrap / adb / ssh / network
 ├── plugins/
 │   ├── _template/               # Plugin skeleton
@@ -474,8 +519,17 @@ testpilot/
 
 ```bash
 uv pip install -e ".[dev]"    # Install (first time only)
-uv run pytest -q              # Run full test suite (currently 1654 tests)
+uv run pytest -q              # Run full test suite
 ```
+
+### Versioning & Releases
+
+- TestPilot uses Semantic Versioning with git tags in the form `vX.Y.Z`; the managed baseline for this flow starts at `v0.1.5`.
+- The canonical project version lives in `pyproject.toml`; `src/testpilot/__init__.py` mirrors it for runtime `--version` output and must stay identical.
+- `CHANGELOG.md` keeps the curated repo changelog, while GitHub Releases publish auto-generated release notes from the tagged release.
+- User-facing pull requests should update `CHANGELOG.md` under `Unreleased` unless the change truly has no release-note impact.
+- Release preparation happens in a dedicated `release/vX.Y.Z` PR, and the tag `vX.Y.Z` is created from the merged `main` commit after CI is green.
+- Full policy: [`docs/release-flow.md`](docs/release-flow.md)
 
 ### License
 
@@ -492,11 +546,20 @@ plugin-based 嵌入式裝置測試自動化框架（prplOS / OpenWrt）。
 TestPilot 是一套 plugin-based 嵌入式裝置測試自動化框架，面向 prplOS / OpenWrt 裝置。系統架構分為兩個平面：
 
 - **Deterministic verdict kernel**：負責測試執行、證據蒐集、pass/fail 判定與報表投影
-- **Copilot SDK control plane**：負責 session 管理、custom agents、advisory audit、hook-governed safe remediation
+- **Copilot SDK control plane**：負責 per-case session foundation、lifecycle hooks、advisory audit、safe remediation，以及 custom agents / skills / selective MCP 等 extension surfaces
 
 核心原則：**Copilot SDK 負責 control plane，不負責最終 verdict**。
 
 `wifi_llapi` 目前已支援 retry attempt 之間的 in-run safe remediation；範圍只限環境修復：serial session recover、STA reconnect、band baseline rebuild、env re-verify，不會改寫 YAML semantics、step 指令或 pass criteria。
+
+目前已落地的 control-plane 子集：
+
+- per-case runner selection 與 `selection_trace`
+- best-effort 的 per-case Copilot session foundation
+- lifecycle hook dispatch（`pre_case`、`post_case`、`pre_step`、`post_step`、`on_failure`、`on_retry`）
+- advisory collection 與 retry 間的 safe-environment remediation
+
+custom agents / skills / MCP 在目前 codebase 仍屬 extension surface，尚不是預設 hot-path runtime wiring。
 
 ### 環境需求
 
@@ -605,7 +668,7 @@ testpilot run wifi_llapi \
 # 全量執行（420 筆 discoverable 官方案例）
 testpilot run wifi_llapi --dut-fw-ver BGW720-B0-403
 
-# 以 0401.xlsx 重新產生 compare 報告（疊加已完成的 live overlay）
+# 以本地 `0401.xlsx` 重新產生 compare 報告（疊加已完成的 live overlay）
 python scripts/compare_0401_answers.py \
   20260401T152827516151 \
   20260401T230006391661 \
@@ -625,12 +688,19 @@ python scripts/compare_0401_answers.py \
   20260402T071356233843 \
   20260402T095404127199 \
   20260402T105808547293 \
+  --answers ~/testpilot-local/0401.xlsx \
   --output-md compare-0401.md \
   --output-json compare-0401.json
+
+# 由既有 JSON run artifact 產生 HTML 診斷報告
+testpilot wifi-llapi json-to-html \
+  plugins/wifi_llapi/reports/<artifact_name>/<artifact_name>.json
 
 # 使用 Azure OpenAI
 testpilot --azure run wifi_llapi --dut-fw-ver BGW720-B0-403
 ```
+
+> **Workbook / compare 產物政策：** answer workbook 請保留在版控外，並透過 `--answers` 或 `--source-xlsx` 顯式傳入。repo root 的 `compare-*.md` / `compare-*.json` 屬於本地 ignored 產物，不應提交。
 
 ### 報告產出
 
@@ -639,16 +709,25 @@ testpilot --azure run wifi_llapi --dut-fw-ver BGW720-B0-403
 | 對外交付 | `xlsx` | Pass / Fail only，寫入 Excel 報告 |
 | 內部診斷 | `md` | 人可讀摘要，含 per-case 指令、輸出、log 行號引用與 diagnostic status |
 | 結構化資料 | `json` | 機器可讀，含 summary 統計、diagnostic status、remediation history 與 log 行號 |
+| 本地 HTML 診斷 | `html` | 由既有 JSON 報告轉出的 self-contained 檢視／分享格式 |
 | UART RAW log | `DUT.log` / `STA.log` | serialwrap WAL 解碼，per-run DUT/STA 原始 UART 通訊記錄 |
 
-輸出位置：`plugins/wifi_llapi/reports/`
+每次執行的輸出位置：`plugins/wifi_llapi/reports/<artifact_name>/`
 
-目前 workbook 校正活動的 repo-root 產物：
+典型 artifact bundle 內容：
+- `<artifact_name>.xlsx`
+- `<artifact_name>.md`
+- `<artifact_name>.json`
+- `<artifact_name>.html`（透過 `json-to-html` 額外產生時）
+- `DUT.log`
+- `STA.log`
+- `agent_trace/`
+- `alignment_issues.json`（只有 row/object/api 對齊警告時才會出現）
 
-- `compare-0401.md`
-- `compare-0401.json`
-- answer authority：`0401.xlsx`
-- baseline experiment authority：`docs/wifi-baseline-exp.md`
+共用 template 檔維持在 `plugins/wifi_llapi/reports/templates/`。
+
+> **歷史 checkpoint 說明：** 下方帶時間戳的 calibration / full-run bullets 是 audit handoff 歷史記錄；其中的 counts 屬於各自時點的快照，不等同目前 branch 的最新 regression baseline。
+
 - current lab readiness status：multi-band baseline qualification 已完成（`5G/6G/2.4G` 全部通過 `baseline-qualify --repeat-count 5 --soak-minutes 15`）；後續 custom 6G hardening 已讓舊的 `D019/D027` 6G bring-up path 穩定可重播，舊的 `D032 sta_band_not_ready` 環境失敗也已消失。無效 full run `20260412T084218316557` 已在早期 `D007`/`D009`/`D010`/`D011` multi-band instability 後停止，接著兩片板子都以 hard reset 拉回 `READY`；patched sequential rerun `20260412T110545613993`（`D009`）、`20260412T111048362099`（`D010`）、`20260412T111549474171`（`D011`）已在同一條 baseline 上全部回到 `Pass/Pass/Pass`，因此舊的 `D009/D010 FailEnv` 與 `D011 FailTest` prefix 已不再重現
 - latest full-run checkpoint：recovery commit `338891b7115e5c41d04f45bd79c70ce4b117cebc` 已 push，authoritative full run `20260412T113008433351` 也已完整跑完 `420` cases，且舊的早期 baseline collapse 沒再重現（`D004`~`D013` 全都維持 `Pass/Pass/Pass`）。該 run 的 `compare-0401` 快照已提升到 `235 / 420 full matches`、`185 mismatches`、`62 metadata drifts`；actionable workbook-Pass gap 為 `156`
 - latest calibration checkpoint：`D600 WiFi7STARole.NSTRSupport` 已成為最新已提交 closure（official rerun `20260415T173554269251`）。這筆 stale getter-only case 已從 source row `416` / raw `Fail / Fail / Fail` 刷回 workbook row `600` / raw `Pass / Pass / Pass`，focused live survey 與 official rerun 都在 5G/6G/2.4G exact-close `WiFi.Radio.1/2/3.Capabilities.WiFi7STARole.NSTRSupport=1`，且 `diagnostic_status=Pass`。overlay compare 雖仍維持 `395 / 420 full matches`、`25 mismatches`、`43 metadata drifts`，但現在也已把 `D277 getScanResults() Bandwidth` 與 `D290 getScanResults() CentreChannel` 兩筆既有 authoritative rerun fold-in，並補納 `D020 FrequencyCapabilities` 的 latest official rerun `20260415T180502444191`，以及 `D047 SupportedHe160MCS` 的 latest official rerun `20260415T182628238198`；因此 summary 仍維持 `395 / 25 / 43`，per-band summary 仍是 `5g 397/23`、`6g 395/25`、`2.4g 398/22`。`D020` 也重新被確認為 source-backed fail-shaped：兩次 attempt 都停在 `result_5g.FrequencyCapabilities`，因為 workbook 仍期待空字串，但 live getter 與 driver normalization 仍穩定回 `5GHz`（另外兩個 band 仍是 `6GHz` / `2.4GHz`）；`D047` 則重新被確認為 workbook/source authority conflict：rerun 仍 exact-close source/runtime-correct 的 `Not Supported / N/A / N/A` 並維持 `diagnostic_status=Pass`，但 same-window 5G getter 仍回 `error=4 / parameter not found`，同一個 `AssociatedDevice.1` entry 仍暴露 `Rx/TxSupportedHe160MCS`。因此 `D020`、`D277`、`D289`、`D290` 現在都屬於 verified/source-backed fail-shaped mismatch bucket，而 `D047` 仍屬於 authority-conflict blocker bucket。`D588 SSID MLDUnit` 仍維持 workbook/source-driver authority blocker（`MLDUnit=-1 / -1 / -1`；`wl -i wlX mld_unit` 一律 `Unsupported`；也沒有 `mld_unit=` fallback），`D508` 與 `D524` 仍是當前 SSID-WMM blocker，既有 localized blockers `D490`、`D481`、`D482`、`D485`、`D454` 與 `D371` 也都維持；`D355-D357` 仍保留在需要 CSI client setup 的 placeholder bucket，`D359 AccessPoint.IsolationEnable` 仍暫停在 current single-STA lab shape，`D414/D415` 仍保留在 dual-STA readiness review。最新 guardrails 為 runtime/budget `1251 passed`、full repo regression `1660 passed`；目前仍沒有乾淨的 workbook-pass-ready 單案，接下來的 investigative track 轉到 shared-6G blocker review，先看 `D179 Radio.Ampdu`
@@ -669,11 +748,11 @@ graph TB
     end
 
     subgraph CP["Copilot SDK Control Plane"]
-        sdk["SDK Client<br/>create / resume / delete"]
-        hooks["Hooks<br/>on_session_start / on_pre_tool_use<br/>on_post_tool_use / on_error_occurred"]
-        agents["Custom Agents<br/>operator / case-auditor<br/>remediation-planner / run-summarizer"]
-        skills["Skills<br/>wifi diagnostics / remediation policy"]
-        mcp["Selective MCP<br/>GitHub / KB / lab inventory"]
+        sdk["SDK Session Foundation<br/>create / delete per-case session"]
+        hooks["Lifecycle Hooks<br/>pre_case / post_case<br/>pre_step / post_step<br/>on_failure / on_retry"]
+        agents["Advisory / Remediation<br/>selection trace / safe env repair"]
+        skills["Skills（extension surface）<br/>預設不自動接線"]
+        mcp["Selective MCP（extension surface）<br/>預設不在 hot path"]
     end
 
     subgraph Kernel["Deterministic Verdict Kernel"]
@@ -683,7 +762,7 @@ graph TB
         yaml["YAML Cases"]
         transport["Transport<br/>serialwrap / adb / ssh / network"]
         evidence["Evidence Store<br/>selection trace / attempts / canonical result"]
-        report["Report Projection<br/>xlsx / md / json"]
+        report["Report Projection<br/>xlsx / md / json<br/>html（由 json opt-in 轉出）"]
     end
 
     cli --> sdk
@@ -787,7 +866,7 @@ testpilot/
 │   │   ├── copilot_session.py   # SDK session 管理
 │   │   ├── plugin_base.py       # PluginBase（抽象基類）
 │   │   └── plugin_loader.py     # sys.path-safe loader
-│   ├── reporting/               # xlsx / md / json reporters
+│   ├── reporting/               # xlsx / md / json（+ html）reporters
 │   └── transport/               # serialwrap / adb / ssh / network
 ├── plugins/
 │   ├── _template/               # Plugin 骨架
@@ -801,8 +880,17 @@ testpilot/
 
 ```bash
 uv pip install -e ".[dev]"    # 安裝（僅首次）
-uv run pytest -q              # 執行全部測試（目前 1654 筆）
+uv run pytest -q              # 執行全部測試
 ```
+
+### 版號與 Release
+
+- TestPilot 採用 Semantic Versioning，git tag 格式固定為 `vX.Y.Z`；此流程的受管理起始 baseline 為 `v0.1.5`。
+- canonical project version 放在 `pyproject.toml`；`src/testpilot/__init__.py` 是提供 runtime `--version` 的 mirror，兩者必須保持一致。
+- `CHANGELOG.md` 保存 repo 內的 curated changelog；GitHub Releases 則負責從 tagged release 自動產生 release notes。
+- 只要是 user-facing 的 PR，原則上都要更新 `CHANGELOG.md` 的 `Unreleased` 區塊；若確實不需要，應在 PR 中明確說明。
+- release preparation 應放在專用的 `release/vX.Y.Z` PR 中進行，並在 CI 綠燈後，從已合併的 `main` commit 建立 `vX.Y.Z` tag。
+- 完整流程請見：[`docs/release-flow.md`](docs/release-flow.md)
 
 ### 授權
 

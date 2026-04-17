@@ -1,5 +1,5 @@
 {
-  "template_path": "/home/paul_chen/prj_pri/testpilot/plugins/wifi_llapi/reports/templates/wifi_llapi_template.xlsx",
+  "template_path": "plugins/wifi_llapi/reports/templates/wifi_llapi_template.xlsx",
   "sheet_name": "Wifi_LLAPI",
   "total_case_rows": 741,
   "cleared_columns": [

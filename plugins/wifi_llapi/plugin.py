@@ -236,6 +236,7 @@ class Plugin(PluginBase):
             f"ubus-cli WiFi.Radio.{profile['radio']}.Enable=1",
             f"ubus-cli WiFi.AccessPoint.{profile['secondary_ap']}.Enable=0",
             f"ubus-cli WiFi.AccessPoint.{ap}.Enable=0",
+            *self._profile_command_list(profile, "dut_pre_start_commands"),
             f"ubus-cli WiFi.SSID.{profile['ssid_index']}.SSID={profile['ssid']}",
             f"ubus-cli WiFi.AccessPoint.{ap}.Security.ModeEnabled={profile['mode']}",
         ]
@@ -2511,10 +2512,16 @@ class Plugin(PluginBase):
         BCM 6G firmware returns -23 (UNSUPPORTED) for the mfp_ocv IOCTL when ieee80211w=2
         is configured with SAE. Inserting ocv=0 prevents the IOCTL call and stops the
         ~11-second BSS loop. Must be called after every wld-triggered 6G hostapd restart.
-        Only wl1 is targeted because AP4 (wl1.1) is disabled in the 6G baseline.
+        The 6G baseline profile may also provide extra wl1_hapd.conf cleanup commands and
+        readiness checks so runtime drift (secondary BSS, EHT residue, MultiAP residue)
+        is corrected before the restart is accepted. Only wl1 is targeted because AP4
+        (wl1.1) is disabled in the 6G baseline.
         """
+        profile = self._band_baseline_profile("6g") or {}
         # Poll until wld regenerates wl1_hapd.conf with ieee80211w= present (MFP/SAE config).
         poll_cmd = "grep -q ieee80211w /tmp/wl1_hapd.conf 2>/dev/null && echo READY || echo WAIT"
+        runtime_config_commands = self._profile_command_list(profile, "dut_runtime_config_commands")
+        runtime_ready_commands = self._profile_command_list(profile, "dut_runtime_ready_commands")
         ready = False
         for _ in range(6):
             result = self._execute_env_command(dut, poll_cmd, timeout=5.0)
@@ -2537,6 +2544,17 @@ class Plugin(PluginBase):
         bss_cmd = "wl -i wl1 bss"
 
         def patch_and_verify() -> bool:
+            for command in runtime_config_commands:
+                result = self._execute_env_command(dut, command, timeout=10.0)
+                if not self._env_command_succeeded(command, result):
+                    log.warning(
+                        "[%s] verify_env: %s 6G runtime config failed cmd=%s out=%s",
+                        self.name,
+                        case_id,
+                        self._preview_value(command, limit=96),
+                        self._preview_value(self._env_output_text(result)),
+                    )
+                    return False
             self._execute_env_command(dut, patch_cmd, timeout=10.0)
             verify_result = self._execute_env_command(dut, verify_cmd, timeout=5.0)
             return "ocv=0" in self._env_output_text(verify_result)
@@ -2600,12 +2618,26 @@ class Plugin(PluginBase):
             bss_ok = self._env_output_text(
                 self._execute_env_command(dut, bss_cmd, timeout=5.0)
             ).strip().lower() == "up"
-            if (pre_restart_ocv_ok or post_restart_ocv_ok) and (socket_ok or process_ok) and bss_ok:
+            runtime_ready_ok = True
+            for command in runtime_ready_commands:
+                result = self._execute_env_command(dut, command, timeout=5.0)
+                if self._env_command_succeeded(command, result):
+                    continue
+                runtime_ready_ok = False
+                log.info(
+                    "[%s] verify_env: %s 6G runtime ready check failed cmd=%s out=%s",
+                    self.name,
+                    case_id,
+                    self._preview_value(command, limit=96),
+                    self._preview_value(self._env_output_text(result)),
+                )
+                break
+            if (pre_restart_ocv_ok or post_restart_ocv_ok) and (socket_ok or process_ok) and bss_ok and runtime_ready_ok:
                 stabilized = True
                 break
             log.info(
                 "[%s] verify_env: %s 6G restart attempt=%d unstable "
-                "(pre_ocv=%s post_ocv=%s socket=%s process=%s bss=%s), retrying",
+                "(pre_ocv=%s post_ocv=%s socket=%s process=%s bss=%s runtime_ready=%s), retrying",
                 self.name,
                 case_id,
                 attempt,
@@ -2614,6 +2646,7 @@ class Plugin(PluginBase):
                 socket_ok,
                 process_ok,
                 bss_ok,
+                runtime_ready_ok,
             )
         if not stabilized:
             log.warning(

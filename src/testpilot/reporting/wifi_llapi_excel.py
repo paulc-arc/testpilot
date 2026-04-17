@@ -12,6 +12,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import date
 import json
+import os
 from pathlib import Path
 import re
 import shutil
@@ -91,6 +92,10 @@ class WifiLlapiCaseResult:
     diagnostic_status: str = ""
     remediation_history: list[dict[str, object]] = field(default_factory=list)
     failure_snapshot: dict[str, object] | None = None
+    case_started_at: str = ""
+    case_finished_at: str = ""
+    case_duration_seconds: float = 0.0
+    overall_status: str = ""
 
 
 def normalize_text(text: str | None) -> str:
@@ -374,18 +379,45 @@ def write_template_manifest(
     manifest_path: Path | str,
     build_result: TemplateBuildResult,
 ) -> Path:
+    out = Path(manifest_path)
     payload = {
-        "template_path": str(build_result.template_path),
+        "template_path": _serialize_manifest_path(build_result.template_path, out),
         "sheet_name": build_result.sheet_name,
         "total_case_rows": build_result.total_case_rows,
         "cleared_columns": list(build_result.cleared_columns),
-        "source_workbook": str(build_result.source_workbook),
+        "source_workbook": _serialize_manifest_path(build_result.source_workbook, out),
         "source_sheet": build_result.source_sheet,
     }
-    out = Path(manifest_path)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
     return out
+
+
+def _serialize_manifest_path(path: Path | str, manifest_path: Path | str) -> str:
+    target = Path(path)
+    manifest = Path(manifest_path)
+    resolved_target = target.resolve(strict=False)
+    repo_root = _find_git_root(manifest.parent)
+    if repo_root is not None:
+        try:
+            return resolved_target.relative_to(repo_root.resolve(strict=False)).as_posix()
+        except ValueError:
+            pass
+    try:
+        return os.path.relpath(
+            resolved_target,
+            start=manifest.parent.resolve(strict=False),
+        ).replace("\\", "/")
+    except ValueError:
+        pass
+    return str(resolved_target if target.is_absolute() else target)
+
+
+def _find_git_root(start: Path) -> Path | None:
+    for candidate in (start, *start.parents):
+        if (candidate / ".git").exists():
+            return candidate
+    return None
 
 
 def create_run_report_from_template(
