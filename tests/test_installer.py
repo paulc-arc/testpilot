@@ -31,7 +31,9 @@ def _write_stub(path: Path, content: str) -> None:
     _make_executable(path)
 
 
-def _build_stub_bin(tmp_path: Path, git_log: Path) -> Path:
+def _build_stub_bin(
+    tmp_path: Path, git_log: Path, uv_log: Path | None = None
+) -> Path:
     """Create a stub bin/ directory with fake git, uv, python3."""
     bin_dir = tmp_path / "stub_bin"
     bin_dir.mkdir()
@@ -64,11 +66,13 @@ esac
 """,
     )
 
+    uv_log_line = f'echo "$@" >> "{uv_log}"' if uv_log is not None else ": # uv logging disabled"
     _write_stub(
         bin_dir / "uv",
-        """\
+        f"""\
 #!/usr/bin/env bash
 # Stub uv — creates minimal venv structure; treats pip/run/sync as no-ops.
+{uv_log_line}
 case "$1" in
   venv)
     VENV_DIR="$2"
@@ -108,14 +112,33 @@ exit 0
     return bin_dir
 
 
+_ISOLATED_VARS = frozenset(
+    {
+        "TESTPILOT_REPO_URL",
+        "TESTPILOT_REF",
+        "SERIALWRAP_REPO_URL",
+        "TESTPILOT_HOME",
+        "TESTPILOT_BIN_DIR",
+        "TESTPILOT_SKILLS_DIR",
+        "SERIALWRAP_INSTALL_DIR",
+    }
+)
+
+
 def _run_installer(
     fake_home: Path,
     stub_bin: Path,
     extra_env: dict[str, str] | None = None,
 ) -> subprocess.CompletedProcess[str]:
-    """Run install.sh with stubbed HOME and PATH."""
+    """Run install.sh with stubbed HOME and PATH.
+
+    Parent-process TESTPILOT_* and SERIALWRAP_* env vars are stripped so that
+    operator-local settings cannot bleed into tests that verify default behaviour.
+    """
+    # Start from a clean base — strip vars that install.sh honours as overrides.
+    base_env = {k: v for k, v in os.environ.items() if k not in _ISOLATED_VARS}
     env = {
-        **os.environ,
+        **base_env,
         "HOME": str(fake_home),
         "PATH": f"{stub_bin}:{os.environ.get('PATH', '/usr/bin:/bin')}",
         # Redirect all managed paths into fake_home so real user dirs are untouched.
@@ -152,8 +175,13 @@ def git_log(tmp_path: Path) -> Path:
 
 
 @pytest.fixture()
-def stubs(tmp_path: Path, git_log: Path) -> Path:
-    return _build_stub_bin(tmp_path, git_log)
+def uv_log(tmp_path: Path) -> Path:
+    return tmp_path / "uv.log"
+
+
+@pytest.fixture()
+def stubs(tmp_path: Path, git_log: Path, uv_log: Path) -> Path:
+    return _build_stub_bin(tmp_path, git_log, uv_log)
 
 
 # ---------------------------------------------------------------------------
@@ -280,4 +308,69 @@ class TestSerialwrapInstall:
         log_content = git_log.read_text() if git_log.exists() else ""
         assert "serialwrap" in log_content, (
             f"serialwrap was not cloned (no serialwrap in git log):\n{log_content}"
+        )
+
+
+# ---------------------------------------------------------------------------
+# Scenario: Venv idempotency (I-1)
+# ---------------------------------------------------------------------------
+
+
+class TestVenvIdempotence:
+    """installer must skip venv creation when the venv already exists."""
+
+    def test_existing_venv_not_recreated(
+        self, fake_home: Path, stubs: Path, uv_log: Path
+    ) -> None:
+        """When MANAGED_VENV/bin already exists, uv venv is NOT called again."""
+        # Pre-create the managed venv so the installer should skip creation.
+        managed_venv = fake_home / ".local" / "share" / "testpilot" / ".venv"
+        (managed_venv / "bin").mkdir(parents=True)
+        py = managed_venv / "bin" / "python"
+        py.write_text("#!/usr/bin/env sh\nexec echo 'python mock'\n")
+        py.chmod(0o755)
+
+        result = _run_installer(
+            fake_home,
+            stubs,
+            {"TESTPILOT_REPO_URL": "file:///local/testpilot", "TESTPILOT_REF": "v0.2.0"},
+        )
+        assert result.returncode == 0, f"installer failed:\n{result.stdout}\n{result.stderr}"
+
+        uv_calls = uv_log.read_text() if uv_log.exists() else ""
+        # "uv venv …" must NOT appear when venv already exists.
+        assert not any(
+            line.startswith("venv ") or line == "venv" for line in uv_calls.splitlines()
+        ), f"uv venv was called despite existing venv:\n{uv_calls}"
+        # "uv pip install …" MUST still appear to keep the package up-to-date.
+        assert "pip" in uv_calls, f"uv pip install was not called:\n{uv_calls}"
+
+
+# ---------------------------------------------------------------------------
+# Scenario: Branch fast-forward on existing checkout (I-2)
+# ---------------------------------------------------------------------------
+
+
+class TestExistingCheckoutUpdate:
+    """Installer fast-forwards branch HEAD when updating an existing checkout."""
+
+    def test_existing_checkout_fast_forwards_branch(
+        self, fake_home: Path, stubs: Path, git_log: Path
+    ) -> None:
+        """Existing checkout with a branch ref: git merge --ff-only is called."""
+        managed_src = fake_home / ".local" / "share" / "testpilot" / "src"
+        (managed_src / ".git").mkdir(parents=True)
+        (managed_src / ".git" / "config").touch()
+        (managed_src / "skills" / "testpilot-normal-test").mkdir(parents=True)
+
+        result = _run_installer(
+            fake_home,
+            stubs,
+            {"TESTPILOT_REPO_URL": "file:///local/testpilot", "TESTPILOT_REF": "main"},
+        )
+        assert result.returncode == 0, f"installer failed:\n{result.stdout}\n{result.stderr}"
+
+        log_content = git_log.read_text() if git_log.exists() else ""
+        assert "merge --ff-only origin/main" in log_content, (
+            f"fast-forward merge not found in git log:\n{log_content}"
         )

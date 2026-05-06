@@ -158,7 +158,10 @@ def _check_console_script(managed_venv: Path) -> tuple[bool, str]:
 
 
 def _check_serialwrap_available() -> tuple[bool, str]:
-    """Report whether serialwrap is available in PATH."""
+    """Report whether serialwrap is available, preferring the managed venv."""
+    venv_sw = _get_managed_venv() / "bin" / "serialwrap"
+    if venv_sw.exists():
+        return True, f"OK serialwrap: {venv_sw}"
     path = shutil.which("serialwrap")
     if path:
         return True, f"OK serialwrap: {path}"

@@ -99,6 +99,8 @@ if [ -d "$MANAGED_SRC/.git" ]; then
     info "Updating managed checkout at $MANAGED_SRC ..."
     git -C "$MANAGED_SRC" fetch origin
     git -C "$MANAGED_SRC" checkout "$TESTPILOT_REF"
+    # Fast-forward local branch to origin; silently skips for tags/commit SHAs.
+    git -C "$MANAGED_SRC" merge --ff-only "origin/$TESTPILOT_REF" 2>/dev/null || true
     ok "Managed checkout updated to $TESTPILOT_REF"
 else
     info "Cloning $TESTPILOT_REPO_URL → $MANAGED_SRC ..."
@@ -111,10 +113,14 @@ fi
 # ── 4. Managed virtualenv + TestPilot install ─────────────────────────────────
 info "Setting up managed virtualenv at $MANAGED_VENV ..."
 if $USE_UV; then
-    uv venv "$MANAGED_VENV"
+    if [ ! -d "$MANAGED_VENV/bin" ]; then
+        uv venv "$MANAGED_VENV"
+    fi
     uv pip install --python "$MANAGED_VENV/bin/python" -e "$MANAGED_SRC"
 else
-    python3 -m venv "$MANAGED_VENV"
+    if [ ! -d "$MANAGED_VENV/bin" ]; then
+        python3 -m venv "$MANAGED_VENV"
+    fi
     "$MANAGED_VENV/bin/pip" install -e "$MANAGED_SRC"
 fi
 ok "Managed virtualenv ready"

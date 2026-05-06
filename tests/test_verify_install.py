@@ -167,3 +167,36 @@ class TestManagedCheckoutReport:
 
         output = " ".join(str(c) for c in mock_console.print.call_args_list)
         assert "abc1234" in output or "paulc-arc" in output or "main" in output
+
+
+# ---------------------------------------------------------------------------
+# serialwrap venv-first check (I-3)
+# ---------------------------------------------------------------------------
+
+
+class TestSerialwrapVenvCheck:
+    """_check_serialwrap_available must prefer managed-venv serialwrap over PATH."""
+
+    def test_serialwrap_found_in_managed_venv(self, tmp_path: Path) -> None:
+        """serialwrap present in managed venv is reported OK even if not in PATH."""
+        from unittest.mock import patch
+
+        from testpilot.cli import _check_serialwrap_available
+
+        managed_venv = tmp_path / ".venv"
+        (managed_venv / "bin").mkdir(parents=True)
+        sw = managed_venv / "bin" / "serialwrap"
+        sw.write_text("#!/usr/bin/env sh\n")
+        sw.chmod(0o755)
+
+        with patch("testpilot.cli._get_managed_venv", return_value=managed_venv):
+            # Remove serialwrap from PATH to prove venv-first logic.
+            with patch("testpilot.cli.shutil.which", return_value=None):
+                ok, msg = _check_serialwrap_available()
+
+        assert ok, f"expected OK but got: {msg}"
+        assert "serialwrap" in msg.lower(), f"expected 'serialwrap' in message: {msg}"
+        assert str(managed_venv) in msg, (
+            f"expected managed venv path {managed_venv} in message: {msg}"
+        )
+
