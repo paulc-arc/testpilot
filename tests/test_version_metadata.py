@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import re
-import subprocess
 import tomllib
 from pathlib import Path
 from unittest.mock import patch
@@ -79,9 +78,8 @@ def test_all_versions_are_0_2_0() -> None:
 # --- Task 1.1: source-ref-aware testpilot --version ---
 
 
-def test_version_output_branch_format(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_version_output_branch_format() -> None:
     """--version should print 'TestPilot X.Y.Z (branch@short-sha)' on a branch."""
-    monkeypatch.chdir(ROOT)
     runner = CliRunner()
 
     def _fake_run(cmd, **kwargs):
@@ -105,9 +103,8 @@ def test_version_output_branch_format(monkeypatch: pytest.MonkeyPatch) -> None:
     assert re.search(r"TestPilot 0\.2\.0 \(main@abcdef1\)", result.output)
 
 
-def test_version_output_tag_format(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_version_output_tag_format() -> None:
     """--version should print 'TestPilot X.Y.Z (tag@short-sha)' when on a tag."""
-    monkeypatch.chdir(ROOT)
     runner = CliRunner()
 
     def _fake_run(cmd, **kwargs):
@@ -135,9 +132,8 @@ def test_version_output_tag_format(monkeypatch: pytest.MonkeyPatch) -> None:
     assert re.search(r"TestPilot 0\.2\.0 \(v0\.2\.0@2f7caf8\)", result.output)
 
 
-def test_version_output_detached_head_format(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_version_output_detached_head_format() -> None:
     """--version should fall back to 'commit@short-sha' on detached HEAD."""
-    monkeypatch.chdir(ROOT)
     runner = CliRunner()
 
     def _fake_run(cmd, **kwargs):
@@ -155,3 +151,20 @@ def test_version_output_detached_head_format(monkeypatch: pytest.MonkeyPatch) ->
 
     assert result.exit_code == 0
     assert re.search(r"TestPilot 0\.2\.0 \(commit@deadbee\)", result.output)
+
+
+def test_version_output_when_git_absent() -> None:
+    """--version must exit 0 and show 'commit@unknown' when git is not available.
+
+    Patches subprocess.run to raise FileNotFoundError so that _git_run's sentinel
+    path is exercised; the version callback must not propagate any traceback.
+    """
+    import subprocess as _sp
+
+    runner = CliRunner()
+
+    with patch.object(_sp, "run", side_effect=FileNotFoundError("git not found")):
+        result = runner.invoke(main, ["--version"])
+
+    assert result.exit_code == 0
+    assert re.search(r"TestPilot 0\.2\.0 \(commit@unknown\)", result.output)

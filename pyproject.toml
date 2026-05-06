@@ -36,3 +36,4 @@ line-length = 100
 
 [tool.pytest.ini_options]
 testpaths = ["tests", "plugins/wifi_llapi/tests", "plugins/brcm_fw_upgrade/tests"]
+pythonpath = ["src"]

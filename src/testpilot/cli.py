@@ -32,6 +32,7 @@ from testpilot.yaml_command_audit import (
 console = Console()
 
 _SKILL_NAME = "testpilot-normal-test"
+# Expected under ~/.agents/skills/ — the Copilot agent skill directory for normal-test runs.
 
 
 # ---------------------------------------------------------------------------
@@ -39,14 +40,21 @@ _SKILL_NAME = "testpilot-normal-test"
 # ---------------------------------------------------------------------------
 
 
-def _git_run(cmd: list[str], **kwargs) -> subprocess.CompletedProcess:
-    """Run a git command and return the CompletedProcess result."""
-    return subprocess.run(
-        cmd,
-        capture_output=True,
-        text=True,
-        **kwargs,
-    )
+def _git_run(cmd: list[str], **kwargs) -> subprocess.CompletedProcess[str]:
+    """Run a git command and return the CompletedProcess result.
+
+    Returns a sentinel result with returncode=127 and empty stdout/stderr if
+    the git executable is not found, so callers never see a FileNotFoundError.
+    """
+    try:
+        return subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            **kwargs,
+        )
+    except FileNotFoundError:
+        return subprocess.CompletedProcess(args=cmd, returncode=127, stdout="", stderr="")
 
 
 def _source_ref_label() -> str:
@@ -95,18 +103,21 @@ def _handle_update(ref: str | None) -> None:
     target_ref = ref or "main"
     managed_src = _get_managed_src()
 
-    # Check for dirty working tree (even if path doesn't exist, _git_run handles it)
-    status = _git_run(
-        ["git", "status", "--porcelain"],
-        cwd=str(managed_src) if managed_src.exists() else None,
-    )
-    if status.returncode == 0 and status.stdout.strip():
-        console.print(
-            "[bold red]Managed checkout has uncommitted changes.[/bold red]\n"
-            "Please commit, stash, or resolve local edits before updating.\n"
-            f"  path: {managed_src}",
+    # Only check for dirty state when the managed checkout actually exists.
+    # Skipping this guard on a nonexistent path would run git status against
+    # the developer's own working tree and produce false positives.
+    if managed_src.exists():
+        status = _git_run(
+            ["git", "status", "--porcelain"],
+            cwd=str(managed_src),
         )
-        raise SystemExit(1)
+        if status.returncode == 0 and status.stdout.strip():
+            console.print(
+                "[bold red]Managed checkout has uncommitted changes.[/bold red]\n"
+                "Please commit, stash, or resolve local edits before updating.\n"
+                f"  path: {managed_src}",
+            )
+            raise SystemExit(1)
 
     console.print(f"[bold]Updating TestPilot to ref:[/bold] {target_ref}")
     console.print("[dim](managed install update; internals implemented in task 2)[/dim]")
