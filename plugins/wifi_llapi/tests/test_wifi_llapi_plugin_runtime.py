@@ -218,6 +218,44 @@ def _load_plugin() -> Any:
     return loader.load("wifi_llapi")
 
 
+def test_capture_dut_firmware_version_reads_git_revision_from_dut_transport(monkeypatch):
+    plugin = _load_plugin()
+    factory = _FactoryRecorder()
+    monkeypatch.setattr(
+        plugin,
+        "_create_transport_instance",
+        lambda transport_type, config: factory.create_transport(transport_type, config),
+    )
+    case = {
+        "id": "wifi-llapi-D004-kickstation",
+        "topology": {
+            "devices": {
+                "DUT": {"role": "ap", "transport": "serial"},
+                "STA": {"role": "sta", "transport": "adb"},
+            }
+        },
+    }
+
+    original_execute = _FakeTransport.execute
+
+    def fake_execute(self: _FakeTransport, command: str, timeout: float = 30.0) -> dict[str, Any]:
+        self.executed_commands.append(command)
+        if command == "cat /etc/git_revision":
+            return {
+                "returncode": 0,
+                "stdout": "BGW720-11.22.33\n",
+                "stderr": "",
+                "elapsed": 0.01,
+            }
+        return original_execute(self, command, timeout=timeout)
+
+    monkeypatch.setattr(_FakeTransport, "execute", fake_execute)
+
+    assert plugin.capture_dut_firmware_version(_FakeTopology(), [case]) == "BGW720-11.22.33"
+    assert factory.transports[0].executed_commands == ["cat /etc/git_revision"]
+    assert plugin._transports == {}
+
+
 _ASSOC_MAC_REGEX = r"(?i)^([0-9a-f]{2}:){5}[0-9a-f]{2}$"
 
 

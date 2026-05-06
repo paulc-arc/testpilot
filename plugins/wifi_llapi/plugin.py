@@ -137,6 +137,48 @@ class Plugin(PluginBase):
                 case["blocked_reason"] = f"invalid_delta_schema: {error}"
         return cases
 
+    def capture_dut_firmware_version(
+        self,
+        topology: Any,
+        cases: list[dict[str, Any]],
+    ) -> str:
+        """Read DUT firmware revision for report naming and metadata."""
+        if not cases:
+            return ""
+        case = dict(cases[0])
+        had_transports = bool(self._transports)
+        opened_for_capture = False
+        try:
+            if not had_transports:
+                opened_for_capture = bool(
+                    self._open_case_transports(case, topology, run_case_setup=False)
+                )
+            dut = self._transports.get("DUT")
+            if dut is None:
+                log.warning("[%s] firmware capture skipped: missing DUT transport", self.name)
+                return ""
+            result = dut.execute("cat /etc/git_revision", timeout=10.0)
+            if int(result.get("returncode", 1)) != 0:
+                log.warning(
+                    "[%s] firmware capture failed: rc=%s stderr=%s",
+                    self.name,
+                    result.get("returncode"),
+                    str(result.get("stderr", "")).strip(),
+                )
+                return ""
+            for line in str(result.get("stdout", "")).splitlines():
+                cleaned = line.strip()
+                if cleaned:
+                    return cleaned
+            log.warning("[%s] firmware capture returned empty /etc/git_revision", self.name)
+            return ""
+        except Exception:
+            log.warning("[%s] firmware capture failed", self.name, exc_info=True)
+            return ""
+        finally:
+            if opened_for_capture or (not had_transports and self._transports):
+                self.teardown(case, topology)
+
     # -- reporter overrides ----------------------------------------------------
 
     def create_reporter(self) -> Any:
