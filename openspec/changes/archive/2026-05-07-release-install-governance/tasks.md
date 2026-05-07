@@ -20,14 +20,14 @@
 
 ## 4. Release and policy governance
 
-- [ ] 4.1 Add tests or static checks for `.project-policy.yml` help sync declarations, absence of `.paul-project.yml`, and release tag/version validation.
-- [ ] 4.2 Add `.project-policy.yml`, release validation script or workflow steps, blocking policy-check workflow, and PR template release-governance checklist.
-- [ ] 4.3 Update `README.md`, `docs/release-flow.md`, `AGENTS.md`, `CHANGELOG.md`, and `skills/testpilot-normal-test/SKILL.md` to reflect install, update, verify, primary wifi_llapi command, version, and policy guidance.
-- [ ] 4.4 Refresh README help marker blocks for `testpilot --help`, `testpilot wifi_llapi --help`, and `testpilot --update --help`.
+- [x] 4.1 Add tests or static checks for `.project-policy.yml` help sync declarations, absence of `.paul-project.yml`, and release tag/version validation.
+- [x] 4.2 Add `.project-policy.yml`, release validation script or workflow steps, blocking policy-check workflow, and PR template release-governance checklist.
+- [x] 4.3 Update `README.md`, `docs/release-flow.md`, `AGENTS.md`, `CHANGELOG.md`, and `skills/testpilot-normal-test/SKILL.md` to reflect install, update, verify, primary wifi_llapi command, version, and policy guidance.
+- [x] 4.4 Refresh README help marker blocks for `testpilot --help`, `testpilot wifi_llapi --help`, and `testpilot --update --help`.
 
 ## 5. Validation and archive
 
-- [ ] 5.1 Run targeted tests for installer, CLI, version, and release governance.
-- [ ] 5.2 Run the full repository test suite.
-- [ ] 5.3 Request code review and resolve findings.
-- [ ] 5.4 Archive the OpenSpec change into canonical specs and update documentation.
+- [x] 5.1 Run targeted tests for installer, CLI, version, and release governance.
+- [x] 5.2 Run the full repository test suite.
+- [x] 5.3 Request code review and resolve findings.
+- [x] 5.4 Archive the OpenSpec change into canonical specs and update documentation.
