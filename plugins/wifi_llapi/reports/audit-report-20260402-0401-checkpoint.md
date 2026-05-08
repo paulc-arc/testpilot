@@ -1,5 +1,57 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-08 0506-D012)
+
+> This checkpoint records the `D012 AvgSignalStrengthByChain` blocker decision.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=151`, `applied=1`, `pending=150`, `block=113`, `needs_pass3=0`
+- `D012 AvgSignalStrengthByChain` 沒有 closure；已標成 `block`，reason=`workbook_pass_but_avgsignalstrengthbychain_absent_on_5g_24g_datamodel`
+- source survey 確認 `AvgSignalStrengthByChain` 在 ODL 宣告為 volatile read-only `int32`，Broadcom glue 由 WLD station path 填入 `AvgSignalStrengthByChain`，底層 station info 保留 per-chain RSSI 並可平均成 scalar
+- focused rerun `20260508T230809042650` 先停在 5G redundant `wpa_cli` gate：`iw dev wl0 link` 已 connected，但 `wpa_cli` 仍是 `wpa_state=ASSOCIATED`
+- audit-gated exploratory edit 暫時移除 5G/2.4G redundant `wpa_cli` gate 後，focused rerun `20260508T231739051988` 跑到 API 本體：5G 有 `AssocMac5g=2c:59:17:00:19:95` 但 `WiFi.AccessPoint.1.AssociatedDevice.1.AvgSignalStrengthByChain?` 回 object not found；6G 回 `WiFi.AccessPoint.3.AssociatedDevice.1.AvgSignalStrengthByChain=-60`；2.4G 有 `AssocMac24g=2c:59:17:00:19:a7` 但 `WiFi.AccessPoint.5.AssociatedDevice.1.AvgSignalStrengthByChain?` 回 object not found
+- 因為 final live result 仍是 `Fail / Fail / Fail`，D012 exploratory join-gate edit 已透過 audit gate 回復；case YAML 保持不變
+- next ready single-case Pass3 target: `D013`
+
+</details>
+
+### D012 AvgSignalStrengthByChain blocker evidence
+
+**STA 指令**
+
+```sh
+iw dev wl0 link
+wpa_cli -p /var/run/wpa_supplicant -i wl0 status
+iw dev wl1 link
+wpa_cli -p /var/run/wpa_supplicant -i wl1 status
+wl -i wl1 status
+iw dev wl2 link
+```
+
+**DUT 指令**
+
+```sh
+wl -i wl0 assoclist | tr 'A-F' 'a-f' | sed -n 's/^assoclist \([^ ]*\).*$/AssocMac5g=\1/p'
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.AvgSignalStrengthByChain?"
+wl -i wl1 assoclist | tr 'A-F' 'a-f' | sed -n 's/^assoclist \([^ ]*\).*$/AssocMac6g=\1/p'
+ubus-cli "WiFi.AccessPoint.3.AssociatedDevice.1.AvgSignalStrengthByChain?"
+wl -i wl2 assoclist | tr 'A-F' 'a-f' | sed -n 's/^assoclist \([^ ]*\).*$/AssocMac24g=\1/p'
+ubus-cli "WiFi.AccessPoint.5.AssociatedDevice.1.AvgSignalStrengthByChain?"
+```
+
+**判定 block 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260508T231739051988
+- report md L59-L69: 5G STA is connected and DUT driver captures AssocMac5g=2c:59:17:00:19:95, but WiFi.AccessPoint.1.AssociatedDevice.1.AvgSignalStrengthByChain returns object not found
+- report md L139-L141: 6G returns WiFi.AccessPoint.3.AssociatedDevice.1.AvgSignalStrengthByChain=-60
+- report md L145-L152: 2.4G STA is connected and DUT driver captures AssocMac24g=2c:59:17:00:19:a7, but WiFi.AccessPoint.5.AssociatedDevice.1.AvgSignalStrengthByChain returns object not found
+- source citations: tr181-wifi_AccessPoint.odl L762-L770 declares AvgSignalStrengthByChain as volatile read-only int32; whm_brcm_rad_mlo.c L326-L329 assigns pAD->AvgSignalStrengthByChain; whm_brcm_api_ext.c L359-L389 copies sta_info per-chain RSSI; wl_cfg80211.c L6241-L6257 averages chain RSSI into signal_avg
+```
+
 ## Checkpoint summary (2026-05-08 0506-D009)
 
 > This checkpoint records the `D009 AssociationTime` blocker decision.
