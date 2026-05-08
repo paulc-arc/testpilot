@@ -1,5 +1,59 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D013)
+
+> This checkpoint records the `D013 Capabilities` blocker decision.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=151`, `applied=1`, `pending=149`, `block=114`, `needs_pass3=0`
+- `D013 Capabilities` 沒有 closure；已標成 `block`，reason=`workbook_pass_but_capabilities_absent_on_5g_and_6g_env_not_ready`
+- source survey 確認 `AssociatedDevice[].Capabilities` 是 read-only station capability string，不是 workbook transcript 看起來像 setter 的 AP-local writable 值
+- focused rerun `20260508T235255033703` 先停在 5G redundant `wpa_cli` gate：`iw dev wl0 link` 已 connected，但 `wpa_cli` 仍是 `wpa_state=ASSOCIATED`
+- audit-gated exploratory edit 暫時移除 5G/2.4G redundant `wpa_cli` gate 後，focused rerun `20260509T000344316109` 跑到 5G API 本體：5G 有 `AssocMac5g=2c:59:17:00:19:95` 與 `DriverRrmCapability5g=0x32`，但 `WiFi.AccessPoint.1.AssociatedDevice.1.Capabilities?` 回 object not found；之後 6G pre-step 環境準備失敗，reason=`sta_band_not_ready`
+- 因為 final live result 仍是 `Fail / Fail / Fail`，D013 exploratory join-gate edit 已透過 audit gate 回復；case YAML 保持不變
+- next ready single-case Pass3 target: `D014`
+
+</details>
+
+### D013 Capabilities blocker evidence
+
+**STA 指令**
+
+```sh
+iw dev wl0 link
+wpa_cli -p /var/run/wpa_supplicant -i wl0 status
+iw dev wl1 link
+wpa_cli -p /var/run/wpa_supplicant -i wl1 status
+wl -i wl1 status
+iw dev wl2 link
+wpa_cli -p /var/run/wpa_supplicant -i wl2 status
+```
+
+**DUT 指令**
+
+```sh
+wl -i wl0 assoclist | tr 'A-F' 'a-f' | sed -n 's/^assoclist \([^ ]*\).*$/AssocMac5g=\1/p'
+STA_MAC=$(wl -i wl0 assoclist | awk 'NR==1{print $2}'); [ -n "$STA_MAC" ] && wl -i wl0 sta_info $STA_MAC | sed -n 's/^RRM capability = \(0x[0-9A-Fa-f]\+\).*/DriverRrmCapability5g=\1/p'
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.Capabilities?"
+wl -i wl1 assoclist | tr 'A-F' 'a-f' | sed -n 's/^assoclist \([^ ]*\).*$/AssocMac6g=\1/p'
+ubus-cli "WiFi.AccessPoint.3.AssociatedDevice.1.Capabilities?"
+wl -i wl2 assoclist | tr 'A-F' 'a-f' | sed -n 's/^assoclist \([^ ]*\).*$/AssocMac24g=\1/p'
+ubus-cli "WiFi.AccessPoint.5.AssociatedDevice.1.Capabilities?"
+```
+
+**判定 block 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T000344316109
+- report md L55-L65: 5G STA is connected, DUT driver captures AssocMac5g=2c:59:17:00:19:95 and DriverRrmCapability5g=0x32, but WiFi.AccessPoint.1.AssociatedDevice.1.Capabilities returns object not found
+- report md L66-L71: 6G preparation fails before step5_6g_sta_join with reason_code sta_band_not_ready
+- DUT.log L982-L1005: DUT-side assoclist/getter replay confirms the same AP1 Capabilities object-not-found shape
+- source citations: tr181-wifi_AccessPoint.odl L684 declares AssociatedDevice[] read-only; L773-L780 declares Capabilities as station capabilities / read-only string; local_wl_access.c L715-L720 publishes station capability fields; whm_brcm_api_ext.c L78-L85 declares RRM capability parsing constants
+```
+
 ## Checkpoint summary (2026-05-08 0506-D012)
 
 > This checkpoint records the `D012 AvgSignalStrengthByChain` blocker decision.
