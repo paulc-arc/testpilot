@@ -1,5 +1,53 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D107)
+
+> This checkpoint records the `D107 SelfPIN` confirmed no-edit decision.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=167`, `applied=9`, `pending=85`, `block=154`, `needs_pass3=0`
+- workbook row `D106 RelayCredentialsEnable` currently has no discoverable official YAML under `plugins/wifi_llapi/cases/`; strict single-case execution therefore continued to `D107`
+- `D107 SelfPIN` confirmed as `workbook_to_be_test_normalized_fail_matches_runtime_fail_no_yaml_edit`
+- workbook row 107 raw value is `To be test / To be test / To be test`, normalized to `Fail / Fail / Fail`
+- source notes SelfPIN is randomly generated and not guaranteed constant between generateSelfPIN calls
+- focused run `20260509T204523534438` reported `Fail / Fail / Fail`
+- runtime returns quoted `SelfPIN` strings, while current capture expects unquoted numeric values and captured empty fields
+- cleanup command `05816c9eec2c4bfd80636d5d24c1add2` confirmed AP1/AP3/AP5 `SelfPIN="54836242"`, no hostapd `ap_pin`, and wl0/wl1/wl2 `up`
+- next ready single-case Pass3 target: `D108`
+
+</details>
+
+### D107 SelfPIN confirmed evidence
+
+**STA 指令**
+
+```sh
+# AP-only checkpoint; no STA command was required.
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.WPS.SelfPIN?"
+ubus-cli "WiFi.AccessPoint.3.WPS.SelfPIN?"
+ubus-cli "WiFi.AccessPoint.5.WPS.SelfPIN?"
+grep "ap_pin" /tmp/wl0_hapd.conf /tmp/wl1_hapd.conf /tmp/wl2_hapd.conf
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T204523534438, DUT.log L5-L177
+- report shape: Fail / Fail / Fail, diagnostic_status=FailTest
+- workbook row 107 raw To be test/To be test/To be test normalizes to Fail/Fail/Fail; actual Fail/Fail/Fail
+- runtime setter echoes quoted SelfPIN strings, but current capture grep expected unquoted numeric SelfPIN=... and captured empty values
+- cleanup command 05816c9eec2c4bfd80636d5d24c1add2: AP1/AP3/AP5 SelfPIN="54836242", no hostapd ap_pin lines, and wl0/wl1/wl2 were up
+- source citation: fs/etc/amx/wld/wld_accesspoint.odl L1001-L1008 describes SelfPIN as randomly generated and not guaranteed constant
+```
+
 ## Checkpoint summary (2026-05-09 0506-D105)
 
 > This checkpoint records the `D105 PairingInProgress` blocker decision.
