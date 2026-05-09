@@ -1,5 +1,64 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D020)
+
+> This checkpoint records the `D020 FrequencyCapabilities` closure decision.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=151`, `applied=4`, `pending=142`, `block=118`, `needs_pass3=0`
+- `D020 FrequencyCapabilities` 已 closure；reason=`pass3_frequencycapabilities_same_sta_driver_equality`
+- workbook row 20 期待 `Pass / Pass / Pass`；source 宣告 `AssociatedDevice[]` read path 透過 `wld_assocDev_getStats_orf`，並宣告 `AssociatedDevice.FrequencyCapabilities` / `ProbeReqCaps.FrequencyCapabilities` 為 read-only string
+- focused pre-edit rerun `20260509T132327693106` 兩次都跑完 tri-band steps，但舊 YAML 還期待 AP1/AP5 getter 為 empty，因此停在 `result_5g.FrequencyCapabilities`：expected empty、actual `5GHz`
+- live evidence 顯示 same-STA driver-normalized frequency capability 與 LLAPI getter 已一致：AP1=`5GHz`、AP3=`6GHz`、AP5=`2.4GHz`
+- audit-gated proposal 只更新 AP1/AP5 stale empty criteria，改成 LLAPI getter 必須等於 same-STA driver-normalized value；AP3 既有 `6GHz` criterion 保持不變
+- focused post-apply rerun `20260509T133802129550` completed with `Pass / Pass / Pass`, `diagnostic_status=Pass`, `pass_count=1`, `fail_count=0`; compare against `audit/0506.xlsx` reports `full_match_count=1`, `mismatch_case_count=0`
+- next ready single-case Pass3 target: `D021`
+
+</details>
+
+### D020 FrequencyCapabilities closure evidence
+
+**STA 指令**
+
+```sh
+iw dev wl0 link
+wpa_cli -p /var/run/wpa_supplicant -i wl0 status
+iw dev wl1 link
+wpa_cli -p /var/run/wpa_supplicant -i wl1 status
+wl -i wl1 status
+iw dev wl2 link
+wpa_cli -p /var/run/wpa_supplicant -i wl2 status
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?"
+wl -i wl0 sta_info <STA_MAC> | grep "Frequency Bands Supported"
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.FrequencyCapabilities?"
+ubus-cli "WiFi.AccessPoint.3.AssociatedDevice.1.MACAddress?"
+wl -i wl1 sta_info <STA_MAC> | grep "Frequency Bands Supported"
+ubus-cli "WiFi.AccessPoint.3.AssociatedDevice.1.FrequencyCapabilities?"
+ubus-cli "WiFi.AccessPoint.5.AssociatedDevice.1.MACAddress?"
+wl -i wl2 sta_info <STA_MAC> | grep "Frequency Bands Supported"
+ubus-cli "WiFi.AccessPoint.5.AssociatedDevice.1.FrequencyCapabilities?"
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T133802129550
+- final: status=Pass, evaluation_verdict=Pass, attempts_used=1, diagnostic_status=Pass
+- AP1: MACAddress=2C:59:17:00:42:15, DriverFrequencyBandsRaw5g=5G, DriverFrequencyCapabilities5g=5GHz, FrequencyCapabilities=5GHz
+- AP3: MACAddress=2C:59:17:00:42:16, DriverFrequencyBandsRaw6g=6G, DriverFrequencyCapabilities6g=6GHz, FrequencyCapabilities=6GHz
+- AP5: MACAddress=2C:59:17:00:42:27, DriverFrequencyBandsRaw24g=2.4G, DriverFrequencyCapabilities24g=2.4GHz, FrequencyCapabilities=2.4GHz
+- compare against audit/0506.xlsx: actual_norm Pass/Pass/Pass matches expected_norm Pass/Pass/Pass
+- source citations: fs/etc/amx/wld/wld_accesspoint.odl L1202-L1203 wires AssociatedDevice[] reads through wld_assocDev_getStats_orf; L1751 declares AssociatedDevice.FrequencyCapabilities; L1936 declares ProbeReqCaps.FrequencyCapabilities
+```
+
 ## Checkpoint summary (2026-05-09 0506-D019)
 
 > This checkpoint records the `D019 EncryptionMode` workbook-fail closure decision.

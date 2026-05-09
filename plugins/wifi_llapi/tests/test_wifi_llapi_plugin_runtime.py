@@ -4306,7 +4306,8 @@ def test_pending_boolean_and_frequency_cases_use_supported_contracts():
     )
     assert any(
         criterion["field"] == "result_5g.FrequencyCapabilities"
-        and criterion["operator"] == "empty"
+        and criterion["operator"] == "equals"
+        and criterion["reference"] == "driver_frequency_5g.DriverFrequencyCapabilities5g"
         for criterion in d020["pass_criteria"]
     )
     assert any(
@@ -4317,7 +4318,8 @@ def test_pending_boolean_and_frequency_cases_use_supported_contracts():
     )
     assert any(
         criterion["field"] == "result_24g.FrequencyCapabilities"
-        and criterion["operator"] == "empty"
+        and criterion["operator"] == "equals"
+        and criterion["reference"] == "driver_frequency_24g.DriverFrequencyCapabilities24g"
         for criterion in d020["pass_criteria"]
     )
 
@@ -4660,8 +4662,8 @@ def test_pending_boolean_and_frequency_cases_evaluate_live_examples():
             },
             "step4_5g_get": {
                 "success": True,
-                "output": 'WiFi.AccessPoint.1.AssociatedDevice.1.FrequencyCapabilities=""',
-                "captured": {"FrequencyCapabilities": ""},
+                "output": 'WiFi.AccessPoint.1.AssociatedDevice.1.FrequencyCapabilities="5GHz"',
+                "captured": {"FrequencyCapabilities": "5GHz"},
                 "timing": 0.01,
             },
             "step6_6g_assoc": {
@@ -4704,8 +4706,8 @@ def test_pending_boolean_and_frequency_cases_evaluate_live_examples():
             },
             "step12_24g_get": {
                 "success": True,
-                "output": 'WiFi.AccessPoint.5.AssociatedDevice.1.FrequencyCapabilities=""',
-                "captured": {"FrequencyCapabilities": ""},
+                "output": 'WiFi.AccessPoint.5.AssociatedDevice.1.FrequencyCapabilities="2.4GHz"',
+                "captured": {"FrequencyCapabilities": "2.4GHz"},
                 "timing": 0.01,
             },
         }
