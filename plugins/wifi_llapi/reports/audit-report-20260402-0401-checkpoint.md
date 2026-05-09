@@ -1,5 +1,52 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-10 0506-D377)
+
+> This checkpoint records the `D377 MaxBitRate — WiFi.Radio.{i}.` workbook/runtime mismatch blocker.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=191`, `applied=9`, `pending=40`, `block=175`, `needs_pass3=0`
+- `D377 MaxBitRate — WiFi.Radio.{i}.` recorded as `radio_maxbitrate_workbook_latest_not_supported_all_bands_vs_runtime_pass_zero_getter_source_implemented`
+- workbook row 377 latest result is `Not Supported / Not Supported / Not Supported` (normalized `Fail / Fail / Fail`)
+- focused run `20260510T023214763350` reported `Pass / Pass / Pass` with `diagnostic_status=Pass`
+- mismatch reason: current YAML accepts numeric getter output, but readback was `0` for all radios while workbook latest marks Not Supported and notes MaxBitRate should not be zero
+- source survey found MaxBitRate ODL/dm_info support and Broadcom `whm_brcm_rad_get_maxbitrate` implementation via `WLC_GET_MAX_RATE`
+- next ready single-case Pass3 target: `D379`
+
+</details>
+
+### D377 Radio MaxBitRate blocker evidence
+
+**STA 指令**
+
+```sh
+# DUT-only getter case; no STA command required
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.Radio.1.MaxBitRate?"
+ubus-cli "WiFi.Radio.2.MaxBitRate?"
+ubus-cli "WiFi.Radio.3.MaxBitRate?"
+```
+
+**判定 blocker 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260510T023214763350
+- workbook row 377 latest result expects Not Supported/Not Supported/Not Supported (normalized Fail/Fail/Fail)
+- report shape: Pass / Pass / Pass, diagnostic_status=Pass
+- DUT.log L8-L21:
+  WiFi.Radio.1.MaxBitRate=0
+  WiFi.Radio.2.MaxBitRate=0
+  WiFi.Radio.3.MaxBitRate=0
+- source survey: `tr181-wifi_Radio.odl` defines read-only uint32 `MaxBitRate`; `dm_info.c` exposes it; `whm_brcm_rad_get_maxbitrate` uses `WLC_GET_MAX_RATE` and converts 500Kbps units to Mbps
+```
+
 ## Checkpoint summary (2026-05-10 0506-D371)
 
 > This checkpoint records the `D371 DisassociationTime — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.` environment blocker.
