@@ -1,5 +1,54 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-10 0506-D357)
+
+> This checkpoint records the `D357 csiStats() — WiFi.Radio.{i}.Sensing.` blocker.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=191`, `applied=9`, `pending=43`, `block=172`, `needs_pass3=0`
+- `D357 csiStats() — WiFi.Radio.{i}.Sensing.` recorded as `sensing_csistats_workbook_latest_pass_all_bands_vs_skip_fixture_runtime_fail_source_supports_counters`
+- workbook row 357 latest result is `Pass / Pass / Pass` after earlier `Failed / Failed / Failed`
+- focused run `20260510T020621009979` reported `Fail / N/A / N/A` with `diagnostic_status=FailTest`
+- failure reason: current YAML is a skip fixture with unsupported `skip` operator instead of executing reset/add/enable/csiStats verification
+- source survey found `whm_brcm_radcsi_updateStats`, `mfn_wrad_sensing_csiStats`, and csimon_state counter mapping in `whm_brcm_api_ext*.c`
+- next ready single-case Pass3 target: `D359`
+
+</details>
+
+### D357 Sensing csiStats blocker evidence
+
+**STA 指令**
+
+```sh
+# DUT-only skip fixture; STA CSI client setup and traffic are not exercised by current YAML
+```
+
+**DUT 指令**
+
+```sh
+echo "[skip] non-executable step step_5g_skip"
+ubus-cli "WiFi.Radio.*.Sensing.csiStats()"
+ubus-cli "WiFi.Radio.1.Sensing.resetStats()"
+ubus-cli "WiFi.Radio.1.Sensing.addClient(MACAddress='34:19:4D:A4:B5:09', MonitorInterval=100)"
+ubus-cli WiFi.Radio.1.Sensing.Enable=true
+```
+
+**判定 blocker 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260510T020621009979
+- workbook row 357 latest result expects Pass/Pass/Pass
+- report shape: Fail / N/A / N/A, diagnostic_status=FailTest
+- JSON failure snapshot: evaluate pass_criteria_not_satisfied, field=skip, operator=skip
+- DUT.log L1-L15:
+  __testpilot_env_gate__
+  dmesg -n 1
+- source survey: `whm_brcm_rad_csi.c` registers `mfn_wrad_sensing_csiStats`; `whm_brcm_api_ext*.c` maps csimon_state counters into csiStats fields; current YAML does not execute the workbook reset/add/enable/csiStats flow
+```
+
 ## Checkpoint summary (2026-05-10 0506-D356)
 
 > This checkpoint records the `D356 delClient() — WiFi.Radio.{i}.Sensing.` blocker.
