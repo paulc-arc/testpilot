@@ -1,5 +1,54 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D061)
+
+> This checkpoint records the `D061 UplinkShortGuard` blocker.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=163`, `applied=8`, `pending=102`, `block=142`, `needs_pass3=0`
+- `D061 UplinkShortGuard` blocked as `bands_scope_outside_audit_allowlist`
+- workbook row 61 raw value is `Pass / Pass / Pass`, normalized to `Pass / Pass / Pass`
+- source 宣告 `AssociatedDevice[]` read path 透過 `wld_assocDev_getStats_orf`，且 `AssociatedDevice.UplinkShortGuard` 是 volatile read-only bool；WLD header 也暴露 UplinkShortGuard
+- focused run `20260509T183612306374` validates the current 5G path: AP1 AssociatedDevice.1 remained `2C:59:17:00:42:15`, `UplinkShortGuard=1`, and driver GI `1.6us` parsed `DriverUplinkShortGuard=1`
+- report shape `Pass / N/A / N/A` 與 workbook tri-band Pass 不符；新增 6G/2.4G executable coverage 或修改 top-level bands/topology 超出 audit allowlist
+- next ready single-case Pass3 target: `D062`
+
+</details>
+
+### D061 UplinkShortGuard blocker evidence
+
+**STA 指令**
+
+```sh
+ifconfig wl0 192.168.1.3 netmask 255.255.255.0 up
+ping -I wl0 -c 8 -W 1 192.168.1.1
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?"
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.?"
+wl -i wl0 sta_info "$STA_MAC" | sed -n '/rx nrate/,+1p'
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T183612306374
+- AP1 association: AssociatedDevice.1.MACAddress="2C:59:17:00:42:15"
+- trigger: STA wl0 ping sent 8 packets to 192.168.1.1
+- API evidence: UplinkShortGuard=1
+- driver evidence: rx nrate / he mcs 7 Nss 4 Tx Exp 0 bw20 ldpc 2xLTF GI 1.6us auto; DriverUplinkShortGuardGI=1.6us; DriverUplinkShortGuard=1
+- report shape: Pass / N/A / N/A, diagnostic_status=Pass
+- compare against audit/0506.xlsx row 61: expected Pass/Pass/Pass, actual Pass/N/A/N/A, mismatch_case_count=1, mismatch bands=6g,2.4g
+- blocker: current 5G-only authored case is valid for AP1 but cannot represent workbook tri-band Pass without bands/topology or 6G/2.4G executable-step changes outside audit allowlist
+- source citations: fs/etc/amx/wld/wld_accesspoint.odl L1202-L1203 wires AssociatedDevice[] reads through wld_assocDev_getStats_orf; L1412 declares UplinkShortGuard as volatile read-only bool; BRCM mirror tr181-wifi_AccessPoint.odl L1091 declares UplinkShortGuard; wld.h L843/L928 expose UplinkShortGuard fields
+```
+
 ## Checkpoint summary (2026-05-09 0506-D060)
 
 > This checkpoint records the `D060 UplinkMCS` blocker.
