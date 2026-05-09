@@ -1,5 +1,64 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-10 0506-D331)
+
+> This checkpoint records the `D331 MulticastPacketsSent — WiFi.SSID.{i}.Stats.` environment blocker.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=189`, `applied=9`, `pending=53`, `block=164`, `needs_pass3=0`
+- `D331 MulticastPacketsSent — WiFi.SSID.{i}.Stats.` recorded as `ssid_stats_multicastpacketssent_workbook_pass_all_bands_blocked_by_sta_band_not_ready`
+- workbook row 331 latest ARC result is `Pass / Pass / Pass`
+- focused run `20260510T004954526486` reported `Fail / Fail / Fail` with `diagnostic_status=FailEnv`
+- failure reason: env gate failed before MulticastPacketsSent readback because STA band baseline/connect failed, STA `wl0` stayed not connected/not associated, and BSS readiness failed across retries
+- next ready single-case Pass3 target: `D332`
+
+</details>
+
+### D331 SSID Stats MulticastPacketsSent blocker evidence
+
+**STA 指令**
+
+```sh
+wpa_cli -p /var/run/wpa_supplicant -i wl0 select_network 0
+iw dev wl0 link
+wl -i wl0 join testpilot5G imode bss
+wl -i wl0 status
+```
+
+**DUT 指令**
+
+```sh
+wl -i wl0 bss
+ubus-cli WiFi.Radio.1.Enable=1
+ubus-cli "WiFi.SSID.4.Stats.MulticastPacketsSent?"
+ubus-cli "WiFi.SSID.6.Stats.MulticastPacketsSent?"
+ubus-cli "WiFi.SSID.8.Stats.MulticastPacketsSent?"
+```
+
+**判定 blocker 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260510T004954526486
+- workbook row 331 latest result expects Pass/Pass/Pass
+- report shape: Fail / Fail / Fail, diagnostic_status=FailEnv
+- JSON failure snapshot: verify_env sta_band_not_ready before MulticastPacketsSent readback
+- STA.log L82-L121:
+  iw dev wl0 link
+  Not connected.
+  wl -i wl0 join testpilot5G imode bss
+  wl -i wl0 status
+  Not associated. Last associated with SSID: ""
+- DUT.log L3-L1612:
+  wl -i wl0 bss
+  down
+  WiFi.Radio.1.Enable=1
+  ... BSS readiness retries/remediation ...
+- runtime remediation attempted sta_band_rebaseline/AP bounce but did not restore STA band readiness
+```
+
 ## Checkpoint summary (2026-05-10 0506-D330)
 
 > This checkpoint records the `D330 MulticastPacketsReceived — WiFi.SSID.{i}.Stats.` environment blocker.
