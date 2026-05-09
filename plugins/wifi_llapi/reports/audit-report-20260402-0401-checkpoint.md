@@ -1,5 +1,51 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D113)
+
+> This checkpoint records the `D113 getStationStats() AvgSignalStrength` blocker decision.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=167`, `applied=9`, `pending=84`, `block=155`, `needs_pass3=0`
+- `D113 getStationStats() AvgSignalStrength` recorded as `avgsignalstrength_workbook_all_fail_vs_yaml_integer_presence_pass_scope_mismatch`
+- workbook row 113 raw value is `Failed / Failed / Failed`, normalized to `Fail / Fail / Fail`
+- focused run `20260509T210227174794` reported `Pass / N/A / N/A`
+- official YAML is scoped to 5G only and treats integer presence as pass; 5G observed `AvgSignalStrength=0`
+- workbook command output contrasts `AvgSignalStrength=0` with non-zero driver `smoothed rssi`, so current pass semantics do not match workbook all-fail result
+- next ready single-case Pass3 target: `D114`
+
+</details>
+
+### D113 getStationStats() AvgSignalStrength blocker evidence
+
+**STA 指令**
+
+```sh
+# testpilot setup_env connected STA wl0 to DUT 5G SSID testpilot5G.
+```
+
+**DUT 指令**
+
+```sh
+wl -i wl0 assoclist
+ubus-cli "WiFi.AccessPoint.1.getStationStats()"
+```
+
+**判定 block 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T210227174794, DUT.log L204-L242
+- report shape: Pass / N/A / N/A, diagnostic_status=Pass
+- workbook row 113 expects Failed/Failed/Failed -> normalized Fail/Fail/Fail
+- assoclist 2C:59:17:00:42:15
+- AvgSignalStrength = 0
+- AvgSignalStrengthByChain = -26
+- MACAddress = "2C:59:17:00:42:15"
+- current 5G-only YAML treats integer presence as pass, which mismatches workbook all-fail semantics
+```
+
 ## Checkpoint summary (2026-05-09 0506-D112)
 
 > This checkpoint records the `D112 getStationStats() AuthenticationState` blocker decision.
