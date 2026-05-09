@@ -1,5 +1,68 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D323)
+
+> This checkpoint records the `D323 BytesReceived — WiFi.SSID.{i}.Stats.` environment blocker.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=189`, `applied=9`, `pending=60`, `block=157`, `needs_pass3=0`
+- `D323 BytesReceived — WiFi.SSID.{i}.Stats.` recorded as `ssid_stats_bytesreceived_workbook_pass_all_bands_blocked_by_sta_band_not_ready`
+- workbook row 323 latest pWHM/Brcm result is `Pass / Pass / Pass`
+- focused run `20260509T233341447761` reported `Fail / Fail / Fail` with `diagnostic_status=FailEnv`
+- failure reason: env gate failed before BytesReceived readback because STA band baseline/connect failed and `wl0` BSS stayed down after retries/AP bounce
+- next ready single-case Pass3 target: `D324` inventory check
+
+</details>
+
+### D323 SSID Stats BytesReceived blocker evidence
+
+**STA 指令**
+
+```sh
+# STA baseline/connect attempted by runtime auto-baseline; no counter traffic step executed
+wpa_cli -p /var/run/wpa_supplicant -i wl0 select_network 0
+wl -i wl0 join testpilot5G imode bss
+wl -i wl0 status
+```
+
+**DUT 指令**
+
+```sh
+wl -i wl0 bss up
+wl -i wl0 bss
+ubus-cli "WiFi.SSID.4.Stats.BytesReceived?"
+ubus-cli "WiFi.SSID.6.Stats.BytesReceived?"
+ubus-cli "WiFi.SSID.8.Stats.BytesReceived?"
+```
+
+**判定 blocker 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T233341447761
+- workbook row 323 latest result expects Pass/Pass/Pass
+- report shape: Fail / Fail / Fail, diagnostic_status=FailEnv
+- JSON failure snapshot: verify_env sta_band_not_ready before BytesReceived readback
+- STA.log L82-L121:
+  iw dev wl0 link
+  Not connected.
+  wpa_cli -p /var/run/wpa_supplicant -i wl0 select_network 0
+  OK
+  wl -i wl0 status
+  Not associated. Last associated with SSID: ""
+- DUT.log L1055-L1118 and L1260-L1318:
+  wl -i wl0 bss
+  down
+  ... repeated wl0 bss checks ...
+  wl -i wl0 bss up
+  wl -i wl0 bss
+  down
+  WiFi.Radio.1.Enable=1
+- runtime remediation attempted sta_band_rebaseline/AP bounce but did not restore STA band readiness
+```
+
 ## Checkpoint summary (2026-05-09 0506-D322)
 
 > This checkpoint records the `D322 BroadcastPacketsSent — WiFi.SSID.{i}.Stats.` environment blocker.
