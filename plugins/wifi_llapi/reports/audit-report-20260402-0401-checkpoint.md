@@ -1,5 +1,64 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D105)
+
+> This checkpoint records the `D105 PairingInProgress` blocker decision.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=166`, `applied=9`, `pending=86`, `block=154`, `needs_pass3=0`
+- `D105 PairingInProgress` recorded as `pairinginprogress_requires_longer_hostapd_settle_and_mixed_band_projection_outside_audit_allowlist`
+- workbook row 105 raw value is `Pass / Not Support / Pass`, normalized to `Pass / Fail / Pass`
+- source 宣告 `InitiateWPSPBC()` returns `Success`, `Error_Not_Ready`, `Error_Timeout`, or `Error_Other`; `PairingInProgress` means WPS pairing is busy after pushButton and before completion/timer expiry
+- focused run `20260509T203909166409` reported `Fail / Fail / Fail`
+- AP1/AP5 PBC was attempted after only 2s hostapd settle and returned `Error_Not_Ready`; AP3/6G returned `Error_Other`; all PairingInProgress values stayed `0`
+- manual cross-checks `e78bdb05509e4d6db8e09018ab698914` and `c5326761dfd9409dbc56413f9a55b1ac` showed AP1/AP5 pass after an 8s settle: `InitiateWPSPBC()` returned `Success` and `PairingInProgress=1`
+- cleanup command `8ade1cede964448ba23413cd631ecc13` reset AP1/AP3/AP5 `WPS.Enable=0`, `PairingInProgress=0`, and wl0/wl1/wl2 `up`
+- next ready single-case Pass3 target: `D106`
+
+</details>
+
+### D105 PairingInProgress blocker evidence
+
+**STA 指令**
+
+```sh
+# AP-only checkpoint; no STA command was required.
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.WPS.Enable=1"
+sleep 8
+ubus-cli "WiFi.AccessPoint.1.WPS.InitiateWPSPBC()"
+ubus-cli "WiFi.AccessPoint.1.WPS.PairingInProgress?"
+ubus-cli "WiFi.AccessPoint.1.WPS.cancelWPSPairing()"
+ubus-cli "WiFi.AccessPoint.1.WPS.Enable=0"
+ubus-cli "WiFi.AccessPoint.5.WPS.Enable=1"
+sleep 8
+ubus-cli "WiFi.AccessPoint.5.WPS.InitiateWPSPBC()"
+ubus-cli "WiFi.AccessPoint.5.WPS.PairingInProgress?"
+ubus-cli "WiFi.AccessPoint.5.WPS.cancelWPSPairing()"
+ubus-cli "WiFi.AccessPoint.5.WPS.Enable=0"
+```
+
+**判定 block 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T203909166409, DUT.log L5-L153 and L159-L307
+- report shape: Fail / Fail / Fail, diagnostic_status=FailTest
+- focused 5G/AP1: InitiateWPSPBC() returned Error_Not_Ready after 2s settle; PairingInProgress5g=0
+- focused 6G/AP3: InitiateWPSPBC() returned Error_Other; PairingInProgress6g=0
+- focused 2.4G/AP5: InitiateWPSPBC() returned Error_Not_Ready after 2s settle; PairingInProgress24g=0
+- manual command e78bdb05509e4d6db8e09018ab698914: after 8s settle AP1 wps_state=2, InitiateWPSPBC() returned Success, PairingInProgress=1, then restored Enable=0
+- manual command c5326761dfd9409dbc56413f9a55b1ac: after 8s settle AP5 wps_state=2, InitiateWPSPBC() returned Success, PairingInProgress=1, then restored Enable=0
+- cleanup command 8ade1cede964448ba23413cd631ecc13: AP1/AP3/AP5 WPS.Enable=0, PairingInProgress=0, and wl0/wl1/wl2 were up
+- source citations: fs/etc/amx/wld/wld_accesspoint.odl L1010-L1018 defines InitiateWPSPBC status values; L1066-L1070 defines PairingInProgress
+```
+
 ## Checkpoint summary (2026-05-09 0506-D104)
 
 > This checkpoint records the `D104 Enable` blocker decision.
