@@ -1,5 +1,71 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-10 0506-D437)
+
+> This checkpoint records the `D437 SAEPassphrase — WiFi.AccessPoint.{i}.Security.` environment blocker.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=191`, `applied=9`, `pending=13`, `block=202`, `needs_pass3=0`
+- `D437 SAEPassphrase — WiFi.AccessPoint.{i}.Security.` recorded as `security_saepassphrase_env_block_5g_dut_bss_down_before_hostapd_sae_password_check`
+- workbook row 437 latest result is `Pass / Pass / Pass`; workbook validates wildcard WPA3-Personal + SAEPassphrase by checking wl0/wl1/wl2 hostapd `sae_password=1234567890`
+- focused run `20260510T045208415030` reported `Fail / Fail / Fail` with `diagnostic_status=FailConfig`
+- failure reason: `setup_env` failed before SAE setter/readback and hostapd backend inspection because DUT `wl0` BSS stayed `down`
+- source survey confirms `SAEPassphrase` is defined as a WPA3/WPA2-WPA3 passphrase and registered in `dm_info.c`
+- next ready single-case Pass3 target: `D438`
+
+</details>
+
+### D437 Security SAEPassphrase environment blocker evidence
+
+**STA 指令**
+
+```sh
+# AP-only Security case; runtime did not require or reach STA operations.
+```
+
+**DUT 指令**
+
+```sh
+# Setup commands executed before the blocker:
+ubus-cli WiFi.AccessPoint.1.Enable=1
+ubus-cli WiFi.AccessPoint.3.Enable=1
+ubus-cli WiFi.AccessPoint.5.Enable=1
+ubus-cli WiFi.AccessPoint.1.Security.ModeEnabled=WPA2-Personal
+ubus-cli WiFi.AccessPoint.2.Security.ModeEnabled=WPA2-Personal
+ubus-cli WiFi.AccessPoint.3.Security.ModeEnabled=WPA3-Personal
+ubus-cli WiFi.AccessPoint.4.Security.ModeEnabled=WPA3-Personal
+ubus-cli WiFi.AccessPoint.5.Security.ModeEnabled=WPA2-Personal
+ubus-cli WiFi.AccessPoint.6.Security.ModeEnabled=WPA2-Personal
+ubus-cli WiFi.AccessPoint.1.Security.SAEPassphrase=password
+ubus-cli WiFi.AccessPoint.2.Security.SAEPassphrase=password
+ubus-cli 'WiFi.AccessPoint.3.Security.SAEPassphrase="00000000"'
+ubus-cli 'WiFi.AccessPoint.4.Security.SAEPassphrase="00000000"'
+ubus-cli WiFi.AccessPoint.5.Security.SAEPassphrase=password
+ubus-cli WiFi.AccessPoint.6.Security.SAEPassphrase=password
+wl -i wl0 bss
+
+# Intended workbook replay, not executed in this focused run:
+ubus-cli "WiFi.AccessPoint.*.Security.ModeEnabled=WPA3-Personal"
+ubus-cli "WiFi.AccessPoint.*.Security.SAEPassphrase=1234567890"
+grep -m1 '^sae_password=' /tmp/wl0_hapd.conf
+grep -m1 '^sae_password=' /tmp/wl1_hapd.conf
+grep -m1 '^sae_password=' /tmp/wl2_hapd.conf
+```
+
+**判定 blocker 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260510T045208415030
+- workbook row 437 latest result expects Pass/Pass/Pass
+- report shape: Fail / Fail / Fail, diagnostic_status=FailConfig
+- failure snapshot: phase=setup_env, band=5g, device=DUT, reason_code=sta_env_setup_failed, command="wl -i wl0 bss", output="down"
+- runtime failed before SAEPassphrase setter/readback and hostapd sae_password inspection
+- source survey: `tr181-wifi_AccessPoint.odl` defines Security.SAEPassphrase for WPA3/WPA2-WPA3; `dm_info.c` registers SAEPassphrase as a Security string
+```
+
 ## Checkpoint summary (2026-05-10 0506-D436)
 
 > This checkpoint records the `D436 OWETransitionInterface — WiFi.AccessPoint.{i}.Security.` environment blocker.
