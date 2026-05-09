@@ -5052,13 +5052,14 @@ def test_pending_mu_stub_cases_use_supported_contracts():
         _mu_rr = {
             "D031_mumimotxpktscount.yaml": ("Fail", "Fail", "Fail"),
             "D032_mumimotxpktspercentage.yaml": ("Fail", "Fail", "Fail"),
-            "D033_muuserpositionid.yaml": ("Not Supported", "Not Supported", "Not Supported"),
+            "D033_muuserpositionid.yaml": ("Fail", "Fail", "Fail"),
         }
         exp5, exp6, exp24 = _mu_rr[filename]
         assert _has_assoc_mac_regex(case_data, "assoc_5g.AssocMac5g")
         fail_shaped_zero_cases = {
             "D031_mumimotxpktscount.yaml",
             "D032_mumimotxpktspercentage.yaml",
+            "D033_muuserpositionid.yaml",
         }
         expected_5g_operator = (
             "not_equals" if filename in fail_shaped_zero_cases else "equals"
@@ -5117,6 +5118,7 @@ def test_pending_mu_stub_cases_evaluate_live_examples():
         if filename in {
             "D031_mumimotxpktscount.yaml",
             "D032_mumimotxpktspercentage.yaml",
+            "D033_muuserpositionid.yaml",
         }:
             assert plugin.evaluate(case_data, pass_results) is False
             non_stub_results = {
