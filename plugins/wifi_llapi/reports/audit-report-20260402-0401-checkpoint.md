@@ -1,5 +1,62 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D068)
+
+> This checkpoint records the `D068 DiscoveryMethodEnabled=RNR` confirmed no-edit decision.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=166`, `applied=9`, `pending=98`, `block=142`, `needs_pass3=0`
+- `D068 DiscoveryMethodEnabled=RNR` confirmed as `workbook_normalized_fail_match_no_yaml_edit`
+- workbook row 68 raw value is `Failed / Failed / Failed`, normalized to `Fail / Fail / Fail`
+- source 宣告 `WiFi.AccessPoint.{i}.DiscoveryMethodEnabled` 是 persistent string，default `Default`，target ODL 透過 `wld_ap_validateDiscoveryMethod_pvf` 驗證
+- focused run `20260509T190039858564` shows AP1/AP3/AP5 accepted and read back `RNR`, but hostapd configs exposed zero `rnr=` lines on wl0/wl1/wl2 after the RNR writes
+- report shape `Fail / Fail / Fail` matches workbook-normalized `Fail / Fail / Fail`; all bands were restored to `Default`
+- next ready single-case Pass3 target: `D069`
+
+</details>
+
+### D068 DiscoveryMethodEnabled=RNR confirmed evidence
+
+**STA 指令**
+
+```sh
+# AP-only checkpoint; no STA command was required.
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.DiscoveryMethodEnabled?"
+ubus-cli "WiFi.AccessPoint.3.DiscoveryMethodEnabled?"
+ubus-cli "WiFi.AccessPoint.5.DiscoveryMethodEnabled?"
+ubus-cli WiFi.AccessPoint.1.DiscoveryMethodEnabled=RNR
+ubus-cli WiFi.AccessPoint.3.DiscoveryMethodEnabled=RNR
+ubus-cli WiFi.AccessPoint.5.DiscoveryMethodEnabled=RNR
+awk '/^rnr=/{if ($0=="rnr=1") enabled++; if ($0=="rnr=0") disabled++; total++} END {print enabled+0, disabled+0, total+0}' /tmp/wl0_hapd.conf
+awk '/^rnr=/{if ($0=="rnr=1") enabled++; if ($0=="rnr=0") disabled++; total++} END {print enabled+0, disabled+0, total+0}' /tmp/wl1_hapd.conf
+awk '/^rnr=/{if ($0=="rnr=1") enabled++; if ($0=="rnr=0") disabled++; total++} END {print enabled+0, disabled+0, total+0}' /tmp/wl2_hapd.conf
+ubus-cli WiFi.AccessPoint.1.DiscoveryMethodEnabled=Default
+ubus-cli WiFi.AccessPoint.3.DiscoveryMethodEnabled=Default
+ubus-cli WiFi.AccessPoint.5.DiscoveryMethodEnabled=Default
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T190039858564
+- default getters: AP1/AP3/AP5 DiscoveryMethodEnabled="Default"
+- RNR writes: AP1/AP3/AP5 accepted and read back DiscoveryMethodEnabled="RNR"
+- hostapd config after RNR: wl0 RnrEnabled5gCount=0 RnrDisabled5gCount=0 RnrTotal5gCount=0; wl1 RnrEnabled6gCount=0 RnrDisabled6gCount=0 RnrTotal6gCount=0; wl2 RnrEnabled24gCount=0 RnrDisabled24gCount=0 RnrTotal24gCount=0
+- restore: AP1/AP3/AP5 restored DiscoveryMethodEnabled="Default"; wl1 still had zero rnr lines after restore
+- report shape: Fail / Fail / Fail, diagnostic_status=FailTest
+- compare against audit/0506.xlsx row 68: expected Failed/Failed/Failed, normalized Fail/Fail/Fail; actual Fail/Fail/Fail
+- decision: confirmed no-edit; current fail-shaped evidence matches workbook Failed rows after normalization
+- source citations: fs/etc/amx/wld/wld_accesspoint.odl L2404-L2406 declares DiscoveryMethodEnabled with default and validation callback; BRCM mirror tr181-wifi_AccessPoint.odl L184-L185 declares the persistent string and default
+```
+
 ## Checkpoint summary (2026-05-09 0506-D067)
 
 > This checkpoint records the `D067 DiscoveryMethodEnabled=UPR` blocker.
