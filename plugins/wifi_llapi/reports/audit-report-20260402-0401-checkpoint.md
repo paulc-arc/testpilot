@@ -1,5 +1,51 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D036)
+
+> This checkpoint records the `D036 PowerSave` confirmed no-edit closure.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=154`, `applied=8`, `pending=127`, `block=126`, `needs_pass3=0`
+- `D036 PowerSave` confirmed without YAML edit，reason=`workbook_normalized_match_setup_failure_no_yaml_edit`
+- workbook row 36 raw value is `Not Supported / Not Supported / Not Supported`, normalized to `Fail / Fail / Fail`
+- source 宣告 `AssociatedDevice[]` read path 透過 `wld_assocDev_getStats_orf`，且 `AssociatedDevice.PowerSave` 是 volatile read-only bool
+- focused run `20260509T162145736993` 未到 getter；case-local WPA3/SAE `sta_env_setup[48]` 在 `iw dev wl0 link` 回 `Not connected.`
+- report shape `Fail / N/A / N/A` 正規化後等同 workbook `Fail / Fail / Fail`，compare against `audit/0506.xlsx`: `full_match_count=1`, `mismatch_case_count=0`
+- next ready single-case Pass3 target: `D037`
+
+</details>
+
+### D036 PowerSave confirmed evidence
+
+**STA 指令**
+
+```sh
+wpa_supplicant -B -D nl80211 -i wl0 -c /tmp/wpa_wl0.conf -C /var/run/wpa_supplicant
+wpa_cli -p /var/run/wpa_supplicant -i wl0 reconnect
+iw dev wl0 link
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.PowerSave?"
+STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p')
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T162145736993
+- setup failure: sta_env_setup[48] target=STA command `iw dev wl0 link` returned `Not connected.` after retries
+- report shape: Fail / N/A / N/A, diagnostic_status=FailEnv
+- compare against audit/0506.xlsx row 36: expected raw Not Supported/Not Supported/Not Supported, normalized Fail/Fail/Fail; actual normalized Fail/Fail/Fail; full_match_count=1, mismatch_case_count=0
+- caveat: getter did not execute; no YAML edit was applied because sta_env_setup, bands, and topology are outside audit verify-edit allowlist
+- source citations: fs/etc/amx/wld/wld_accesspoint.odl L1202-L1203 wires AssociatedDevice[] reads through wld_assocDev_getStats_orf; L1469 declares PowerSave as volatile read-only bool; BRCM mirror tr181-wifi_AccessPoint.odl L949 declares PowerSave as volatile read-only bool
+```
+
 ## Checkpoint summary (2026-05-09 0506-D035)
 
 > This checkpoint records the `D035 OperatingStandard` blocker.
