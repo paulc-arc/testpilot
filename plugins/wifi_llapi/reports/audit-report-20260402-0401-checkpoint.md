@@ -1,5 +1,52 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D042)
+
+> This checkpoint records the `D042 RxUnicastPacketCount` confirmed no-edit closure.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=157`, `applied=8`, `pending=121`, `block=129`, `needs_pass3=0`
+- `D042 RxUnicastPacketCount` confirmed without YAML edit，reason=`workbook_normalized_match_setup_failure_no_yaml_edit`
+- workbook row 42 raw value is `Not Supported / Not Supported / Not Supported`, normalized to `Fail / Fail / Fail`
+- source 宣告 `AssociatedDevice[]` read path 透過 `wld_assocDev_getStats_orf`，且 `AssociatedDevice.RxUnicastPacketCount` 是 volatile read-only uint32；BRCM/WLD header 與 wl utility 也暴露 rx unicast packet counter
+- focused run `20260509T165528909672` 未到 getter；case-local WPA3/SAE `sta_env_setup[48]` 在 `iw dev wl0 link` 回 `Not connected.`
+- report shape `Fail / N/A / N/A` 正規化後等同 workbook `Fail / Fail / Fail`，compare against `audit/0506.xlsx`: `full_match_count=1`, `mismatch_case_count=0`
+- next ready single-case Pass3 target: `D043`
+
+</details>
+
+### D042 RxUnicastPacketCount confirmed evidence
+
+**STA 指令**
+
+```sh
+wpa_supplicant -B -D nl80211 -i wl0 -c /tmp/wpa_wl0.conf -C /var/run/wpa_supplicant
+wpa_cli -p /var/run/wpa_supplicant -i wl0 reconnect
+iw dev wl0 link
+ping -I wl0 -c 8 -s 1400 -W 1 <resolved DUT br-lan IPv4>
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.RxUnicastPacketCount?"
+wl -i wl0 sta_info "$STA_MAC" | grep 'rx ucast pkts'
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T165528909672
+- setup failure: sta_env_setup[48] target=STA command `iw dev wl0 link` returned `Not connected.` after retries
+- report shape: Fail / N/A / N/A, diagnostic_status=FailEnv
+- compare against audit/0506.xlsx row 42: expected Not Supported/Not Supported/Not Supported -> normalized Fail/Fail/Fail; actual Fail/N/A/N/A -> normalized Fail/Fail/Fail; full_match_count=1, mismatch_case_count=0
+- caveat: getter did not execute; this is accepted only as a workbook-normalized match, and sta_env_setup / bands / topology changes remain outside audit allowlist
+- source citations: fs/etc/amx/wld/wld_accesspoint.odl L1202-L1203 wires AssociatedDevice[] reads through wld_assocDev_getStats_orf; L1334 declares RxUnicastPacketCount as volatile read-only uint32; BRCM mirror tr181-wifi_AccessPoint.odl L1015 declares RxUnicastPacketCount; wld.h L829 exposes RxUnicastPacketCount; wlu_common.c L596 prints rx ucast pkts from sta->rx_ucast_pkts
+```
+
 ## Checkpoint summary (2026-05-09 0506-D041)
 
 > This checkpoint records the `D041 RxPacketCount` blocker.
