@@ -1,5 +1,54 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D019)
+
+> This checkpoint records the `D019 EncryptionMode` workbook-fail closure decision.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=151`, `applied=3`, `pending=143`, `block=118`, `needs_pass3=0`
+- `D019 EncryptionMode` 已 closure；reason=`pass3_encryptionmode_default_vs_driver_aes_fail_shape`
+- workbook row 19 期待 `Fail / Fail / Fail`；source 宣告 `AssociatedDevice[]` read path 透過 `wld_assocDev_getStats_orf`，且 `AssociatedDevice.EncryptionMode` / `ProbeReqCaps.EncryptionMode` 都是 read-only enum string，default 為 `Default`
+- focused pre-edit rerun `20260509T130527389559` 仍是舊的 pass-shaped verdict：只接受 AP3 `EncryptionMode=Default`，因此回報 `Pass`
+- manual serialwrap probe 確認同一個 AP3 associated STA：STA 端 `key_mgmt=SAE` / `pairwise_cipher=CCMP`，DUT 端 `EncryptionMode=Default` / `ProbeReqCaps.EncryptionMode=Default`，但 `wl -i wl1 sta_info <STA_MAC>` 回 `auth: WPA3-SAE-PSK` 與 `crypto: AES_CCM`
+- audit-gated proposal 保留既有 6G setup，將 final criterion 改為 `result.EncryptionMode == result.DriverEncryptionMode6g`；live value 是 `Default != AES`，所以 closure 形狀符合 workbook Fail
+- focused post-apply rerun `20260509T131313248941` completed with workbook-normalized `Fail / Fail / Fail`, `diagnostic_status=FailTest`, `pass_count=0`, `fail_count=1`; compare against `audit/0506.xlsx` reports `full_match_count=1`, `mismatch_case_count=0`
+- next ready single-case Pass3 target: `D020`
+
+</details>
+
+### D019 EncryptionMode closure evidence
+
+**STA 指令**
+
+```sh
+wpa_cli -p /var/run/wpa_supplicant -i wl1 status
+```
+
+**DUT 指令**
+
+```sh
+wl -i wl1 assoclist
+ubus-cli "WiFi.AccessPoint.3.AssociatedDevice.1.EncryptionMode?"
+ubus-cli "WiFi.AccessPoint.3.AssociatedDevice.1.ProbeReqCaps.EncryptionMode?"
+wl -i wl1 sta_info <STA_MAC> | grep -E "auth:|crypto:"
+```
+
+**判定 fail-shape closure 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T131313248941
+- attempt 1/2 and 2/2 both failed only at result.EncryptionMode: expected AES, actual Default
+- STA output: key_mgmt=SAE, pairwise_cipher=CCMP, wpa_state=COMPLETED, address=2c:59:17:00:42:16
+- DUT output: AssocMAC=2C:59:17:00:42:16
+- DUT output: EncryptionMode=Default, ProbeReqCapsEncryptionMode=Default, DriverAuth6g=WPA3-SAE-PSK, DriverCrypto6g=AES_CCM, DriverEncryptionMode6g=AES
+- final: status=Fail, evaluation_verdict=Fail, attempts_used=2, diagnostic_status=FailTest
+- compare against audit/0506.xlsx: actual_norm Fail/Fail/Fail matches expected_norm Fail/Fail/Fail
+- source citations: fs/etc/amx/wld/wld_accesspoint.odl L1202-L1203 wires AssociatedDevice[] reads through wld_assocDev_getStats_orf; L1666-L1668 declares AssociatedDevice.EncryptionMode default Default; L1766/L1870-L1872 declare ProbeReqCaps.EncryptionMode default Default
+```
+
 ## Checkpoint summary (2026-05-09 0506-D018)
 
 > This checkpoint records the `D018 DownlinkShortGuard` closure decision.

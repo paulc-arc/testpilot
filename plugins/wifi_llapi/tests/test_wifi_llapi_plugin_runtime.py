@@ -2974,10 +2974,14 @@ def test_pre_skip_aligned_manual_cases_avoid_stale_sample_values():
     assert case_band_results(d019, True) == _expected_case_band_results(d019, True)
     assert "EncryptionMode?" in d019["hlapi_command"]
     assert "EncryptionMode=AES" not in d019["hlapi_command"]
+    d019_commands = "\n".join(str(step.get("command", "")) for step in d019["steps"])
+    assert 'WiFi.AccessPoint.3.AssociatedDevice.1.ProbeReqCaps.EncryptionMode?' in d019_commands
+    assert 'DriverCrypto6g=%s' in d019_commands
+    assert 'DriverEncryptionMode6g=%s' in d019_commands
     assert any(
         criterion["field"] == "result.EncryptionMode"
         and criterion["operator"] == "equals"
-        and criterion["value"] == "Default"
+        and criterion["reference"] == "result.DriverEncryptionMode6g"
         for criterion in d019["pass_criteria"]
     )
 
