@@ -1,5 +1,55 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-10 0506-D477)
+
+> This checkpoint records the `D477 UnknownProtoPacketsReceived — WiFi.Radio.{i}.Stats.` DM/driver counter mismatch blocker.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=191`, `applied=9`, `pending=10`, `block=205`, `needs_pass3=0`
+- `D477 UnknownProtoPacketsReceived — WiFi.Radio.{i}.Stats.` recorded as `radio_stats_unknownprotopacketsreceived_workbook_pass_vs_runtime_fail_dm_zero_mismatch_driver_rxbadproto`
+- workbook row 477 latest result is `Pass / Pass / Pass`; workbook validates the Radio Stats DM counter against wl0/wl1/wl2 `rxbadproto`
+- focused run `20260510T050121708437` reported `Fail / Fail / Fail` with `diagnostic_status=FailTest`
+- failure reason: DM getters returned `0/0/0`, while driver `rxbadproto` returned `18/0/1`; the 5G equality criterion failed with expected `18`, actual `0`
+- source survey confirms `UnknownProtoPacketsReceived` is declared in Radio Stats ODL, registered in `dm_info.c`, and carried by wld stats structures
+- next ready single-case Pass3 target: `D478`
+
+</details>
+
+### D477 Radio Stats UnknownProtoPacketsReceived mismatch evidence
+
+**STA 指令**
+
+```sh
+# DUT-only Radio Stats counter case; runtime did not require STA operations.
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.Radio.1.Stats.UnknownProtoPacketsReceived?"
+wl -i wl0 counters | awk '{for(i=1;i<=NF;i++) if($i=="rxbadproto") print "DriverUnknownProtoPacketsReceived5g="$(i+1)}'
+ubus-cli "WiFi.Radio.2.Stats.UnknownProtoPacketsReceived?"
+wl -i wl1 counters | awk '{for(i=1;i<=NF;i++) if($i=="rxbadproto") print "DriverUnknownProtoPacketsReceived6g="$(i+1)}'
+ubus-cli "WiFi.Radio.3.Stats.UnknownProtoPacketsReceived?"
+wl -i wl2 counters | awk '{for(i=1;i<=NF;i++) if($i=="rxbadproto") print "DriverUnknownProtoPacketsReceived24g="$(i+1)}'
+```
+
+**判定 blocker 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260510T050121708437
+- workbook row 477 latest result expects Pass/Pass/Pass
+- report shape: Fail / Fail / Fail, diagnostic_status=FailTest
+- DUT.log L8-L16 and L40-L48: Radio.1 UnknownProtoPacketsReceived=0 while wl0 rxbadproto=18
+- DUT.log L17-L25 and L49-L57: Radio.2 UnknownProtoPacketsReceived=0 while wl1 rxbadproto=0
+- DUT.log L26-L34 and L58-L66: Radio.3 UnknownProtoPacketsReceived=0 while wl2 rxbadproto=1
+- failure snapshot: field=direct_5g.UnknownProtoPacketsReceived, operator=equals, expected=18, actual=0
+- source survey: tr181-wifi_Radio.odl declares the volatile read-only counter; dm_info.c registers it; wld_types.h carries UnknownProtoPacketsReceived in wld_stats_t / X_WLD_STATS
+```
+
 ## Checkpoint summary (2026-05-10 0506-D464)
 
 > This checkpoint records the `D464 NonSRGOffsetValid — WiFi.Radio.{i}.IEEE80211ax.` workbook/runtime mismatch blocker.
