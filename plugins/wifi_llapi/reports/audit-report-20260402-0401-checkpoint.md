@@ -1,5 +1,52 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D048)
+
+> This checkpoint records the `D048 SupportedHeMCS` confirmed no-edit closure.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=158`, `applied=8`, `pending=115`, `block=134`, `needs_pass3=0`
+- `D048 SupportedHeMCS` confirmed without YAML edit，reason=`workbook_normalized_match_setup_failure_no_yaml_edit`
+- workbook row 48 raw value is `Skip / Skip / Skip`, normalized to `Fail / Fail / Fail`
+- source survey finds `RxSupportedHeMCS` / `TxSupportedHeMCS` under AccessPoint AssociatedDevice, but standalone `SupportedHeMCS` is declared under Endpoint
+- focused run `20260509T172641475345` 未到 getter；case-local WPA3/SAE `sta_env_setup[48]` 在 `iw dev wl0 link` 回 `Not connected.`
+- report shape `Fail / N/A / N/A` 正規化後等同 workbook `Fail / Fail / Fail`，compare against `audit/0506.xlsx`: `full_match_count=1`, `mismatch_case_count=0`
+- next ready single-case Pass3 target: `D049`
+
+</details>
+
+### D048 SupportedHeMCS confirmed evidence
+
+**STA 指令**
+
+```sh
+wpa_supplicant -B -D nl80211 -i wl0 -c /tmp/wpa_wl0.conf -C /var/run/wpa_supplicant
+wpa_cli -p /var/run/wpa_supplicant -i wl0 reconnect
+iw dev wl0 link
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.SupportedHeMCS?"
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.?" | sed -n 's/^WiFi\.AccessPoint\.1\.AssociatedDevice\.1\.RxSupportedHeMCS="\([^"]*\)".*/DriverRxSupportedHeMCS=\1/p; s/^WiFi\.AccessPoint\.1\.AssociatedDevice\.1\.TxSupportedHeMCS="\([^"]*\)".*/DriverTxSupportedHeMCS=\1/p'
+wl -i wl0 sta_info "$STA_MAC"
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T172641475345
+- setup failure: sta_env_setup[48] target=STA command `iw dev wl0 link` returned `Not connected.` after retries
+- report shape: Fail / N/A / N/A, diagnostic_status=FailEnv
+- compare against audit/0506.xlsx row 48: expected Skip/Skip/Skip normalized Fail/Fail/Fail, actual Fail/N/A/N/A normalized Fail/Fail/Fail, full_match_count=1, mismatch_case_count=0
+- no YAML edit: setup/bands/topology are outside audit allowlist, and workbook Skip already closes as fail-shaped
+- source citations: fs/etc/amx/wld/wld_accesspoint.odl L1202 starts AssociatedDevice[]; L1595/L1602 declare Rx/TxSupportedHeMCS siblings; fs/etc/amx/wld/wld_endpoint.odl L369 declares standalone SupportedHeMCS under Endpoint
+```
+
 ## Checkpoint summary (2026-05-09 0506-D047)
 
 > This checkpoint records the `D047 SupportedHe160MCS` blocker.
