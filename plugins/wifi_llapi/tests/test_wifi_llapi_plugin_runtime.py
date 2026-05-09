@@ -4237,8 +4237,16 @@ def test_pending_boolean_and_frequency_cases_use_supported_contracts():
     assert "DriverDownlinkShortGuard6g=" in d018_commands
     assert "DriverDownlinkShortGuardGI24g=" in d018_commands
     assert "DriverDownlinkShortGuard24g=" in d018_commands
-    assert "sed -n '/tx nrate/{n;s/.*GI \\([^ ]*\\).*/\\1/p;}'" in d018_commands
-    assert 'case "$GI" in 0.4us|0.8us|1.6us) echo DriverDownlinkShortGuard5g=1 ;; 3.2us) echo DriverDownlinkShortGuard5g=0 ;; *) echo DriverDownlinkShortGuard5g=UNKNOWN_GI:$GI ;; esac' in d018_commands
+    assert "TX_INFO=$(wl -i wl0 sta_info $STA_MAC_LOWER | sed -n '/tx nrate/,+1p')" in d018_commands
+    assert 'DriverDownlinkShortGuardGI5g=${GI:-LEGACY_NO_GI}' in d018_commands
+    assert 'DriverDownlinkRate5g="$RATE"' in d018_commands
+    assert 'case "$GI" in 0.4us|0.8us|1.6us) echo DriverDownlinkShortGuard5g=1 ;; 3.2us|"") echo DriverDownlinkShortGuard5g=0 ;; *) echo DriverDownlinkShortGuard5g=UNKNOWN_GI:$GI ;; esac' in d018_commands
+    assert any(
+        criterion["field"] == "driver_shortguard_5g.DriverDownlinkShortGuardGI5g"
+        and criterion["operator"] == "regex"
+        and criterion["value"] == "^([0-9.]+us|LEGACY_NO_GI)$"
+        for criterion in d018["pass_criteria"]
+    )
     assert any(
         criterion["field"] == "result_5g.DownlinkShortGuard"
         and criterion["operator"] == "equals"

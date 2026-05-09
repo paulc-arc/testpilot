@@ -1,5 +1,63 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D018)
+
+> This checkpoint records the `D018 DownlinkShortGuard` closure decision.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=151`, `applied=2`, `pending=144`, `block=118`, `needs_pass3=0`
+- `D018 DownlinkShortGuard` 已 closure；reason=`pass3_legacy_no_gi_downlink_shortguard`
+- workbook row 18 期待 `Pass / Pass / Pass`；source 宣告 `DownlinkShortGuard` 是 downlink short guard interval 是否 applied 的 volatile read-only boolean
+- focused pre-edit rerun `20260509T122857918120` 兩次都走到 evaluation，失敗點只剩 `driver_shortguard_5g.DriverDownlinkShortGuardGI5g` 為空；manual serialwrap probe 同步確認 AP1 live getter 為 `DownlinkShortGuard=0`，`wl0 sta_info` 的 `tx nrate` 是 legacy rate 且沒有 GI token
+- audit-gated proposal 將 legacy/no-GI tx-rate evidence normalize 成 `DriverDownlinkShortGuard=0`，同時保留 same-STA MAC equality 與 LLAPI/driver boolean equality
+- focused post-apply rerun `20260509T124429838816` completed with `Pass / Pass / Pass`, `diagnostic_status=Pass`, `pass_count=1`, `fail_count=0`
+- next ready single-case Pass3 target: `D019`
+
+</details>
+
+### D018 DownlinkShortGuard closure evidence
+
+**STA 指令**
+
+```sh
+iw dev wl0 link
+wpa_cli -p /var/run/wpa_supplicant -i wl0 status
+iw dev wl1 link
+wpa_cli -p /var/run/wpa_supplicant -i wl1 status
+wl -i wl1 status
+iw dev wl2 link
+wpa_cli -p /var/run/wpa_supplicant -i wl2 status
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?"
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.DownlinkShortGuard?"
+wl -i wl0 sta_info <STA_MAC> | sed -n '/tx nrate/,+1p'
+ubus-cli "WiFi.AccessPoint.3.AssociatedDevice.1.MACAddress?"
+ubus-cli "WiFi.AccessPoint.3.AssociatedDevice.1.DownlinkShortGuard?"
+wl -i wl1 sta_info <STA_MAC> | sed -n '/tx nrate/,+1p'
+ubus-cli "WiFi.AccessPoint.5.AssociatedDevice.1.MACAddress?"
+ubus-cli "WiFi.AccessPoint.5.AssociatedDevice.1.DownlinkShortGuard?"
+wl -i wl2 sta_info <STA_MAC> | sed -n '/tx nrate/,+1p'
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T124429838816
+- report md L28: D018 row reports Pass / Pass / Pass with overall Pass
+- report md L83-L89: AP1 MACAddress=2C:59:17:00:42:15, DownlinkShortGuard=1, DriverDownlinkShortGuardGI5g=1.6us, DriverDownlinkShortGuard5g=1
+- report md L141-L147: AP3 MACAddress=2C:59:17:00:42:16, DownlinkShortGuard=1, DriverDownlinkShortGuardGI6g=1.6us, DriverDownlinkShortGuard6g=1
+- report md L167-L173: AP5 MACAddress=2C:59:17:00:42:27, DownlinkShortGuard=0, DriverDownlinkShortGuardGI24g=LEGACY_NO_GI, DriverDownlinkShortGuard24g=0
+- report md L176/L182: diagnostic_status=Pass and overall_status=Pass
+- source citations: fs/etc/amx/wld/wld_accesspoint.odl L1423-L1424 declares DownlinkShortGuard as the downlink short-guard boolean; swl_common_mcs.h L117-L124 declares guard interval enum values including 400/800/1600/3200
+```
+
 ## Checkpoint summary (2026-05-09 0506-D017)
 
 > This checkpoint records the `D017 DownlinkMCS` blocker decision.
