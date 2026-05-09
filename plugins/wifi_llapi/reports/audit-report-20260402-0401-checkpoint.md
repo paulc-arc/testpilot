@@ -1,5 +1,59 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-10 0506-D413)
+
+> This checkpoint records the `D413 RrmCapabilities — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.` environment blocker.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=191`, `applied=9`, `pending=27`, `block=188`, `needs_pass3=0`
+- `D413 RrmCapabilities — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.` recorded as `assocdev_rrmcapabilities_env_block_5g_sta_not_connected_before_getter`
+- workbook row 413 latest result is `Pass / Pass / Pass`
+- focused run `20260510T034732432174` reported `Fail / N/A / N/A` with `diagnostic_status=FailEnv`
+- failure reason: `env_verify` failed before assoclist/getter commands executed because 5G STA baseline/connect did not stabilize
+- source survey confirms AssociatedDevice `RrmCapabilities` is exposed in ODL/wld as read-only station capability data
+- next ready single-case Pass3 target: `D414`
+
+</details>
+
+### D413 AssociatedDevice RrmCapabilities environment blocker evidence
+
+**STA 指令**
+
+```sh
+# Runtime did not reach getter phase; STA baseline failed while trying to connect wl0 to testpilot5G.
+wpa_supplicant -B -D nl80211 -i wl0 -c /tmp/wpa_wl0.conf -C /var/run/wpa_supplicant
+wpa_cli -p /var/run/wpa_supplicant -i wl0 select_network 0
+iw dev wl0 link
+wl -i wl0 join testpilot5G imode bss
+wl -i wl0 status
+```
+
+**DUT 指令**
+
+```sh
+# Intended readback sequence, not executed in this focused run:
+wl -i wl0 assoclist | head -1
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.RrmCapabilities?"
+```
+
+**判定 blocker 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260510T034732432174
+- workbook row 413 latest result expects Pass/Pass/Pass
+- report shape: Fail / N/A / N/A, diagnostic_status=FailEnv
+- failure snapshot: phase=verify_env, band=5g, reason_code=sta_band_not_ready, comment="STA band baseline/connect failed"
+- DUT.log L8-L10: initial wl0 bss readback was down
+- DUT.log L198-L218: wl0 bss briefly reached up then returned down before baseline succeeded
+- DUT.log L910-L945: AP.1 was re-enabled and hostapd restarted during recovery
+- STA.log L82-L100: repeated `iw dev wl0 link` returned `Not connected.`
+- STA.log L101-L121: fallback `wl -i wl0 join testpilot5G` still reported `Not associated.`
+- source survey: AssociatedDevice RrmCapabilities is registered in tr181-wifi_AccessPoint.odl and backed by wld/swl RRM capability structures
+```
+
 ## Checkpoint summary (2026-05-10 0506-D412)
 
 > This checkpoint records the `D412 MaxUplinkRateSupported — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.` environment blocker.
