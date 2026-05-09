@@ -1,5 +1,60 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D104)
+
+> This checkpoint records the `D104 Enable` blocker decision.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=166`, `applied=9`, `pending=87`, `block=153`, `needs_pass3=0`
+- `D104 Enable` recorded as `wps_enable_workbook_all_fail_vs_runtime_diagnostic_pass_outside_audit_allowlist`
+- workbook row 104 raw value is `Failed / Not Support / Failed`, normalized to `Fail / Fail / Fail`
+- source 宣告 WPS `Enable` 是 persistent bool，default false；實作將 Enable 對應到 `<ifname>_wps_mode` enabled/disabled 並觸發 hostapd action
+- focused run `20260509T203431300992` reported `Pass / Pass / Pass`
+- AP1/AP5 WPS `Enable` exact-closed `0 -> 1 -> 0` with hostapd `wps_state` `0 -> 2 -> 0`; AP3/6G accepted getter/setter but hostapd `wps_state` stayed `0`
+- cleanup command `8b363d42f4ed4bafbc282201384d8f91` reset AP1/AP3/AP5 `WPS.Enable=0`, confirmed first hostapd `wps_state=0` on wl0/wl1/wl2, and wl0/wl1/wl2 `up`
+- next ready single-case Pass3 target: `D105`
+
+</details>
+
+### D104 Enable blocker evidence
+
+**STA 指令**
+
+```sh
+# AP-only checkpoint; no STA command was required.
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.WPS.Enable=0"
+ubus-cli "WiFi.AccessPoint.1.WPS.Enable=1"
+ubus-cli "WiFi.AccessPoint.1.WPS.Enable=0"
+ubus-cli "WiFi.AccessPoint.3.WPS.Enable=0"
+ubus-cli "WiFi.AccessPoint.3.WPS.Enable=1"
+ubus-cli "WiFi.AccessPoint.3.WPS.Enable=0"
+ubus-cli "WiFi.AccessPoint.5.WPS.Enable=0"
+ubus-cli "WiFi.AccessPoint.5.WPS.Enable=1"
+ubus-cli "WiFi.AccessPoint.5.WPS.Enable=0"
+grep 'wps_state=' /tmp/wl0_hapd.conf /tmp/wl1_hapd.conf /tmp/wl2_hapd.conf
+```
+
+**判定 block 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T203431300992, DUT.log L5-L154
+- report shape: Pass / Pass / Pass, diagnostic_status=Pass
+- 5G/AP1: Enable 0 -> 1 -> 0; wps_state 0 -> 2 -> 0
+- 6G/AP3: Enable 0 -> 1 -> 0; wps_state stayed 0
+- 2.4G/AP5: Enable 0 -> 1 -> 0; wps_state 0 -> 2 -> 0
+- compare against audit/0506.xlsx row 104: expected Failed/Not Support/Failed -> normalized Fail/Fail/Fail; actual Pass/Pass/Pass
+- cleanup command 8b363d42f4ed4bafbc282201384d8f91: AP1/AP3/AP5 WPS.Enable=0, first hostapd wps_state=0 on wl0/wl1/wl2, and wl0/wl1/wl2 were up
+- source citations: fs/etc/amx/wld/wld_accesspoint.odl L942-L947 declares WPS Enable; wldm_lib_wifi.c L13254-L13305 maps Enable to <ifname>_wps_mode; wldm_lib.c L4418-L4424 applies hostapd action
+```
+
 ## Checkpoint summary (2026-05-09 0506-D103)
 
 > This checkpoint records the `D103 Configured` blocker decision.
