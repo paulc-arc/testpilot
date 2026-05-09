@@ -1,5 +1,62 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D093)
+
+> This checkpoint records the `D093 SSIDAdvertisementEnabled` confirmed no-edit decision.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=166`, `applied=9`, `pending=90`, `block=150`, `needs_pass3=0`
+- `D093 SSIDAdvertisementEnabled` confirmed as `workbook_match_no_yaml_edit`
+- workbook row 93 raw value is `Pass / Pass / Pass`, normalized to `Pass / Pass / Pass`
+- source 宣告 `SSIDAdvertisementEnabled` 是 persistent bool，表示 beacon 是否包含 SSID name
+- focused run `20260509T201626604191` reported `Pass / Pass / Pass`
+- AP1/AP3/AP5 getters all stayed `1`, and hostapd first-BSS `ignore_broadcast_ssid` stayed `0`
+- cleanup command `e44ac69aa03944cab3171f994b7dbd33` confirmed AP1/AP3/AP5 `SSIDAdvertisementEnabled=1`, wl0/wl1/wl2 `ignore_broadcast_ssid=0/0`, and wl0/wl1/wl2 `up`
+- next ready single-case Pass3 target: `D094`
+
+</details>
+
+### D093 SSIDAdvertisementEnabled confirmed evidence
+
+**STA 指令**
+
+```sh
+# AP-only checkpoint; no STA command was required.
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli 'WiFi.AccessPoint.1.SSIDAdvertisementEnabled?'
+grep 'ignore_broadcast_ssid=' /tmp/wl0_hapd.conf | head -1
+ubus-cli WiFi.AccessPoint.1.SSIDAdvertisementEnabled=1
+ubus-cli 'WiFi.AccessPoint.3.SSIDAdvertisementEnabled?'
+grep 'ignore_broadcast_ssid=' /tmp/wl1_hapd.conf | head -1
+ubus-cli WiFi.AccessPoint.3.SSIDAdvertisementEnabled=1
+ubus-cli 'WiFi.AccessPoint.5.SSIDAdvertisementEnabled?'
+grep 'ignore_broadcast_ssid=' /tmp/wl2_hapd.conf | head -1
+ubus-cli WiFi.AccessPoint.5.SSIDAdvertisementEnabled=1
+wl -i wl0 bss
+wl -i wl1 bss
+wl -i wl2 bss
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T201626604191, DUT.log L15-L183
+- report shape: Pass / Pass / Pass, diagnostic_status=Pass
+- 5G/AP1: BaselineAdv=1, BaselineHapd=0, GetterAdv=1, HapdAfterSet=0, RestoredAdv=1, RestoredHapd=0
+- 6G/AP3: BaselineAdv=1, BaselineHapd=0, GetterAdv=1, HapdAfterSet=0, RestoredAdv=1, RestoredHapd=0
+- 2.4G/AP5: BaselineAdv=1, BaselineHapd=0, GetterAdv=1, HapdAfterSet=0, RestoredAdv=1, RestoredHapd=0
+- compare against audit/0506.xlsx row 93: expected Pass/Pass/Pass; actual Pass/Pass/Pass
+- cleanup command e44ac69aa03944cab3171f994b7dbd33: AP1/AP3/AP5 SSIDAdvertisementEnabled=1, wl0/wl1/wl2 ignore_broadcast_ssid=0/0, and wl0/wl1/wl2 were up
+- source citations: fs/etc/amx/wld/wld_accesspoint.odl L264-L268 declares SSIDAdvertisementEnabled
+```
+
 ## Checkpoint summary (2026-05-09 0506-D092)
 
 > This checkpoint records the `D092 WEPKey` blocker decision.
