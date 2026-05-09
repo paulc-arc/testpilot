@@ -1,5 +1,51 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D117)
+
+> This checkpoint records the `D117 Enable — WiFi.EndPoint.{i}.` blocker decision.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=168`, `applied=9`, `pending=83`, `block=155`, `needs_pass3=0`
+- workbook row `D116 ConnectionStatus` has no discoverable official YAML under `plugins/wifi_llapi/cases/`, so strict single-case execution continued to `D117`
+- `D117 Enable — WiFi.EndPoint.{i}.` recorded as `endpoint_enable_workbook_skip_all_bands_vs_unsupported_probe_pass_semantics_mismatch`
+- workbook row 117 raw value is `Skip / Skip / Skip`, normalized to `Fail / Fail / Fail`
+- focused run `20260509T212227731774` reported `Pass / Pass / Pass`
+- live probe returned `No data found` for `WiFi.EndPoint.?`; current YAML treats missing EndPoint tree as expected unsupported behavior and therefore passes
+- source survey: `tr181-wifi_definition.odl` declares `WiFi.EndPoint[]`, and `tr181-wifi_EndPoint.odl` selects `WiFi.EndPoint`, but the live BGW720 gateway exposes no EndPoint instances
+- next ready single-case Pass3 target: `D118`
+
+</details>
+
+### D117 Enable WiFi.EndPoint blocker evidence
+
+**STA 指令**
+
+```sh
+# no STA command; D117 is a DUT-only EndPoint tree probe
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.EndPoint.?"
+```
+
+**判定 block 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T212227731774
+- report shape: Pass / Pass / Pass, diagnostic_status=Pass
+- workbook row 117 expects Skip/Skip/Skip -> normalized Fail/Fail/Fail
+- DUT.log L5-L8:
+  ubus-cli "WiFi.EndPoint.?"
+  > WiFi.EndPoint.?
+  No data found
+- current YAML treats unsupported WiFi.EndPoint tree as pass, which mismatches workbook skip/fail semantics
+```
+
 ## Checkpoint summary (2026-05-09 0506-D115)
 
 > This checkpoint records the `D115 getStationStats() ConnectionDuration` confirmed no-edit decision.
