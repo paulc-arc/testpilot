@@ -1,5 +1,67 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-10 0506-D436)
+
+> This checkpoint records the `D436 OWETransitionInterface — WiFi.AccessPoint.{i}.Security.` environment blocker.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=191`, `applied=9`, `pending=14`, `block=201`, `needs_pass3=0`
+- `D436 OWETransitionInterface — WiFi.AccessPoint.{i}.Security.` recorded as `security_owetransitioninterface_env_block_5g_dut_bss_down_before_not_supported_backend_check`
+- workbook row 436 latest result is `Not Supported / Not Supported / Not Supported`; workbook notes pWHM accepts the TR-181 value but hostapd configs do not expose `owe_transition_ifname`
+- focused run `20260510T044738959632` reported `Fail / Fail / Fail` with `diagnostic_status=Inconclusive`
+- failure reason: `setup_env` failed before OWE setter/readback and hostapd backend inspection because DUT `wl0` BSS stayed `down`
+- source survey confirms `OWETransitionInterface` is defined as a persistent Security string and hostapd has `owe_transition_ifname` config handling
+- next ready single-case Pass3 target: `D437`
+
+</details>
+
+### D436 Security OWETransitionInterface environment blocker evidence
+
+**STA 指令**
+
+```sh
+# AP-only Security case; runtime did not require or reach STA operations.
+```
+
+**DUT 指令**
+
+```sh
+# Setup commands executed before the blocker:
+ubus-cli WiFi.AccessPoint.1.Enable=1
+ubus-cli WiFi.AccessPoint.3.Enable=1
+ubus-cli WiFi.AccessPoint.5.Enable=1
+ubus-cli WiFi.AccessPoint.1.Security.OWETransitionInterface=
+ubus-cli WiFi.AccessPoint.3.Security.OWETransitionInterface=
+ubus-cli WiFi.AccessPoint.5.Security.OWETransitionInterface=
+ubus-cli WiFi.AccessPoint.1.Security.ModeEnabled=WPA2-Personal
+ubus-cli WiFi.AccessPoint.2.Security.ModeEnabled=WPA2-Personal
+wl -i wl0 bss
+
+# Intended backend Not Supported check, not executed in this focused run:
+ubus-cli WiFi.AccessPoint.1.Security.OWETransitionInterface=DEFAULT_WL1_1
+ubus-cli WiFi.AccessPoint.3.Security.OWETransitionInterface=DEFAULT_WL0_1
+ubus-cli WiFi.AccessPoint.5.Security.OWETransitionInterface=DEFAULT_WL0_1
+grep -m1 '^owe_transition_ifname=' /tmp/wl0_hapd.conf
+grep -m1 '^owe_transition_ifname=' /tmp/wl1_hapd.conf
+grep -m1 '^owe_transition_ifname=' /tmp/wl2_hapd.conf
+```
+
+**判定 blocker 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260510T044738959632
+- workbook row 436 latest result expects Not Supported/Not Supported/Not Supported
+- report shape: Fail / Fail / Fail, diagnostic_status=Inconclusive
+- failure snapshot: phase=exception, comment includes serialwrap command failed for `wl -i wl0 bss`
+- DUT.log L3-L49: AP1/AP3/AP5 Enable=1, OWETransitionInterface reset, and AP1/AP2 WPA2-Personal restore succeeded
+- DUT.log L51-L53: first `wl -i wl0 bss` returned `down`
+- DUT.log L72-L104: second setup attempt repeated reset/restore and `wl -i wl0 bss` still returned `down`
+- source survey: `tr181-wifi_AccessPoint.odl` defines persistent `OWETransitionInterface`; hostapd sources include `owe_transition_ifname` config handling, matching workbook backend-inspection focus
+```
+
 ## Checkpoint summary (2026-05-10 0506-D435)
 
 > This checkpoint records the `D435 SSID — WiFi.AccessPoint.{i}.Neighbour.{i}.` environment/config blocker.
