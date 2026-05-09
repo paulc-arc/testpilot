@@ -1,5 +1,67 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D115)
+
+> This checkpoint records the `D115 getStationStats() ConnectionDuration` confirmed no-edit decision.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=168`, `applied=9`, `pending=84`, `block=154`, `needs_pass3=0`
+- `D115 getStationStats() ConnectionDuration` recorded as `workbook_pass_all_bands_matches_runtime_connectionduration_no_yaml_edit`
+- workbook row 115 raw value is `Pass / Pass / Pass`, normalized to `Pass / Pass / Pass`
+- focused run `20260509T211329658554` reported `Pass / Pass / Pass`
+- live counters increased across repeated reads: 5G `6 -> 9`, 6G `13 -> 17`, 2.4G `10 -> 13`
+- driver in-network seconds remained greater than or equal to the later LLAPI value: 5G `11`, 6G `19`, 2.4G `15`
+- next ready single-case Pass3 target: D116 inventory check, then `D117` if no official D116 YAML exists
+
+</details>
+
+### D115 getStationStats() ConnectionDuration confirmed evidence
+
+**STA 指令**
+
+```sh
+iw dev wl0 link
+wpa_cli -p /var/run/wpa_supplicant -i wl0 status
+iw dev wl1 link
+wpa_cli -p /var/run/wpa_supplicant -i wl1 status
+iw dev wl2 link
+wpa_cli -p /var/run/wpa_supplicant -i wl2 status
+```
+
+**DUT 指令**
+
+```sh
+wl -i wl0 assoclist
+ubus-cli "WiFi.AccessPoint.1.getStationStats()"
+sleep 3
+ubus-cli "WiFi.AccessPoint.1.getStationStats()"
+wl -i wl0 sta_info 2C:59:17:00:42:15 | grep "in network"
+wl -i wl1 assoclist
+ubus-cli "WiFi.AccessPoint.3.getStationStats()"
+sleep 3
+ubus-cli "WiFi.AccessPoint.3.getStationStats()"
+wl -i wl1 sta_info 2C:59:17:00:42:16 | grep "in network"
+wl -i wl2 assoclist
+ubus-cli "WiFi.AccessPoint.5.getStationStats()"
+sleep 3
+ubus-cli "WiFi.AccessPoint.5.getStationStats()"
+wl -i wl2 sta_info 2C:59:17:00:42:27 | grep "in network"
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T211329658554
+- report shape: Pass / Pass / Pass, diagnostic_status=Pass
+- workbook row 115 expects Pass/Pass/Pass -> normalized Pass/Pass/Pass
+- 5G: STA wl0 connected to testpilot5G; MACAddress="2C:59:17:00:42:15"; ConnectionDuration 6 -> 9; DriverConnectionSeconds5g=11
+- 6G: STA wl1 connected to testpilot6G; MACAddress="2C:59:17:00:42:16"; ConnectionDuration 13 -> 17; DriverConnectionSeconds6g=19
+- 2.4G: STA wl2 connected to testpilot2G; MACAddress="2C:59:17:00:42:27"; ConnectionDuration 10 -> 13; DriverConnectionSeconds24g=15
+```
+
 ## Checkpoint summary (2026-05-09 0506-D114)
 
 > This checkpoint records the `D114 getStationStats() AvgSignalStrengthByChain` blocker decision.
