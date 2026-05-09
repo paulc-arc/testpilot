@@ -1,5 +1,52 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-10 0506-D380)
+
+> This checkpoint records the `D380 MultiAPTypesSupported — WiFi.Radio.{i}.` workbook/runtime mismatch blocker.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=191`, `applied=9`, `pending=38`, `block=177`, `needs_pass3=0`
+- `D380 MultiAPTypesSupported — WiFi.Radio.{i}.` recorded as `radio_multiaptypessupported_workbook_latest_skip_all_bands_vs_runtime_pass_hardcoded_getter`
+- workbook row 380 latest result is `skip / skip / skip` (normalized `Fail / Fail / Fail`)
+- focused run `20260510T023632814529` reported `Pass / Pass / Pass` with `diagnostic_status=Pass`
+- mismatch reason: current YAML accepts non-empty getter output, but workbook latest marks Skip and says this prpl-specific parameter is hardcoded in pWHM
+- source survey found Radio ODL declaration but no `dm_info.c` radio entry or direct Broadcom Radio.MultiAPTypesSupported vendor mapping
+- next ready single-case Pass3 target: `D384`
+
+</details>
+
+### D380 Radio MultiAPTypesSupported blocker evidence
+
+**STA 指令**
+
+```sh
+# DUT-only getter case; no STA command required
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.Radio.1.MultiAPTypesSupported?"
+ubus-cli "WiFi.Radio.2.MultiAPTypesSupported?"
+ubus-cli "WiFi.Radio.3.MultiAPTypesSupported?"
+```
+
+**判定 blocker 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260510T023632814529
+- workbook row 380 latest result expects skip/skip/skip (normalized Fail/Fail/Fail)
+- report shape: Pass / Pass / Pass, diagnostic_status=Pass
+- DUT.log L8-L21:
+  WiFi.Radio.1.MultiAPTypesSupported="FronthaulBSS,BackhaulBSS,BackhaulSTA"
+  WiFi.Radio.2.MultiAPTypesSupported="FronthaulBSS,BackhaulBSS,BackhaulSTA"
+  WiFi.Radio.3.MultiAPTypesSupported="FronthaulBSS,BackhaulBSS,BackhaulSTA"
+- source survey: `tr181-wifi_Radio.odl` defines read-only `MultiAPTypesSupported`; no `dm_info.c` radio entry or direct Broadcom Radio.MultiAPTypesSupported vendor mapping was found
+```
+
 ## Checkpoint summary (2026-05-10 0506-D379)
 
 > This checkpoint records the `D379 MCS — WiFi.Radio.{i}.` workbook/runtime mismatch blocker.
