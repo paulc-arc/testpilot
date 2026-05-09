@@ -1,5 +1,58 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D183)
+
+> This checkpoint records the `D183 TPCMode — WiFi.Radio.{i}.DriverConfig.` environment blocker.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=189`, `applied=9`, `pending=68`, `block=149`, `needs_pass3=0`
+- `D183 TPCMode — WiFi.Radio.{i}.DriverConfig.` recorded as `radio_tpcmode_to_be_test_blocked_by_sta_5g_link_failed_before_test_steps_cleanup_auto_confirmed`
+- workbook row 183 raw value is `To be test / To be test / To be test`, normalized to `Fail / Fail / Fail`
+- focused run `20260509T223759148880` reported `Fail / N/A / N/A` with `diagnostic_status=FailEnv`
+- failure reason: `sta_band_link_failed`; setup failed on STA 5G `iw dev wl0 link` returning `Not connected.`
+- cleanup restored `WiFi.Radio.1.DriverConfig.TPCMode=Auto` and confirmed getter reports `Auto`
+- next ready single-case Pass3 target: `D202`
+
+</details>
+
+### D183 Radio DriverConfig TPCMode blocker evidence
+
+**STA 指令**
+
+```sh
+wpa_cli -p /var/run/wpa_supplicant -i wl0 reconnect
+iw dev wl0 link
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli WiFi.Radio.1.DriverConfig.TPCMode=Auto
+ubus-cli "WiFi.Radio.1.DriverConfig.TPCMode?"
+```
+
+**判定 blocker 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T223759148880
+- workbook row 183 expects To be test/To be test/To be test -> normalized Fail/Fail/Fail
+- report shape: Fail / N/A / N/A, diagnostic_status=FailEnv
+- failure_snapshot: reason_code=sta_band_link_failed, command=iw dev wl0 link, output=Not connected.
+- STA.log L59-L66:
+  wpa_cli -p /var/run/wpa_supplicant -i wl0 reconnect
+  iw dev wl0 link
+  Not connected.
+- DUT.log L1425-L1429:
+  ubus-cli WiFi.Radio.1.DriverConfig.TPCMode=Auto
+  WiFi.Radio.1.DriverConfig.TPCMode="Auto"
+- cleanup output confirmed:
+  WiFi.Radio.1.DriverConfig.TPCMode="Auto"
+- blocker: setup never reached TPCMode behavior verification, so workbook intent remains unconfirmed
+```
+
 ## Checkpoint summary (2026-05-09 0506-D179)
 
 > This checkpoint records the `D179 Ampdu — WiFi.Radio.{i}.DriverConfig.` blocker.
