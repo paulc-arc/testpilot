@@ -1,5 +1,56 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D057)
+
+> This checkpoint records the `D057 TxUnicastPacketCount` confirmed no-edit closure.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=163`, `applied=8`, `pending=106`, `block=138`, `needs_pass3=0`
+- `D057 TxUnicastPacketCount` confirmed without YAML edit，reason=`workbook_normalized_match_no_yaml_edit`
+- workbook row 57 raw value is `Fail / Fail / Fail`, normalized to `Fail / Fail / Fail`
+- source 宣告 `AssociatedDevice[]` read path 透過 `wld_assocDev_getStats_orf`，且 `AssociatedDevice.TxUnicastPacketCount` 是 volatile read-only uint32；WLD header 也暴露 TxUnicastPacketCount
+- focused run `20260509T181956090658` reached the 5G live getter: STA stayed `wpa_state=COMPLETED` on `testpilot5G`, AP1 AssociatedDevice.1 matched STA `2c:59:17:00:42:15`, and trigger transmitted 8 packets
+- `TxUnicastPacketCount` remained `0 -> 0` and report shape `Fail / N/A / N/A` 正規化後等同 workbook `Fail / Fail / Fail`
+- next ready single-case Pass3 target: `D058`
+
+</details>
+
+### D057 TxUnicastPacketCount confirmed evidence
+
+**STA 指令**
+
+```sh
+wpa_cli -p /var/run/wpa_supplicant -i wl0 status
+cat /sys/class/net/wl0/address
+ifconfig wl0 192.168.1.3 netmask 255.255.255.0 up
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?"
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.TxUnicastPacketCount?"
+ping -I br-lan -c 8 -W 1 192.168.1.3
+wl -i wl0 sta_info "$STA_MAC" | sed -n 's/^[[:space:]]*tx ucast pkts: \([0-9][0-9]*\).*/DriverTxUnicastPacketCount=\1/p'
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T181956090658
+- STA: ssid=testpilot5G, key_mgmt=WPA2-PSK, wpa_state=COMPLETED, StaMac=2c:59:17:00:42:15, StaIp=192.168.1.3
+- AP1 association: AssociatedDevice.1.MACAddress=2c:59:17:00:42:15
+- trigger: 8 packets transmitted from DUT br-lan to STA IP
+- API evidence: TxUnicastPacketCount remained 0 -> 0; failure_snapshot reason_code=delta_zero for api_before_5g.TxUnicastPacketCount to api_after_5g.TxUnicastPacketCount
+- report shape: Fail / N/A / N/A, diagnostic_status=FailTest
+- compare against audit/0506.xlsx row 57: expected Fail/Fail/Fail, actual Fail/N/A/N/A normalized Fail/Fail/Fail, full_match_count=1, mismatch_case_count=0
+- no YAML edit: live fail-shaped getter evidence matches workbook Fail semantics
+- source citations: fs/etc/amx/wld/wld_accesspoint.odl L1202-L1203 wires AssociatedDevice[] reads through wld_assocDev_getStats_orf; L1341 declares TxUnicastPacketCount as volatile read-only uint32; BRCM mirror tr181-wifi_AccessPoint.odl L1021 declares TxUnicastPacketCount; wld.h L830/L919 expose TxUnicastPacketCount fields
+```
+
 ## Checkpoint summary (2026-05-09 0506-D056)
 
 > This checkpoint records the `D056 TxPacketCount` blocker.
