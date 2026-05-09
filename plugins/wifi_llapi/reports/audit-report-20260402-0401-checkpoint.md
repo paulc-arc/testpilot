@@ -1,5 +1,59 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D321)
+
+> This checkpoint records the `D321 BroadcastPacketsReceived — WiFi.SSID.{i}.Stats.` environment blocker.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=189`, `applied=9`, `pending=62`, `block=155`, `needs_pass3=0`
+- `D321 BroadcastPacketsReceived — WiFi.SSID.{i}.Stats.` recorded as `ssid_stats_broadcastpacketsreceived_workbook_pass_all_bands_blocked_by_sta_band_not_ready`
+- workbook row 321 latest pWHM/Brcm result is `Pass / Pass / Pass`
+- focused run `20260509T231118234152` reported `Fail / Fail / Fail` with `diagnostic_status=FailEnv`
+- failure reason: env gate failed before counter readback because STA band baseline/connect failed and `wl0` BSS stayed down after retries/AP bounce
+- next ready single-case Pass3 target: `D322`
+
+</details>
+
+### D321 SSID Stats BroadcastPacketsReceived blocker evidence
+
+**STA 指令**
+
+```sh
+# STA baseline/connect attempted by runtime auto-baseline; no counter traffic step executed
+```
+
+**DUT 指令**
+
+```sh
+wl -i wl0 bss up
+wl -i wl0 bss
+ubus-cli "WiFi.SSID.4.Stats.BroadcastPacketsReceived?"
+ubus-cli "WiFi.SSID.6.Stats.BroadcastPacketsReceived?"
+ubus-cli "WiFi.SSID.8.Stats.BroadcastPacketsReceived?"
+```
+
+**判定 blocker 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T231118234152
+- workbook row 321 latest result expects Pass/Pass/Pass
+- report shape: Fail / Fail / Fail, diagnostic_status=FailEnv
+- JSON failure snapshot: verify_env sta_band_not_ready before counter readback
+- DUT.log L1494-L1552:
+  wl -i wl0 bss up
+  wl -i wl0 bss
+  down
+  ... repeated wl0 bss checks ...
+  wl -i wl0 bss
+  down
+  ubus-cli WiFi.Radio.1.Enable=1
+  WiFi.Radio.1.Enable=1
+- runtime remediation attempted sta_band_rebaseline/AP bounce but did not restore STA band readiness
+```
+
 ## Checkpoint summary (2026-05-09 0506-D298)
 
 > This checkpoint records the `D298 startScan() — WiFi.Radio.{i}.` blocker.
