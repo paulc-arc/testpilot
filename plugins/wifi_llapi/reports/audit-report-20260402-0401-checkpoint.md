@@ -1,5 +1,51 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D054)
+
+> This checkpoint records the `D054 TxErrors` blocker.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=161`, `applied=8`, `pending=109`, `block=137`, `needs_pass3=0`
+- `D054 TxErrors` blocked as `sta_env_setup_and_tri_band_txerrors_trigger_outside_audit_allowlist`
+- workbook row 54 raw value is `Pass / Pass / Pass`, normalized to `Pass / Pass / Pass`
+- source 宣告 `AssociatedDevice[]` read path 透過 `wld_assocDev_getStats_orf`，且 `AssociatedDevice.TxErrors` 是 volatile read-only uint32；WLD header 將 `TxFailures` 映射到 TR-181 `TxErrors`
+- focused run `20260509T180628144176` 未到 getter；case-local WPA3/SAE `sta_env_setup[48]` 在 `iw dev wl0 link` 回 `Not connected.`，retry/remediation 後仍失敗
+- report shape `Fail / N/A / N/A` 與 workbook tri-band Pass 不符；修復 stale STA setup 與 tri-band TxErrors trigger coverage 超出 audit allowlist
+- next ready single-case Pass3 target: `D055`
+
+</details>
+
+### D054 TxErrors blocker evidence
+
+**STA 指令**
+
+```sh
+wpa_supplicant -B -D nl80211 -i wl0 -c /tmp/wpa_wl0.conf -C /var/run/wpa_supplicant
+wpa_cli -p /var/run/wpa_supplicant -i wl0 reconnect
+iw dev wl0 link
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.TxErrors?"
+wl -i wl0 sta_info "$STA_MAC" | sed -n 's/^[[:space:]]*tx failures: \([0-9][0-9]*\).*/DriverTxErrors=\1/p'
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T180628144176
+- setup failure: sta_env_setup[48] target=STA command `iw dev wl0 link` returned `Not connected.` after retries
+- report shape: Fail / N/A / N/A, diagnostic_status=FailEnv
+- compare against audit/0506.xlsx row 54: expected Pass/Pass/Pass, actual Fail/N/A/N/A, mismatch_case_count=1, mismatch bands=5g,6g,2.4g
+- blocker: checked-in 5G-only stale WPA3 setup plus manual/external TxErrors trigger semantics cannot be repaired through audit verify-edit; sta_env_setup, top-level bands/topology, and adding 6G/2.4G executable trigger steps are outside allowlist
+- source citations: fs/etc/amx/wld/wld_accesspoint.odl L1202-L1203 wires AssociatedDevice[] reads through wld_assocDev_getStats_orf; L1370 declares TxErrors as volatile read-only uint32; BRCM mirror tr181-wifi_AccessPoint.odl L987 declares TxErrors; wld.h L833/L922 map TxFailures to TxErrors
+```
+
 ## Checkpoint summary (2026-05-09 0506-D053)
 
 > This checkpoint records the `D053 TxBytes` blocker.
