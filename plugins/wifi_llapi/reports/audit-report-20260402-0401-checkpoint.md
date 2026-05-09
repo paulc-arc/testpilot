@@ -1,5 +1,51 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-10 0506-D364)
+
+> This checkpoint records the `D364 NonSRGOBSSPDMaxOffset — WiFi.Radio.{i}.IEEE80211ax.` no-edit confirmation recheck.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets remain: `confirmed=191`, `applied=9`, `pending=43`, `block=172`, `needs_pass3=0`
+- `D364 NonSRGOBSSPDMaxOffset — WiFi.Radio.{i}.IEEE80211ax.` recorded as `ieee80211ax_nonsrgobsspdmaxoffset_workbook_latest_pass_runtime_pass_source_maps_nsrg_pdmax_no_edit`
+- workbook row 364 latest ARC result is `Pass / Pass / Pass`
+- focused run `20260510T021040636675` reported `Pass / Pass / Pass` with `diagnostic_status=Pass`
+- source survey maps `heSprNonSrgObssPdMaxOffset` to driver `sr_config nsrg_pdmax` with negated value in ioctl/vendor paths
+- note: D364 was already pass1-confirmed, so bucket counts did not change
+
+</details>
+
+### D364 IEEE80211ax NonSRGOBSSPDMaxOffset confirmation evidence
+
+**STA 指令**
+
+```sh
+# DUT-only getter case; no STA command required
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.Radio.1.IEEE80211ax.NonSRGOBSSPDMaxOffset?"
+ubus-cli "WiFi.Radio.2.IEEE80211ax.NonSRGOBSSPDMaxOffset?"
+ubus-cli "WiFi.Radio.3.IEEE80211ax.NonSRGOBSSPDMaxOffset?"
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260510T021040636675
+- workbook row 364 latest result expects Pass/Pass/Pass
+- report shape: Pass / Pass / Pass, diagnostic_status=Pass
+- DUT.log L8-L21:
+  WiFi.Radio.1.IEEE80211ax.NonSRGOBSSPDMaxOffset=0
+  WiFi.Radio.2.IEEE80211ax.NonSRGOBSSPDMaxOffset=0
+  WiFi.Radio.3.IEEE80211ax.NonSRGOBSSPDMaxOffset=0
+- source survey: `whm_brcm_api_ext*.c` maps `heSprNonSrgObssPdMaxOffset` to `sr_config nsrg_pdmax` and negates the value before driver/vendor set
+```
+
 ## Checkpoint summary (2026-05-10 0506-D359)
 
 > This checkpoint records the `D359 IsolationEnable — WiFi.AccessPoint.{i}.` no-edit confirmation recheck.
