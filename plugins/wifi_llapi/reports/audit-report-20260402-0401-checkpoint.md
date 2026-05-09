@@ -1,5 +1,54 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D060)
+
+> This checkpoint records the `D060 UplinkMCS` blocker.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=163`, `applied=8`, `pending=103`, `block=141`, `needs_pass3=0`
+- `D060 UplinkMCS` blocked as `bands_scope_outside_audit_allowlist`
+- workbook row 60 raw value is `Pass / Pass / Pass`, normalized to `Pass / Pass / Pass`
+- source 宣告 `AssociatedDevice[]` read path 透過 `wld_assocDev_getStats_orf`，且 `AssociatedDevice.UplinkMCS` 是 volatile read-only uint32；WLD header 也暴露 UplinkMCS
+- focused run `20260509T183228754680` validates the current 5G path: AP1 AssociatedDevice.1 remained `2C:59:17:00:42:15`, `UplinkMCS=7`, and driver `rx nrate` parsed `DriverUplinkMCS=7`
+- report shape `Pass / N/A / N/A` 與 workbook tri-band Pass 不符；新增 6G/2.4G executable coverage 或修改 top-level bands/topology 超出 audit allowlist
+- next ready single-case Pass3 target: `D061`
+
+</details>
+
+### D060 UplinkMCS blocker evidence
+
+**STA 指令**
+
+```sh
+ifconfig wl0 192.168.1.3 netmask 255.255.255.0 up
+ping -I wl0 -c 8 -W 1 192.168.1.1
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?"
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.?"
+wl -i wl0 sta_info "$STA_MAC" | sed -n '/rx nrate/,+1p'
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T183228754680
+- AP1 association: AssociatedDevice.1.MACAddress="2C:59:17:00:42:15"
+- trigger: STA wl0 ping sent 8 packets to 192.168.1.1
+- API evidence: UplinkMCS=7
+- driver evidence: rx nrate / he mcs 7 Nss 4 Tx Exp 0 bw20 ldpc 2xLTF GI 1.6us auto; DriverUplinkMCS=7
+- report shape: Pass / N/A / N/A, diagnostic_status=Pass
+- compare against audit/0506.xlsx row 60: expected Pass/Pass/Pass, actual Pass/N/A/N/A, mismatch_case_count=1, mismatch bands=6g,2.4g
+- blocker: current 5G-only authored case is valid for AP1 but cannot represent workbook tri-band Pass without bands/topology or 6G/2.4G executable-step changes outside audit allowlist
+- source citations: fs/etc/amx/wld/wld_accesspoint.odl L1202-L1203 wires AssociatedDevice[] reads through wld_assocDev_getStats_orf; L1406 declares UplinkMCS as volatile read-only uint32; BRCM mirror tr181-wifi_AccessPoint.odl L1094 declares UplinkMCS; wld.h L841/L926 expose UplinkMCS fields
+```
+
 ## Checkpoint summary (2026-05-09 0506-D059)
 
 > This checkpoint records the `D059 UplinkBandwidth` blocker.
