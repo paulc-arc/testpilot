@@ -1,5 +1,54 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D127)
+
+> This checkpoint records the `D127 getStats() OperatingStandard — WiFi.EndPoint.{i}.` confirmed no-edit decision.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=178`, `applied=9`, `pending=83`, `block=145`, `needs_pass3=0`
+- `D127 getStats() OperatingStandard — WiFi.EndPoint.{i}.` recorded as `workbook_skip_all_bands_matches_runtime_endpoint_getstats_object_not_found_fail_no_yaml_edit`
+- workbook row 127 raw value is `Skip / Skip / Skip`, normalized to `Fail / Fail / Fail`
+- focused run `20260509T214008214377` reported `Fail / Fail / Fail`
+- live probe returned `ERROR: call (null) failed with status 2 - object not found` for `WiFi.EndPoint.1.getStats()`
+- next ready single-case Pass3 target: `D128`
+
+</details>
+
+### D127 getStats() OperatingStandard confirmed evidence
+
+**STA 指令**
+
+```sh
+# no STA command; D127 is a DUT-only EndPoint getStats probe
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.EndPoint.1.getStats()"
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T214008214377
+- report shape: Fail / Fail / Fail, diagnostic_status=FailTest
+- workbook row 127 expects Skip/Skip/Skip -> normalized Fail/Fail/Fail
+- DUT.log L5-L14 and L21-L30:
+  ubus-cli "WiFi.EndPoint.1.getStats()"
+  ERROR: call (null) failed with status 2 - object not found
+  WiFi.EndPoint.1.getStats() returned
+  [
+      "",
+      {
+      }
+  ]
+- runtime fail shape matches workbook skip/fail semantics; no YAML edit
+```
+
 ## Checkpoint summary (2026-05-09 0506-D126)
 
 > This checkpoint records the `D126 getStats() Noise — WiFi.EndPoint.{i}.` confirmed no-edit decision.
