@@ -1,5 +1,59 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D023)
+
+> This checkpoint records the `D023 Inactive` pass-through confirmation.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=152`, `applied=4`, `pending=139`, `block=120`, `needs_pass3=0`
+- `D023 Inactive` 已確認，不需要 YAML edit；reason=`live_focus_run_matches_workbook_pass_without_yaml_edit`
+- workbook row 23 期待 `Pass / Pass / Pass`
+- source 宣告 `AssociatedDevice[]` read path 透過 `wld_assocDev_getStats_orf`，且 `AssociatedDevice.Inactive` 是 `%volatile %read-only uint32`
+- focused run `20260509T140358666257` 完成 5G / 6G / 2.4G 三個 band，runtime result 為 `Pass / Pass / Pass`，和 workbook-normalized expected 完全相符
+- next ready single-case Pass3 target: `D024`
+
+</details>
+
+### D023 Inactive confirmed evidence
+
+**STA 指令**
+
+```sh
+iw dev wl0 link
+wpa_cli -p /var/run/wpa_supplicant -i wl0 status
+iw dev wl1 link
+wpa_cli -p /var/run/wpa_supplicant -i wl1 status
+wl -i wl1 status
+iw dev wl2 link
+wpa_cli -p /var/run/wpa_supplicant -i wl2 status
+```
+
+**DUT 指令**
+
+```sh
+wl -i wl0 assoclist | tr 'A-F' 'a-f' | sed -n 's/^assoclist \([^ ]*\).*$/AssocMac5g=\1/p'
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.Inactive?"
+wl -i wl1 assoclist | tr 'A-F' 'a-f' | sed -n 's/^assoclist \([^ ]*\).*$/AssocMac6g=\1/p'
+ubus-cli "WiFi.AccessPoint.3.AssociatedDevice.1.Inactive?"
+wl -i wl2 assoclist | tr 'A-F' 'a-f' | sed -n 's/^assoclist \([^ ]*\).*$/AssocMac24g=\1/p'
+ubus-cli "WiFi.AccessPoint.5.AssociatedDevice.1.Inactive?"
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T140358666257
+- result: 5G=Pass, 6G=Pass, 2.4G=Pass, diagnostic_status=Pass
+- AP1/wl0: AssocMac5g=2c:59:17:00:42:15, WiFi.AccessPoint.1.AssociatedDevice.1.Inactive=4
+- AP3/wl1: AssocMac6g=2c:59:17:00:42:16, WiFi.AccessPoint.3.AssociatedDevice.1.Inactive=9
+- AP5/wl2: AssocMac24g=2c:59:17:00:42:27, WiFi.AccessPoint.5.AssociatedDevice.1.Inactive=3
+- compare against audit/0506.xlsx row 23: expected_norm Pass/Pass/Pass, actual Pass/Pass/Pass, match=True
+- source citations: fs/etc/amx/wld/wld_accesspoint.odl L1202-L1203 wires AssociatedDevice[] reads through wld_assocDev_getStats_orf; L1319 declares Inactive as volatile read-only uint32
+```
+
 ## Checkpoint summary (2026-05-09 0506-D022)
 
 > This checkpoint records the `D022 HtCapabilities` blocker decision.
