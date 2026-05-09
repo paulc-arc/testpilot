@@ -1,5 +1,58 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-10 0506-D333)
+
+> This checkpoint records the `D333 PacketsSent — WiFi.SSID.{i}.Stats.` environment blocker.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=189`, `applied=9`, `pending=51`, `block=166`, `needs_pass3=0`
+- `D333 PacketsSent — WiFi.SSID.{i}.Stats.` recorded as `ssid_stats_packetssent_workbook_pass_all_bands_blocked_by_sta_band_not_ready`
+- workbook row 333 latest ARC result is `Pass / Pass / Pass`
+- focused run `20260510T011136275097` reported `Fail / Fail / Fail` with `diagnostic_status=FailEnv`
+- failure reason: env gate failed before PacketsSent readback because STA band baseline/connect failed, `wl0` BSS stayed down through retries/AP bounce, and 6G OCV/hostapd remediation did not stabilize `wl1`
+- next ready single-case Pass3 target: `D335`
+
+</details>
+
+### D333 SSID Stats PacketsSent blocker evidence
+
+**STA 指令**
+
+```sh
+# STA baseline/connect attempted by runtime auto-baseline; no PacketsSent traffic/readback step executed
+dmesg -n 1
+```
+
+**DUT 指令**
+
+```sh
+wl -i wl0 bss
+ubus-cli WiFi.Radio.1.Enable=1
+ubus-cli "WiFi.SSID.4.Stats.PacketsSent?"
+ubus-cli "WiFi.SSID.6.Stats.PacketsSent?"
+ubus-cli "WiFi.SSID.8.Stats.PacketsSent?"
+```
+
+**判定 blocker 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260510T011136275097
+- workbook row 333 latest result expects Pass/Pass/Pass
+- report shape: Fail / Fail / Fail, diagnostic_status=FailEnv
+- JSON failure snapshot: verify_env sta_band_not_ready before PacketsSent readback
+- DUT.log report range L1-L2070:
+  wl -i wl0 bss
+  down
+  WiFi.Radio.1.Enable=1
+  ... repeated AP.1 bounce / hostapd restart attempts ...
+  6G OCV/hostapd remediation did not stabilize wl1
+- STA.log L1-L6 only contains runtime log-level setup; no STA traffic/readback step executed
+- runtime remediation attempted sta_band_rebaseline/AP bounce but did not restore STA band readiness
+```
+
 ## Checkpoint summary (2026-05-10 0506-D332)
 
 > This checkpoint records the `D332 PacketsReceived — WiFi.SSID.{i}.Stats.` environment blocker.
