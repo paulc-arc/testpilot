@@ -1,5 +1,53 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-10 0506-D355)
+
+> This checkpoint records the `D355 addClient() — WiFi.Radio.{i}.Sensing.` blocker.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=191`, `applied=9`, `pending=45`, `block=170`, `needs_pass3=0`
+- `D355 addClient() — WiFi.Radio.{i}.Sensing.` recorded as `sensing_addclient_workbook_pass_all_bands_vs_skip_fixture_runtime_fail_source_supports_addclient`
+- workbook row 355 latest result is `Pass / Pass / Pass`
+- focused run `20260510T020144100256` reported `Fail / N/A / N/A` with `diagnostic_status=FailTest`
+- failure reason: current YAML is a skip fixture with unsupported `skip` operator instead of executing the workbook addClient method
+- source survey found `whm_brcm_radcsi_addClient`, `mfn_wrad_sensing_addClient`, and monitor interval mapping in `whm_brcm_api_ext*.c`
+- next ready single-case Pass3 target: `D356`
+
+</details>
+
+### D355 Sensing addClient blocker evidence
+
+**STA 指令**
+
+```sh
+# DUT-only skip fixture; STA CSI client setup is not exercised by current YAML
+```
+
+**DUT 指令**
+
+```sh
+echo "[skip] non-executable step step_5g_skip"
+ubus-cli "WiFi.Radio.1.Sensing.addClient(MACAddress='A0:29:42:60:23:BD', MonitorInterval=100)"
+ubus-cli "WiFi.Radio.2.Sensing.addClient(MACAddress='00:90:4C:55:20:A8', MonitorInterval=1000)"
+ubus-cli "WiFi.Radio.3.Sensing.addClient(MACAddress='8A:10:18:1E:D9:14', MonitorInterval=1000)"
+```
+
+**判定 blocker 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260510T020144100256
+- workbook row 355 latest result expects Pass/Pass/Pass
+- report shape: Fail / N/A / N/A, diagnostic_status=FailTest
+- JSON failure snapshot: evaluate pass_criteria_not_satisfied, field=skip, operator=skip
+- DUT.log L1-L16:
+  __testpilot_env_gate__
+  dmesg -n 1
+- source survey: `whm_brcm_rad_csi.c` implements `whm_brcm_radcsi_addClient` and registers `mfn_wrad_sensing_addClient`; current YAML does not execute the workbook method
+```
+
 ## Checkpoint summary (2026-05-10 0506-D353)
 
 > This checkpoint records the `D353 stopBgDfsClear() — WiFi.wps_DefParam.` no-edit confirmation.
