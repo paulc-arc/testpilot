@@ -1,5 +1,62 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D295)
+
+> This checkpoint records the `D295 scan() — WiFi.Radio.{i}.` environment blocker.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=189`, `applied=9`, `pending=64`, `block=153`, `needs_pass3=0`
+- `D295 scan() — WiFi.Radio.{i}.` recorded as `radio_scan_workbook_pass_all_bands_blocked_by_bss_not_ready_before_scan_steps`
+- workbook row 295 latest ARC/PWHM result is `Pass / Pass / Pass`
+- focused run `20260509T225620590656` reported `Fail / Fail / Fail` with `diagnostic_status=FailTest`
+- failure reason: no `ScanCheck5g=ok` was produced because BSS readiness stayed unstable before scan checks completed
+- next ready single-case Pass3 target: `D298`
+
+</details>
+
+### D295 Radio scan blocker evidence
+
+**STA 指令**
+
+```sh
+iw dev wl0 set type managed
+ifconfig wl0 up
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.Radio.1.scan()"
+ubus-cli "WiFi.Radio.2.scan()"
+ubus-cli "WiFi.Radio.3.scan()"
+wl -i wl0 escanresults
+wl -i wl1 escanresults
+wl -i wl2 escanresults
+```
+
+**判定 blocker 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T225620590656
+- workbook row 295 latest result expects Pass/Pass/Pass
+- report shape: Fail / Fail / Fail, diagnostic_status=FailTest
+- JSON failure snapshot: result_5g expected ScanCheck5g=ok, actual ""
+- DUT.log L1357-L1428:
+  wl -i wl0 bss
+  up
+  wl -i wl1 bss
+  down
+  ... repeated wl1 down checks ...
+  /etc/init.d/wld_gen start
+  --wl0 FSM DONE--
+  --wl2 FSM DONE--
+  --wl1 FSM DONE--
+- run did not reach a successful scan/cache cross-check before BSS readiness failed
+```
+
 ## Checkpoint summary (2026-05-09 0506-D294)
 
 > This checkpoint records the `D294 getNaStationStats() — WiFi.Radio.{i}.NaStaMonitor.` blocker.
