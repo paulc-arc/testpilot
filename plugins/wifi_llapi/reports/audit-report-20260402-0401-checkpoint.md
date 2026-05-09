@@ -1,5 +1,57 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D078)
+
+> This checkpoint records the `D078 MACFiltering.Entry` confirmed no-edit decision.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=169`, `applied=9`, `pending=95`, `block=142`, `needs_pass3=0`
+- `D078 MACFiltering.Entry` confirmed as `workbook_match_no_yaml_edit`
+- workbook row 78 raw value is `Pass / Pass / Pass`, normalized to `Pass / Pass / Pass`
+- source 宣告 `MACFiltering.Entry` 是 persistent object，含 `MACAddress`，並透過 `addEntry` / `delEntry` 操作維護
+- focused run `20260509T192241409396` reported `Pass / Pass / Pass`
+- AP1/AP3/AP5 each started Entry empty, addEntry created one Entry with the requested MAC, and delEntry restored EntryCount/alias/MAC to empty
+- next ready single-case Pass3 target: `D079`
+
+</details>
+
+### D078 MACFiltering.Entry confirmed evidence
+
+**STA 指令**
+
+```sh
+# AP-only checkpoint; no STA command was required.
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.MACFiltering.Entry.?"
+ubus-cli "WiFi.AccessPoint.1.MACFiltering.addEntry(mac=62:2F:B8:66:BB:82)"
+ubus-cli "WiFi.AccessPoint.1.MACFiltering.delEntry(mac=62:2F:B8:66:BB:82)"
+ubus-cli "WiFi.AccessPoint.3.MACFiltering.Entry.?"
+ubus-cli "WiFi.AccessPoint.3.MACFiltering.addEntry(mac=FA:DD:AC:24:5A:B4)"
+ubus-cli "WiFi.AccessPoint.3.MACFiltering.delEntry(mac=FA:DD:AC:24:5A:B4)"
+ubus-cli "WiFi.AccessPoint.5.MACFiltering.Entry.?"
+ubus-cli "WiFi.AccessPoint.5.MACFiltering.addEntry(mac=FA:A0:DF:91:47:7C)"
+ubus-cli "WiFi.AccessPoint.5.MACFiltering.delEntry(mac=FA:A0:DF:91:47:7C)"
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T192241409396
+- report shape: Pass / Pass / Pass, diagnostic_status=Pass
+- 5G/AP1: EntryCount5g=0 / Alias=EMPTY / Mac=EMPTY; addEntry 62:2F:B8:66:BB:82 -> EntryCount5g=1 / Alias=cpe-Entry-7 / Mac=62:2F:B8:66:BB:82; delEntry -> empty/count 0
+- 6G/AP3: EntryCount6g=0 / Alias=EMPTY / Mac=EMPTY; addEntry FA:DD:AC:24:5A:B4 -> EntryCount6g=1 / Alias=cpe-Entry-6 / Mac=FA:DD:AC:24:5A:B4; delEntry -> empty/count 0
+- 2.4G/AP5: EntryCount24g=0 / Alias=EMPTY / Mac=EMPTY; addEntry FA:A0:DF:91:47:7C -> EntryCount24g=1 / Alias=cpe-Entry-6 / Mac=FA:A0:DF:91:47:7C; delEntry -> empty/count 0
+- compare against audit/0506.xlsx row 78: expected Pass/Pass/Pass; actual Pass/Pass/Pass
+- source citations: fs/etc/amx/wld/wld_accesspoint.odl L799/L819/L826 declare MACFiltering.Entry; L868/L876 declare addEntry/delEntry
+```
+
 ## Checkpoint summary (2026-05-09 0506-D077)
 
 > This checkpoint records the `D077 MACFilterAddressList` confirmed no-edit decision.
