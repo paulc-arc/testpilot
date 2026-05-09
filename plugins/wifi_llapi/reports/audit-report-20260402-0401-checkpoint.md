@@ -1,5 +1,52 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-10 0506-D356)
+
+> This checkpoint records the `D356 delClient() — WiFi.Radio.{i}.Sensing.` blocker.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=191`, `applied=9`, `pending=44`, `block=171`, `needs_pass3=0`
+- `D356 delClient() — WiFi.Radio.{i}.Sensing.` recorded as `sensing_delclient_workbook_pass_all_bands_vs_skip_fixture_runtime_fail_source_supports_delclient`
+- workbook row 356 latest result is `Pass / Pass / Pass`
+- focused run `20260510T020434495610` reported `Fail / N/A / N/A` with `diagnostic_status=FailTest`
+- failure reason: current YAML is a skip fixture with unsupported `skip` operator instead of executing workbook delClient/csiStats verification
+- source survey found `whm_brcm_radcsi_delClient` and `mfn_wrad_sensing_delClient`
+- next ready single-case Pass3 target: `D357`
+
+</details>
+
+### D356 Sensing delClient blocker evidence
+
+**STA 指令**
+
+```sh
+# DUT-only skip fixture; STA CSI client setup is not exercised by current YAML
+```
+
+**DUT 指令**
+
+```sh
+echo "[skip] non-executable step step_5g_skip"
+ubus-cli "WiFi.Radio.*.Sensing.delClient(MACAddress='a0:29:42:60:23:be')"
+ubus-cli "WiFi.Radio.*.Sensing.delClient(MACAddress='00:00:00:00:00:00')"
+```
+
+**判定 blocker 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260510T020434495610
+- workbook row 356 latest result expects Pass/Pass/Pass
+- report shape: Fail / N/A / N/A, diagnostic_status=FailTest
+- JSON failure snapshot: evaluate pass_criteria_not_satisfied, field=skip, operator=skip
+- DUT.log L3-L17:
+  __testpilot_env_gate__
+  dmesg -n 1
+- source survey: `whm_brcm_rad_csi.c` implements `whm_brcm_radcsi_delClient` and registers `mfn_wrad_sensing_delClient`; current YAML does not execute the workbook method or csiStats follow-up
+```
+
 ## Checkpoint summary (2026-05-10 0506-D355)
 
 > This checkpoint records the `D355 addClient() — WiFi.Radio.{i}.Sensing.` blocker.
