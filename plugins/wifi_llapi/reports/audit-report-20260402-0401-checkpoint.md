@@ -1,5 +1,61 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D081)
+
+> This checkpoint records the `D081 MBOEnable` confirmed no-edit decision.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=167`, `applied=9`, `pending=95`, `block=144`, `needs_pass3=0`
+- `D081 MBOEnable` confirmed as `workbook_match_no_yaml_edit`
+- workbook row 81 raw value is `Pass / Pass / Pass`, normalized to `Pass / Pass / Pass`
+- source 宣告 `MBOEnable` 是 persistent bool，default `false`
+- active Broadcom module getter 透過 `wl -i <if> mbo ap_enable` 讀取 driver 狀態，setter 透過 `wl -i <if> mbo ap_enable <1/0>` 寫入
+- focused run `20260509T193513034994` reported `Pass / Pass / Pass`
+- AP1/AP3/AP5 each exact-closed getter and direct driver readback `0 -> 1 -> 0`
+- next ready single-case Pass3 target: `D082`
+
+</details>
+
+### D081 MBOEnable confirmed evidence
+
+**STA 指令**
+
+```sh
+# AP-only checkpoint; no STA command was required.
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.MBOEnable?"
+wl -i wl0 mbo ap_enable
+ubus-cli WiFi.AccessPoint.1.MBOEnable=1
+ubus-cli WiFi.AccessPoint.1.MBOEnable=0
+ubus-cli "WiFi.AccessPoint.3.MBOEnable?"
+wl -i wl1 mbo ap_enable
+ubus-cli WiFi.AccessPoint.3.MBOEnable=1
+ubus-cli WiFi.AccessPoint.3.MBOEnable=0
+ubus-cli "WiFi.AccessPoint.5.MBOEnable?"
+wl -i wl2 mbo ap_enable
+ubus-cli WiFi.AccessPoint.5.MBOEnable=1
+ubus-cli WiFi.AccessPoint.5.MBOEnable=0
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T193513034994
+- report shape: Pass / Pass / Pass, diagnostic_status=Pass
+- 5G/AP1: BaselineGetterMbo5g=0 / BaselineDriverMbo5g=0; set -> AfterEnableGetterMbo5g=1 / AfterEnableDriverMbo5g=1; restore -> AfterRestoreGetterMbo5g=0 / AfterRestoreDriverMbo5g=0
+- 6G/AP3: BaselineGetterMbo6g=0 / BaselineDriverMbo6g=0; set -> AfterEnableGetterMbo6g=1 / AfterEnableDriverMbo6g=1; restore -> AfterRestoreGetterMbo6g=0 / AfterRestoreDriverMbo6g=0
+- 2.4G/AP5: BaselineGetterMbo24g=0 / BaselineDriverMbo24g=0; set -> AfterEnableGetterMbo24g=1 / AfterEnableDriverMbo24g=1; restore -> AfterRestoreGetterMbo24g=0 / AfterRestoreDriverMbo24g=0
+- compare against audit/0506.xlsx row 81: expected Pass/Pass/Pass; actual Pass/Pass/Pass
+- source citations: fs/etc/amx/wld/wld_accesspoint.odl L348-L349 declares MBOEnable default false; wifi_ap.c L446 reads `wl -i <if> mbo ap_enable`; wifi_ap.c L978 writes `wl -i <if> mbo ap_enable <1/0>`; wifi_ap.c L1215 returns getter value
+```
+
 ## Checkpoint summary (2026-05-09 0506-D080)
 
 > This checkpoint records the `D080 MaxAssociatedDevices` blocker decision.
