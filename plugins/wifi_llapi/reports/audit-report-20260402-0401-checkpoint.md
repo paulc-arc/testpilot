@@ -1,5 +1,52 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D034)
+
+> This checkpoint records the `D034 Noise` blocker.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=153`, `applied=8`, `pending=129`, `block=125`, `needs_pass3=0`
+- `D034 Noise` blocked as `bands_scope_outside_audit_allowlist`
+- workbook row 34 raw value is `Pass / Pass / Pass`, normalized to `Pass / Pass / Pass`
+- source 宣告 `AssociatedDevice[]` read path 透過 `wld_assocDev_getStats_orf`，且 `AssociatedDevice.Noise` 是 volatile read-only int32
+- focused run `20260509T161431860530` 5G path 通過：AP1 `Noise=-100`，same-STA wl0 `DriverNoise=-100`
+- 報表仍是 `Pass / N/A / N/A`，因為 case 目前是 5G-only (`bands: ["5g"]`) 且只有 AP1/wl0 steps；補 6G/2.4G 需要改 top-level bands/topology 或新增 steps，超出 audit `verify-edit` allowlist
+- next ready single-case Pass3 target: `D035`
+
+</details>
+
+### D034 Noise blocker evidence
+
+**STA 指令**
+
+```sh
+iw dev wl0 link
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?"
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.Noise?"
+STA_MAC=$(ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?" | sed -n 's/.*MACAddress="\([^"]*\)".*/\1/p'); STA_MAC_LOWER=$(echo "$STA_MAC" | tr 'A-F' 'a-f'); wl -i wl0 sta_info "$STA_MAC_LOWER" | grep noise
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T161431860530
+- AP1 AssociatedDevice.1.MACAddress="2C:59:17:00:42:15"
+- AP1 AssociatedDevice.1.Noise=-100
+- wl0 sta_info same-STA DriverNoise=-100, DriverNoiseMin=-102, DriverNoiseMax=-98
+- report shape: Pass / N/A / N/A
+- compare against audit/0506.xlsx row 34: expected Pass/Pass/Pass, actual Pass/N/A/N/A, mismatch_case_count=1, mismatch bands=6g,2.4g
+- blocker: checked-in case is 5G-only (`bands: ["5g"]`) and audit verify-edit cannot change top-level bands/topology or add missing 6G/2.4G executable steps
+- source citations: fs/etc/amx/wld/wld_accesspoint.odl L1202-L1203 wires AssociatedDevice[] reads through wld_assocDev_getStats_orf; L1315 declares AssociatedDevice.Noise as volatile read-only int32; BRCM mirror tr181-wifi_AccessPoint.odl L727 declares Noise as volatile read-only int32
+```
+
 ## Checkpoint summary (2026-05-09 0506-D033)
 
 > This checkpoint records the `D033 MUUserPositionId` applied closure.
