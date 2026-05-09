@@ -1,5 +1,62 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D090)
+
+> This checkpoint records the `D090 RekeyingInterval` confirmed no-edit decision.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=166`, `applied=9`, `pending=92`, `block=148`, `needs_pass3=0`
+- `D090 RekeyingInterval` confirmed as `workbook_match_no_yaml_edit`
+- workbook row 90 raw value is `Pass / Pass / Pass`, normalized to `Pass / Pass / Pass`
+- source 宣告 `Security.RekeyingInterval` 是 persistent uint32，用於 WPA/WPA2/Mixed key re-generation interval
+- focused run `20260509T200718296244` reported `Pass / Pass / Pass`
+- AP1/AP3/AP5 getter and wl0/wl1/wl2 hostapd `wpa_group_rekey` exact-closed `0 -> 0 -> 0`
+- cleanup command `0ea144664e3141b6b16cbe86c9272fdc` confirmed AP1/AP3/AP5 `RekeyingInterval=0`, wl0/wl1/wl2 `wpa_group_rekey=0`, and wl0/wl1/wl2 `up`
+- next ready single-case Pass3 target: `D091`
+
+</details>
+
+### D090 RekeyingInterval confirmed evidence
+
+**STA 指令**
+
+```sh
+# AP-only checkpoint; no STA command was required.
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli 'WiFi.AccessPoint.1.Security.RekeyingInterval?'
+grep '^wpa_group_rekey=' /tmp/wl0_hapd.conf
+ubus-cli WiFi.AccessPoint.1.Security.RekeyingInterval=0
+ubus-cli 'WiFi.AccessPoint.3.Security.RekeyingInterval?'
+grep '^wpa_group_rekey=' /tmp/wl1_hapd.conf
+ubus-cli WiFi.AccessPoint.3.Security.RekeyingInterval=0
+ubus-cli 'WiFi.AccessPoint.5.Security.RekeyingInterval?'
+grep '^wpa_group_rekey=' /tmp/wl2_hapd.conf
+ubus-cli WiFi.AccessPoint.5.Security.RekeyingInterval=0
+wl -i wl0 bss
+wl -i wl1 bss
+wl -i wl2 bss
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T200718296244
+- report shape: Pass / Pass / Pass, diagnostic_status=Pass
+- 5G/AP1: baseline getter=0 and hostapd wpa_group_rekey=0; after setter getter=0 and hostapd=0; restore kept 0
+- 6G/AP3: baseline getter=0 and hostapd wpa_group_rekey=0; after setter getter=0 and hostapd=0; restore kept 0
+- 2.4G/AP5: baseline getter=0 and hostapd wpa_group_rekey=0; after setter getter=0 and hostapd=0; restore kept 0
+- compare against audit/0506.xlsx row 90: expected Pass/Pass/Pass; actual Pass/Pass/Pass
+- cleanup command 0ea144664e3141b6b16cbe86c9272fdc: AP1/AP3/AP5 RekeyingInterval=0, wl0/wl1/wl2 wpa_group_rekey=0, and wl0/wl1/wl2 were up
+- source citations: fs/etc/amx/wld/wld_accesspoint.odl L630-L636 declares RekeyingInterval semantics/default
+```
+
 ## Checkpoint summary (2026-05-09 0506-D089)
 
 > This checkpoint records the `D089 PreSharedKey` blocker decision.
