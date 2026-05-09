@@ -1,5 +1,60 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D088)
+
+> This checkpoint records the `D088 ModesSupported` blocker decision.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=166`, `applied=9`, `pending=93`, `block=147`, `needs_pass3=0`
+- `D088 ModesSupported` recorded as `modessupported_24g_result_semantics_mismatch_outside_audit_allowlist`
+- workbook row 88 raw value is `Pass / Pass / Failed`, normalized to `Pass / Pass / Fail`
+- source 宣告 `Security.ModesSupported` 是 read-only string
+- focused run `20260509T200241880802` reported `Pass / Pass / Pass`
+- AP1/AP5 expose the full mode list including WPA/WPA2/WPA3/Enterprise/OWE; AP3 exposes the 6G-restricted `None,WPA3-Personal,OWE` list
+- setter attempts on AP1/AP3/AP5 all failed with read-only error 15
+- cleanup command `a24ed563fac045c1b36b6b90f731794b` confirmed the same getter lists and wl0/wl1/wl2 `up`
+- next ready single-case Pass3 target: `D089`
+
+</details>
+
+### D088 ModesSupported blocker evidence
+
+**STA 指令**
+
+```sh
+# AP-only read-only checkpoint; no STA command was required.
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.Security.ModesSupported?"
+ubus-cli WiFi.AccessPoint.1.Security.ModesSupported=WPA3-Personal
+ubus-cli "WiFi.AccessPoint.3.Security.ModesSupported?"
+ubus-cli WiFi.AccessPoint.3.Security.ModesSupported=WPA3-Personal
+ubus-cli "WiFi.AccessPoint.5.Security.ModesSupported?"
+ubus-cli WiFi.AccessPoint.5.Security.ModesSupported=WPA3-Personal
+wl -i wl0 bss
+wl -i wl1 bss
+wl -i wl2 bss
+```
+
+**判定 block 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T200241880802
+- report shape: Pass / Pass / Pass, diagnostic_status=Pass
+- 5G/AP1: ModesSupported=None,WEP-64,WEP-128,WEP-128iv,WPA-Personal,WPA2-Personal,WPA-WPA2-Personal,WPA3-Personal,WPA2-WPA3-Personal,WPA-Enterprise,WPA2-Enterprise,WPA-WPA2-Enterprise,OWE; setter failed error=15 read-only
+- 6G/AP3: ModesSupported=None,WPA3-Personal,OWE; setter failed error=15 read-only
+- 2.4G/AP5: ModesSupported=None,WEP-64,WEP-128,WEP-128iv,WPA-Personal,WPA2-Personal,WPA-WPA2-Personal,WPA3-Personal,WPA2-WPA3-Personal,WPA-Enterprise,WPA2-Enterprise,WPA-WPA2-Enterprise,OWE; setter failed error=15 read-only
+- compare against audit/0506.xlsx row 88: expected Pass/Pass/Failed -> normalized Pass/Pass/Fail; actual Pass/Pass/Pass
+- cleanup command a24ed563fac045c1b36b6b90f731794b: same getter lists remained and wl0/wl1/wl2 were up
+- source citation: fs/etc/amx/wld/wld_accesspoint.odl L564 declares ModesSupported as read-only
+```
+
 ## Checkpoint summary (2026-05-09 0506-D087)
 
 > This checkpoint records the `D087 ModeEnabled` confirmed no-edit decision.
