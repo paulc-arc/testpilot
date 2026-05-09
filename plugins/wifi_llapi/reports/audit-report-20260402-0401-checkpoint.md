@@ -1,5 +1,72 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D072)
+
+> This checkpoint records the `D072 MobilityDomain` confirmed no-edit decision.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=167`, `applied=9`, `pending=97`, `block=142`, `needs_pass3=0`
+- `D072 MobilityDomain` confirmed as `workbook_match_no_yaml_edit`
+- workbook row 72 raw value is `Pass / Pass / Pass`, normalized to `Pass / Pass / Pass`
+- source 宣告 `IEEE80211r` object 透過 `wld_ap_11r_setConf_ocf` 套用設定；`Enabled` 具 validate callback；`MobilityDomain` 是 persistent `uint16`，range `0..65535`，default `0`
+- focused run `20260509T190944484633` enabled IEEE80211r on AP1/AP3/AP5, confirmed initial `MobilityDomain=0`, set/read back `MobilityDomain=27476`, and verified hostapd `mobility_domain=546B` plus exactly one `ft_over_ds=0` on wl0/wl1/wl2
+- cleanup restored MobilityDomain=0 and IEEE80211r.Enabled=0 on AP1/AP3/AP5
+- report shape `Pass / Pass / Pass` matches workbook row 72
+- workbook rows D073/D074 have no discoverable checked-in YAML case; next ready single-case Pass3 target: `D075`
+
+</details>
+
+### D072 MobilityDomain confirmed evidence
+
+**STA 指令**
+
+```sh
+# AP-only checkpoint; no STA command was required.
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli WiFi.AccessPoint.1.IEEE80211r.Enabled=1
+ubus-cli "WiFi.AccessPoint.1.IEEE80211r.MobilityDomain?"
+ubus-cli WiFi.AccessPoint.1.IEEE80211r.MobilityDomain=27476
+grep -m1 '^mobility_domain=' /tmp/wl0_hapd.conf
+grep -c '^ft_over_ds=0$' /tmp/wl0_hapd.conf
+ubus-cli WiFi.AccessPoint.1.IEEE80211r.MobilityDomain=0
+ubus-cli WiFi.AccessPoint.1.IEEE80211r.Enabled=0
+ubus-cli WiFi.AccessPoint.3.IEEE80211r.Enabled=1
+ubus-cli "WiFi.AccessPoint.3.IEEE80211r.MobilityDomain?"
+ubus-cli WiFi.AccessPoint.3.IEEE80211r.MobilityDomain=27476
+grep -m1 '^mobility_domain=' /tmp/wl1_hapd.conf
+grep -c '^ft_over_ds=0$' /tmp/wl1_hapd.conf
+ubus-cli WiFi.AccessPoint.3.IEEE80211r.MobilityDomain=0
+ubus-cli WiFi.AccessPoint.3.IEEE80211r.Enabled=0
+ubus-cli WiFi.AccessPoint.5.IEEE80211r.Enabled=1
+ubus-cli "WiFi.AccessPoint.5.IEEE80211r.MobilityDomain?"
+ubus-cli WiFi.AccessPoint.5.IEEE80211r.MobilityDomain=27476
+grep -m1 '^mobility_domain=' /tmp/wl2_hapd.conf
+grep -c '^ft_over_ds=0$' /tmp/wl2_hapd.conf
+ubus-cli WiFi.AccessPoint.5.IEEE80211r.MobilityDomain=0
+ubus-cli WiFi.AccessPoint.5.IEEE80211r.Enabled=0
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T190944484633
+- AP1/AP3/AP5 start path: IEEE80211r.Enabled=1 and MobilityDomain=0 before setter
+- set path: MobilityDomain=27476 read back on AP1/AP3/AP5
+- hostapd projection: MobilityDomainCfg5g=546B, MobilityDomainCfg6g=546B, MobilityDomainCfg24g=546B
+- FT-over-DS default projection: FtOverDs5gZeroCount=1 / TotalCount=1; FtOverDs6gZeroCount=1 / TotalCount=1; FtOverDs24gZeroCount=1 / TotalCount=1
+- cleanup: AP1/AP3/AP5 MobilityDomain=0 and IEEE80211r.Enabled=0
+- report shape: Pass / Pass / Pass, diagnostic_status=Pass
+- compare against audit/0506.xlsx row 72: expected Pass/Pass/Pass; actual Pass/Pass/Pass
+- source citations: fs/etc/amx/wld/wld_accesspoint.odl L452-L453 declares IEEE80211r and config event handler; L459 declares Enabled; L489-L491 declares MobilityDomain uint16 range/default
+```
+
 ## Checkpoint summary (2026-05-09 0506-D071)
 
 > This checkpoint records the `D071 FTOverDSEnable` confirmed no-edit decision.
