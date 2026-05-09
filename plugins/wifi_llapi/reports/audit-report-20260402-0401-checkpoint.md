@@ -1,5 +1,63 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D067)
+
+> This checkpoint records the `D067 DiscoveryMethodEnabled=UPR` blocker.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=165`, `applied=9`, `pending=98`, `block=143`, `needs_pass3=0`
+- `D067 DiscoveryMethodEnabled=UPR` blocked as `mixed_band_result_semantics_mismatch_outside_audit_allowlist`
+- workbook row 67 raw value is `Failed / Failed / Failed`, normalized to `Fail / Fail / Fail`
+- source 宣告 `WiFi.AccessPoint.{i}.DiscoveryMethodEnabled` 是 persistent string，default `Default`，target ODL 透過 `wld_ap_validateDiscoveryMethod_pvf` 驗證
+- focused run `20260509T185821324735` shows mixed live behavior: AP1/AP5 reject standard `UPR` with `invalid value` and remain `Default`, but AP3 accepts `UPR` and reads back `UPR`
+- the current YAML treats this mixed-band observation as a passing diagnostic and restores all bands to `Default`, so runtime diagnostic is `Pass / Pass / Pass`
+- report shape `Pass / Pass / Pass` mismatches workbook-normalized `Fail / Fail / Fail`; AP3 live acceptance also contradicts workbook all-band Failed expectation
+- next ready single-case Pass3 target: `D068`
+
+</details>
+
+### D067 DiscoveryMethodEnabled=UPR blocker evidence
+
+**STA 指令**
+
+```sh
+# AP-only checkpoint; no STA command was required.
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.DiscoveryMethodEnabled?"
+ubus-cli "WiFi.AccessPoint.3.DiscoveryMethodEnabled?"
+ubus-cli "WiFi.AccessPoint.5.DiscoveryMethodEnabled?"
+ubus-cli WiFi.AccessPoint.1.DiscoveryMethodEnabled=UPR
+ubus-cli WiFi.AccessPoint.3.DiscoveryMethodEnabled=UPR
+ubus-cli WiFi.AccessPoint.5.DiscoveryMethodEnabled=UPR
+ubus-cli "WiFi.AccessPoint.1.DiscoveryMethodEnabled?"
+ubus-cli "WiFi.AccessPoint.3.DiscoveryMethodEnabled?"
+ubus-cli "WiFi.AccessPoint.5.DiscoveryMethodEnabled?"
+ubus-cli WiFi.AccessPoint.1.DiscoveryMethodEnabled=Default
+ubus-cli WiFi.AccessPoint.3.DiscoveryMethodEnabled=Default
+ubus-cli WiFi.AccessPoint.5.DiscoveryMethodEnabled=Default
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T185821324735
+- default getters: AP1/AP3/AP5 DiscoveryMethodEnabled="Default"
+- UPR writes: AP1 rejected with invalid value; AP3 accepted DiscoveryMethodEnabled="UPR"; AP5 rejected with invalid value
+- after UPR writes: AP1="Default"; AP3="UPR"; AP5="Default"
+- restore: AP1/AP3/AP5 restored DiscoveryMethodEnabled="Default"
+- report shape: Pass / Pass / Pass, diagnostic_status=Pass
+- compare against audit/0506.xlsx row 67: expected Failed/Failed/Failed, normalized Fail/Fail/Fail; actual Pass/Pass/Pass
+- blocker: live 6G accepts UPR and current YAML treats the mixed-band behavior as Pass; workbook all-band Failed needs oracle/result-semantics reconciliation outside safe audit edits
+- source citations: fs/etc/amx/wld/wld_accesspoint.odl L2404-L2406 declares DiscoveryMethodEnabled with default and validation callback; BRCM mirror tr181-wifi_AccessPoint.odl L184-L185 declares the persistent string and default
+```
+
 ## Checkpoint summary (2026-05-09 0506-D066)
 
 > This checkpoint records the `D066 DiscoveryMethodEnabled=FILS` blocker.
