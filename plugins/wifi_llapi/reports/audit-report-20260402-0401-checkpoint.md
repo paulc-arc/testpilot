@@ -1,5 +1,57 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D032)
+
+> This checkpoint records the `D032 MUMimoTxPktsPercentage` applied closure.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=153`, `applied=7`, `pending=131`, `block=124`, `needs_pass3=0`
+- `D032 MUMimoTxPktsPercentage` applied through audit `verify-edit` / `record` / `decide` / `apply`，reason=`align_mumimotxpktspercentage_stub_zero_to_workbook_not_supported_fail_shape`
+- workbook row 32 raw value is `Not Supported / Not Supported / Not Supported`, normalized to `Fail / Fail / Fail`
+- source 宣告 `AssociatedDevice[]` read path 透過 `wld_assocDev_getStats_orf`，且 `AssociatedDevice.MUMimoTxPktsPercentage` 是 volatile read-only uint32 percentage
+- focused run before edit `20260509T153606658129` AP1/AP5 都回 `MUMimoTxPktsPercentage=0`，舊 YAML 報告 `Pass / Pass / Pass`，與 workbook not-supported row 不符
+- focused rerun after edit `20260509T154108053180` 報告 `Fail / Fail / Fail`，compare against `audit/0506.xlsx`: `full_match_count=1`, `mismatch_case_count=0`
+- next ready single-case Pass3 target: `D033`
+
+</details>
+
+### D032 MUMimoTxPktsPercentage applied evidence
+
+**STA 指令**
+
+```sh
+iw dev wl0 link
+iw dev wl2 link
+```
+
+**DUT 指令**
+
+```sh
+wl -i wl0 assoclist
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MUMimoTxPktsPercentage?"
+wl -i wl2 assoclist
+ubus-cli "WiFi.AccessPoint.5.AssociatedDevice.1.MUMimoTxPktsPercentage?"
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun before edit 20260509T153606658129
+- live values: AP1 MUMimoTxPktsPercentage=0, AP5 MUMimoTxPktsPercentage=0
+- report shape before edit: Pass / Pass / Pass
+- compare against audit/0506.xlsx row 32: mismatch_case_count=1, expected normalized Fail/Fail/Fail
+
+Focused rerun after edit 20260509T154108053180
+- final: status=Fail, evaluation_verdict=Fail, diagnostic_status=FailTest
+- report shape after edit: Fail / Fail / Fail
+- intentional failure snapshot: field=result_5g.MUMimoTxPktsPercentage, operator=not_equals, expected=0, actual=0
+- compare against audit/0506.xlsx row 32: expected raw Not Supported/Not Supported/Not Supported, expected normalized Fail/Fail/Fail, actual normalized Fail/Fail/Fail, full_match_count=1, mismatch_case_count=0
+- source citations: fs/etc/amx/wld/wld_accesspoint.odl L1202-L1203 wires AssociatedDevice[] reads through wld_assocDev_getStats_orf; L1562 declares MUMimoTxPktsPercentage as volatile read-only uint32; BRCM mirror tr181-wifi_AccessPoint.odl L899 declares MUMimoTxPktsPercentage as volatile read-only uint32
+```
+
 ## Checkpoint summary (2026-05-09 0506-D031)
 
 > This checkpoint records the `D031 MUMimoTxPktsCount` applied closure.
