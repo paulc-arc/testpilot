@@ -1,5 +1,50 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-10 0506-D353)
+
+> This checkpoint records the `D353 stopBgDfsClear() — WiFi.wps_DefParam.` no-edit confirmation.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=191`, `applied=9`, `pending=46`, `block=169`, `needs_pass3=0`
+- `D353 stopBgDfsClear() — WiFi.wps_DefParam.` confirmed as `stopbgdfsclear_workbook_fail_all_bands_runtime_fail_no_exported_odl_method_no_edit`
+- workbook row 353 latest ARC result is `Fail / Fail / Fail`
+- focused run `20260510T015921312121` reported `Fail / N/A / N/A`, normalized `Fail / Fail / Fail`, with `diagnostic_status=FailTest`
+- source survey found no exported plugin ODL registration for `WiFi.Radio.{i}.ChannelMgt.BgDfs.stopBgDfsClear`; vendor bgdfs helper hooks exist under `whm_brcm_dfs.c`
+- next ready single-case Pass3 target: `D355`
+
+</details>
+
+### D353 stopBgDfsClear no-edit evidence
+
+**STA 指令**
+
+```sh
+# DUT-only skip fixture; STA is not used
+```
+
+**DUT 指令**
+
+```sh
+echo "[skip] non-executable step step_5g_skip"
+ubus-cli "WiFi.Radio.1.ChannelMgt.BgDfs.stopBgDfsClear()"
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260510T015921312121
+- workbook row 353 latest ARC result is Fail/Fail/Fail
+- report shape: Fail / N/A / N/A, normalized Fail / Fail / Fail, diagnostic_status=FailTest
+- JSON failure snapshot: evaluate pass_criteria_not_satisfied, field=skip, operator=skip
+- DUT.log L1-L16:
+  __testpilot_env_gate__
+  dmesg -n 1
+- source survey: no `stopBgDfsClear` or `WiFi.Radio.{i}.ChannelMgt.BgDfs.stopBgDfsClear` ODL registration found under `plugins`; `whm_brcm_dfs.c` contains vendor bgdfs stop helper
+```
+
 ## Checkpoint summary (2026-05-10 0506-D352)
 
 > This checkpoint records the `D352 startBgDfsClear() — WiFi.wps_DefParam.` no-edit confirmation.
