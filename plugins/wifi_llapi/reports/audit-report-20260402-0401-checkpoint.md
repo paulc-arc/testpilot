@@ -1,5 +1,55 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D062)
+
+> This checkpoint records the `D062 VendorOUI` blocker.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=163`, `applied=8`, `pending=101`, `block=143`, `needs_pass3=0`
+- `D062 VendorOUI` blocked as `bands_scope_outside_audit_allowlist`
+- workbook row 62 raw value is `Pass / Pass / Pass`, normalized to `Pass / Pass / Pass`
+- source 宣告 `AssociatedDevice[]` read path 透過 `wld_assocDev_getStats_orf`，且 `AssociatedDevice.VendorOUI` 是 read-only OUI-list string
+- focused run `20260509T184101776306` validates the current 5G path: STA wl0 and AP1 AssociatedDevice.1 both resolved to `2c:59:17:00:42:15`; direct getter, snapshot, and driver capture all matched `00:90:4C,00:10:18,00:50:F2`
+- report shape `Pass / N/A / N/A` 與 workbook tri-band Pass 不符；新增 6G/2.4G executable coverage 或修改 top-level bands/topology 超出 audit allowlist
+- next ready single-case Pass3 target: `D063`
+
+</details>
+
+### D062 VendorOUI blocker evidence
+
+**STA 指令**
+
+```sh
+cat /sys/class/net/wl0/address | tr 'A-F' 'a-f' | sed 's/^/StaMac=/'
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.MACAddress?"
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.VendorOUI?"
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.?"
+wl -i wl0 sta_info "$STA_MAC" | awk '/^[[:space:]]*VENDOR OUI VALUE\[[0-9]+\]/ {oui[++n]=$NF} END {if (n) {print "DriverVendorOUICount=" n; list=""; for (i=1;i<=n;i++) list = list (i>1 ? "," : "") oui[i]; print "DriverVendorOUIList=" list}}'
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T184101776306
+- STA identity: StaMac=2c:59:17:00:42:15
+- AP1 association: MACAddress=2c:59:17:00:42:15
+- API evidence: WiFi.AccessPoint.1.AssociatedDevice.1.VendorOUI="00:90:4C,00:10:18,00:50:F2"
+- snapshot evidence: AssocMAC=2c:59:17:00:42:15; AssocVendorOUI=00:90:4C,00:10:18,00:50:F2
+- driver evidence: DriverAssocMac=2c:59:17:00:42:15; DriverVendorOUICount=3; DriverVendorOUIList=00:90:4C,00:10:18,00:50:F2
+- report shape: Pass / N/A / N/A, diagnostic_status=Pass
+- compare against audit/0506.xlsx row 62: expected Pass/Pass/Pass, actual Pass/N/A/N/A, mismatch_case_count=1, mismatch bands=6g,2.4g
+- blocker: current 5G-only authored case is valid for AP1 but cannot represent workbook tri-band Pass without bands/topology or 6G/2.4G executable-step changes outside audit allowlist
+- source citations: fs/etc/amx/wld/wld_accesspoint.odl L1202-L1203 wires AssociatedDevice[] reads through wld_assocDev_getStats_orf; L1634 documents OUI-list format; L1637 declares VendorOUI as read-only string; BRCM mirror tr181-wifi_AccessPoint.odl L1104 declares VendorOUI
+```
+
 ## Checkpoint summary (2026-05-09 0506-D061)
 
 > This checkpoint records the `D061 UplinkShortGuard` blocker.
