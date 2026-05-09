@@ -1,5 +1,56 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D070)
+
+> This checkpoint records the `D070 Enable` confirmed no-edit decision.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=166`, `applied=9`, `pending=98`, `block=142`, `needs_pass3=0`
+- workbook row D069 has no discoverable checked-in YAML case under `plugins/wifi_llapi/cases`, so strict official-case mode continued to `D070`
+- `D070 Enable` confirmed as `workbook_match_no_yaml_edit`
+- workbook row 70 raw value is `Pass / Pass / Pass`, normalized to `Pass / Pass / Pass`
+- source 宣告 `WiFi.AccessPoint.{i}.Enable` enables/disables the AccessPoint
+- focused run `20260509T190342475018` confirmed AP1/AP3/AP5 `Enable=1` and wl0/wl1/wl2 BSS all `up`
+- report shape `Pass / Pass / Pass` matches workbook row 70
+- next ready single-case Pass3 target: `D071`
+
+</details>
+
+### D070 Enable confirmed evidence
+
+**STA 指令**
+
+```sh
+# AP-only checkpoint; no STA command was required.
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.Enable?"
+ubus-cli "WiFi.AccessPoint.3.Enable?"
+ubus-cli "WiFi.AccessPoint.5.Enable?"
+wl -i wl0 bss
+wl -i wl1 bss
+wl -i wl2 bss
+```
+
+**判定 pass 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T190342475018
+- 5G: Enable5g=1; DriverBss5g=up
+- 6G: Enable6g=1; DriverBss6g=up
+- 2.4G: Enable24g=1; DriverBss24g=up
+- report shape: Pass / Pass / Pass, diagnostic_status=Pass
+- compare against audit/0506.xlsx row 70: expected Pass/Pass/Pass; actual Pass/Pass/Pass
+- decision: confirmed no-edit
+- source citations: fs/etc/amx/wld/wld_accesspoint.odl L330-L331 documents and declares Enable; BRCM mirror tr181-wifi_AccessPoint.odl L62-L64 documents and declares Enable
+```
+
 ## Checkpoint summary (2026-05-09 0506-D068)
 
 > This checkpoint records the `D068 DiscoveryMethodEnabled=RNR` confirmed no-edit decision.
