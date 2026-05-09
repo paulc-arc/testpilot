@@ -1,5 +1,65 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-10 0506-D326)
+
+> This checkpoint records the `D326 DiscardPacketsSent — WiFi.SSID.{i}.Stats.` environment blocker.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=189`, `applied=9`, `pending=57`, `block=160`, `needs_pass3=0`
+- `D326 DiscardPacketsSent — WiFi.SSID.{i}.Stats.` recorded as `ssid_stats_discardpacketssent_workbook_pass_all_bands_blocked_by_sta_band_not_ready`
+- workbook row 326 latest ARC result is `Pass / Pass / Pass`
+- focused run `20260510T000752363283` reported `Fail / Fail / Fail` with `diagnostic_status=FailEnv`
+- failure reason: env gate failed before DiscardPacketsSent readback because STA band baseline/connect failed, DUT `wl0` BSS stayed down, and STA `wl0` stayed not connected/not associated
+- next ready single-case Pass3 target: `D327`
+
+</details>
+
+### D326 SSID Stats DiscardPacketsSent blocker evidence
+
+**STA 指令**
+
+```sh
+wpa_cli -p /var/run/wpa_supplicant -i wl0 select_network 0
+iw dev wl0 link
+wl -i wl0 join testpilot5G imode bss
+wl -i wl0 status
+```
+
+**DUT 指令**
+
+```sh
+wl -i wl0 bss up
+wl -i wl0 bss
+ubus-cli "WiFi.SSID.4.Stats.DiscardPacketsSent?"
+ubus-cli "WiFi.SSID.6.Stats.DiscardPacketsSent?"
+ubus-cli "WiFi.SSID.8.Stats.DiscardPacketsSent?"
+```
+
+**判定 blocker 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260510T000752363283
+- workbook row 326 latest result expects Pass/Pass/Pass
+- report shape: Fail / Fail / Fail, diagnostic_status=FailEnv
+- JSON failure snapshot: verify_env sta_band_not_ready before DiscardPacketsSent readback
+- STA.log L82-L121:
+  iw dev wl0 link
+  Not connected.
+  wl -i wl0 join testpilot5G imode bss
+  wl -i wl0 status
+  Not associated. Last associated with SSID: ""
+- DUT.log L1278-L1333 and L1347-L1368:
+  wl -i wl0 bss
+  down
+  ... repeated wl0 bss checks ...
+  ubus-cli WiFi.Radio.1.Enable=1
+  --wl0 FSM DONE--
+- runtime remediation attempted sta_band_rebaseline/AP bounce but did not restore STA band readiness
+```
+
 ## Checkpoint summary (2026-05-09 0506-D325)
 
 > This checkpoint records the `D325 DiscardPacketsReceived — WiFi.SSID.{i}.Stats.` environment blocker.
