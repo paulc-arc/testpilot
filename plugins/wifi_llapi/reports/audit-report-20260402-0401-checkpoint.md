@@ -1,5 +1,69 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D079)
+
+> This checkpoint records the `D079 MACFiltering.Mode` blocker decision.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=168`, `applied=9`, `pending=95`, `block=143`, `needs_pass3=0`
+- `D079 MACFiltering.Mode` recorded as `negative_setter_result_semantics_mismatch_outside_audit_allowlist`
+- workbook row 79 raw value is `Failed / Failed / Failed`, normalized to `Fail / Fail / Fail`
+- source 宣告 `MACFiltering.Mode` 是 persistent string enum `Off` / `WhiteList` / `BlackList`，default `Off`
+- focused run `20260509T192618351158` rebuilt workbook baseline: AP1 `WhiteList` + `macaddr_acl=1` + accept ACL; AP3/AP5 `BlackList` + `macaddr_acl=0` + deny ACL
+- `Mode=Off` setter returned `invalid value` on AP1/AP3/AP5, and getter/hostapd ACL state remained unchanged
+- current YAML treats that expected rejection as `Pass / Pass / Pass`, which mismatches normalized workbook `Fail / Fail / Fail`
+- cleanup removed the probe MAC entries, restored modes to `Off`, and confirmed wl0/wl1/wl2 `up`
+- next ready single-case Pass3 target: `D080`
+
+</details>
+
+### D079 MACFiltering.Mode blocker evidence
+
+**STA 指令**
+
+```sh
+# AP-only checkpoint; no STA command was required.
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.MACFiltering.Mode?"
+ubus-cli WiFi.AccessPoint.1.MACFiltering.Mode=Off
+grep -nE '^(macaddr_acl|accept_mac_file|deny_mac_file)=' /tmp/wl0_hapd.conf
+ubus-cli "WiFi.AccessPoint.3.MACFiltering.Mode?"
+ubus-cli WiFi.AccessPoint.3.MACFiltering.Mode=Off
+grep -nE '^(macaddr_acl|accept_mac_file|deny_mac_file)=' /tmp/wl1_hapd.conf
+ubus-cli "WiFi.AccessPoint.5.MACFiltering.Mode?"
+ubus-cli WiFi.AccessPoint.5.MACFiltering.Mode=Off
+grep -nE '^(macaddr_acl|accept_mac_file|deny_mac_file)=' /tmp/wl2_hapd.conf
+ubus-cli "WiFi.AccessPoint.1.MACFiltering.delEntry(mac=62:2F:B8:66:BB:82)"
+ubus-cli "WiFi.AccessPoint.3.MACFiltering.delEntry(mac=FA:DD:AC:24:5A:B4)"
+ubus-cli "WiFi.AccessPoint.5.MACFiltering.delEntry(mac=FA:A0:DF:91:47:7C)"
+wl -i wl0 bss
+wl -i wl1 bss
+wl -i wl2 bss
+```
+
+**判定 block 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T192618351158
+- report shape: Pass / Pass / Pass, diagnostic_status=Pass
+- 5G/AP1 baseline: BaselineMode5g=WhiteList, BaselineMacaddrAcl5g=1, BaselineAclState5g=accept
+- 5G/AP1 Off setter: ERROR invalid value; AfterMode5g=WhiteList, AfterMacaddrAcl5g=1, AfterAclState5g=accept
+- 6G/AP3 baseline: BaselineMode6g=BlackList, BaselineMacaddrAcl6g=0, BaselineAclState6g=deny
+- 6G/AP3 Off setter: ERROR invalid value; AfterMode6g=BlackList, AfterMacaddrAcl6g=0, AfterAclState6g=deny
+- 2.4G/AP5 baseline: BaselineMode24g=BlackList, BaselineMacaddrAcl24g=0, BaselineAclState24g=deny
+- 2.4G/AP5 Off setter: ERROR invalid value; AfterMode24g=BlackList, AfterMacaddrAcl24g=0, AfterAclState24g=deny
+- compare against audit/0506.xlsx row 79: expected Failed/Failed/Failed -> normalized Fail/Fail/Fail; actual Pass/Pass/Pass
+- cleanup command da2c1ef58ad243e5ba2055d0d0122b4c / 0fc090b0f17f4caab45faafdcf1093a4: removed probe MAC entries, modes read back Off, and wl0/wl1/wl2 were up
+- source citations: fs/etc/amx/wld/wld_accesspoint.odl L799-L814 declares MACFiltering.Mode enum and default
+```
+
 ## Checkpoint summary (2026-05-09 0506-D078)
 
 > This checkpoint records the `D078 MACFiltering.Entry` confirmed no-edit decision.
