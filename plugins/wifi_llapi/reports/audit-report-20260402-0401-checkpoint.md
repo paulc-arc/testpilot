@@ -1,5 +1,54 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D202)
+
+> This checkpoint records the `D202 Interference — WiFi.Radio.{i}.` blocker.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=189`, `applied=9`, `pending=67`, `block=150`, `needs_pass3=0`
+- `D202 Interference — WiFi.Radio.{i}.` recorded as `radio_interference_workbook_failed_all_bands_vs_numeric_getter_pass_semantics_mismatch`
+- workbook row 202 raw value is `Failed / Failed / Failed`, normalized to `Fail / Fail / Fail`
+- focused run `20260509T224945638600` reported `Pass / Pass / Pass`
+- current YAML only checks numeric getter presence and read all three radios as `Interference=0`
+- next ready single-case Pass3 target: `D207`
+
+</details>
+
+### D202 Radio Interference blocker evidence
+
+**STA 指令**
+
+```sh
+# no STA command; D202 is a DUT-only Radio Interference getter probe
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.Radio.1.Interference?"
+ubus-cli "WiFi.Radio.2.Interference?"
+ubus-cli "WiFi.Radio.3.Interference?"
+```
+
+**判定 blocker 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T224945638600
+- workbook row 202 expects Failed/Failed/Failed -> normalized Fail/Fail/Fail
+- report shape: Pass / Pass / Pass, diagnostic_status=Pass
+- DUT.log L8-L21:
+  ubus-cli "WiFi.Radio.1.Interference?"
+  WiFi.Radio.1.Interference=0
+  ubus-cli "WiFi.Radio.2.Interference?"
+  WiFi.Radio.2.Interference=0
+  ubus-cli "WiFi.Radio.3.Interference?"
+  WiFi.Radio.3.Interference=0
+- mismatch: workbook fail semantics disagree with current numeric-getter pass criteria
+```
+
 ## Checkpoint summary (2026-05-09 0506-D183)
 
 > This checkpoint records the `D183 TPCMode — WiFi.Radio.{i}.DriverConfig.` environment blocker.
