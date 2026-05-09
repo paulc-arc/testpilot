@@ -1,5 +1,52 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D112)
+
+> This checkpoint records the `D112 getStationStats() AuthenticationState` blocker decision.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=167`, `applied=9`, `pending=84`, `block=155`, `needs_pass3=0`
+- `D112 getStationStats() AuthenticationState` recorded as `getstationstats_authenticationstate_workbook_all_bands_vs_yaml_5g_only_scope_mismatch`
+- workbook row 112 raw value is `Pass / Pass / Pass`
+- focused run `20260509T205911940785` reported `Pass / N/A / N/A`
+- official YAML is scoped to 5G only; 5G passed after retry with `assoclist 2C:59:17:00:42:15` and `AuthenticationState=1`
+- attempt 1 saw transient `AuthenticationState=0`; retry settled to workbook-expected 5G value
+- 6G/2.4G workbook pass expectations are not projected by this 5G-only topology case
+- next ready single-case Pass3 target: `D113`
+
+</details>
+
+### D112 getStationStats() AuthenticationState blocker evidence
+
+**STA 指令**
+
+```sh
+# testpilot setup_env connected STA wl0 to DUT 5G SSID testpilot5G.
+```
+
+**DUT 指令**
+
+```sh
+wl -i wl0 assoclist
+ubus-cli "WiFi.AccessPoint.1.getStationStats()"
+```
+
+**判定 block 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T205911940785, DUT.log L511-L549
+- report shape: Pass / N/A / N/A, diagnostic_status=Pass
+- workbook row 112 expects Pass/Pass/Pass
+- assoclist 2C:59:17:00:42:15
+- AuthenticationState = 1
+- MACAddress = "2C:59:17:00:42:15"
+- first attempt showed AuthenticationState = 0 at DUT.log L219, then retry passed
+- current official YAML bands list is 5g only, so 6G/2.4G workbook pass expectations are not represented
+```
+
 ## Checkpoint summary (2026-05-09 0506-D111)
 
 > This checkpoint records the `D111 getStationStats() AssociationTime` blocker decision.
