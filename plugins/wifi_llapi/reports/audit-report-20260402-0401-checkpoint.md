@@ -1,5 +1,53 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D029)
+
+> This checkpoint records the `D029 Mode` confirmation.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=153`, `applied=4`, `pending=134`, `block=124`, `needs_pass3=0`
+- `D029 Mode` confirmed without YAML edits，reason=`pass3_live_not_supported_matches_workbook_normalized_fail_fail_fail`
+- workbook row 29 raw value is `Not Supported / Not Supported / Not Supported`, normalized to `Fail / Fail / Fail`
+- source 宣告 `AssociatedDevice[]` read path 透過 `wld_assocDev_getStats_orf`；AssociatedDevice table 有 `EncryptionMode` / `MLOMode` 等相鄰 leaf，但沒有 plain `Mode` leaf
+- focused run `20260509T144816405748` AP1/AP5 `Mode?` 都回 `ERROR: get ... failed (4 - parameter not found)`
+- compare against `audit/0506.xlsx`: `full_match_count=1`, `mismatch_case_count=0`
+- next ready single-case Pass3 target: `D030`
+
+</details>
+
+### D029 Mode confirmation evidence
+
+**STA 指令**
+
+```sh
+iw dev wl0 link
+iw dev wl2 link
+```
+
+**DUT 指令**
+
+```sh
+wl -i wl0 assoclist
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.Mode?"
+wl -i wl2 assoclist
+ubus-cli "WiFi.AccessPoint.5.AssociatedDevice.1.Mode?"
+```
+
+**判定 pass-through 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T144816405748
+- final: status=Fail, evaluation_verdict=Fail, attempts_used=2, diagnostic_status=FailTest
+- report shape: Fail / Fail / Fail
+- live output: ERROR: get WiFi.AccessPoint.1.AssociatedDevice.1.Mode failed (4 - parameter not found)
+- live output: ERROR: get WiFi.AccessPoint.5.AssociatedDevice.1.Mode failed (4 - parameter not found)
+- compare against audit/0506.xlsx row 29: expected raw Not Supported/Not Supported/Not Supported, expected normalized Fail/Fail/Fail, actual normalized Fail/Fail/Fail, full_match_count=1, mismatch_case_count=0
+- source citations: fs/etc/amx/wld/wld_accesspoint.odl L1202-L1203 wires AssociatedDevice[] reads through wld_assocDev_getStats_orf; L1666 and L1714 show adjacent AssociatedDevice leaves EncryptionMode and MLOMode, with no plain Mode leaf in that table span
+```
+
 ## Checkpoint summary (2026-05-09 0506-D028)
 
 > This checkpoint records the `D028 MaxBandwidthSupported` blocker decision.
