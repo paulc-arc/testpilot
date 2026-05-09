@@ -1,5 +1,63 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D084)
+
+> This checkpoint records the `D084 EncryptionMode` blocker decision.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=167`, `applied=9`, `pending=94`, `block=145`, `needs_pass3=0`
+- `D084 EncryptionMode` recorded as `hardcoded_default_result_semantics_mismatch_outside_audit_allowlist`
+- workbook row 84 raw value is `Failed / Failed / Failed`, normalized to `Fail / Fail / Fail`
+- source 宣告 `Security.EncryptionMode` 是 persistent string，default `Default`，enum 為 `Default` / `AES` / `TKIP` / `TKIP-AES`
+- focused run `20260509T194710374291` reported `Pass / Pass / Pass` after retry
+- AP1/AP3/AP5 all returned hardcoded `EncryptionMode=Default` while hostapd exposed real WPA-PSK/SAE + CCMP security state
+- current YAML treats that hardcoded-default diagnostic as `Pass / Pass / Pass`, which mismatches normalized workbook `Fail / Fail / Fail`
+- cleanup command `0742771d156644939173334a82dcb966` confirmed wl0/wl1/wl2 `up` and AP1/AP3/AP5 getters still `Default`
+- next ready single-case Pass3 target: `D085`
+
+</details>
+
+### D084 EncryptionMode blocker evidence
+
+**STA 指令**
+
+```sh
+# AP-only checkpoint; no STA command was required.
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.AccessPoint.1.Security.ModeEnabled?"
+ubus-cli "WiFi.AccessPoint.1.Security.EncryptionMode?"
+grep -Ei '^(wpa_key_mgmt|wpa_pairwise|rsn_pairwise|sae_password|wep_key)' /tmp/wl0_hapd.conf || true
+ubus-cli "WiFi.AccessPoint.3.Security.ModeEnabled?"
+ubus-cli "WiFi.AccessPoint.3.Security.EncryptionMode?"
+grep -Ei '^(wpa_key_mgmt|wpa_pairwise|rsn_pairwise|sae_password|wep_key)' /tmp/wl1_hapd.conf || true
+ubus-cli "WiFi.AccessPoint.5.Security.ModeEnabled?"
+ubus-cli "WiFi.AccessPoint.5.Security.EncryptionMode?"
+grep -Ei '^(wpa_key_mgmt|wpa_pairwise|rsn_pairwise|sae_password|wep_key)' /tmp/wl2_hapd.conf || true
+wl -i wl0 bss
+wl -i wl1 bss
+wl -i wl2 bss
+```
+
+**判定 block 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T194710374291
+- report shape: Pass / Pass / Pass, diagnostic_status=Pass, comment=pass after retry (2/2)
+- 5G/AP1: ModeEnabled5g=WPA2-Personal, EncryptionMode5g=Default, HostapdKeyMgmt5g=WPA-PSK, HostapdPairwise5g=CCMP, HostapdRsnPairwise5g=CCMP
+- 6G/AP3: ModeEnabled6g=WPA3-Personal, EncryptionMode6g=Default, HostapdKeyMgmt6g=SAE, HostapdPairwise6g=CCMP, HostapdRsnPairwise6g=CCMP
+- 2.4G/AP5: ModeEnabled24g=WPA2-Personal, EncryptionMode24g=Default, HostapdKeyMgmt24g=WPA-PSK, HostapdPairwise24g=CCMP, HostapdRsnPairwise24g=CCMP
+- compare against audit/0506.xlsx row 84: expected Failed/Failed/Failed -> normalized Fail/Fail/Fail; actual Pass/Pass/Pass
+- cleanup command 0742771d156644939173334a82dcb966: wl0/wl1/wl2 were up and AP1/AP3/AP5 EncryptionMode remained Default
+- source citations: fs/etc/amx/wld/wld_accesspoint.odl L540 declares Security object; L690-L691 declares EncryptionMode default and enum
+```
+
 ## Checkpoint summary (2026-05-09 0506-D083)
 
 > This checkpoint records the `D083 Neighbour` confirmed no-edit decision.
