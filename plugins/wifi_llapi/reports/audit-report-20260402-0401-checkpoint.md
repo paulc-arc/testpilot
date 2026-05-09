@@ -1,5 +1,65 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-09 0506-D091)
+
+> This checkpoint records the `D091 SHA256Enable` blocker decision.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=166`, `applied=9`, `pending=91`, `block=149`, `needs_pass3=0`
+- `D091 SHA256Enable` recorded as `sha256enable_result_semantics_mismatch_outside_audit_allowlist`
+- workbook row 91 raw value is `Failed / Failed / Failed`, normalized to `Fail / Fail / Fail`
+- source 宣告 `Security.SHA256Enable` 是 persistent bool，用於 extra WPA-key encryption protection；Broadcom integration 有對應 set/get handler
+- focused run `20260509T200954775983` reported `Pass / Pass / Pass`
+- AP1/AP3/AP5 accepted `SHA256Enable=1`, getters read back `1`, hostapd `wpa_key_mgmt` stayed unchanged without SHA256 suffix, and restore returned getters to `0`
+- cleanup command `bb276791cb4340f9b1d5f24339a74059` confirmed AP1/AP3/AP5 `SHA256Enable=0`, hostapd key-mgmt baseline, and wl0/wl1/wl2 `up`
+- next ready single-case Pass3 target: `D092`
+
+</details>
+
+### D091 SHA256Enable blocker evidence
+
+**STA 指令**
+
+```sh
+# AP-only checkpoint; no STA command was required.
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli 'WiFi.AccessPoint.1.Security.SHA256Enable?'
+grep '^wpa_key_mgmt=' /tmp/wl0_hapd.conf
+ubus-cli WiFi.AccessPoint.1.Security.SHA256Enable=1
+ubus-cli WiFi.AccessPoint.1.Security.SHA256Enable=0
+ubus-cli 'WiFi.AccessPoint.3.Security.SHA256Enable?'
+grep '^wpa_key_mgmt=' /tmp/wl1_hapd.conf
+ubus-cli WiFi.AccessPoint.3.Security.SHA256Enable=1
+ubus-cli WiFi.AccessPoint.3.Security.SHA256Enable=0
+ubus-cli 'WiFi.AccessPoint.5.Security.SHA256Enable?'
+grep '^wpa_key_mgmt=' /tmp/wl2_hapd.conf
+ubus-cli WiFi.AccessPoint.5.Security.SHA256Enable=1
+ubus-cli WiFi.AccessPoint.5.Security.SHA256Enable=0
+wl -i wl0 bss
+wl -i wl1 bss
+wl -i wl2 bss
+```
+
+**判定 block 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260509T200954775983
+- report shape: Pass / Pass / Pass, diagnostic_status=Pass
+- 5G/AP1: baseline SHA256Enable=0 and wpa_key_mgmt=WPA-PSK; setter/readback=1 but hostapd stayed WPA-PSK; restore=0
+- 6G/AP3: baseline SHA256Enable=0 and wpa_key_mgmt=SAE; setter/readback=1 but hostapd stayed SAE; restore=0
+- 2.4G/AP5: baseline SHA256Enable=0 and wpa_key_mgmt=WPA-PSK; setter/readback=1 but hostapd stayed WPA-PSK; restore=0
+- compare against audit/0506.xlsx row 91: expected Failed/Failed/Failed -> normalized Fail/Fail/Fail; actual Pass/Pass/Pass
+- cleanup command bb276791cb4340f9b1d5f24339a74059: AP1/AP3/AP5 SHA256Enable=0, key-mgmt baseline remained WPA-PSK/SAE/WPA-PSK, and wl0/wl1/wl2 were up
+- source citations: fs/etc/amx/wld/wld_accesspoint.odl L693-L695 declares SHA256Enable; userspace/public/libs/prpl_brcm/mods/mod-wifi/wifi_ap.c L1077-L1088 handles set
+```
+
 ## Checkpoint summary (2026-05-09 0506-D090)
 
 > This checkpoint records the `D090 RekeyingInterval` confirmed no-edit decision.
