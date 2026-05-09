@@ -1,5 +1,52 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-10 0506-D371)
+
+> This checkpoint records the `D371 DisassociationTime — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.` environment blocker.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=191`, `applied=9`, `pending=41`, `block=174`, `needs_pass3=0`
+- `D371 DisassociationTime — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.` recorded as `assocdev_disassociationtime_workbook_pass_all_bands_blocked_by_5g_sta_not_ready_before_readback`
+- workbook row 371 latest result is `Pass / Pass / Pass`
+- focused run `20260510T022257881269` reported `Fail / N/A / N/A` with `diagnostic_status=FailEnv`
+- failure reason: `verify_env` failed before assoclist or DisassociationTime readback because 5G STA could not associate and DUT `wl0` BSS readiness failed through retry/AP bounce
+- source survey confirms ODL defines AssociatedDevice `DisassociationTime` as a read-only datetime; generic `dm_info.c` AssociatedDevice list currently stops at `Active`
+- next ready single-case Pass3 target: `D377`
+
+</details>
+
+### D371 AssociatedDevice DisassociationTime blocker evidence
+
+**STA 指令**
+
+```sh
+iw dev wl0 link
+wpa_cli -p /var/run/wpa_supplicant -i wl0 status
+```
+
+**DUT 指令**
+
+```sh
+wl -i wl0 assoclist | head -1
+ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.1.DisassociationTime?"
+```
+
+**判定 blocker 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260510T022257881269
+- workbook row 371 latest result expects Pass/Pass/Pass
+- report shape: Fail / N/A / N/A, diagnostic_status=FailEnv
+- JSON failure snapshot: verify_env, reason_code=sta_band_not_ready, device=STA, band=5g
+- remediation history: builtin-fallback sta_band_rebaseline attempted but failed
+- DUT log interval: L1-L1195
+- STA log interval: L1-L541
+- observed from runtime log: DUT wl0 BSS readiness failed through retry/AP bounce; STA wl0 repeatedly reported Not connected before DisassociationTime readback
+```
+
 ## Checkpoint summary (2026-05-10 0506-D370)
 
 > This checkpoint records the `D370 Active — WiFi.AccessPoint.{i}.AssociatedDevice.{i}.` environment blocker.
