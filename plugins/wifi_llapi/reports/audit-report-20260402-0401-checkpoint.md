@@ -1,5 +1,52 @@
 # Wifi_LLAPI audit report checkpoint (0401 workbook)
 
+## Checkpoint summary (2026-05-10 0506-D379)
+
+> This checkpoint records the `D379 MCS — WiFi.Radio.{i}.` workbook/runtime mismatch blocker.
+
+<details>
+<summary>Checkpoint status (zh-tw)</summary>
+
+- active audit RID: `74ada64b-2026-05-07T134956Z`
+- current buckets: `confirmed=191`, `applied=9`, `pending=39`, `block=176`, `needs_pass3=0`
+- `D379 MCS — WiFi.Radio.{i}.` recorded as `radio_mcs_workbook_latest_skip_all_bands_vs_runtime_pass_zero_getter_no_direct_vendor_radio_mcs_mapping`
+- workbook row 379 latest result is `Skip / Skip / Skip` (normalized `Fail / Fail / Fail`)
+- focused run `20260510T023427785873` reported `Pass / Pass / Pass` with `diagnostic_status=Pass`
+- mismatch reason: current YAML accepts numeric getter output, but readback was `0` for all radios while workbook latest marks Skip and notes MCS should remain auto
+- source survey found MCS ODL/dm_info support but no direct Broadcom Radio.MCS vendor setter/getter mapping beyond rate-info MCS parsing
+- next ready single-case Pass3 target: `D380`
+
+</details>
+
+### D379 Radio MCS blocker evidence
+
+**STA 指令**
+
+```sh
+# DUT-only getter case; no STA command required
+```
+
+**DUT 指令**
+
+```sh
+ubus-cli "WiFi.Radio.1.MCS?"
+ubus-cli "WiFi.Radio.2.MCS?"
+ubus-cli "WiFi.Radio.3.MCS?"
+```
+
+**判定 blocker 的 log 摘錄 / log 區間**
+
+```text
+Focused rerun 20260510T023427785873
+- workbook row 379 latest result expects Skip/Skip/Skip (normalized Fail/Fail/Fail)
+- report shape: Pass / Pass / Pass, diagnostic_status=Pass
+- DUT.log L8-L21:
+  WiFi.Radio.1.MCS=0
+  WiFi.Radio.2.MCS=0
+  WiFi.Radio.3.MCS=0
+- source survey: `tr181-wifi_Radio.odl` defines `MCS` as int32 default -1; `dm_info.c` exposes it; Broadcom source only showed rate-info MCS parsing, not a direct Radio.MCS vendor mapping
+```
+
 ## Checkpoint summary (2026-05-10 0506-D377)
 
 > This checkpoint records the `D377 MaxBitRate — WiFi.Radio.{i}.` workbook/runtime mismatch blocker.
