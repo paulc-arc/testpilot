@@ -15,7 +15,7 @@
 - all three bands matched getSSIDStats, direct `WiFi.SSID.{i}.Stats.WmmPacketsReceived.AC_VO`, and wl driver AC_VO rx frames: `5g=546`, `6g=110`, `2.4g=261`
 - source survey confirms Broadcom interface stats copy `wmm_rxpkts[ac]` into `WmmPacketsReceived[ac]` and VAP stats copy/aggregate that field
 - all RID pending cases are resolved; next phase is three-round full-run validation
-- full-run validation round 1 is in progress as `20260510T052920947066`; the active runner has advanced through `d494-radio-vhtcapabilities`, but repeated DUT/STA BSS readiness recovery has not yet allowed the first full-run round to complete
+- full-run validation round 1 completed as `20260510T052920947066`: `415` cases, `196` pass cases, `219` failed cases (`FailEnv=102`, `FailConfig=45`, `FailTest=71`, `Inconclusive=1`), result fingerprint `6fe54b29da2f810e36dce530d25159eed33d1e3d3e0e210bd0f7a11ea5052c64`; three-round result comparison is not complete yet and round 2 is next
 
 </details>
 
