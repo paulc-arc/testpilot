@@ -8418,12 +8418,12 @@ def test_d065_bridgeinterface_evaluate_live_examples():
             },
             "step5_6g_config": {
                 "success": True,
-                "output": "BridgeConfig6g=br-lan\nBridgeConfig6gCount=2\nBridgeConfig6gMismatch=0",
+                "output": "BridgeConfig6g=br-lan\nBridgeConfig6gCount=1\nBridgeConfig6gMismatch=0",
                 "timing": 0.01,
             },
             "step6_24g_config": {
                 "success": True,
-                "output": "BridgeConfig24g=br-lan\nBridgeConfig24gCount=2\nBridgeConfig24gMismatch=0",
+                "output": "BridgeConfig24g=br-lan\nBridgeConfig24gCount=1\nBridgeConfig24gMismatch=0",
                 "timing": 0.01,
             },
             "step7_bridge_state": {
@@ -8458,7 +8458,7 @@ def test_d065_bridgeinterface_evaluate_live_examples():
             **d065_results["steps"],
             "step5_6g_config": {
                 "success": True,
-                "output": "BridgeConfig6g=br-lan\nBridgeConfig6gCount=1\nBridgeConfig6gMismatch=0",
+                "output": "BridgeConfig6g=br-lan\nBridgeConfig6gCount=2\nBridgeConfig6gMismatch=0",
                 "timing": 0.01,
             },
         }
