@@ -35,6 +35,21 @@ RESULT_HEADERS_BY_COLUMN = {
 }
 TESTER_HEADER = "Tester"
 COMMENT_HEADER = "Comment"
+SUMMARY_SHEET_NAME = "Summary"
+SUMMARY_HEADERS: tuple[str, ...] = (
+    "Module",
+    "Object Category",
+    "Total Items",
+    "Tested Items",
+    "Pass",
+    "Fail",
+    "To be tested",
+    "Not Supported",
+    "Skip",
+    "Pass Rate",
+    "result empty",
+    "Progress",
+)
 DEFAULT_CLEAR_COLUMNS = (
     "G",   # Test steps
     "H",   # Driver-level verified command output
@@ -48,6 +63,10 @@ DATA_START_ROW = 4
 EMPTY_STREAK_STOP = 200
 MAX_SCAN_ROWS = 5000
 _PROMPT_PREFIX_RE = re.compile(r"^(?:root@[^:]+:[^#\n]*#\s*|[>$#]\s*)")
+
+
+class TemplateValidationError(ValueError):
+    """Raised when an Excel template does not match the expected layout."""
 
 
 @dataclass(slots=True)
@@ -656,3 +675,128 @@ def fill_skip_markers(report_xlsx: Path, skipped: list[object]) -> None:
     finally:
         wb.save(path)
         wb.close()
+
+
+def validate_wifi_llapi_report_template(
+    template_xlsx: Path | str,
+) -> dict[str, str]:
+    """Validate Excel template shape and return sheet name mapping.
+
+    Returns ``{"summary_sheet": "Summary", "wifi_sheet": "Wifi_LLAPI"}`` on success.
+    Raises :exc:`TemplateValidationError` for any structural mismatch.
+    """
+    path = Path(template_xlsx)
+    wb = load_workbook(path)
+    try:
+        for sheet_name in (SUMMARY_SHEET_NAME, DEFAULT_SHEET_NAME):
+            if sheet_name not in wb.sheetnames:
+                raise TemplateValidationError(f"missing sheet: {sheet_name}")
+
+        ws = wb[DEFAULT_SHEET_NAME]
+        for col, expected in RESULT_HEADERS_BY_COLUMN.items():
+            col_idx = _to_col_idx(col)
+            actual = normalize_text(ws.cell(row=3, column=col_idx).value)
+            if actual != normalize_text(expected):
+                raise TemplateValidationError(
+                    f"result header mismatch at {DEFAULT_SHEET_NAME}!{col}3: "
+                    f"expected '{expected}', got '{actual}'"
+                )
+
+        summary_ws = wb[SUMMARY_SHEET_NAME]
+        required = {"Module", "Total Items", "Pass", "Fail", "Progress"}
+
+        def _header_set(row_num: int) -> set[str]:
+            return {
+                normalize_text(summary_ws.cell(row=row_num, column=c).value)
+                for c in range(1, len(SUMMARY_HEADERS) + 1)
+            }
+
+        if not (required <= _header_set(2) or required <= _header_set(3)):
+            raise TemplateValidationError(
+                f"Summary sheet missing required headers in row 2 or 3; "
+                f"expected columns: {SUMMARY_HEADERS}"
+            )
+
+        return {"summary_sheet": SUMMARY_SHEET_NAME, "wifi_sheet": DEFAULT_SHEET_NAME}
+    finally:
+        wb.close()
+
+
+def read_wifi_llapi_template_objects(
+    template_xlsx: Path | str,
+    sheet_name: str = DEFAULT_SHEET_NAME,
+) -> dict[int, str]:
+    """Return a row-number → object-prefix mapping from the template worksheet.
+
+    Blank object-prefix cells carry the previous non-empty value forward.
+    """
+    path = Path(template_xlsx)
+    wb = load_workbook(path, read_only=True, data_only=True)
+    ws = _get_sheet(wb, sheet_name)
+    out: dict[int, str] = {}
+    current_object = ""
+    for row, obj, _api in _iter_source_object_api_rows(
+        ws, DATA_START_ROW, EMPTY_STREAK_STOP, MAX_SCAN_ROWS
+    ):
+        obj_norm = normalize_text(obj)
+        if obj_norm:
+            current_object = obj_norm
+        out[row] = current_object
+    wb.close()
+    return out
+
+
+def write_summary_sheet(
+    report_xlsx: Path | str,
+    summary_payload: dict[str, object],
+) -> Path:
+    """Write (or overwrite) the Summary sheet in *report_xlsx* from *summary_payload*.
+
+    Layout:
+    - Row 1: policy marker ("Summary Policy", policy_version)
+    - Row 3: column headers
+    - Row 4+: one row per entry in ``summary_payload["band_category"]``
+    """
+    from testpilot.reporting.wifi_llapi_summary import SUMMARY_POLICY_VERSION  # noqa: PLC0415
+
+    path = Path(report_xlsx)
+    wb = load_workbook(path)
+
+    if SUMMARY_SHEET_NAME in wb.sheetnames:
+        insert_idx = wb.sheetnames.index(SUMMARY_SHEET_NAME)
+        del wb[SUMMARY_SHEET_NAME]
+        ws = wb.create_sheet(SUMMARY_SHEET_NAME, insert_idx)
+    else:
+        ws = wb.create_sheet(SUMMARY_SHEET_NAME, 0)
+
+    ws.cell(row=1, column=1).value = "Summary Policy"
+    ws.cell(row=1, column=2).value = SUMMARY_POLICY_VERSION
+
+    for col_idx, header in enumerate(SUMMARY_HEADERS, start=1):
+        ws.cell(row=3, column=col_idx).value = header
+
+    band_category = summary_payload.get("band_category", [])
+    for offset, row_data in enumerate(band_category):
+        r = 4 + offset
+        label = (
+            row_data.get("band_label")
+            or row_data.get("band")
+            or row_data.get("band_key")
+            or ""
+        )
+        ws.cell(row=r, column=1).value = label
+        ws.cell(row=r, column=2).value = row_data.get("category", "")
+        ws.cell(row=r, column=3).value = row_data.get("total_items", 0)
+        ws.cell(row=r, column=4).value = row_data.get("tested_items", 0)
+        ws.cell(row=r, column=5).value = row_data.get("pass", 0)
+        ws.cell(row=r, column=6).value = row_data.get("fail", 0)
+        ws.cell(row=r, column=7).value = row_data.get("to_be_tested", 0)
+        ws.cell(row=r, column=8).value = row_data.get("not_supported", 0)
+        ws.cell(row=r, column=9).value = row_data.get("skip", 0)
+        ws.cell(row=r, column=10).value = f"=IFERROR(E{r}/SUM(E{r}:G{r}),0)"
+        ws.cell(row=r, column=11).value = 0
+        ws.cell(row=r, column=12).value = f"=IFERROR(D{r}/C{r},0)"
+
+    wb.save(path)
+    wb.close()
+    return path

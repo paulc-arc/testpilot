@@ -1,6 +1,7 @@
 from datetime import date
 from pathlib import Path
 
+import pytest
 from openpyxl import Workbook, load_workbook
 from openpyxl.utils import get_column_letter
 
@@ -8,6 +9,7 @@ from testpilot.reporting.wifi_llapi_excel import (
     COMMENT_HEADER,
     DEFAULT_CLEAR_COLUMNS,
     DEFAULT_TEMPLATE_MAX_COLUMN,
+    TemplateValidationError,
     WifiLlapiCaseResult,
     build_template_from_source,
     collect_alignment_issues,
@@ -15,7 +17,10 @@ from testpilot.reporting.wifi_llapi_excel import (
     fill_case_results,
     generate_report_filename,
     normalize_command_block,
+    read_wifi_llapi_template_objects,
     sanitize_report_output,
+    validate_wifi_llapi_report_template,
+    write_summary_sheet,
     _truncate_comment,
 )
 from testpilot.schema.case_schema import load_case
@@ -312,3 +317,133 @@ def test_collect_alignment_issues_on_repo_template_case():
     issues = collect_alignment_issues([case], template)
 
     assert issues == []
+
+
+# ---------------------------------------------------------------------------
+# Task 2: template validation and summary sheet writer
+# ---------------------------------------------------------------------------
+
+def _create_template_with_summary(path: Path) -> None:
+    """Create a minimal valid template workbook with Summary and Wifi_LLAPI sheets."""
+    wb = Workbook()
+    ws_summary = wb.active
+    ws_summary.title = "Summary"
+    ws_summary["A1"] = "Firmware Version"
+    ws_summary["B1"] = "4.0.3"
+    summary_headers = [
+        "Module", "Object Category", "Total Items", "Tested Items",
+        "Pass", "Fail", "To be tested", "Not Supported", "Skip",
+        "Pass Rate", "result empty", "Progress",
+    ]
+    for col_idx, h in enumerate(summary_headers, start=1):
+        ws_summary.cell(row=2, column=col_idx).value = h
+
+    ws_wifi = wb.create_sheet("Wifi_LLAPI")
+    row1_headers = [
+        "Object", "Object Type", "Parameter Name", "HLAPI", "LLAPI",
+        "Implemented by", "Test steps", "Command Output", None, None,
+        None, "Tester", "Comment",
+    ]
+    for col_idx, h in enumerate(row1_headers, start=1):
+        ws_wifi.cell(row=1, column=col_idx).value = h
+    # row 2 is intentionally blank (None * 13)
+    ws_wifi["I3"] = "WiFi 5G"
+    ws_wifi["J3"] = "WiFi 6G"
+    ws_wifi["K3"] = "WiFi 2.4G"
+    ws_wifi["A4"] = "WiFi.AccessPoint.{i}."
+    ws_wifi["C4"] = "kickStation()"
+    ws_wifi["A5"] = "WiFi.DataElements.Network.Device.{i}."
+    ws_wifi["C5"] = "MaxNumMLDs"
+
+    wb.save(path)
+    wb.close()
+
+
+def test_validate_wifi_llapi_template_accepts_valid(tmp_path: Path) -> None:
+    p = tmp_path / "template.xlsx"
+    _create_template_with_summary(p)
+    result = validate_wifi_llapi_report_template(p)
+    assert result == {"summary_sheet": "Summary", "wifi_sheet": "Wifi_LLAPI"}
+
+
+def test_validate_wifi_llapi_template_missing_summary_sheet(tmp_path: Path) -> None:
+    p = tmp_path / "template.xlsx"
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Wifi_LLAPI"
+    ws["I3"] = "WiFi 5G"
+    ws["J3"] = "WiFi 6G"
+    ws["K3"] = "WiFi 2.4G"
+    wb.save(p)
+    wb.close()
+    with pytest.raises(TemplateValidationError, match="missing sheet: Summary"):
+        validate_wifi_llapi_report_template(p)
+
+
+def test_validate_wifi_llapi_template_result_header_mismatch(tmp_path: Path) -> None:
+    p = tmp_path / "template.xlsx"
+    _create_template_with_summary(p)
+    wb = load_workbook(p)
+    wb["Wifi_LLAPI"]["J3"] = "Wrong Value"
+    wb.save(p)
+    wb.close()
+    with pytest.raises(TemplateValidationError, match=r"J.*WiFi 6G|WiFi 6G.*J"):
+        validate_wifi_llapi_report_template(p)
+
+
+def test_read_wifi_llapi_template_objects_carries_prefix(tmp_path: Path) -> None:
+    p = tmp_path / "template.xlsx"
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Wifi_LLAPI"
+    ws["A4"] = "WiFi.AccessPoint.{i}."
+    ws["C4"] = "kickStation()"
+    # A5 intentionally empty — carry-forward from A4 expected
+    ws["C5"] = "MaxNumMLDs"
+    wb.save(p)
+    wb.close()
+
+    objects = read_wifi_llapi_template_objects(p)
+    assert objects[4] == "WiFi.AccessPoint.{i}."
+    assert objects[5] == "WiFi.AccessPoint.{i}."
+
+
+def test_write_summary_sheet_hybrid_layout(tmp_path: Path) -> None:
+    p = tmp_path / "template.xlsx"
+    _create_template_with_summary(p)
+
+    summary_payload = {
+        "policy_version": "wifi_llapi_summary_v1",
+        "band_category": [
+            {
+                "band_key": "result_5g",
+                "band_label": "5G",
+                "category": "WiFi.AccessPoint",
+                "total_items": 2,
+                "tested_items": 2,
+                "pass": 1,
+                "fail": 0,
+                "to_be_tested": 1,
+                "not_supported": 0,
+                "skip": 0,
+                "pass_rate": 0.5,
+                "progress": 1.0,
+            }
+        ],
+    }
+
+    result = write_summary_sheet(p, summary_payload)
+    assert result == p
+
+    wb = load_workbook(p, data_only=False)
+    ws = wb["Summary"]
+    assert ws["A1"].value == "Summary Policy"
+    assert ws["B1"].value == "wifi_llapi_summary_v1"
+    assert ws.cell(row=3, column=1).value == "Module"
+    assert ws["A4"].value == "5G"
+    assert ws["B4"].value == "WiFi.AccessPoint"
+    assert ws["E4"].value == 1   # pass
+    assert ws["G4"].value == 1   # to_be_tested
+    assert ws["J4"].value == "=IFERROR(E4/SUM(E4:G4),0)"
+    assert ws["L4"].value == "=IFERROR(D4/C4,0)"
+    wb.close()
