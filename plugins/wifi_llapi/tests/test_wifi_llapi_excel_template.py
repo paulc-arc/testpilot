@@ -447,3 +447,54 @@ def test_write_summary_sheet_hybrid_layout(tmp_path: Path) -> None:
     assert ws["J4"].value == "=IFERROR(E4/SUM(E4:G4),0)"
     assert ws["L4"].value == "=IFERROR(D4/C4,0)"
     wb.close()
+
+
+# ---------------------------------------------------------------------------
+# Task 2 follow-up: spec-compliance fixes
+# ---------------------------------------------------------------------------
+
+def test_validate_wifi_llapi_template_column_a1_mismatch(tmp_path: Path) -> None:
+    """A1 not containing 'Object' must raise TemplateValidationError."""
+    p = tmp_path / "template.xlsx"
+    _create_template_with_summary(p)
+    wb = load_workbook(p)
+    wb["Wifi_LLAPI"]["A1"] = "WrongHeader"
+    wb.save(p)
+    wb.close()
+    with pytest.raises(TemplateValidationError, match=r"A.*Object|Object.*A"):
+        validate_wifi_llapi_report_template(p)
+
+
+def test_validate_wifi_llapi_template_missing_comment_column(tmp_path: Path) -> None:
+    """M1 and M3 both lacking 'Comment' must raise TemplateValidationError."""
+    p = tmp_path / "template.xlsx"
+    _create_template_with_summary(p)
+    # Clear M1 (M3 is already blank in the helper)
+    wb = load_workbook(p)
+    wb["Wifi_LLAPI"]["M1"] = None
+    wb.save(p)
+    wb.close()
+    with pytest.raises(TemplateValidationError, match=r"[Cc]omment"):
+        validate_wifi_llapi_report_template(p)
+
+
+def test_write_summary_sheet_uses_payload_policy_version(tmp_path: Path) -> None:
+    """payload['policy_version'] must be written to Summary!B1."""
+    p = tmp_path / "template.xlsx"
+    _create_template_with_summary(p)
+    write_summary_sheet(p, {"policy_version": "custom_policy_v99", "band_category": []})
+    wb = load_workbook(p)
+    assert wb["Summary"]["B1"].value == "custom_policy_v99"
+    wb.close()
+
+
+def test_write_summary_sheet_fallback_policy_version(tmp_path: Path) -> None:
+    """When payload lacks 'policy_version', SUMMARY_POLICY_VERSION is written."""
+    from testpilot.reporting.wifi_llapi_summary import SUMMARY_POLICY_VERSION
+
+    p = tmp_path / "template.xlsx"
+    _create_template_with_summary(p)
+    write_summary_sheet(p, {"band_category": []})
+    wb = load_workbook(p)
+    assert wb["Summary"]["B1"].value == SUMMARY_POLICY_VERSION
+    wb.close()

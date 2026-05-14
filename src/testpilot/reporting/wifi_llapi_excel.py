@@ -702,6 +702,32 @@ def validate_wifi_llapi_report_template(
                     f"expected '{expected}', got '{actual}'"
                 )
 
+        # Validate required column-1 headers (substring match).
+        _col1_checks: tuple[tuple[str, int, str], ...] = (
+            ("A", 1, "Object"),
+            ("E", 1, "LLAPI"),
+            ("L", 1, "Tester"),
+        )
+        for col_letter, row_num, expected_text in _col1_checks:
+            col_idx = _to_col_idx(col_letter)
+            actual = normalize_text(ws.cell(row=row_num, column=col_idx).value)
+            if expected_text.lower() not in actual.lower():
+                raise TemplateValidationError(
+                    f"column header mismatch at {DEFAULT_SHEET_NAME}!{col_letter}{row_num}: "
+                    f"expected to contain '{expected_text}', got '{actual}'"
+                )
+
+        # M1 or M3 must contain the comment/fail-reason header.
+        m_col_idx = _to_col_idx("M")
+        m1_val = normalize_text(ws.cell(row=1, column=m_col_idx).value)
+        m3_val = normalize_text(ws.cell(row=3, column=m_col_idx).value)
+        if COMMENT_HEADER.lower() not in m1_val.lower() and COMMENT_HEADER.lower() not in m3_val.lower():
+            raise TemplateValidationError(
+                f"comment/fail-reason column header missing: "
+                f"expected '{COMMENT_HEADER}' in {DEFAULT_SHEET_NAME}!M1 or M3, "
+                f"got M1='{m1_val}', M3='{m3_val}'"
+            )
+
         summary_ws = wb[SUMMARY_SHEET_NAME]
         required = {"Module", "Total Items", "Pass", "Fail", "Progress"}
 
@@ -769,8 +795,9 @@ def write_summary_sheet(
     else:
         ws = wb.create_sheet(SUMMARY_SHEET_NAME, 0)
 
+    policy_version = summary_payload.get("policy_version") or SUMMARY_POLICY_VERSION
     ws.cell(row=1, column=1).value = "Summary Policy"
-    ws.cell(row=1, column=2).value = SUMMARY_POLICY_VERSION
+    ws.cell(row=1, column=2).value = policy_version
 
     for col_idx, header in enumerate(SUMMARY_HEADERS, start=1):
         ws.cell(row=3, column=col_idx).value = header
