@@ -46,8 +46,9 @@ def reproject_wifi_llapi_report(
         Path to the checked-in Excel template.
     out_dir:
         Target output directory.  Must not exist or must be empty.  When
-        *None*, defaults to ``plugins/wifi_llapi/reports/<stem>_summary_reproject_<ts>``
-        relative to the current working directory.
+        *None*, defaults to ``template_path.resolve().parent.parent /
+        '<source_stem>_summary_reproject_<ts>'`` (sibling of the template's
+        parent directory, typically ``plugins/wifi_llapi/reports/``).
     output_stem:
         Filename stem used for the XLSX and companion reports.
 
