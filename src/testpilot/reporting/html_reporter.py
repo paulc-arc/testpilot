@@ -19,7 +19,6 @@ from testpilot.reporting.reporter import (
     _format_percent,
     _overall_status,
     _suite_timing_rows,
-    _summarise,
     _summary_payload,
 )
 

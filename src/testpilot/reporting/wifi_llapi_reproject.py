@@ -61,7 +61,13 @@ def reproject_wifi_llapi_report(
 
     # Load JSON read-only
     source_text = source_path.read_text(encoding="utf-8")
-    source_data: dict[str, Any] = json.loads(source_text)
+    source_data = json.loads(source_text)
+    if not isinstance(source_data, dict):
+        raise TypeError(
+            f"Expected a JSON object (dict) as source_json root, "
+            f"got {type(source_data).__name__!r}. "
+            f"Ensure {source_path} contains a JSON object, not an array or scalar."
+        )
 
     # Validate template structure
     validate_wifi_llapi_report_template(template_path)
@@ -74,11 +80,11 @@ def reproject_wifi_llapi_report(
     # Build shared summary payload
     summary = build_wifi_llapi_summary(cases, row_objects)
 
-    # Resolve output directory
+    # Resolve output directory anchored to template_path.parent.parent
     if out_dir is None:
         ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
         artifact_dir = (
-            Path("plugins") / "wifi_llapi" / "reports"
+            template_path.resolve().parent.parent
             / f"{source_path.stem}_summary_reproject_{ts}"
         )
     else:

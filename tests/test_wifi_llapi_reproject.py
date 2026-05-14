@@ -189,3 +189,52 @@ def test_reproject_raises_if_out_dir_non_empty(tmp_path: Path) -> None:
             template_xlsx=template,
             out_dir=out_dir,
         )
+
+
+def test_reproject_raises_on_non_dict_source_json(tmp_path: Path) -> None:
+    """Source JSON that is an array (not an object) must raise TypeError/ValueError."""
+    from testpilot.reporting.wifi_llapi_reproject import reproject_wifi_llapi_report
+
+    template = tmp_path / "template.xlsx"
+    _make_template_xlsx(template)
+
+    # Write a JSON array instead of an object
+    source_json = tmp_path / "bad_source.json"
+    source_json.write_text(json.dumps([_D001, _D002]), encoding="utf-8")
+
+    with pytest.raises((TypeError, ValueError), match="JSON"):
+        reproject_wifi_llapi_report(
+            source_json=source_json,
+            template_xlsx=template,
+            out_dir=tmp_path / "out_bad",
+        )
+
+
+def test_reproject_default_out_dir_anchored_to_template_parent(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Default out_dir must be under template_path.parent.parent, not CWD."""
+    from testpilot.reporting.wifi_llapi_reproject import reproject_wifi_llapi_report
+
+    # Place template in a subdirectory mirroring the real layout
+    template_dir = tmp_path / "plugins" / "wifi_llapi" / "reports" / "templates"
+    template_dir.mkdir(parents=True)
+    template = template_dir / "template.xlsx"
+    _make_template_xlsx(template)
+
+    source_json = tmp_path / "source.json"
+    source_json.write_text(json.dumps(_SOURCE_JSON, ensure_ascii=False), encoding="utf-8")
+
+    # Change CWD to a different directory so CWD-relative paths would be wrong
+    monkeypatch.chdir(tmp_path / "plugins")
+
+    result = reproject_wifi_llapi_report(
+        source_json=source_json,
+        template_xlsx=template,
+        # no out_dir — uses default
+    )
+
+    # artifact_dir.parent must be template_path.parent.parent
+    # i.e. plugins/wifi_llapi/reports (sibling of templates/)
+    expected_parent = template.parent.parent.resolve()
+    assert result["artifact_dir"].resolve().parent == expected_parent
