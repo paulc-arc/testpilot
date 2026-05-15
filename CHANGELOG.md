@@ -25,6 +25,8 @@ preparation.
 - The `wifi_llapi` Excel `Summary` bucket formerly shown as `To be tested` is
   now shown as `To be confirmed`, and Summary Pass Rate formulas divide by
   `Pass + Fail` only.
+- Reprojected wifi_llapi HTML and Markdown reports now retain the top-level
+  suite KPI counts while also using the template-aligned Summary bucket data.
 
 ### Added
 

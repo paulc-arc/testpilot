@@ -118,6 +118,32 @@ class TestHtmlReporter:
         assert "Failed Cases" in text
         assert "Pass Rate" in text
 
+    def test_kpi_strip_keeps_counts_with_precomputed_wifi_summary(self, tmp_path: Path) -> None:
+        cases = [
+            {"case_id": "D001", "result_5g": "Pass", "result_6g": "Pass", "result_24g": "Pass"},
+            {"case_id": "D002", "result_5g": "Fail", "result_6g": "Pass", "result_24g": "Pass"},
+            {"case_id": "D003", "result_5g": "Skip", "result_6g": "Skip", "result_24g": "Skip"},
+        ]
+        meta = {
+            **_META,
+            "wifi_llapi_summary": {
+                "policy_version": "wifi_llapi_summary_v1",
+                "band_category": [],
+                "bucket_totals": {},
+                "raw_totals": {},
+            },
+        }
+        out = tmp_path / "report.html"
+
+        HtmlReporter().generate(cases, meta, out)
+
+        text = out.read_text(encoding="utf-8")
+        assert '<div class="label">Total Cases</div><div class="value">3</div>' in text
+        assert '<div class="label">Pass Cases</div><div class="value">1</div>' in text
+        assert '<div class="label">Failed Cases</div><div class="value">1</div>' in text
+        assert '<div class="label">Other Cases</div><div class="value">1</div>' in text
+        assert '<div class="label">Pass Rate</div><div class="value">50.00%</div>' in text
+
     def test_contains_summary_table(self, tmp_path: Path) -> None:
         out = tmp_path / "report.html"
         HtmlReporter().generate(_CASES, _META, out)

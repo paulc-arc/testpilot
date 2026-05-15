@@ -76,10 +76,10 @@ def _summary_payload(
     case_results: Sequence[Mapping[str, Any]],
     meta: Mapping[str, Any],
 ) -> dict[str, Any]:
-    """Return precomputed summary from *meta* or fall back to _summarise."""
+    """Return generic suite counts plus optional precomputed wifi_llapi details."""
     precomputed = _precomputed_wifi_llapi_summary(meta)
     if precomputed is not None:
-        return precomputed
+        return {**_summarise(case_results), **precomputed}
     return _summarise(case_results)
 
 
