@@ -463,4 +463,4 @@ def test_html_reporter_renders_hybrid_summary(tmp_path: Path) -> None:
     text = out.read_text(encoding="utf-8")
     assert "WiFi LLAPI Hybrid Summary" in text
     assert "WiFi.AccessPoint" in text
-    assert "To be tested" in text
+    assert "To be confirmed" in text

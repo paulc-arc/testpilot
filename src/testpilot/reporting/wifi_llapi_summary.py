@@ -26,7 +26,7 @@ CATEGORIES: tuple[str, ...] = (
 COUNTED_BUCKETS: tuple[str, ...] = (
     "Pass",
     "Fail",
-    "To be tested",
+    "To be confirmed",
     "Not Supported",
     "Skip",
 )
@@ -70,6 +70,8 @@ def _canonical_raw_bucket(value: Any) -> str:
         return "Skip"
     if token in {"not supported", "not support", "not_supported", "unsupported"}:
         return "Not Supported"
+    if token in {"to be confirmed", "to be tested", "to be test"}:
+        return "To be confirmed"
     return _display_text(value) or "N/A"
 
 
@@ -127,12 +129,12 @@ def classify_band_result(raw_value: Any, case: Mapping[str, Any]) -> BandClassif
     reason = extract_fail_reason(case)
 
     if diagnostic in {"failenv", "failconfig"}:
-        return BandClassification(raw="Fail", bucket="To be tested", fail_reason=reason)
+        return BandClassification(raw="Fail", bucket="To be confirmed", fail_reason=reason)
     if _is_criteria_mismatch(case):
         return BandClassification(raw="Fail", bucket="Fail", fail_reason=reason)
     if phase in {"execute step", "execute_step", "setup env", "setup_env", "verify env", "verify_env"}:
-        return BandClassification(raw="Fail", bucket="To be tested", fail_reason=reason)
-    return BandClassification(raw="Fail", bucket="To be tested", fail_reason=reason)
+        return BandClassification(raw="Fail", bucket="To be confirmed", fail_reason=reason)
+    return BandClassification(raw="Fail", bucket="To be confirmed", fail_reason=reason)
 
 
 def _empty_summary_row(band_key: str, category: str | None) -> dict[str, Any]:
@@ -205,7 +207,7 @@ def build_wifi_llapi_summary(
                     row["pass"] += 1
                 elif classified.bucket == "Fail":
                     row["fail"] += 1
-                elif classified.bucket == "To be tested":
+                elif classified.bucket == "To be confirmed":
                     row["to_be_tested"] += 1
                 elif classified.bucket == "Not Supported":
                     row["not_supported"] += 1

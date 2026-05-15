@@ -62,10 +62,10 @@ def test_exports_match_summary_contract() -> None:
         "WiFi.wps_DefParam",
         "WiFi.Other",
     )
-    assert COUNTED_BUCKETS == ("Pass", "Fail", "To be tested", "Not Supported", "Skip")
-    item = BandClassification(raw="Fail", bucket="To be tested", fail_reason="sta band not ready")
+    assert COUNTED_BUCKETS == ("Pass", "Fail", "To be confirmed", "Not Supported", "Skip")
+    item = BandClassification(raw="Fail", bucket="To be confirmed", fail_reason="sta band not ready")
     assert item.raw == "Fail"
-    assert item.bucket == "To be tested"
+    assert item.bucket == "To be confirmed"
     assert item.fail_reason == "sta band not ready"
 
 
@@ -137,7 +137,7 @@ def test_classify_band_result_reprojects_env_and_config_failures_to_to_be_tested
     env_result = classify_band_result("Fail", env_case)
     assert env_result == BandClassification(
         raw="Fail",
-        bucket="To be tested",
+        bucket="To be confirmed",
         fail_reason="sta band not ready",
     )
 
@@ -151,7 +151,7 @@ def test_classify_band_result_reprojects_env_and_config_failures_to_to_be_tested
     config_result = classify_band_result("Fail", config_case)
     assert config_result == BandClassification(
         raw="Fail",
-        bucket="To be tested",
+        bucket="To be confirmed",
         fail_reason="missing sta profile",
     )
 
@@ -169,7 +169,7 @@ def test_classify_band_result_treats_step_execution_failure_without_criteria_mis
     )
     assert classify_band_result("Fail", case) == BandClassification(
         raw="Fail",
-        bucket="To be tested",
+        bucket="To be confirmed",
         fail_reason="sta command timeout",
     )
 
@@ -199,6 +199,9 @@ def test_classify_band_result_keeps_evaluate_criteria_mismatch_as_fail() -> None
         ("not_supported", "Not Supported"),
         ("Skip", "Skip"),
         ("skip", "Skip"),
+        ("To be tested", "To be confirmed"),
+        ("To be test", "To be confirmed"),
+        ("To be confirmed", "To be confirmed"),
         ("N/A", "N/A"),
         ("n/a", "N/A"),
     ],
@@ -311,7 +314,7 @@ def test_build_wifi_llapi_summary_aggregates_band_and_category_counts() -> None:
     assert per_case["D001"]["category"] == "WiFi.AccessPoint"
     assert per_case["D001"]["bands"]["result_6g"] == {
         "raw": "Fail",
-        "bucket": "To be tested",
+        "bucket": "To be confirmed",
         "fail_reason": "sta band not ready",
     }
     assert per_case["D002"]["bands"]["result_5g"]["bucket"] == "Fail"

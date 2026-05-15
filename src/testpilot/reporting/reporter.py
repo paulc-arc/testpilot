@@ -276,7 +276,7 @@ class MarkdownReporter:
         lines.append("")
         lines.append(
             "| Band | Category | Total | Tested | Pass | Fail"
-            " | To be tested | Not Supported | Skip | Pass Rate |"
+            " | To be confirmed | Not Supported | Skip | Pass Rate |"
         )
         lines.append(
             "|------|----------|-------|--------|------|------"

@@ -951,17 +951,22 @@ def _make_cli_template_xlsx(path: Path) -> None:
     ws_sum = wb.create_sheet("Summary")
     headers = [
         "Module", "Object Category", "Total Items", "Tested Items",
-        "Pass", "Fail", "To be tested", "Not Supported", "Skip",
+        "Pass", "Fail", "To be confirmed", "Not Supported", "Skip",
         "Pass Rate", "result empty", "Progress",
     ]
     for col_idx, header in enumerate(headers, start=1):
         ws_sum.cell(row=2, column=col_idx).value = header
     ws_sum["B3"] = "WiFi.AccessPoint"
     ws_sum["F3"] = '=COUNTIFS(Wifi_LLAPI!$A:$A,$B3&"*",Wifi_LLAPI!$N:$N,F$2)'
+    ws_sum["J3"] = "=IFERROR(E3/SUM(E3:F3),0)"
     ws_sum["B9"] = "WiFi.AccessPoint"
     ws_sum["F9"] = '=COUNTIFS(Wifi_LLAPI!$A:$A,$B9&"*",Wifi_LLAPI!$O:$O,F$2)'
+    ws_sum["J9"] = "=IFERROR(E9/SUM(E9:F9),0)"
     ws_sum["B15"] = "WiFi.AccessPoint"
     ws_sum["F15"] = '=COUNTIFS(Wifi_LLAPI!$A:$A,$B15&"*",Wifi_LLAPI!$P:$P,F$2)'
+    ws_sum["J15"] = "=IFERROR(E15/SUM(E15:F15),0)"
+    for row in range(3, 21):
+        ws_sum[f"J{row}"] = f"=IFERROR(E{row}/SUM(E{row}:F{row}),0)"
 
     ws = wb.create_sheet("Wifi_LLAPI")
     ws["A1"] = "Object"

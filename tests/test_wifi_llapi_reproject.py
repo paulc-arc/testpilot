@@ -76,7 +76,7 @@ def _make_template_xlsx(path: Path) -> None:
     ws_sum.merge_cells("C1:J1")
     headers = [
         "Module", "Object Category", "Total Items", "Tested Items",
-        "Pass", "Fail", "To be tested", "Not Supported", "Skip",
+        "Pass", "Fail", "To be confirmed", "Not Supported", "Skip",
         "Pass Rate", "result empty", "Progress",
     ]
     for col_idx, header in enumerate(headers, start=1):
@@ -97,7 +97,7 @@ def _make_template_xlsx(path: Path) -> None:
     ws_sum["G3"] = '=COUNTIFS(Wifi_LLAPI!$A:$A,$B3&"*",Wifi_LLAPI!$N:$N,G$2)'
     ws_sum["H3"] = '=COUNTIFS(Wifi_LLAPI!$A:$A,$B3&"*",Wifi_LLAPI!$N:$N,H$2)'
     ws_sum["I3"] = '=COUNTIFS(Wifi_LLAPI!$A:$A,$B3&"*",Wifi_LLAPI!$N:$N,I$2)+COUNTIFS(Wifi_LLAPI!$A:$A,$B3&"*",Wifi_LLAPI!$N:$N,"N/A")'
-    ws_sum["J3"] = "=IFERROR(E3/SUM(E3:G3),0)"
+    ws_sum["J3"] = "=IFERROR(E3/SUM(E3:F3),0)"
     ws_sum["J3"].number_format = "0.00%"
     ws_sum["K3"] = '=COUNTIFS(Wifi_LLAPI!$A:$A,$B3&"*",Wifi_LLAPI!$I:$I,"")'
     ws_sum["L3"] = "=IFERROR(D3/C3,0)"
@@ -105,9 +105,14 @@ def _make_template_xlsx(path: Path) -> None:
     ws_sum["A9"] = "WiFi 6g"
     ws_sum["B9"] = "WiFi.AccessPoint"
     ws_sum["F9"] = '=COUNTIFS(Wifi_LLAPI!$A:$A,$B9&"*",Wifi_LLAPI!$O:$O,F$2)'
+    ws_sum["J9"] = "=IFERROR(E9/SUM(E9:F9),0)"
     ws_sum["A15"] = "WiFi 2.4g"
     ws_sum["B15"] = "WiFi.AccessPoint"
     ws_sum["F15"] = '=COUNTIFS(Wifi_LLAPI!$A:$A,$B15&"*",Wifi_LLAPI!$P:$P,F$2)'
+    ws_sum["J15"] = "=IFERROR(E15/SUM(E15:F15),0)"
+    for row in range(3, 21):
+        ws_sum[f"J{row}"] = f"=IFERROR(E{row}/SUM(E{row}:F{row}),0)"
+        ws_sum[f"J{row}"].number_format = "0.00%"
 
     # Wifi_LLAPI sheet
     ws = wb.create_sheet("Wifi_LLAPI")
@@ -189,7 +194,7 @@ def test_reproject_creates_isolated_artifacts_and_preserves_source(
     # M = extract_fail_reason(D001): reason_code "sta_band_not_ready" → "sta band not ready"
     assert ws.cell(row=4, column=13).value == extract_fail_reason(_D001)
     assert ws.cell(row=4, column=14).value == "Pass"
-    assert ws.cell(row=4, column=15).value == "To be tested"
+    assert ws.cell(row=4, column=15).value == "To be confirmed"
     assert ws.cell(row=4, column=16).value == "Not Supported"
 
     # D002 at row 5
@@ -213,7 +218,7 @@ def test_reproject_creates_isolated_artifacts_and_preserves_source(
     assert ws_sum["E3"].value == (
         '=COUNTIFS(Wifi_LLAPI!$A:$A,$B3&"*",Wifi_LLAPI!$N:$N,E$2)'
     )
-    assert ws_sum["J3"].value == "=IFERROR(E3/SUM(E3:G3),0)"
+    assert ws_sum["J3"].value == "=IFERROR(E3/SUM(E3:F3),0)"
     assert ws_sum["J3"].number_format == "0.00%"
     assert ws_sum["L3"].number_format == "0.00%"
     wb2.close()
@@ -223,7 +228,7 @@ def test_reproject_creates_isolated_artifacts_and_preserves_source(
     assert report_data["meta"]["source_json"].endswith("source.json")
     summary = report_data["summary"]
     assert summary["policy_version"] == SUMMARY_POLICY_VERSION
-    # D001 result_6g=Fail + FailEnv → "To be tested"; expect bucket_totals count
+    # D001 result_6g=Fail + FailEnv -> "To be confirmed"; expect bucket_totals count
     assert summary["bucket_totals"]["result_6g"]["to_be_tested"] == 1
 
 

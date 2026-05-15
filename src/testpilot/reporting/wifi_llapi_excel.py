@@ -54,13 +54,14 @@ SUMMARY_HEADERS: tuple[str, ...] = (
     "Tested Items",
     "Pass",
     "Fail",
-    "To be tested",
+    "To be confirmed",
     "Not Supported",
     "Skip",
     "Pass Rate",
     "result empty",
     "Progress",
 )
+SUMMARY_PASS_RATE_ROWS: tuple[int, ...] = tuple(range(3, 21))
 DEFAULT_CLEAR_COLUMNS = (
     "G",   # Test steps
     "H",   # Driver-level verified command output
@@ -820,7 +821,7 @@ def validate_wifi_llapi_report_template(
                 )
 
         summary_ws = wb[SUMMARY_SHEET_NAME]
-        required = {"Module", "Total Items", "Pass", "Fail", "Progress"}
+        required = {"Module", "Total Items", "Pass", "Fail", "To be confirmed", "Progress"}
 
         def _header_set(row_num: int) -> set[str]:
             return {
@@ -833,6 +834,14 @@ def validate_wifi_llapi_report_template(
                 f"Summary sheet missing required headers in row 2 or 3; "
                 f"expected columns: {SUMMARY_HEADERS}"
             )
+
+        for row in summary_ws.iter_rows():
+            for cell in row:
+                if "To be tested" in normalize_text(cell.value):
+                    raise TemplateValidationError(
+                        f"Summary sheet contains stale bucket label at {SUMMARY_SHEET_NAME}!{cell.coordinate}: "
+                        "expected 'To be confirmed'"
+                    )
 
         required_fail_formulas = {
             "F3": "N",
@@ -851,6 +860,16 @@ def validate_wifi_llapi_report_template(
                 raise TemplateValidationError(
                     f"Summary fail formula at {SUMMARY_SHEET_NAME}!{cell_ref} must reference "
                     f"{expected_ref}, got '{formula}'"
+                )
+
+        for row_number in SUMMARY_PASS_RATE_ROWS:
+            cell_ref = f"J{row_number}"
+            formula = normalize_text(summary_ws[cell_ref].value).replace("$", "")
+            expected = f"=IFERROR(E{row_number}/SUM(E{row_number}:F{row_number}),0)"
+            if formula != expected:
+                raise TemplateValidationError(
+                    f"Summary pass-rate formula at {SUMMARY_SHEET_NAME}!{cell_ref} must be "
+                    f"'{expected}', got '{summary_ws[cell_ref].value}'"
                 )
 
         return {"summary_sheet": SUMMARY_SHEET_NAME, "wifi_sheet": DEFAULT_SHEET_NAME}
@@ -931,7 +950,7 @@ def write_summary_sheet(
         ws.cell(row=r, column=7).value = row_data.get("to_be_tested", 0)
         ws.cell(row=r, column=8).value = row_data.get("not_supported", 0)
         ws.cell(row=r, column=9).value = row_data.get("skip", 0)
-        ws.cell(row=r, column=10).value = f"=IFERROR(E{r}/SUM(E{r}:G{r}),0)"
+        ws.cell(row=r, column=10).value = f"=IFERROR(E{r}/SUM(E{r}:F{r}),0)"
         ws.cell(row=r, column=11).value = f"=C{r}-SUM(E{r}:I{r})"
         ws.cell(row=r, column=12).value = f"=IFERROR(D{r}/C{r},0)"
 

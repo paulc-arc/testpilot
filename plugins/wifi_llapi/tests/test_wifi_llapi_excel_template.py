@@ -398,7 +398,7 @@ def test_repo_template_summary_is_formula_driven_and_styled():
         '=COUNTIFS(Wifi_LLAPI!$A:$A,$B3&"*",Wifi_LLAPI!$N:$N,I$2)'
         '+COUNTIFS(Wifi_LLAPI!$A:$A,$B3&"*",Wifi_LLAPI!$N:$N,"N/A")'
     )
-    assert ws["J3"].value == "=IFERROR(E3/SUM(E3:G3),0)"
+    assert ws["J3"].value == "=IFERROR(E3/SUM(E3:F3),0)"
     assert ws["L3"].value == "=IFERROR(D3/C3,0)"
     assert ws["J3"].number_format == "0.00%"
     assert ws["L3"].number_format == "0.00%"
@@ -410,7 +410,7 @@ def test_repo_template_summary_is_formula_driven_and_styled():
         '=COUNTIFS(Wifi_LLAPI!$A:$A,$B15&"*",Wifi_LLAPI!$P:$P,E$2)'
     )
     assert ws["C8"].value == "=SUM(C3:C7)"
-    assert ws["J8"].value == "=IFERROR(E8/SUM(E8:G8),0)"
+    assert ws["J8"].value == "=IFERROR(E8/SUM(E8:F8),0)"
     assert ws["L8"].value == "=IFERROR(D8/C8,0)"
     assert ws["O4"].value == "=L8"
     assert ws["P4"].value == "=IFERROR(SUM(E8:G8)/C8,0)"
@@ -446,7 +446,7 @@ def _create_template_with_summary(path: Path) -> None:
     ws_summary["B1"] = "4.0.3"
     summary_headers = [
         "Module", "Object Category", "Total Items", "Tested Items",
-        "Pass", "Fail", "To be tested", "Not Supported", "Skip",
+        "Pass", "Fail", "To be confirmed", "Not Supported", "Skip",
         "Pass Rate", "result empty", "Progress",
     ]
     for col_idx, h in enumerate(summary_headers, start=1):
@@ -469,16 +469,20 @@ def _create_template_with_summary(path: Path) -> None:
         '=COUNTIFS(Wifi_LLAPI!$A:$A,$B3&"*",Wifi_LLAPI!$N:$N,I$2)'
         '+COUNTIFS(Wifi_LLAPI!$A:$A,$B3&"*",Wifi_LLAPI!$N:$N,"N/A")'
     )
-    ws_summary["J3"] = "=IFERROR(E3/SUM(E3:G3),0)"
+    ws_summary["J3"] = "=IFERROR(E3/SUM(E3:F3),0)"
     ws_summary["L3"] = "=IFERROR(D3/C3,0)"
     ws_summary["J3"].number_format = "0.00%"
     ws_summary["L3"].number_format = "0.00%"
     ws_summary["A9"] = "WiFi 6g"
     ws_summary["B9"] = "WiFi.AccessPoint"
     ws_summary["F9"] = '=COUNTIFS(Wifi_LLAPI!$A:$A,$B9&"*",Wifi_LLAPI!$O:$O,F$2)'
+    ws_summary["J9"] = "=IFERROR(E9/SUM(E9:F9),0)"
     ws_summary["A15"] = "WiFi 2.4g"
     ws_summary["B15"] = "WiFi.AccessPoint"
     ws_summary["F15"] = '=COUNTIFS(Wifi_LLAPI!$A:$A,$B15&"*",Wifi_LLAPI!$P:$P,F$2)'
+    ws_summary["J15"] = "=IFERROR(E15/SUM(E15:F15),0)"
+    for row in range(3, 21):
+        ws_summary[f"J{row}"] = f"=IFERROR(E{row}/SUM(E{row}:F{row}),0)"
 
     ws_wifi = wb.create_sheet("Wifi_LLAPI")
     row1_headers = [
@@ -536,6 +540,30 @@ def test_validate_wifi_llapi_template_rejects_raw_result_summary_fail_formula(tm
     wb.close()
 
     with pytest.raises(TemplateValidationError, match=r"Summary.*F3.*N"):
+        validate_wifi_llapi_report_template(p)
+
+
+def test_validate_wifi_llapi_template_rejects_stale_pass_rate_denominator(tmp_path: Path) -> None:
+    p = tmp_path / "template.xlsx"
+    _create_template_with_summary(p)
+    wb = load_workbook(p)
+    wb["Summary"]["J8"] = "=IFERROR(E8/SUM(E8:G8),0)"
+    wb.save(p)
+    wb.close()
+
+    with pytest.raises(TemplateValidationError, match=r"Summary.*J8.*E8:F8"):
+        validate_wifi_llapi_report_template(p)
+
+
+def test_validate_wifi_llapi_template_rejects_stale_summary_bucket_label(tmp_path: Path) -> None:
+    p = tmp_path / "template.xlsx"
+    _create_template_with_summary(p)
+    wb = load_workbook(p)
+    wb["Summary"]["B22"] = "Pass Rate is Pass / (Pass + Fail + To be tested)."
+    wb.save(p)
+    wb.close()
+
+    with pytest.raises(TemplateValidationError, match=r"stale bucket label.*B22"):
         validate_wifi_llapi_report_template(p)
 
 
@@ -617,7 +645,7 @@ def test_write_summary_sheet_hybrid_layout(tmp_path: Path) -> None:
     assert ws["B4"].value == "WiFi.AccessPoint"
     assert ws["E4"].value == 1   # pass
     assert ws["G4"].value == 1   # to_be_tested
-    assert ws["J4"].value == "=IFERROR(E4/SUM(E4:G4),0)"
+    assert ws["J4"].value == "=IFERROR(E4/SUM(E4:F4),0)"
     assert ws["L4"].value == "=IFERROR(D4/C4,0)"
     wb.close()
 
@@ -731,7 +759,7 @@ def test_validate_wifi_llapi_template_missing_wifi_sheet(tmp_path: Path) -> None
     ws.title = "Summary"
     summary_headers = [
         "Module", "Object Category", "Total Items", "Tested Items",
-        "Pass", "Fail", "To be tested", "Not Supported", "Skip",
+        "Pass", "Fail", "To be confirmed", "Not Supported", "Skip",
         "Pass Rate", "result empty", "Progress",
     ]
     for col_idx, h in enumerate(summary_headers, start=1):

@@ -70,13 +70,13 @@ For each case and each band:
 - `Pass`: raw band verdict is `Pass`.
 - `Fail`: only clear pass criteria mismatch, such as evaluate-phase
   `pass_criteria not satisfied` or an equivalent criteria mismatch reason.
-- `To be tested`: environment/configuration/session failures, inconclusive results,
+- `To be confirmed`: environment/configuration/session failures, inconclusive results,
   retry paths that did not reach valid criteria verification, and step command errors
   that do not clearly prove criteria mismatch.
 - `Not Supported`: raw band verdict is explicitly `Not Supported`, `not_supported`,
   or an equivalent supported spelling.
 - `Skip`: raw band verdict is explicitly `Skip` or `Skipped`.
-- `N/A`: retained in details, but excluded from pass/fail/to-be-tested totals.
+- `N/A`: retained in details, but excluded from pass/fail/to-be-confirmed totals.
 
 The raw `Wifi_LLAPI!I/J/K` cells remain the original runtime verdicts from JSON.
 The summary model is a projection layer; it does not rewrite evidence.
@@ -93,7 +93,7 @@ reason should prefer structured runtime fields in this order:
 5. `comment`
 
 The value should be compact enough for Excel review while preserving why a raw `Fail`
-was classified as `Fail` or `To be tested`.
+was classified as `Fail` or `To be confirmed`.
 
 ## Shared Summary Model
 
@@ -114,7 +114,7 @@ The model emits:
 - fail reason
 - band/category summary counts
 - diagnostic sub-counts, including env/config/inconclusive counts that were classified
-  into `To be tested`
+  into `To be confirmed`
 - raw verdict totals for traceability
 
 This avoids separate Excel, Markdown, and HTML implementations drifting over time.
@@ -139,7 +139,7 @@ structural mismatch. Required checks:
   - tested items
   - pass
   - fail
-  - to be tested
+  - to be confirmed
   - not supported
   - skip
   - pass rate
@@ -147,6 +147,9 @@ structural mismatch. Required checks:
 - Summary rows keep the template-owned Hybrid category layout, formulas, styles, merged
   ranges, and percent number formats. Runtime/report projection must not delete or
   regenerate this sheet.
+- Summary Pass Rate formulas count only confirmed pass/fail outcomes:
+  `Pass / (Pass + Fail)`. `To be confirmed` is tracked in its own column and is
+  intentionally excluded from the pass-rate denominator.
 
 If validation fails, stop and report the exact sheet/cell/header mismatch. Do not emit a
 partially trusted summary.
@@ -162,7 +165,7 @@ The reproject flow:
    - `I/J/K` keep raw band verdicts.
    - `M` receives fail reasoning.
    - hidden `N/O/P` receive projected summary buckets so env/setup/counter-zero
-     raw `Fail` results are counted as `To be tested`, while pass-criteria
+     raw `Fail` results are counted as `To be confirmed`, while pass-criteria
      mismatch remains `Fail`.
 5. Leave the `Summary` sheet untouched so its template formulas calculate from
    `Wifi_LLAPI` after workbook recalculation.
@@ -179,7 +182,7 @@ Markdown and HTML should expose:
 
 - top-level KPI counts
 - band/category Hybrid summary
-- diagnostic sub-counts for values classified under `To be tested`
+- diagnostic sub-counts for values classified under `To be confirmed`
 - per-case table with raw verdicts, projected bucket, diagnostic status, and fail reason
 - existing collapsible case details where available
 
@@ -191,8 +194,8 @@ alignment with the Excel Summary sheet.
 Offline tests only for the first implementation:
 
 1. Unit tests for classification:
-   - `FailEnv`, `FailConfig`, `Inconclusive` classify as `To be tested`
-   - step command failure without criteria mismatch classifies as `To be tested`
+   - `FailEnv`, `FailConfig`, `Inconclusive` classify as `To be confirmed`
+   - step command failure without criteria mismatch classifies as `To be confirmed`
    - evaluate-phase `pass_criteria not satisfied` classifies as `Fail`
    - raw `Not Supported` and `Skip` keep their own buckets
 2. Unit tests for category mapping:

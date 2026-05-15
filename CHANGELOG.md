@@ -22,6 +22,9 @@ preparation.
 - The `wifi_llapi` Excel `Summary` sheet now counts `Fail` from hidden
   projected summary buckets, so environment/setup/counter-zero failures remain
   outside the pass-criteria failure count.
+- The `wifi_llapi` Excel `Summary` bucket formerly shown as `To be tested` is
+  now shown as `To be confirmed`, and Summary Pass Rate formulas divide by
+  `Pass + Fail` only.
 
 ### Added
 

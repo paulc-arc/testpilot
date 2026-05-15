@@ -462,7 +462,7 @@ class HtmlReporter:
             "<h2>WiFi LLAPI Hybrid Summary</h2>",
             "<table><thead><tr>",
             "<th>Band</th><th>Category</th><th>Total</th><th>Tested</th>",
-            "<th>Pass</th><th>Fail</th><th>To be tested</th>",
+            "<th>Pass</th><th>Fail</th><th>To be confirmed</th>",
             "<th>Not Supported</th><th>Skip</th><th>Pass Rate</th>",
             "</tr></thead><tbody>",
         ]
