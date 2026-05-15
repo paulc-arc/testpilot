@@ -9,6 +9,8 @@ preparation.
 
 ## [Unreleased]
 
+- Post-v0.2.1 queue starts here.
+
 ## [0.2.1]
 
 ### Changed
