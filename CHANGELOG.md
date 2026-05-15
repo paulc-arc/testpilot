@@ -17,6 +17,8 @@ preparation.
   now use multiband delta contracts backed by source-aligned radio driver
   formulas, including deterministic broadcast/multicast triggers and the
   D336-aligned `D276` unicast-sent extractor.
+- `wifi-llapi reproject-summary` now preserves the styled template `Summary`
+  sheet and relies on its formulas to calculate from `Wifi_LLAPI` report data.
 
 ### Added
 

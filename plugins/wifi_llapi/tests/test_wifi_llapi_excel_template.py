@@ -319,6 +319,61 @@ def test_collect_alignment_issues_on_repo_template_case():
     assert issues == []
 
 
+def test_repo_template_summary_is_formula_driven_and_styled():
+    repo_root = Path(__file__).resolve().parents[3]
+    template = repo_root / "plugins/wifi_llapi/reports/templates/wifi_llapi_template.xlsx"
+
+    assert validate_wifi_llapi_report_template(template) == {
+        "summary_sheet": "Summary",
+        "wifi_sheet": "Wifi_LLAPI",
+    }
+
+    wb = load_workbook(template, data_only=False)
+    ws = wb["Summary"]
+
+    assert "A3:A8" in {str(rng) for rng in ws.merged_cells.ranges}
+    assert "C1:J1" in {str(rng) for rng in ws.merged_cells.ranges}
+    assert ws["C1"].value == "Detailed Statistics by Object"
+    assert ws["C1"].fill.fill_type == "solid"
+
+    assert ws["C3"].value == '=COUNTIF(Wifi_LLAPI!$A:$A,$B3&"*")'
+    assert ws["E3"].value == (
+        '=COUNTIFS(Wifi_LLAPI!$A:$A,$B3&"*",Wifi_LLAPI!$I:$I,E$2)'
+    )
+    assert ws["H3"].value == (
+        '=COUNTIFS(Wifi_LLAPI!$A:$A,$B3&"*",Wifi_LLAPI!$I:$I,H$2)'
+        '+COUNTIFS(Wifi_LLAPI!$A:$A,$B3&"*",Wifi_LLAPI!$E:$E,'
+        '"Not Supported",Wifi_LLAPI!$I:$I,"")'
+    )
+    assert ws["I3"].value == (
+        '=COUNTIFS(Wifi_LLAPI!$A:$A,$B3&"*",Wifi_LLAPI!$I:$I,I$2)'
+        '+COUNTIFS(Wifi_LLAPI!$A:$A,$B3&"*",Wifi_LLAPI!$I:$I,"N/A")'
+    )
+    assert ws["J3"].value == "=IFERROR(E3/SUM(E3:G3),0)"
+    assert ws["L3"].value == "=IFERROR(D3/C3,0)"
+    assert ws["J3"].number_format == "0.00%"
+    assert ws["L3"].number_format == "0.00%"
+
+    assert ws["E9"].value == (
+        '=COUNTIFS(Wifi_LLAPI!$A:$A,$B9&"*",Wifi_LLAPI!$J:$J,E$2)'
+    )
+    assert ws["E15"].value == (
+        '=COUNTIFS(Wifi_LLAPI!$A:$A,$B15&"*",Wifi_LLAPI!$K:$K,E$2)'
+    )
+    assert ws["C8"].value == "=SUM(C3:C7)"
+    assert ws["J8"].value == "=IFERROR(E8/SUM(E8:G8),0)"
+    assert ws["L8"].value == "=IFERROR(D8/C8,0)"
+    assert ws["O4"].value == "=L8"
+    assert ws["P4"].value == "=IFERROR(SUM(E8:G8)/C8,0)"
+    assert ws["O5"].value == "=L14"
+    assert ws["P5"].value == "=IFERROR(SUM(E14:G14)/C14,0)"
+    assert ws["O6"].value == "=L20"
+    assert ws["P6"].value == "=IFERROR(SUM(E20:G20)/C20,0)"
+    for cell in ("O4", "P4", "O5", "P5", "O6", "P6"):
+        assert ws[cell].number_format == "0.00%"
+    wb.close()
+
+
 # ---------------------------------------------------------------------------
 # Task 2: template validation and summary sheet writer
 # ---------------------------------------------------------------------------

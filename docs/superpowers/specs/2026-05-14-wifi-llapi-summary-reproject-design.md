@@ -144,8 +144,9 @@ structural mismatch. Required checks:
   - skip
   - pass rate
   - progress
-- Summary rows either already match the Hybrid category layout or can be updated during
-  implementation to match it.
+- Summary rows keep the template-owned Hybrid category layout, formulas, styles, merged
+  ranges, and percent number formats. Runtime/report projection must not delete or
+  regenerate this sheet.
 
 If validation fails, stop and report the exact sheet/cell/header mismatch. Do not emit a
 partially trusted summary.
@@ -160,7 +161,8 @@ The reproject flow:
 4. Fill `Wifi_LLAPI!G/H/I/J/K/L/M` from JSON case data:
    - `I/J/K` keep raw band verdicts.
    - `M` receives fail reasoning.
-5. Write or refresh the `Summary` sheet using the shared summary model.
+5. Leave the `Summary` sheet untouched so its template formulas calculate from
+   `Wifi_LLAPI` after workbook recalculation.
 6. Generate Markdown, HTML, and JSON reports from the same summary model.
 7. Preserve enough metadata in JSON to identify:
    - source JSON path
@@ -204,7 +206,8 @@ Offline tests only for the first implementation:
    - `.xlsx`, `.md`, `.html`, and `.json` are created
    - `Wifi_LLAPI!I/J/K` keep raw verdicts
    - `Wifi_LLAPI!M` contains fail reasoning for failed cases
-   - `Summary` contains Hybrid band/category counts
+   - `Summary` preserves template styles, merged ranges, percent formats, and formulas
+     linked to `Wifi_LLAPI`
 
 No live serialwrap, DUT, or STA commands are part of this verification.
 

@@ -1,8 +1,9 @@
 """Offline reproject orchestration for wifi_llapi reports.
 
-Reads an existing JSON result bundle and a checked-in Excel template,
-builds a fresh Summary + Wifi_LLAPI workbook, and emits Markdown / JSON /
-HTML companion reports – all into an isolated output directory.
+Reads an existing JSON result bundle and a checked-in Excel template, fills the
+Wifi_LLAPI sheet while preserving the template-owned Summary sheet, and emits
+Markdown / JSON / HTML companion reports – all into an isolated output
+directory.
 """
 
 from __future__ import annotations
@@ -20,7 +21,6 @@ from testpilot.reporting.wifi_llapi_excel import (
     finalize_report_metadata,
     read_wifi_llapi_template_objects,
     validate_wifi_llapi_report_template,
-    write_summary_sheet,
 )
 from testpilot.reporting.wifi_llapi_summary import (
     SUMMARY_POLICY_VERSION,
@@ -118,11 +118,9 @@ def reproject_wifi_llapi_report(
         )
         case_results_typed.append(cr)
 
-    # Fill result columns in XLSX
+    # Fill result columns in XLSX. Summary stays template-owned so existing
+    # formulas, styles, merged ranges, and percent formats are preserved.
     fill_case_results(actual_report_path, case_results_typed)
-
-    # Write Summary sheet
-    write_summary_sheet(actual_report_path, summary)
 
     # Store run metadata in hidden _meta sheet
     source_meta: dict[str, Any] = source_data.get("meta", {})
