@@ -14,6 +14,8 @@ preparation.
   checks, retries safe STA reconnect paths, and prefers `wld_gen` stack reload
   before AP bounce so env-fail cases can reach the test body instead of stalling
   in `setup_env` / `verify_env`.
+- `wifi_llapi` custom AP-only setup now recovers transient DUT `wl bss` down
+  checks by reloading the affected AP profile before failing `sta_env_setup`.
 
 ## [0.2.1]
 
