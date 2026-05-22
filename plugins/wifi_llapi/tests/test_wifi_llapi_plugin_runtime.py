@@ -1702,6 +1702,65 @@ def test_setup_env_reloads_custom_dut_ap_before_sta_link_check(monkeypatch):
     plugin.teardown(case, topology=topology)
 
 
+def test_setup_env_recovers_dut_bss_down_in_ap_only_custom_setup(monkeypatch):
+    plugin = _load_plugin()
+    topology = _FakeTopology()
+    recorder = _FactoryRecorder()
+    _install_fake_factory(monkeypatch, recorder)
+    original_execute = _FakeTransport.execute
+    bss_checks = 0
+    recovery_hostapd_calls: list[str] = []
+
+    def fake_execute(self: _FakeTransport, command: str, timeout: float = 30.0) -> dict[str, Any]:
+        nonlocal bss_checks
+        if self.transport_type == "serial" and command == "wl -i wl2 bss":
+            self.executed_commands.append(command)
+            bss_checks += 1
+            return {
+                "returncode": 0,
+                "stdout": "down" if bss_checks == 1 else "up",
+                "stderr": "",
+                "elapsed": 0.01,
+            }
+        if self.transport_type == "serial" and command == "hostapd -ddt -B /tmp/wl2_hapd.conf":
+            self.executed_commands.append(command)
+            recovery_hostapd_calls.append(command)
+            return {
+                "returncode": 0,
+                "stdout": "Configuration file: /tmp/wl2_hapd.conf",
+                "stderr": "",
+                "elapsed": 0.01,
+            }
+        return original_execute(self, command, timeout=timeout)
+
+    monkeypatch.setattr(_FakeTransport, "execute", fake_execute)
+
+    case = {
+        "id": "wifi-llapi-runtime-ap-only-bss-recovery",
+        "topology": {
+            "devices": {
+                "DUT": {"transport": "serial"},
+            }
+        },
+        "bands": ["2.4g"],
+        "sta_env_setup": """
+        DUT AP-only baseline:
+          ubus-cli WiFi.AccessPoint.5.Enable=1
+          wl -i wl2 bss
+        """,
+        "steps": [{"id": "s1", "target": "DUT", "command": 'ubus-cli "WiFi.AccessPoint.5.Enable?"'}],
+    }
+
+    assert plugin.setup_env(case, topology=topology) is True
+    dut = next(
+        transport for transport in recorder.transports if transport.transport_type == "serial"
+    )
+    assert recovery_hostapd_calls == ["hostapd -ddt -B /tmp/wl2_hapd.conf"]
+    assert dut.executed_commands.count("wl -i wl2 bss") >= 2
+    assert not case.get("_last_failure")
+    plugin.teardown(case, topology=topology)
+
+
 def test_setup_env_canonicalizes_multiline_printf_for_transport(monkeypatch):
     plugin = _load_plugin()
     topology = _FakeTopology()
