@@ -1597,7 +1597,8 @@ class Plugin(PluginBase):
         for band in sorted(bands):
             if self._reload_custom_dut_ap(dut, case_id=case_id, band=band):
                 continue
-            iface = self._sta_band_iface(band) or ""
+            profile = self._band_baseline_profile(band) or {}
+            ap = str(profile.get("ap", ""))
             self._record_runtime_failure(
                 case,
                 phase="setup_env",
@@ -1606,7 +1607,7 @@ class Plugin(PluginBase):
                 reason_code="dut_custom_ap_reload_failed",
                 device="DUT",
                 band=band,
-                command=f"hostapd -ddt -B /tmp/{iface}_hapd.conf" if iface else "",
+                command=f"ubus-cli WiFi.AccessPoint.{ap}.Enable=1" if ap else "",
             )
             return False
         return True
@@ -1624,35 +1625,107 @@ class Plugin(PluginBase):
                 self._execute_env_command(dut, bss_command, timeout=10.0),
             )
 
-        conf_path = f"/tmp/{iface}_hapd.conf"
-        for command in (
-            f"pid=$(pgrep -f '{conf_path}' 2>/dev/null | head -n1); if [ -n \"$pid\" ]; then kill \"$pid\" 2>/dev/null || true; fi",
+        # Use LLAPI AP-toggle to reload the custom AP without overwriting
+        # case-specific SSID/security settings already written by sta_env_setup.
+        # Manual hostapd restart is avoided because it can hang and poison
+        # subsequent auto-baseline cases.
+        profile = self._band_baseline_profile(normalized_band)
+        if profile is None:
+            log.warning(
+                "[%s] setup_env: %s no profile for band=%s, cannot reload custom AP",
+                self.name,
+                case_id,
+                normalized_band,
+            )
+            return False
+        ap = str(profile["ap"])
+        secondary_ap = str(profile["secondary_ap"])
+        toggle_commands = (
+            f"ubus-cli WiFi.AccessPoint.{secondary_ap}.Enable=0",
+            f"ubus-cli WiFi.AccessPoint.{ap}.Enable=0",
             "sleep 2",
-            f"rm -f /var/run/hostapd/{iface} /var/run/hostapd/{iface}.1",
-            f"wl -i {iface} ap 1",
-            f"wl -i {iface} up",
-            f"ifconfig {iface} up",
-            f"hostapd -ddt -B {conf_path}",
-            "sleep 2",
-            f"wl -i {iface} bss up",
-            "sleep 2",
-        ):
+            f"ubus-cli WiFi.AccessPoint.{ap}.Enable=1",
+            "sleep 3",
+        )
+        for command in toggle_commands:
             result = self._execute_env_command(dut, command, timeout=15.0)
-            if command.startswith("hostapd ") and not self._env_command_succeeded(command, result):
+            if not self._env_command_succeeded(command, result):
                 log.warning(
-                    "[%s] setup_env: %s custom DUT AP reload failed band=%s cmd=%s out=%s",
+                    "[%s] setup_env: %s custom DUT AP toggle failed band=%s cmd=%s out=%s",
                     self.name,
                     case_id,
                     normalized_band,
                     self._preview_value(command, limit=96),
                     self._preview_value(self._env_output_text(result)),
                 )
+                self._restore_custom_dut_ap_after_reload_failure(
+                    dut,
+                    case_id=case_id,
+                    band=normalized_band,
+                    profile=profile,
+                )
                 return False
         bss_command = f"wl -i {iface} bss"
-        return self._env_command_succeeded(
-            bss_command,
-            self._execute_env_command(dut, bss_command, timeout=10.0),
+        bss_result = self._execute_env_command(dut, bss_command, timeout=10.0)
+        if self._env_command_succeeded(bss_command, bss_result):
+            return True
+        log.warning(
+            "[%s] setup_env: %s custom DUT AP still down after toggle band=%s out=%s",
+            self.name,
+            case_id,
+            normalized_band,
+            self._preview_value(self._env_output_text(bss_result)),
         )
+        return self._restore_custom_dut_ap_after_reload_failure(
+            dut,
+            case_id=case_id,
+            band=normalized_band,
+            profile=profile,
+        )
+
+    def _restore_custom_dut_ap_after_reload_failure(
+        self,
+        dut: Any,
+        *,
+        case_id: str,
+        band: str,
+        profile: dict[str, Any],
+    ) -> bool:
+        restore_commands = (
+            f"ubus-cli WiFi.Radio.{profile['radio']}.Enable=1",
+            f"ubus-cli WiFi.AccessPoint.{profile['secondary_ap']}.Enable=0",
+            f"ubus-cli WiFi.AccessPoint.{profile['ap']}.Enable=1",
+            "sleep 3",
+        )
+        restored = True
+        for command in restore_commands:
+            result = self._execute_env_command(dut, command, timeout=15.0)
+            if self._env_command_succeeded(command, result):
+                continue
+            restored = False
+            log.warning(
+                "[%s] setup_env: %s custom DUT AP restore failed band=%s cmd=%s out=%s",
+                self.name,
+                case_id,
+                band,
+                self._preview_value(command, limit=96),
+                self._preview_value(self._env_output_text(result)),
+            )
+        iface = str(profile.get("iface", "")).strip()
+        if not iface:
+            return False
+        bss_command = f"wl -i {iface} bss"
+        bss_result = self._execute_env_command(dut, bss_command, timeout=10.0)
+        bss_ok = self._env_command_succeeded(bss_command, bss_result)
+        if not bss_ok:
+            log.warning(
+                "[%s] setup_env: %s custom DUT AP restore left band=%s bss down out=%s",
+                self.name,
+                case_id,
+                band,
+                self._preview_value(self._env_output_text(bss_result)),
+            )
+        return restored and bss_ok
 
     def _run_sta_env_setup(self, case: dict[str, Any], topology: Any) -> bool:
         return self._run_yaml_env_script(case, topology, field_name="sta_env_setup")

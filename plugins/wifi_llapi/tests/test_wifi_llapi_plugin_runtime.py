@@ -1626,13 +1626,14 @@ def test_setup_env_reloads_custom_dut_ap_before_sta_link_check(monkeypatch):
     events: list[str] = []
 
     def fake_execute(self: _FakeTransport, command: str, timeout: float = 30.0) -> dict[str, Any]:
-        if self.transport_type == "serial" and command == "hostapd -ddt -B /tmp/wl0_hapd.conf":
+        # New safe reload: intercept LLAPI AP enable instead of hostapd direct restart.
+        if self.transport_type == "serial" and command == "ubus-cli WiFi.AccessPoint.1.Enable=1":
             self.executed_commands.append(command)
             events.append("dut_reload_wl0")
             dut_ap_reloaded["wl0"] = True
             return {
                 "returncode": 0,
-                "stdout": "Configuration file: /tmp/wl0_hapd.conf",
+                "stdout": "",
                 "stderr": "",
                 "elapsed": 0.01,
             }
@@ -1691,15 +1692,150 @@ def test_setup_env_reloads_custom_dut_ap_before_sta_link_check(monkeypatch):
     dut = next(
         transport for transport in recorder.transports if transport.transport_type == "serial"
     )
-    sta = next(
-        transport for transport in recorder.transports if transport.transport_type == "adb"
-    )
-    assert "hostapd -ddt -B /tmp/wl0_hapd.conf" in dut.executed_commands
+    # New reload path uses LLAPI AP toggle, NOT hostapd direct restart.
+    assert not any(
+        "hostapd -ddt -B" in command for command in dut.executed_commands
+    ), "hostapd direct restart must not appear in new reload path"
+    assert any(
+        command == "ubus-cli WiFi.AccessPoint.1.Enable=1" for command in dut.executed_commands
+    ), "LLAPI AP enable must appear in new reload path"
     assert not any(
         "wpa_passphrase=00000000" in command for command in dut.executed_commands
     )
     assert events.index("dut_reload_wl0") < events.index("sta_link_wl0")
     plugin.teardown(case, topology=topology)
+
+
+def test_setup_env_custom_dut_ap_reload_bss_down_recovery(monkeypatch):
+    """AP-only path: call _reload_custom_dut_ap directly (no STA transport) to
+    verify that a DUT wl0 bss->down state is recovered by the safe LLAPI toggle
+    and NOT by a manual hostapd restart."""
+    plugin = _load_plugin()
+    dut = _FakeTransport("serial", {})
+    plugin._transports["DUT"] = dut
+    bss_up_after_toggle: dict[str, bool] = {"done": False}
+    original_execute = _FakeTransport.execute
+
+    def fake_execute(self: _FakeTransport, command: str, timeout: float = 30.0) -> dict[str, Any]:
+        # LLAPI Enable=1 marks the toggle as done; BSS becomes up afterward.
+        if command == "ubus-cli WiFi.AccessPoint.1.Enable=1":
+            self.executed_commands.append(command)
+            bss_up_after_toggle["done"] = True
+            return {"returncode": 0, "stdout": "", "stderr": "", "elapsed": 0.01}
+        if command.startswith("wl -i wl0") and command.endswith(" bss"):
+            self.executed_commands.append(command)
+            if bss_up_after_toggle["done"]:
+                return {"returncode": 0, "stdout": "up", "stderr": "", "elapsed": 0.01}
+            # BSS is down before the toggle fires.
+            return {"returncode": 0, "stdout": "down", "stderr": "", "elapsed": 0.01}
+        return original_execute(self, command, timeout=timeout)
+
+    monkeypatch.setattr(_FakeTransport, "execute", fake_execute)
+
+    result = plugin._reload_custom_dut_ap(dut, case_id="test-ap-only-bss-down", band="5g")
+
+    assert result is True, "_reload_custom_dut_ap must succeed once BSS comes up after toggle"
+    # LLAPI disable/re-enable must have been issued (no hostapd restart).
+    assert any(
+        "WiFi.AccessPoint.1.Enable=0" in cmd for cmd in dut.executed_commands
+    ), "AP disable must appear during toggle"
+    assert any(
+        cmd == "ubus-cli WiFi.AccessPoint.1.Enable=1" for cmd in dut.executed_commands
+    ), "AP re-enable must appear during toggle"
+    assert not any(
+        "hostapd -ddt" in cmd for cmd in dut.executed_commands
+    ), "manual hostapd restart must not appear in AP-only reload path"
+    # Final BSS probe must have been issued and returned 'up'.
+    bss_probes = [cmd for cmd in dut.executed_commands if cmd.startswith("wl -i wl0") and cmd.endswith(" bss")]
+    assert bss_probes, "at least one wl -i wl0 bss probe must be issued"
+
+
+def test_setup_env_custom_dut_ap_reload_restores_bss_after_failed_probe(monkeypatch):
+    plugin = _load_plugin()
+    dut = _FakeTransport("serial", {})
+    plugin._transports["DUT"] = dut
+    original_execute = _FakeTransport.execute
+    enable_count = {"ap1": 0}
+
+    def fake_execute(self: _FakeTransport, command: str, timeout: float = 30.0) -> dict[str, Any]:
+        if command == "ubus-cli WiFi.AccessPoint.1.Enable=1":
+            self.executed_commands.append(command)
+            enable_count["ap1"] += 1
+            return {"returncode": 0, "stdout": "", "stderr": "", "elapsed": 0.01}
+        if command.startswith("wl -i wl0") and command.endswith(" bss"):
+            self.executed_commands.append(command)
+            stdout = "up" if enable_count["ap1"] >= 2 else "down"
+            return {"returncode": 0, "stdout": stdout, "stderr": "", "elapsed": 0.01}
+        return original_execute(self, command, timeout=timeout)
+
+    monkeypatch.setattr(_FakeTransport, "execute", fake_execute)
+
+    assert plugin._reload_custom_dut_ap(dut, case_id="test-ap-restore-after-bss-probe", band="5g") is True
+    assert enable_count["ap1"] == 2
+    assert not any("hostapd -ddt" in cmd for cmd in dut.executed_commands)
+
+
+def test_setup_env_custom_dut_ap_reload_failure_returns_false(monkeypatch):
+    """If the safe LLAPI toggle reload fails (secondary AP disable errors out),
+    setup_env must return False; teardown/disconnect still runs without error
+    and leaves all transports disconnected and _transports cleared."""
+    plugin = _load_plugin()
+    topology = _FakeTopology()
+    recorder = _FactoryRecorder()
+    _install_fake_factory(monkeypatch, recorder)
+    original_execute = _FakeTransport.execute
+
+    def fake_execute(self: _FakeTransport, command: str, timeout: float = 30.0) -> dict[str, Any]:
+        if self.transport_type != "serial":
+            return original_execute(self, command, timeout=timeout)
+        # Disable secondary AP returns error so toggle fails immediately.
+        if command == "ubus-cli WiFi.AccessPoint.2.Enable=0":
+            self.executed_commands.append(command)
+            return {
+                "returncode": 1,
+                "stdout": "",
+                "stderr": "Error: command failed",
+                "elapsed": 0.01,
+            }
+        return original_execute(self, command, timeout=timeout)
+
+    monkeypatch.setattr(_FakeTransport, "execute", fake_execute)
+
+    case = {
+        "id": "wifi-llapi-runtime-custom-dut-ap-reload-fail",
+        "topology": {
+            "devices": {
+                "DUT": {"transport": "serial"},
+                "STA": {"transport": "adb"},
+            }
+        },
+        "bands": ["5g"],
+        "sta_env_setup": """
+        DUT 5G AP custom:
+          ubus-cli WiFi.SSID.4.SSID=TestPilot_FailCase
+          ubus-cli WiFi.AccessPoint.1.Enable=1
+        STA 5G connect verify:
+          iw dev wl0 link
+        """,
+        "verification_command": "wl -i wl0 assoclist",
+        "steps": [{"id": "s1", "command": 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.*.MACAddress?"'}],
+    }
+
+    assert plugin.setup_env(case, topology=topology) is False
+    # Capture transports before teardown clears them.
+    all_transports = list(recorder.transports)
+    dut = next(
+        transport for transport in recorder.transports if transport.transport_type == "serial"
+    )
+    assert "ubus-cli WiFi.AccessPoint.1.Enable=1" in dut.executed_commands
+    # teardown must not raise even after failed setup.
+    plugin.teardown(case, topology=topology)
+    # All transports must be disconnected and the plugin transport map cleared.
+    assert not plugin._transports, "plugin._transports must be empty after teardown"
+    for transport in all_transports:
+        assert not transport.is_connected, (
+            f"transport {transport.transport_type} must be disconnected after teardown"
+        )
 
 
 def test_setup_env_canonicalizes_multiline_printf_for_transport(monkeypatch):
