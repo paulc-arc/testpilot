@@ -1478,6 +1478,18 @@ class Plugin(PluginBase):
             if not self._env_command_succeeded(command, result):
                 if (
                     field_name == "sta_env_setup"
+                    and target_key == "DUT"
+                    and self._is_dut_bss_down_check_failure(command, result)
+                ):
+                    recover_band = self._band_from_text(command)
+                    if recover_band and self._reload_custom_dut_ap(
+                        transport,
+                        case_id=case_id,
+                        band=recover_band,
+                    ):
+                        continue
+                if (
+                    field_name == "sta_env_setup"
                     and str(target_name).strip().upper() == "STA"
                     and self._is_sta_link_check_command(command)
                 ):
@@ -1575,6 +1587,13 @@ class Plugin(PluginBase):
                 ):
                     return False
         return True
+
+    @classmethod
+    def _is_dut_bss_down_check_failure(cls, command: str, result: dict[str, Any]) -> bool:
+        normalized_command = cls._normalize_command_text(command).lower()
+        if not re.fullmatch(r"wl -i wl[012](?:\.\d+)? bss", normalized_command):
+            return False
+        return cls._env_output_text(result).strip().lower() == "down"
 
     @classmethod
     def _custom_dut_ap_reload_band_from_command(cls, command: str) -> str:
