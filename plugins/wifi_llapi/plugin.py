@@ -1984,9 +1984,23 @@ class Plugin(PluginBase):
         return tuple(seen)
 
     def _prepare_custom_sta_env_setup(self, case: dict[str, Any], topology: Any) -> bool:
-        if bands := self._custom_sta_env_setup_bands(case, topology):
-            if not self._run_sta_band_baseline(self._case_for_bands(case, bands)):
+        bands = self._custom_sta_env_setup_bands(case, topology)
+        scoped_case: dict[str, Any] | None = None
+        if bands:
+            scoped_case = self._case_for_bands(case, bands)
+            if not self._run_sta_band_baseline(scoped_case):
                 return False
+        # First attempt: replay the custom sta_env_setup as usual.
+        if self._run_sta_env_setup(case, topology):
+            return True
+        # Stronger path: first attempt failed; run a full STA band connect
+        # sequence to recover from stale STA state, then retry the replay.
+        # _run_sta_band_baseline alone is not sufficient when STA is disconnected.
+        # If no bands are available for recovery, there is nothing to repair.
+        if not bands or scoped_case is None:
+            return False
+        if not self._run_sta_band_connect_sequence(scoped_case):
+            return False
         return self._run_sta_env_setup(case, topology)
 
     @classmethod
@@ -3659,6 +3673,9 @@ class Plugin(PluginBase):
         if not self._ensure_sta_band_ready(scoped_case, topology):
             return False
         case["_active_step_band"] = normalized_band
+        rebuilt: set[str] = case.get("_env_bands_rebuilt") or set()
+        rebuilt.add(normalized_band)
+        case["_env_bands_rebuilt"] = rebuilt
         return True
 
     def _read_sta_available_bands(self, topology: Any) -> None:
@@ -3685,10 +3702,29 @@ class Plugin(PluginBase):
             self.teardown(case, topology)
         self._sta_env_verified = False
         case.pop("_active_step_band", None)
+        case.pop("_env_bands_rebuilt", None)
         self._read_sta_available_bands(topology)
         case.pop("_last_failure", None)
         if not self._open_case_transports(case, topology, run_case_setup=True):
             return False
+        # Pre-build the initial STA band for auto-prepared cases so that verify_env
+        # can use the fast-path (connectivity-only check) instead of a full rebuild.
+        if self._should_auto_prepare_wifi_bands(case):
+            selected_bands = self._selected_sta_bands(case)
+            initial_band = selected_bands[0] if selected_bands else ""
+            if initial_band and not self._prepare_case_band(case, topology, initial_band):
+                selected_bands = self._selected_sta_bands(case)
+                self._record_runtime_failure(
+                    case,
+                    phase="setup_env",
+                    comment="STA band baseline/connect failed",
+                    category="environment",
+                    reason_code="sta_band_link_failed",
+                    device="STA",
+                    band=selected_bands[0] if len(selected_bands) == 1 else "",
+                    metadata={"bands": list(selected_bands)},
+                )
+                return False
         self._sta_env_verified = True
         return True
 
@@ -3735,20 +3771,52 @@ class Plugin(PluginBase):
             self._execute_env_command(sta, "dmesg -n 1", timeout=5.0)
             selected_bands = self._selected_sta_bands(case)
             initial_band = selected_bands[0] if selected_bands else ""
-            if not self._prepare_case_band(case, topology, initial_band):
-                selected_bands = self._selected_sta_bands(case)
-                self._record_runtime_failure(
-                    case,
-                    phase="verify_env",
-                    comment="STA band baseline/connect failed",
-                    category="environment",
-                    reason_code="sta_band_not_ready",
-                    device="STA",
-                    band=selected_bands[0] if len(selected_bands) == 1 else "",
-                    metadata={"bands": list(selected_bands)},
-                )
-                log.warning("[%s] verify_env: %s STA band baseline/connect failed", self.name, case_id)
-                return False
+            normalized_initial = self._normalize_band_name(initial_band)
+            rebuilt_bands: set[str] = case.get("_env_bands_rebuilt") or set()
+
+            if normalized_initial and normalized_initial in rebuilt_bands:
+                # Band was already fully rebuilt earlier in this setup cycle (e.g. by a
+                # prior verify_env pass or _prepare_case_band call).  Skip the expensive
+                # baseline+connect rebuild and only verify current connectivity.
+                case["_active_step_band"] = normalized_initial
+                scoped_case = self._case_for_bands(case, (normalized_initial,))
+                if not self._verify_sta_band_connectivity(scoped_case):
+                    last_failure = self._snapshot_mapping(scoped_case.get("_last_failure"))
+                    if str(last_failure.get("phase", "")).strip().lower() == "verify_env":
+                        case["_last_failure"] = last_failure
+                    else:
+                        selected_bands = self._selected_sta_bands(case)
+                        self._record_runtime_failure(
+                            case,
+                            phase="verify_env",
+                            comment="STA band connectivity check failed (band pre-built)",
+                            category="environment",
+                            reason_code="sta_band_not_ready",
+                            device="STA",
+                            band=selected_bands[0] if len(selected_bands) == 1 else "",
+                            metadata={"bands": list(selected_bands)},
+                        )
+                    log.warning(
+                        "[%s] verify_env: %s STA band connectivity check failed (band pre-built)",
+                        self.name,
+                        case_id,
+                    )
+                    return False
+            else:
+                if not self._prepare_case_band(case, topology, initial_band):
+                    selected_bands = self._selected_sta_bands(case)
+                    self._record_runtime_failure(
+                        case,
+                        phase="verify_env",
+                        comment="STA band baseline/connect failed",
+                        category="environment",
+                        reason_code="sta_band_not_ready",
+                        device="STA",
+                        band=selected_bands[0] if len(selected_bands) == 1 else "",
+                        metadata={"bands": list(selected_bands)},
+                    )
+                    log.warning("[%s] verify_env: %s STA band baseline/connect failed", self.name, case_id)
+                    return False
 
             # Cold-boot multi-band cases are the most likely to expose first-switch
             # drift, so pre-warm the remaining bands once without making them hard

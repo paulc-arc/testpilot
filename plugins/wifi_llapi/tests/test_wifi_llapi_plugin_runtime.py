@@ -1015,6 +1015,10 @@ def test_execute_step_marks_wl_status_not_associated_as_failure(monkeypatch):
     recorder = _FactoryRecorder()
     _install_fake_factory(monkeypatch, recorder)
 
+    # Prevent real band-prep commands from running: the test only checks execute_step
+    # behaviour, not setup_env STA commands.
+    monkeypatch.setattr(plugin, "_ensure_sta_band_ready", lambda case, topo: True)
+
     case = {
         "id": "wifi-llapi-runtime-wl-status-fail",
         "topology": {"devices": {"STA": {"transport": "adb"}}},
@@ -1376,6 +1380,9 @@ def test_setup_env_skips_placeholder_sta_env_setup_and_leaves_auto_baseline_avai
         return True
 
     monkeypatch.setattr(plugin, "_run_sta_env_setup", fake_run_sta_env_setup)
+    # Prevent real band-prep commands: the test only checks that _run_sta_env_setup
+    # is NOT called when placeholders are present.
+    monkeypatch.setattr(plugin, "_ensure_sta_band_ready", lambda case, topo: True)
 
     case = {
         "id": "wifi-llapi-runtime-placeholder-sta-env",
@@ -1407,10 +1414,6 @@ def test_setup_env_skips_placeholder_sta_env_setup_and_leaves_auto_baseline_avai
     assert plugin.setup_env(case, topology=topology) is True
     assert plugin._should_auto_prepare_wifi_bands(case) is True
     assert replayed == []
-    sta = next(
-        transport for transport in recorder.transports if transport.transport_type == "adb"
-    )
-    assert sta.executed_commands == []
     plugin.teardown(case, topology=topology)
 
 
@@ -2736,7 +2739,10 @@ def test_verify_env_defers_failed_band_warmup_to_execute_step(monkeypatch):
     monkeypatch.setattr(plugin, "_prepare_case_band", fake_prepare)
 
     assert plugin.verify_env(case, topology=topology) is True
-    assert calls == ["5g", "6g", "2.4g"]
+    # "5g" was pre-built by setup_env (before fake_prepare was installed) so it
+    # is already in _env_bands_rebuilt; verify_env fast-paths it and only calls
+    # fake_prepare for the warmup bands "6g" and "2.4g".
+    assert calls == ["6g", "2.4g"]
     assert case["_active_step_band"] == "2.4g"
     plugin.teardown(case, topology=topology)
 
@@ -25251,3 +25257,407 @@ def test_d477_radio_stats_unknownprotopacketsreceived_evaluate():
         }
     }
     assert plugin.evaluate(case, results) is True
+
+
+# ---------------------------------------------------------------------------
+# reset+rebuild env path tests (TDD)
+# ---------------------------------------------------------------------------
+
+
+def test_prepare_custom_sta_env_setup_uses_sta_connect_sequence_when_sta_not_ready(monkeypatch):
+    """When _run_sta_env_setup fails on the first attempt, _prepare_custom_sta_env_setup must
+    call _run_sta_band_connect_sequence (stronger STA reset+rebuild) before retrying the replay.
+    This is the TDD anchor for the stronger custom-env reset+rebuild path.
+
+    Production context: 105 FailEnv cases are caused by STA being left in a stale disconnected
+    state from the previous test.  _run_sta_band_baseline alone cannot recover STA state.
+    This path ensures a full STA reconnect is performed before the second replay attempt.
+    """
+    plugin = _load_plugin()
+    topology = _FakeTopology()
+    recorder = _FactoryRecorder()
+    _install_fake_factory(monkeypatch, recorder)
+
+    called: list[str] = []
+    sta_env_setup_calls: dict[str, int] = {"count": 0}
+
+    monkeypatch.setattr(
+        plugin,
+        "_run_sta_band_baseline",
+        lambda case: called.append("dut_baseline") or True,
+    )
+    monkeypatch.setattr(
+        plugin,
+        "_run_sta_band_connect_sequence",
+        lambda case: called.append("sta_connect_sequence") or True,
+    )
+
+    def fake_run_sta_env_setup(case: dict[str, Any], topo: Any) -> bool:
+        del case, topo
+        sta_env_setup_calls["count"] += 1
+        called.append(f"sta_env_setup_attempt_{sta_env_setup_calls['count']}")
+        # First attempt fails (simulating stale STA state), second succeeds after rebuild
+        return sta_env_setup_calls["count"] > 1
+
+    monkeypatch.setattr(plugin, "_run_sta_env_setup", fake_run_sta_env_setup)
+
+    case = {
+        "id": "wifi-llapi-env-reset-rebuild-custom-ensure",
+        "bands": ["5g"],
+        "topology": {
+            "devices": {
+                "DUT": {"transport": "serial"},
+                "STA": {"transport": "adb"},
+            }
+        },
+        "sta_env_setup": """
+        DUT 5G setup:
+          ubus-cli WiFi.AccessPoint.1.Enable=1
+        STA 5G setup:
+          iw dev wl0 set type managed
+          iw dev wl0 link
+        """,
+        "steps": [{"id": "s1", "command": 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.*.MACAddress?"'}],
+    }
+
+    assert plugin.setup_env(case, topology=topology) is True
+
+    # After first sta_env_setup fails → STA connect sequence → retry
+    assert "sta_connect_sequence" in called, (
+        "_run_sta_band_connect_sequence must be called when sta_env_setup fails on first attempt, got: "
+        + str(called)
+    )
+    assert called.count("sta_connect_sequence") == 1, f"Expected exactly one rebuild, got: {called}"
+    assert sta_env_setup_calls["count"] == 2, (
+        f"Expected two sta_env_setup attempts, got {sta_env_setup_calls['count']}"
+    )
+    # Order must be: baseline → first_attempt → rebuild → retry
+    assert called.index("dut_baseline") < called.index("sta_env_setup_attempt_1"), str(called)
+    assert called.index("sta_env_setup_attempt_1") < called.index("sta_connect_sequence"), str(called)
+    assert called.index("sta_connect_sequence") < called.index("sta_env_setup_attempt_2"), str(called)
+    plugin.teardown(case, topology=topology)
+
+
+def test_prepare_case_band_marks_rebuilt_bands_in_case(monkeypatch):
+    """After _prepare_case_band succeeds for a band, that band must appear in
+    case['_env_bands_rebuilt'] so that verify_env can detect it on subsequent calls.
+    """
+    plugin = _load_plugin()
+    topology = _FakeTopology()
+    recorder = _FactoryRecorder()
+    _install_fake_factory(monkeypatch, recorder)
+
+    monkeypatch.setattr(
+        plugin,
+        "_ensure_sta_band_ready",
+        lambda case, topo: True,
+    )
+
+    case = {
+        "id": "wifi-llapi-env-reset-rebuild-mark-band",
+        "bands": ["5g"],
+        "topology": {
+            "devices": {
+                "DUT": {"transport": "serial"},
+                "STA": {"transport": "adb"},
+            }
+        },
+        "steps": [{"id": "s1", "command": 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.*.MACAddress?"'}],
+    }
+
+    # Open transports without running case setup (avoids band-prep side effects).
+    plugin._open_case_transports(case, topology, run_case_setup=False)
+    # Ensure the marker is absent before the call.
+    case.pop("_env_bands_rebuilt", None)
+
+    result = plugin._prepare_case_band(case, topology, "5g")
+
+    assert result is True
+    rebuilt = case.get("_env_bands_rebuilt")
+    assert isinstance(rebuilt, set), f"_env_bands_rebuilt should be a set, got {type(rebuilt)}"
+    assert "5g" in rebuilt, f"'5g' not in _env_bands_rebuilt: {rebuilt}"
+    plugin.teardown(case, topology=topology)
+
+
+def test_verify_env_skips_full_rebuild_when_band_already_rebuilt(monkeypatch):
+    """When case['_env_bands_rebuilt'] contains the initial band, verify_env must:
+    - skip the full _prepare_case_band rebuild for that band
+    - still call _verify_sta_band_connectivity to preserve the readiness check
+    """
+    plugin = _load_plugin()
+    topology = _FakeTopology()
+    recorder = _FactoryRecorder()
+    _install_fake_factory(monkeypatch, recorder)
+
+    rebuild_calls: list[str] = []
+    verify_connectivity_calls: list[str] = []
+
+    def fake_prepare_case_band(case, topo, band):
+        rebuild_calls.append(band)
+        return True
+
+    def fake_verify_sta_band_connectivity(case):
+        verify_connectivity_calls.append("called")
+        return True
+
+    monkeypatch.setattr(plugin, "_prepare_case_band", fake_prepare_case_band)
+    monkeypatch.setattr(plugin, "_verify_sta_band_connectivity", fake_verify_sta_band_connectivity)
+
+    case = {
+        "id": "wifi-llapi-env-reset-rebuild-skip-rebuild",
+        "bands": ["5g"],
+        "topology": {
+            "devices": {
+                "DUT": {"transport": "serial"},
+                "STA": {"transport": "adb"},
+            }
+        },
+        "steps": [{"id": "s1", "command": 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.*.MACAddress?"'}],
+    }
+
+    # Connect transports (setup_env would clear _env_bands_rebuilt, so use it here,
+    # then re-inject the pre-built marker to simulate a prior rebuild).
+    plugin._open_case_transports(case, topology, run_case_setup=False)
+    plugin._sta_env_verified = True
+    case["_env_bands_rebuilt"] = {"5g"}
+
+    result = plugin.verify_env(case, topology=topology)
+
+    assert result is True, f"verify_env returned False; case _last_failure={case.get('_last_failure')}"
+    # Full rebuild must be skipped for 5g (already in _env_bands_rebuilt)
+    assert "5g" not in rebuild_calls, (
+        "_prepare_case_band must NOT be called for 5g when it is in _env_bands_rebuilt, "
+        f"but rebuild_calls={rebuild_calls}"
+    )
+    # Readiness check (connectivity verify) must still run
+    assert verify_connectivity_calls, (
+        "_verify_sta_band_connectivity must still be called even when band is pre-built"
+    )
+    plugin.teardown(case, topology=topology)
+
+
+def test_verify_env_prebuilt_band_failure_keeps_detailed_last_failure(monkeypatch):
+    plugin = _load_plugin()
+    topology = _FakeTopology()
+    recorder = _FactoryRecorder()
+    _install_fake_factory(monkeypatch, recorder)
+
+    monkeypatch.setattr(plugin, "_prepare_case_band", lambda case, topo, band: True)
+
+    def fake_verify_sta_band_connectivity(case):
+        case["_last_failure"] = {
+            "case_id": case["id"],
+            "attempt_index": 1,
+            "phase": "verify_env",
+            "comment": "STA 5g link check failed",
+            "category": "environment",
+            "reason_code": "sta_band_link_failed",
+            "device": "STA",
+            "band": "5g",
+            "command": "iw dev wl0 link",
+            "output": "Not connected.",
+            "evidence": [],
+            "metadata": {},
+        }
+        return False
+
+    monkeypatch.setattr(plugin, "_verify_sta_band_connectivity", fake_verify_sta_band_connectivity)
+
+    case = {
+        "id": "wifi-llapi-env-reset-rebuild-preserve-last-failure",
+        "bands": ["5g"],
+        "topology": {
+            "devices": {
+                "DUT": {"transport": "serial"},
+                "STA": {"transport": "adb"},
+            }
+        },
+        "steps": [{"id": "s1", "command": 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.*.MACAddress?"'}],
+    }
+
+    plugin._open_case_transports(case, topology, run_case_setup=False)
+    plugin._sta_env_verified = True
+    case["_env_bands_rebuilt"] = {"5g"}
+
+    assert plugin.verify_env(case, topology=topology) is False
+    assert case["_last_failure"]["reason_code"] == "sta_band_link_failed"
+    assert case["_last_failure"]["command"] == "iw dev wl0 link"
+    assert case["_last_failure"]["output"] == "Not connected."
+    plugin.teardown(case, topology=topology)
+
+
+def test_setup_env_resets_env_bands_rebuilt_marker(monkeypatch):
+    """setup_env must clear stale case['_env_bands_rebuilt'] entries from the previous
+    cycle.  The new behaviour is:
+      - the old stale marker is discarded before transport opens
+      - for auto-prepared cases setup_env then pre-builds the initial band, so the
+        marker is repopulated with only the *current* cycle's rebuilt bands.
+    Using a stale marker that differs from the initial band ('2g' vs initial '5g')
+    proves the staleness-clearing invariant without conflating it with fresh prep.
+    """
+    plugin = _load_plugin()
+    topology = _FakeTopology()
+    recorder = _FactoryRecorder()
+    _install_fake_factory(monkeypatch, recorder)
+
+    monkeypatch.setattr(plugin, "_ensure_sta_band_ready", lambda case, topo: True)
+
+    case = {
+        "id": "wifi-llapi-env-reset-rebuild-reset-marker",
+        "bands": ["5g"],
+        "topology": {
+            "devices": {
+                "DUT": {"transport": "serial"},
+                "STA": {"transport": "adb"},
+            }
+        },
+        "steps": [{"id": "s1", "command": 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.*.MACAddress?"'}],
+        # Pre-existing stale marker from a previous setup cycle (different band)
+        "_env_bands_rebuilt": {"2g"},
+    }
+
+    assert plugin.setup_env(case, topology=topology) is True
+    rebuilt = case.get("_env_bands_rebuilt") or set()
+    # The stale '2g' marker must NOT survive into the new cycle
+    assert "2g" not in rebuilt, (
+        "setup_env must clear stale _env_bands_rebuilt entries from the previous cycle, "
+        "but '2g' is still present: " + str(rebuilt)
+    )
+    # The current cycle's initial band '5g' must be pre-built and recorded
+    assert "5g" in rebuilt, (
+        "setup_env must populate _env_bands_rebuilt with the initial band '5g' after "
+        "pre-building it, but got: " + str(rebuilt)
+    )
+    plugin.teardown(case, topology=topology)
+
+
+def test_setup_env_prepares_initial_band_for_auto_prepared_cases(monkeypatch):
+    """setup_env must call _prepare_case_band for the initial band when
+    _should_auto_prepare_wifi_bands is True (auto-prepared cases without sta_env_setup).
+    After setup_env returns True, case['_env_bands_rebuilt'] must contain the initial
+    band so that verify_env can use the fast-path connectivity check instead of a full
+    baseline+connect rebuild.
+    """
+    plugin = _load_plugin()
+    topology = _FakeTopology()
+    recorder = _FactoryRecorder()
+    _install_fake_factory(monkeypatch, recorder)
+
+    monkeypatch.setattr(plugin, "_ensure_sta_band_ready", lambda case, topo: True)
+
+    prepare_calls: list[str] = []
+    original_prepare = plugin._prepare_case_band
+
+    def tracking_prepare(case: dict, topo: Any, band: str) -> bool:
+        prepare_calls.append(band)
+        return original_prepare(case, topo, band)
+
+    monkeypatch.setattr(plugin, "_prepare_case_band", tracking_prepare)
+
+    case = {
+        "id": "wifi-llapi-env-reset-rebuild-auto-prepare-setup",
+        "bands": ["5g"],
+        "topology": {
+            "devices": {
+                "DUT": {"transport": "serial"},
+                "STA": {"transport": "adb"},
+            }
+        },
+        "steps": [{"id": "s1", "command": 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.*.MACAddress?"'}],
+    }
+
+    result = plugin.setup_env(case, topology=topology)
+
+    assert result is True, f"setup_env returned False; _last_failure={case.get('_last_failure')}"
+    assert "5g" in prepare_calls, (
+        "setup_env must call _prepare_case_band('5g') for auto-prepared cases, "
+        f"but prepare_calls={prepare_calls}"
+    )
+    rebuilt = case.get("_env_bands_rebuilt")
+    assert isinstance(rebuilt, set) and "5g" in rebuilt, (
+        f"setup_env must populate _env_bands_rebuilt with '5g', got: {rebuilt}"
+    )
+    plugin.teardown(case, topology=topology)
+
+
+def test_setup_env_fails_when_auto_prepared_initial_band_prep_fails(monkeypatch):
+    """setup_env must return False and record a setup_env/sta_band_link_failed failure
+    when the initial band preparation fails for auto-prepared cases (no sta_env_setup).
+    """
+    plugin = _load_plugin()
+    topology = _FakeTopology()
+    recorder = _FactoryRecorder()
+    _install_fake_factory(monkeypatch, recorder)
+
+    monkeypatch.setattr(plugin, "_ensure_sta_band_ready", lambda case, topo: False)
+
+    case = {
+        "id": "wifi-llapi-env-reset-rebuild-auto-prepare-fail",
+        "bands": ["5g"],
+        "topology": {
+            "devices": {
+                "DUT": {"transport": "serial"},
+                "STA": {"transport": "adb"},
+            }
+        },
+        "steps": [{"id": "s1", "command": 'ubus-cli "WiFi.AccessPoint.1.AssociatedDevice.*.MACAddress?"'}],
+    }
+
+    result = plugin.setup_env(case, topology=topology)
+
+    assert result is False, "setup_env must return False when initial band prep fails"
+    failure = case.get("_last_failure")
+    assert failure is not None, "setup_env must record a failure when band prep fails"
+    assert failure.get("phase") == "setup_env", (
+        f"failure phase must be 'setup_env', got: {failure.get('phase')}"
+    )
+    assert failure.get("reason_code") == "sta_band_link_failed", (
+        f"failure reason_code must be 'sta_band_link_failed', got: {failure.get('reason_code')}"
+    )
+    plugin.teardown(case, topology=topology)
+
+
+def test_prepare_custom_sta_env_setup_no_bands_first_fail_returns_false(monkeypatch):
+    """When sta_env_setup has no resolvable bands (empty bands list), and the first
+    _run_sta_env_setup attempt fails, _prepare_custom_sta_env_setup must return False
+    immediately WITHOUT calling _run_sta_env_setup a second time.
+
+    Previously the code fell through to a bare `return self._run_sta_env_setup(...)` call
+    even when the recovery block was skipped, causing a duplicate no-op retry.
+    """
+    plugin = _load_plugin()
+    topology = _FakeTopology()
+    recorder = _FactoryRecorder()
+    _install_fake_factory(monkeypatch, recorder)
+
+    sta_env_setup_calls: list[int] = []
+
+    def fake_run_sta_env_setup(case: dict[str, Any], topo: Any) -> bool:
+        del case, topo
+        sta_env_setup_calls.append(1)
+        return False  # always fails
+
+    monkeypatch.setattr(plugin, "_run_sta_env_setup", fake_run_sta_env_setup)
+    # Empty bands: no STA transport defined -> _custom_sta_env_setup_bands returns []
+    case = {
+        "id": "wifi-llapi-env-reset-rebuild-no-bands-fail",
+        "bands": [],
+        "topology": {
+            "devices": {
+                "DUT": {"transport": "serial"},
+            }
+        },
+        "sta_env_setup": "DUT only step",
+        "steps": [{"id": "s1", "command": 'ubus-cli "WiFi.AccessPoint.1."'}],
+    }
+
+    result = plugin._prepare_custom_sta_env_setup(case, topology)
+
+    assert result is False, (
+        "_prepare_custom_sta_env_setup must return False when bands empty and first attempt fails"
+    )
+    assert len(sta_env_setup_calls) == 1, (
+        f"_run_sta_env_setup must be called exactly once when bands is empty, "
+        f"got {len(sta_env_setup_calls)} calls"
+    )
+    plugin.teardown(case, topology=topology)
