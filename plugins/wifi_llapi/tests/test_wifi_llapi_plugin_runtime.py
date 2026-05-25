@@ -25565,3 +25565,49 @@ def test_setup_env_fails_when_auto_prepared_initial_band_prep_fails(monkeypatch)
         f"failure reason_code must be 'sta_band_link_failed', got: {failure.get('reason_code')}"
     )
     plugin.teardown(case, topology=topology)
+
+
+def test_prepare_custom_sta_env_setup_no_bands_first_fail_returns_false(monkeypatch):
+    """When sta_env_setup has no resolvable bands (empty bands list), and the first
+    _run_sta_env_setup attempt fails, _prepare_custom_sta_env_setup must return False
+    immediately WITHOUT calling _run_sta_env_setup a second time.
+
+    Previously the code fell through to a bare `return self._run_sta_env_setup(...)` call
+    even when the recovery block was skipped, causing a duplicate no-op retry.
+    """
+    plugin = _load_plugin()
+    topology = _FakeTopology()
+    recorder = _FactoryRecorder()
+    _install_fake_factory(monkeypatch, recorder)
+
+    sta_env_setup_calls: list[int] = []
+
+    def fake_run_sta_env_setup(case: dict[str, Any], topo: Any) -> bool:
+        del case, topo
+        sta_env_setup_calls.append(1)
+        return False  # always fails
+
+    monkeypatch.setattr(plugin, "_run_sta_env_setup", fake_run_sta_env_setup)
+    # Empty bands: no STA transport defined -> _custom_sta_env_setup_bands returns []
+    case = {
+        "id": "wifi-llapi-env-reset-rebuild-no-bands-fail",
+        "bands": [],
+        "topology": {
+            "devices": {
+                "DUT": {"transport": "serial"},
+            }
+        },
+        "sta_env_setup": "DUT only step",
+        "steps": [{"id": "s1", "command": 'ubus-cli "WiFi.AccessPoint.1."'}],
+    }
+
+    result = plugin._prepare_custom_sta_env_setup(case, topology)
+
+    assert result is False, (
+        "_prepare_custom_sta_env_setup must return False when bands empty and first attempt fails"
+    )
+    assert len(sta_env_setup_calls) == 1, (
+        f"_run_sta_env_setup must be called exactly once when bands is empty, "
+        f"got {len(sta_env_setup_calls)} calls"
+    )
+    plugin.teardown(case, topology=topology)

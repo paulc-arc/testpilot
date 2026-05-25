@@ -1996,9 +1996,11 @@ class Plugin(PluginBase):
         # Stronger path: first attempt failed; run a full STA band connect
         # sequence to recover from stale STA state, then retry the replay.
         # _run_sta_band_baseline alone is not sufficient when STA is disconnected.
-        if bands and scoped_case is not None:
-            if not self._run_sta_band_connect_sequence(scoped_case):
-                return False
+        # If no bands are available for recovery, there is nothing to repair.
+        if not bands or scoped_case is None:
+            return False
+        if not self._run_sta_band_connect_sequence(scoped_case):
+            return False
         return self._run_sta_env_setup(case, topology)
 
     @classmethod
